@@ -12,20 +12,24 @@ const ContactPage = () => {
             <strong>Michał Nowak Pracownia Złotnicza</strong>
           </p>
           <p>
-            ul. Przykładowa 123<br />
-            00-000 Warszawa
+            Kilińskiego 12,<br />
+            Busko-Zdrój, Poland
           </p>
           <p>
-            Telefon: <a href="tel:+48123456789" className="text-blue-600 hover:text-blue-800">+48 123 456 789</a>
+            Telefon: <a href="tel:+48501321347" className="text-blue-600 hover:text-blue-800">+48 501 321 347</a>
           </p>
           <p>
-            Email: <a href="mailto:kontakt@przykladowyemail.pl" className="text-blue-600 hover:text-blue-800">kontakt@przykladowyemail.pl</a>
+            Email: <a href="mailto:info@pznowak.pl" className="text-blue-600 hover:text-blue-800">info@pznowak.pl</a>
           </p>
+          {/* TODO: Add actual opening hours if available */}
           <p>
             Godziny otwarcia:<br />
-            Poniedziałek - Piątek: 10:00 - 18:00<br />
-            Sobota: 10:00 - 14:00 (po wcześniejszym umówieniu)
+            (Prosimy o kontakt w celu umówienia wizyty)
+            {/* Poniedziałek - Piątek: 10:00 - 18:00<br />
+            Sobota: 10:00 - 14:00 (po wcześniejszym umówieniu) */}
           </p>
+          {/* TODO: Add Instagram link */}
+          {/* <p>Instagram: <a href="https://www.instagram.com/nowak_pracownia_zlotnicza/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">nowak_pracownia_zlotnicza</a></p> */}
           {/* TODO: Add a map */}
           <div className="w-full h-48 bg-gray-200 mt-6 rounded flex items-center justify-center text-gray-500">Placeholder Mapy</div>
         </div>
