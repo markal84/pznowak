@@ -18,7 +18,7 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, initialO
       <h2>
         <button
           type="button"
-          className="flex items-center justify-between w-full py-4 px-2 text-left font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+          className="flex items-center justify-between w-full py-4 px-2 text-left font-medium hover:bg-gray-50 focus:outline-none"
           onClick={toggleOpen}
           aria-expanded={isOpen}
         >
@@ -37,7 +37,7 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, initialO
       <div
         className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}
       >
-        <div className="p-4 pt-0 text-gray-600">
+        <div className="p-4 pt-0">
           {children}
         </div>
       </div>

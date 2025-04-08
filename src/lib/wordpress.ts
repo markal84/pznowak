@@ -14,6 +14,7 @@ interface ProductACF {
   masa_karatowa?: string;
   dodatkowe_informacje?: string;
   pielegnacja?: string;
+  cena?: string;
   // Add other ACF fields here as needed
 }
 

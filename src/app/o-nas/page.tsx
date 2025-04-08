@@ -5,7 +5,7 @@ const AboutPage = () => {
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl md:text-4xl font-serif font-light mb-8 text-center">Michał Nowak - Pracownia Złotnicza</h1>
-      <div className="max-w-3xl mx-auto text-gray-700 leading-relaxed space-y-6">
+      <div className="max-w-3xl mx-auto leading-relaxed space-y-6">
         {/* Placeholder for an image */}
         <div className="w-full h-64 bg-gray-200 my-8 rounded flex items-center justify-center text-gray-500">Placeholder Obraz Pracowni/Artysty</div>
         <p>

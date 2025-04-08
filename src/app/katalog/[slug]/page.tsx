@@ -72,32 +72,32 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
           <div className="mb-8 border-t border-b border-gray-200 divide-y divide-gray-200">
             {acf.kolor_metalu && (
               <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-600">Kolor Metalu:</span>
-                <span className="font-medium text-gray-800">{acf.kolor_metalu}</span>
+                <span>Kolor Metalu:</span>
+                <span className="font-medium">{acf.kolor_metalu}</span>
               </div>
             )}
              {acf.czy_posiada_kamien && acf.rodzaj_kamienia && (
               <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-600">Rodzaj Kamienia:</span>
-                <span className="font-medium text-gray-800">{acf.rodzaj_kamienia}</span>
+                <span>Rodzaj Kamienia:</span>
+                <span className="font-medium">{acf.rodzaj_kamienia}</span>
               </div>
             )}
              {acf.czystosc_kamienia && (
               <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-600">Czystość Kamienia:</span>
-                <span className="font-medium text-gray-800">{acf.czystosc_kamienia}</span>
+                <span>Czystość Kamienia:</span>
+                <span className="font-medium">{acf.czystosc_kamienia}</span>
               </div>
             )}
             {acf.masa_karatowa && (
               <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-600">Masa Karatowa (ct):</span>
-                <span className="font-medium text-gray-800">{acf.masa_karatowa}</span>
+                <span>Masa Karatowa (ct):</span>
+                <span className="font-medium">{acf.masa_karatowa}</span>
               </div>
             )}
             {/* Add placeholder for price if needed */}
             {/* <div className="py-3 flex justify-between text-sm">
-              <span className="text-gray-600">Cena Orientacyjna:</span>
-              <span className="font-medium text-gray-800">Zapytaj o cenę</span>
+              <span>Cena Orientacyjna:</span>
+              <span className="font-medium">Zapytaj o cenę</span>
             </div> */}
           </div>
 
@@ -105,14 +105,14 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
            <div className="space-y-1">
              <AccordionItem title="Opis Produktu" initialOpen={true}>
               <div
-                className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                className="prose prose-sm max-w-none leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: product.content.rendered || '' }}
               />
              </AccordionItem>
               {acf.dodatkowe_informacje && (
                 <AccordionItem title="Dodatkowe Informacje">
                   <div
-                    className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                    className="prose prose-sm max-w-none leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: acf.dodatkowe_informacje }}
                   />
                 </AccordionItem>
@@ -120,7 +120,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
               {acf.pielegnacja && (
                  <AccordionItem title="Pielęgnacja">
                    <div
-                     className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                     className="prose prose-sm max-w-none leading-relaxed"
                      dangerouslySetInnerHTML={{ __html: acf.pielegnacja }}
                    />
                  </AccordionItem>

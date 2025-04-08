@@ -8,52 +8,74 @@ const CatalogPage = async () => {
   const products: Product[] = await getProducts();
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl md:text-4xl font-serif font-light mb-10 text-center">Katalog Biżuterii</h1>
-
-      {products.length === 0 ? (
-        <p className="text-center text-gray-600">Nie znaleziono produktów.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {products.map((product) => {
-            const imageUrl = product._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.large?.source_url
-                          || product._embedded?.['wp:featuredmedia']?.[0]?.source_url
-                          || '/placeholder-image.png';
-            const imageAlt = product._embedded?.['wp:featuredmedia']?.[0]?.alt_text || product.title.rendered;
-
-            return (
-              <div key={product.id} className="bg-white p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-shadow duration-300 flex flex-col overflow-hidden">
-                <div className="relative w-full h-64 mb-5 bg-gray-100 rounded overflow-hidden">
-                  <Image
-                    src={imageUrl}
-                    alt={imageAlt}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                </div>
-                <h2
-                  className="text-xl font-serif font-light mb-3 grow"
-                  dangerouslySetInnerHTML={{ __html: product.title.rendered }}
-                />
-                {product.excerpt?.rendered && (
-                  <div
-                    className="text-gray-600 text-sm mb-5 grow"
-                    dangerouslySetInnerHTML={{ __html: product.excerpt.rendered }}
-                  />
-                )}
-                <Link
-                  href={`/katalog/${product.slug}`}
-                  className="mt-auto text-center bg-gray-800 text-white hover:bg-gray-700 transition-colors duration-300 py-2 px-5 rounded-full text-sm font-medium self-center"
-                >
-                  Zobacz szczegóły
-                </Link>
-              </div>
-            );
-          })}
+    <>
+      {/* Top Section (Black Background) */}
+      <section className="py-20 md:py-28">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-playfair text-brand-gold tracking-wider mb-8">
+              WARSZTAT ZŁOTNICZY
+          </h1>
+          {/* Placeholder for single ring image */}
+          <div className="relative w-32 h-32 md:w-40 md:h-40 mx-auto mb-12">
+             <Image src="/placeholder-single-ring.png" alt="Pierścionek" fill style={{ objectFit: 'contain' }} />
+          </div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-playfair text-brand-gold tracking-wider">
+              KATALOG
+          </h2>
         </div>
-      )}
-    </div>
+      </section>
+
+      {/* Products Grid Section */}
+      <section className="w-full">
+         {/* Grid container for alternating backgrounds */}
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2"> {/* Adjusted cols for mockup */} 
+           {products.length === 0 ? (
+             <p className="text-center text-gray-700 col-span-full py-16">Nie znaleziono produktów.</p>
+           ) : (
+             products.map((product, index) => {
+               const imageUrl = product._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.large?.source_url
+                             || product._embedded?.['wp:featuredmedia']?.[0]?.source_url
+                             || '/placeholder-image.png';
+               const imageAlt = product._embedded?.['wp:featuredmedia']?.[0]?.alt_text || product.title.rendered;
+               const price = product.acf?.cena;
+
+               // Determine background color based on index
+               const bgColorClass = index % 2 === 0 ? 'bg-brand-beige' : 'bg-brand-light-gray';
+
+               return (
+                 // Grid Cell with alternating background and padding
+                 <div key={product.id} className={`${bgColorClass} flex items-center justify-center p-10 md:p-16 aspect-[4/5]`}> {/* Adjusted aspect ratio */} 
+                    <div className="flex flex-col text-center items-center w-full max-w-xs">
+                       <div className="relative w-full aspect-square mb-6">
+                         <Image
+                           src={imageUrl}
+                           alt={imageAlt}
+                           fill
+                           style={{ objectFit: 'contain' }}
+                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                         />
+                       </div>
+                       <h2
+                         className="text-xl md:text-2xl font-cormorant font-light mb-2 leading-tight"
+                         dangerouslySetInnerHTML={{ __html: product.title.rendered }}
+                       />
+                       {price && (
+                          <p className="text-base font-cormorant font-light mb-4">{price}</p>
+                       )}
+                       <Link
+                         href={`/katalog/${product.slug}`}
+                         className="mt-auto border border-gray-400 text-gray-700 hover:bg-black hover:text-white hover:border-black transition-colors duration-300 py-2 px-8 text-xs tracking-wider"
+                       >
+                         Zobacz szczegóły
+                       </Link>
+                    </div>
+                 </div>
+               );
+             })
+           )}
+         </div>
+      </section>
+    </>
   )
 }
 
