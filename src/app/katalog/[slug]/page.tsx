@@ -5,36 +5,36 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import AccordionItem from '@/components/AccordionItem'
 
-// Zaktualizowany interfejs – dopuszcza, że params może być zwykłym obiektem lub Promise
+// Uwaga: Next.js w funkcjach takich jak generateMetadata oczekuje, że
+// params będzie Promise, dlatego definiujemy interfejs w ten sposób.
 interface ProductPageProps {
-  params: { slug: string } | Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 // Generowanie dynamicznych metadanych (tytułu)
 export async function generateMetadata({ params }: ProductPageProps) {
-  // Oczekujemy rozwiązania params zanim użyjemy właściwości
+  // Oczekujemy rozwiązania params zanim użyjemy jego właściwości
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) {
     return { title: 'Produkt nie znaleziony' };
   }
   return {
-    title: product.title.rendered, // Używamy tytułu produktu jako tytułu strony
+    title: product.title.rendered,
   };
 }
 
-// Strona produktu jako asynchroniczny komponent
+// Asynchroniczny komponent strony produktu
 const SingleProductPage = async ({ params }: ProductPageProps) => {
   // Oczekujemy rozwiązania params zanim uzyskamy dostęp do slug
   const { slug } = await params;
   const product: Product | null = await getProductBySlug(slug);
 
-  // Jeśli produkt nie został znaleziony, wywołujemy stronę 404
   if (!product) {
     notFound();
   }
 
-  // Pobieramy adres URL obrazu (zabezpieczając się przed brakiem danych)
+  // Pobieramy adres URL obrazu – z fallbackiem, gdy brak danych
   const imageUrl =
     product._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.large?.source_url ||
     product._embedded?.['wp:featuredmedia']?.[0]?.source_url ||
@@ -62,7 +62,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
           </div>
         </div>
 
-        {/* Kolumna z szczegółami */}
+        {/* Kolumna ze szczegółami produktu */}
         <div className="lg:pt-4">
           <h1
             className="text-3xl md:text-4xl font-serif font-light mb-6"
@@ -123,7 +123,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
             )}
           </div>
 
-          {/* Przycisk kontaktowy */}
+          {/* Przycisk przekierowujący do strony kontaktowej */}
           <div className="mt-10">
             <a
               href="/kontakt"
