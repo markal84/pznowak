@@ -1,53 +1,55 @@
 import React from 'react'
 import { getProductBySlug } from '@/lib/wordpress'
 import type { Product } from '@/lib/wordpress'
-import { notFound } from 'next/navigation' // Import notFound for 404 handling
+import { notFound } from 'next/navigation'
 import Image from 'next/image'
-import AccordionItem from '@/components/AccordionItem' // Import AccordionItem
+import AccordionItem from '@/components/AccordionItem'
 
-// Define props for the page, including the dynamic slug parameter
+// Zaktualizowany interfejs – dopuszcza, że params może być zwykłym obiektem lub Promise
 interface ProductPageProps {
-  params: {
-    slug: string;
-  };
+  params: { slug: string } | Promise<{ slug: string }>;
 }
 
-// Generate dynamic metadata (title)
+// Generowanie dynamicznych metadanych (tytułu)
 export async function generateMetadata({ params }: ProductPageProps) {
-  const product = await getProductBySlug(params.slug);
+  // Oczekujemy rozwiązania params zanim użyjemy właściwości
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
   if (!product) {
     return { title: 'Produkt nie znaleziony' };
   }
   return {
-    title: product.title.rendered, // Use product title for page title
-    // You can add more metadata here, like description
-    // description: product.excerpt.rendered (make sure to sanitize or use a text version)
+    title: product.title.rendered, // Używamy tytułu produktu jako tytułu strony
   };
 }
 
-// The page component itself, now async
+// Strona produktu jako asynchroniczny komponent
 const SingleProductPage = async ({ params }: ProductPageProps) => {
-  const product: Product | null = await getProductBySlug(params.slug);
+  // Oczekujemy rozwiązania params zanim uzyskamy dostęp do slug
+  const { slug } = await params;
+  const product: Product | null = await getProductBySlug(slug);
 
-  // If product is not found, trigger a 404 page
+  // Jeśli produkt nie został znaleziony, wywołujemy stronę 404
   if (!product) {
     notFound();
   }
 
-  // Safely access embedded image URL and ACF fields
-  const imageUrl = product._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.large?.source_url
-                || product._embedded?.['wp:featuredmedia']?.[0]?.source_url
-                || '/placeholder-image.png'; // Fallback image
-  const imageAlt = product._embedded?.['wp:featuredmedia']?.[0]?.alt_text || product.title.rendered;
+  // Pobieramy adres URL obrazu (zabezpieczając się przed brakiem danych)
+  const imageUrl =
+    product._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.large?.source_url ||
+    product._embedded?.['wp:featuredmedia']?.[0]?.source_url ||
+    '/placeholder-image.png';
+  const imageAlt =
+    product._embedded?.['wp:featuredmedia']?.[0]?.alt_text || product.title.rendered;
 
-  // Extract ACF fields for easier access
+  // Ułatwiamy dostęp do dodatkowych pól (ACF)
   const acf = product.acf || {};
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-        {/* Image Column */}
-        <div className="w-full sticky top-24"> {/* Make image column sticky */} 
+        {/* Kolumna z obrazem */}
+        <div className="w-full sticky top-24">
           <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden shadow-lg">
             <Image
               src={imageUrl}
@@ -55,82 +57,76 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
               fill
               style={{ objectFit: 'cover' }}
               sizes="(max-width: 1024px) 100vw, 50vw"
-              priority // Load image faster on product page
+              priority
             />
-            {/* TODO: Gallery Thumbnails */}
           </div>
         </div>
 
-        {/* Details Column */}
+        {/* Kolumna z szczegółami */}
         <div className="lg:pt-4">
           <h1
             className="text-3xl md:text-4xl font-serif font-light mb-6"
             dangerouslySetInnerHTML={{ __html: product.title.rendered }}
           />
 
-          {/* Specification Section */}
+          {/* Sekcja specyfikacji */}
           <div className="mb-8 border-t border-b border-gray-200 divide-y divide-gray-200">
             {acf.kolor_metalu && (
               <div className="py-3 flex justify-between text-sm">
-                <span>Kolor Metalu:</span>
-                <span className="font-medium">{acf.kolor_metalu}</span>
+                <span className="text-gray-600">Kolor Metalu:</span>
+                <span className="font-medium text-gray-800">{acf.kolor_metalu}</span>
               </div>
             )}
-             {acf.czy_posiada_kamien && acf.rodzaj_kamienia && (
+            {acf.czy_posiada_kamien && acf.rodzaj_kamienia && (
               <div className="py-3 flex justify-between text-sm">
-                <span>Rodzaj Kamienia:</span>
-                <span className="font-medium">{acf.rodzaj_kamienia}</span>
+                <span className="text-gray-600">Rodzaj Kamienia:</span>
+                <span className="font-medium text-gray-800">{acf.rodzaj_kamienia}</span>
               </div>
             )}
-             {acf.czystosc_kamienia && (
+            {acf.czystosc_kamienia && (
               <div className="py-3 flex justify-between text-sm">
-                <span>Czystość Kamienia:</span>
-                <span className="font-medium">{acf.czystosc_kamienia}</span>
+                <span className="text-gray-600">Czystość Kamienia:</span>
+                <span className="font-medium text-gray-800">{acf.czystosc_kamienia}</span>
               </div>
             )}
             {acf.masa_karatowa && (
               <div className="py-3 flex justify-between text-sm">
-                <span>Masa Karatowa (ct):</span>
-                <span className="font-medium">{acf.masa_karatowa}</span>
+                <span className="text-gray-600">Masa Karatowa (ct):</span>
+                <span className="font-medium text-gray-800">{acf.masa_karatowa}</span>
               </div>
             )}
-            {/* Add placeholder for price if needed */}
-            {/* <div className="py-3 flex justify-between text-sm">
-              <span>Cena Orientacyjna:</span>
-              <span className="font-medium">Zapytaj o cenę</span>
-            </div> */}
           </div>
 
-           {/* Accordion Section */}
-           <div className="space-y-1">
-             <AccordionItem title="Opis Produktu" initialOpen={true}>
+          {/* Sekcja Accordion */}
+          <div className="space-y-1">
+            <AccordionItem title="Opis Produktu" initialOpen={true}>
               <div
-                className="prose prose-sm max-w-none leading-relaxed"
+                className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: product.content.rendered || '' }}
               />
-             </AccordionItem>
-              {acf.dodatkowe_informacje && (
-                <AccordionItem title="Dodatkowe Informacje">
-                  <div
-                    className="prose prose-sm max-w-none leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: acf.dodatkowe_informacje }}
-                  />
-                </AccordionItem>
-              )}
-              {acf.pielegnacja && (
-                 <AccordionItem title="Pielęgnacja">
-                   <div
-                     className="prose prose-sm max-w-none leading-relaxed"
-                     dangerouslySetInnerHTML={{ __html: acf.pielegnacja }}
-                   />
-                 </AccordionItem>
-              )}
-           </div>
+            </AccordionItem>
+            {acf.dodatkowe_informacje && (
+              <AccordionItem title="Dodatkowe Informacje">
+                <div
+                  className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: acf.dodatkowe_informacje }}
+                />
+              </AccordionItem>
+            )}
+            {acf.pielegnacja && (
+              <AccordionItem title="Pielęgnacja">
+                <div
+                  className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: acf.pielegnacja }}
+                />
+              </AccordionItem>
+            )}
+          </div>
 
-          {/* Contact Button */}
+          {/* Przycisk kontaktowy */}
           <div className="mt-10">
             <a
-              href="/kontakt" // Link to contact page
+              href="/kontakt"
               className="inline-block bg-gray-800 text-white hover:bg-gray-700 transition-colors duration-300 py-3 px-8 rounded-full text-lg font-medium"
             >
               Zapytaj o ten pierścionek
@@ -139,15 +135,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SingleProductPage
-
-// Optional: Generate static paths if you want to pre-render some product pages at build time
-// export async function generateStaticParams() {
-//   const products = await getProducts();
-//   return products.map((product) => ({
-//     slug: product.slug,
-//   }));
-// } 
+export default SingleProductPage;
