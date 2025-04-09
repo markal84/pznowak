@@ -18,8 +18,8 @@ const config: Config = {
       },
       colors: {
         'brand-gold': '#BFA181',
-        'brand-beige': '#EAE0D5',
-        'brand-light-gray': '#D8CFC3',
+        'brand-beige': '#fecaca',
+        'brand-light-gray': '#bfdbfe',
       }
     },
   },
