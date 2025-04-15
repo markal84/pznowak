@@ -60,7 +60,7 @@ export default function Home() {
             <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                {/* Placeholder for Image */}
                <div className="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center text-gray-500">Placeholder Obrazka</div>
-               <h3 className="text-xl font-serif font-light mb-2">Pierścionek "Klasyczna Elegancja"</h3>
+               <h3 className="text-xl font-serif font-light mb-2">Pierścionek &quot;Klasyczna Elegancja&quot;</h3>
                <p className="text-gray-600 text-sm mb-4">Złoty pierścionek z centralnie osadzonym brylantem.</p>
                <Link href="/katalog/produkt-1" className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
                   Zobacz szczegóły
@@ -70,7 +70,7 @@ export default function Home() {
              <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                 {/* Placeholder for Image */}
                <div className="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center text-gray-500">Placeholder Obrazka</div>
-               <h3 className="text-xl font-serif font-light mb-2">Pierścionek "Subtelny Blask"</h3>
+               <h3 className="text-xl font-serif font-light mb-2">Pierścionek &quot;Subtelny Blask&quot;</h3>
                <p className="text-gray-600 text-sm mb-4">Delikatny złoty pierścionek z szafirem otoczonym małymi diamentami.</p>
                <Link href="/katalog/produkt-2" className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
                   Zobacz szczegóły
