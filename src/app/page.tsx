@@ -1,29 +1,42 @@
-// import Image from "next/image"; // Remove unused import
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center text-center bg-gradient-to-r from-gray-100 to-gray-300 text-gray-800 overflow-hidden">
-        {/* Placeholder for a beautiful background image later */}
-        {/* <Image src="/path/to/hero-background.jpg" layout="fill" objectFit="cover" alt="Pracownia złotnicza tło" className="opacity-30"/> */}
-        <div className="relative z-10 p-8">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light mb-4 leading-tight">
-            Biżuteria tworzona z pasją,
-            <br /> specjalnie dla Ciebie.
-          </h1>
-          <p className="text-lg md:text-xl font-sans mb-8 max-w-2xl mx-auto">
-            Odkryj świat unikalnych pierścionków zaręczynowych i obrączek, wykonanych ręcznie z najwyższej jakości materiałów.
-          </p>
-          <Link
-            href="/katalog"
-            className="bg-gray-800 text-white hover:bg-gray-700 transition-colors duration-300 py-3 px-8 rounded-full text-lg font-medium inline-block"
-          >
-            Zobacz kolekcję
-          </Link>
-        </div>
-      </section>
+ {/* Hero Section */}
+<section className="relative h-[70vh] min-h-[500px] flex items-center justify-center text-center overflow-hidden">
+  {/* Background Image */}
+  <Image 
+    src="/hero.png" 
+    alt="Tło pracowni złotniczej" 
+    layout="fill" 
+    objectFit="cover" 
+    priority 
+    className="z-0"
+  />
+
+  {/* Dark Overlay */}
+  <div className="absolute inset-0 bg-black/50 z-10"></div>
+
+  {/* Content */}
+  <div className="relative z-20 px-6 py-12 text-white max-w-4xl">
+    <h1 className="text-5xl md:text-6xl font-serif font-semibold leading-tight drop-shadow-xl mb-6">
+      Tradycja, którą docenisz.<br />
+      Jakość, którą pokochasz.
+    </h1>
+    <p className="text-xl md:text-2xl text-white/90 mb-8 font-light drop-shadow">
+      Ręcznie tworzone pierścionki zaręczynowe i obrączki, przekazywane z pokolenia na pokolenie. Każdy z nich to małe dzieło sztuki.
+    </p>
+    <Link
+      href="/katalog"
+      className="bg-white text-gray-900 hover:bg-gray-100 transition-colors duration-300 py-3 px-8 rounded-full text-lg font-medium inline-block shadow-lg"
+    >
+      Zobacz kolekcję
+    </Link>
+  </div>
+</section>
+
 
       {/* About Us Snippet */}
       <section className="py-16 md:py-24">
@@ -47,7 +60,7 @@ export default function Home() {
             <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                {/* Placeholder for Image */}
                <div className="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center text-gray-500">Placeholder Obrazka</div>
-               <h3 className="text-xl font-serif font-light mb-2">Pierścionek &quot;Klasyczna Elegancja&quot;</h3>
+               <h3 className="text-xl font-serif font-light mb-2">Pierścionek "Klasyczna Elegancja"</h3>
                <p className="text-gray-600 text-sm mb-4">Złoty pierścionek z centralnie osadzonym brylantem.</p>
                <Link href="/katalog/produkt-1" className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
                   Zobacz szczegóły
@@ -57,7 +70,7 @@ export default function Home() {
              <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                 {/* Placeholder for Image */}
                <div className="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center text-gray-500">Placeholder Obrazka</div>
-               <h3 className="text-xl font-serif font-light mb-2">Pierścionek &quot;Subtelny Blask&quot;</h3>
+               <h3 className="text-xl font-serif font-light mb-2">Pierścionek "Subtelny Blask"</h3>
                <p className="text-gray-600 text-sm mb-4">Delikatny złoty pierścionek z szafirem otoczonym małymi diamentami.</p>
                <Link href="/katalog/produkt-2" className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
                   Zobacz szczegóły

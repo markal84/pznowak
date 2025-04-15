@@ -23,25 +23,28 @@ const Header = () => {
 
   return (
     <>
-      <header className='bg-white text-gray-800 shadow-sm sticky top-0 z-50'>
-        <div className='container mx-auto px-4 h-16 flex justify-between items-center'> {/* Fixed height */}
+      <header className='bg-white shadow-md sticky top-0 z-50'>
+        <div className='max-w-7xl mx-auto px-6 py-4 flex items-center justify-between'>
           {/* Logo */}
           <Link href="/" className='flex items-center'>
             <Image
-              src="/logo.png" // Make sure logo.png is in /public
-              alt="Michał Nowak Pracownia Złotnicza Logo"
-              width={120} // Adjusted size
-              height={120} // Adjusted size (assuming ~3:1 ratio)
+              src="/logo.png"
+              alt="Logo Michał Nowak"
+              width={120}
+              height={40}
               priority
             />
           </Link>
 
           {/* Desktop Navigation (Hidden on Mobile) */}
           <nav className='hidden md:block'>
-            <ul className='flex space-x-6'>
+            <ul className='flex space-x-6 text-base font-medium tracking-wide font-serif'>
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className='text-sm font-medium hover:text-blue-600 transition-colors'>
+                  <Link
+                    href={link.href}
+                    className="nav-link-hover"
+                  >
                     {link.label}
                   </Link>
                 </li>

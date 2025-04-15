@@ -15,6 +15,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@layer components {
+  .nav-link-hover {
+    @apply text-gray-800 transition-colors duration-300 border-b-2 border-transparent pb-1;
+    @apply hover:text-[#B8860B] hover:border-[#B8860B];
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

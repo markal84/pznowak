@@ -48,8 +48,8 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-        {/* Kolumna z obrazem */}
-        <div className="w-full sticky top-24">
+        {/* Image Column */}
+        <div className="w-full top-24">
           <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden shadow-lg">
             <Image
               src={imageUrl}
