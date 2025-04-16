@@ -20,6 +20,11 @@
     @apply text-gray-800 transition-colors duration-300 border-b-2 border-transparent pb-1;
     @apply hover:text-[#B8860B] hover:border-[#B8860B];
   }
+
+  .link-subtle-hover {
+    @apply text-gray-800 dark:text-gray-100 transition-colors duration-300;
+    @apply hover:text-[#B8860B];
+  }
 }
 
 @media (prefers-color-scheme: dark) {

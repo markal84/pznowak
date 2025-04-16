@@ -26,7 +26,7 @@ export default function Home() {
       Jakość, którą pokochasz.
     </h1>
     <p className="text-xl md:text-2xl text-white/90 mb-8 font-light drop-shadow">
-      Ręcznie tworzone pierścionki zaręczynowe i obrączki, przekazywane z pokolenia na pokolenie. Każdy z nich to małe dzieło sztuki.
+      Ręcznie tworzone pierścionki zaręczynowe i obrączki, przekazywane z pokolenia na pokolenie.
     </p>
     <Link
       href="/katalog"
@@ -60,22 +60,38 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-serif font-light mb-12">Nasze Wyjątkowe Projekty</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Placeholder Product 1 */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-               {/* Placeholder for Image */}
-               <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded mb-4 flex items-center justify-center text-gray-500 dark:text-gray-400">Placeholder Obrazka</div>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
+               {/* Image Container */}
+               <div className="relative w-full h-48 rounded mb-4 overflow-hidden">
+                 <Image 
+                    src="/featured-1.png"
+                    alt="Pierścionek Klasyczna Elegancja"
+                    fill 
+                    style={{ objectFit: 'contain' }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                 />
+               </div>
                <h3 className="text-xl font-serif font-light mb-2">Pierścionek &quot;Klasyczna Elegancja&quot;</h3>
                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Złoty pierścionek z centralnie osadzonym brylantem.</p>
-               <Link href="/katalog/produkt-1" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors">
+               <Link href="/katalog/produkt-1" className="link-subtle-hover text-sm font-medium mt-auto">
                   Zobacz szczegóły
                </Link>
             </div>
              {/* Placeholder Product 2 */}
-             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                {/* Placeholder for Image */}
-               <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded mb-4 flex items-center justify-center text-gray-500 dark:text-gray-400">Placeholder Obrazka</div>
+             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
+                {/* Image Container */}
+               <div className="relative w-full h-48 rounded mb-4 overflow-hidden">
+                 <Image 
+                    src="/featured-2.png"
+                    alt="Pierścionek Subtelny Blask"
+                    fill 
+                    style={{ objectFit: 'contain' }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                 />
+               </div>
                <h3 className="text-xl font-serif font-light mb-2">Pierścionek &quot;Subtelny Blask&quot;</h3>
                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Delikatny złoty pierścionek z szafirem otoczonym małymi diamentami.</p>
-               <Link href="/katalog/produkt-2" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors">
+               <Link href="/katalog/produkt-2" className="link-subtle-hover text-sm font-medium mt-auto">
                   Zobacz szczegóły
                </Link>
             </div>
