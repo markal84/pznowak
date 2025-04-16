@@ -45,8 +45,11 @@ export default function Home() {
           <p className="leading-relaxed mb-8">
             W naszej pracowni każdy pierścionek to dzieło sztuki, tworzone z dbałością o najmniejszy detal. Łączymy tradycyjne techniki złotnicze z nowoczesnym wzornictwem, aby spełnić Twoje marzenia o idealnej biżuterii. Specjalizujemy się w projektach na indywidualne zamówienie, dopasowanych do Twoich potrzeb i oczekiwań.
           </p>
-          <Link href="/o-nas" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-            Poznaj naszą historię &rarr;
+          <Link 
+            href="/o-nas" 
+            className="inline-block bg-gray-800 text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-2 px-6 rounded-full text-base font-medium"
+          >
+            Poznaj naszą historię
           </Link>
         </div>
       </section>
@@ -57,30 +60,33 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-serif font-light mb-12">Nasze Wyjątkowe Projekty</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Placeholder Product 1 */}
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                {/* Placeholder for Image */}
-               <div className="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center text-gray-500">Placeholder Obrazka</div>
+               <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded mb-4 flex items-center justify-center text-gray-500 dark:text-gray-400">Placeholder Obrazka</div>
                <h3 className="text-xl font-serif font-light mb-2">Pierścionek &quot;Klasyczna Elegancja&quot;</h3>
-               <p className="text-gray-600 text-sm mb-4">Złoty pierścionek z centralnie osadzonym brylantem.</p>
-               <Link href="/katalog/produkt-1" className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
+               <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Złoty pierścionek z centralnie osadzonym brylantem.</p>
+               <Link href="/katalog/produkt-1" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors">
                   Zobacz szczegóły
                </Link>
             </div>
              {/* Placeholder Product 2 */}
-             <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                 {/* Placeholder for Image */}
-               <div className="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center text-gray-500">Placeholder Obrazka</div>
+               <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded mb-4 flex items-center justify-center text-gray-500 dark:text-gray-400">Placeholder Obrazka</div>
                <h3 className="text-xl font-serif font-light mb-2">Pierścionek &quot;Subtelny Blask&quot;</h3>
-               <p className="text-gray-600 text-sm mb-4">Delikatny złoty pierścionek z szafirem otoczonym małymi diamentami.</p>
-               <Link href="/katalog/produkt-2" className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
+               <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Delikatny złoty pierścionek z szafirem otoczonym małymi diamentami.</p>
+               <Link href="/katalog/produkt-2" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors">
                   Zobacz szczegóły
                </Link>
             </div>
              {/* Call to Catalog */}
-             <div className="bg-gray-200 p-6 rounded-lg shadow-inner flex flex-col items-center justify-center text-center">
-                <h3 className="text-xl font-serif font-light mb-4">Odkryj Pełną Ofertę</h3>
-                <p className="text-gray-700 text-sm mb-6">Zobacz wszystkie nasze unikalne projekty pierścionków zaręczynowych i obrączek.</p>
-                <Link href="/katalog" className="bg-gray-800 text-white hover:bg-gray-700 transition-colors duration-300 py-2 px-6 rounded-full text-base font-medium inline-block">
+             <div className="bg-gray-200 dark:bg-gray-700 p-6 rounded-lg shadow-inner flex flex-col items-center justify-center text-center">
+                <h3 className="text-xl font-serif font-light mb-4 dark:text-white">Odkryj Pełną Ofertę</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm mb-6">Zobacz wszystkie nasze unikalne projekty pierścionków zaręczynowych i obrączek.</p>
+                <Link 
+                  href="/katalog" 
+                  className="bg-gray-800 text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-2 px-6 rounded-full text-base font-medium inline-block"
+                >
                   Przejdź do katalogu
                 </Link>
              </div>
