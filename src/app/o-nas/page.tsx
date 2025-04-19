@@ -1,5 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
+import RootsTimeline from '@/components/RootsTimeline'
 // Placeholder for potential image imports
 
 const AboutPage = () => {
@@ -19,7 +20,7 @@ const AboutPage = () => {
           />
         </div>
         <p className="text-base md:text-lg font-light">
-          W naszej rodzinie złotnictwo to coś więcej niż zawód – to prawdziwa tradycja przekazywana z ojca na syna już od trzech pokoleń. Każdy pierśionek, który opuszcza naszą pracownię, to nie tylko efekt kunsztownego rzemiosła, ale także historia, emocje i pasja do piękna.
+          W naszej rodzinie złotnictwo to coś więcej niż zawód – to prawdziwa tradycja przekazywana z ojca na syna już od trzech pokoleń. Każdy pierścionek, który opuszcza naszą pracownię, to nie tylko efekt kunsztownego rzemiosła, ale także historia, emocje i pasja do piękna.
         </p>
         <p className="text-base md:text-lg font-light">
           Od ponad 60 lat łączymy klasyczne techniki jubilerskie z nowoczesnym podejściem, tworząc biżuterię o niepowtarzalnym charakterze. Cenimy ręczną pracę, dbałość o najdrobniejszy detal oraz materiały najwyższej jakości – dlatego każdy nasz wyrób jest unikalnym dziełem sztuki, które z dumą może być przekazywane kolejnym pokoleniom.
@@ -36,50 +37,7 @@ const AboutPage = () => {
 
         {/* --- Sekcja Zdjęć Pokoleniowych --- */}
         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl md:text-3xl font-serif font-light mb-8 text-center">Nasze Korzenie</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
-            {/* Zdjęcie 1: Dziadek */}
-            <div className="text-center">
-              <div className="relative aspect-square rounded-lg overflow-hidden shadow-md mb-3 mx-auto max-w-xs sm:max-w-none">
-                <Image 
-                  src="/about-us-grandfather.png"
-                  alt="Dziadek - Założyciel Pracowni" 
-                  fill 
-                  style={{ objectFit: 'cover' }} 
-                  sizes="(max-width: 640px) 80vw, (max-width: 1024px) 30vw, 25vw"
-                />
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Dziadek [Imię]</p>
-            </div>
-
-            {/* Zdjęcie 2: Ojciec */}
-            <div className="text-center">
-              <div className="relative aspect-square rounded-lg overflow-hidden shadow-md mb-3 mx-auto max-w-xs sm:max-w-none">
-                <Image 
-                  src="/about-us-father.png"
-                  alt="Ojciec - Kontynuator Tradycji"
-                  fill 
-                  style={{ objectFit: 'cover' }} 
-                  sizes="(max-width: 640px) 80vw, (max-width: 1024px) 30vw, 25vw"
-                />
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Ojciec [Imię]</p>
-            </div>
-
-            {/* Zdjęcie 3: Syn (Michał) */}
-            <div className="text-center">
-              <div className="relative aspect-square rounded-lg overflow-hidden shadow-md mb-3 mx-auto max-w-xs sm:max-w-none">
-                <Image 
-                  src="/about-us-son.png"
-                  alt="Michał Nowak - Obecny Właściciel"
-                  fill 
-                  style={{ objectFit: 'cover' }} 
-                  sizes="(max-width: 640px) 80vw, (max-width: 1024px) 30vw, 25vw"
-                />
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Michał Nowak</p>
-            </div>
-          </div>
+          <RootsTimeline />
         </div>
       </div>
     </div>
