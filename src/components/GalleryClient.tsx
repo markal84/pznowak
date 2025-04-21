@@ -95,6 +95,7 @@ export default function GalleryClient() {
                   style={{ objectFit: 'cover' }}
                   className="group-hover:scale-105 transition-transform duration-300"
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                  priority
                 />
               </div>
             </div>

@@ -18,7 +18,7 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, initialO
       <h2>
         <button
           type="button"
-          className="flex items-center justify-between w-full py-4 px-2 text-left font-medium hover:bg-gray-50 focus:outline-none"
+          className="flex items-center justify-between w-full py-4 px-2 text-left font-medium hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none"
           onClick={toggleOpen}
           aria-expanded={isOpen}
         >
@@ -45,4 +45,4 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, initialO
   );
 };
 
-export default AccordionItem; 
+export default AccordionItem;

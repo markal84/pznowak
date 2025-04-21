@@ -5,35 +5,29 @@ export default function Home() {
   return (
     <>
  {/* Hero Section */}
-<section className="relative h-[70vh] min-h-[500px] flex items-center justify-center text-center overflow-hidden">
+<section className="relative min-h-screen flex items-center justify-center text-center overflow-hidden">
   {/* Background Image */}
   <Image 
     src="/hero.png" 
     alt="Tło pracowni złotniczej" 
-    layout="fill" 
-    objectFit="cover" 
+    fill 
+    style={{ objectFit: 'cover' }} 
     priority 
     className="z-0"
   />
 
   {/* Dark Overlay */}
-  <div className="absolute inset-0 bg-black/50 z-10"></div>
+  <div className="absolute inset-0 bg-black/30 z-10"></div>
 
   {/* Content */}
-  <div className="relative z-20 px-6 py-12 text-white max-w-4xl">
+  <div className="relative z-20 px-6 py-12 text-white max-w-4xl flex flex-col items-center" style={{ transform: 'translateY(-20%)' }}>
     {/* TODO: Zbadać dlaczego klasa leading-h1 z tailwind.config.ts nie działa poprawnie (nadpisywana?). Tymczasowo użyto leading-[4.1rem]. */}
-    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-[4.1rem] drop-shadow-xl mb-6">
+    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-[4.1rem] drop-shadow-xl mb-10">
       Tradycja, którą docenisz.<br />
       Jakość, którą pokochasz.
     </h1>
-    <p className="text-lg md:text-xl text-white/90 mb-8 font-light leading-relaxed drop-shadow">
-      Ręcznie tworzone pierścionki zaręczynowe i obrączki, przekazywane z pokolenia na pokolenie.
-    </p>
-    <Link
-      href="/katalog"
-      className="bg-white text-gray-900 hover:bg-gray-100 transition-colors duration-300 py-4 px-8 rounded-full text-lg font-bold inline-block shadow-lg"
-    >
-      Zobacz kolekcję
+    <Link href="/katalog" className="bg-white text-gray-900 hover:text-[#BFA181] hover:bg-gray-100 transition-colors duration-300 py-4 px-8 rounded-sm text-lg font-bold inline-block shadow-lg" >
+      Zobacz kolekcję 
     </Link>
   </div>
 </section>
@@ -48,7 +42,7 @@ export default function Home() {
           </p>
           <Link 
             href="/o-nas" 
-            className="inline-block bg-gray-800 text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-2 px-6 rounded-full text-base font-bold"
+            className="inline-block bg-gray-800 text-white hover:text-[#BFA181] hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-2 px-6 rounded-sm text-base font-bold"
           >
             Poznaj naszą historię
           </Link>
@@ -102,7 +96,7 @@ export default function Home() {
                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-base mb-6">Zobacz wszystkie nasze unikalne projekty pierścionków zaręczynowych i obrączek.</p>
                 <Link 
                   href="/katalog" 
-                  className="bg-gray-800 text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-2 px-6 rounded-full text-base font-bold inline-block"
+                  className="bg-gray-800 text-white hover:text-[#BFA181] hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-2 px-6 rounded-sm text-base font-bold inline-block"
                 >
                   Przejdź do katalogu
                 </Link>
@@ -120,7 +114,7 @@ export default function Home() {
           </p>
           <Link
             href="/kontakt"
-            className="bg-white text-gray-900 hover:bg-gray-200 transition-colors duration-300 py-4 px-8 rounded-full text-lg font-bold inline-block"
+            className="bg-white text-gray-900 hover:text-[#BFA181] hover:bg-gray-200 transition-colors duration-300 py-4 px-8 rounded-sm text-lg font-bold inline-block"
           >
             Napisz do nas
           </Link>

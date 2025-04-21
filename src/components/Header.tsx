@@ -30,9 +30,10 @@ const Header = () => {
             <Image
               src="/logo.png"
               alt="Logo Michał Nowak"
-              width={120}
-              height={40}
+              width={140}
+              height={140}
               priority
+              style={{ height: 'auto' }}
             />
           </Link>
 
@@ -76,4 +77,4 @@ const Header = () => {
   )
 }
 
-export default Header 
+export default Header

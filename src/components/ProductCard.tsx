@@ -6,14 +6,14 @@ import type { Product } from '@/lib/wordpress'
 
 interface Props { product: Product }
 
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({ product, cardClassName }: Props & { cardClassName?: string }) {
   const img = product._embedded?.['wp:featuredmedia']?.[0]
   const imageUrl = img?.media_details?.sizes?.large?.source_url || img?.source_url || '/placeholder-image.png'
   const alt = img?.alt_text || product.title.rendered
   const price = product.acf?.cena
 
   return (
-    <li className="group flex flex-col h-full overflow-hidden rounded-lg bg-white shadow-sm transition hover:shadow-lg">
+    <li className={`group flex flex-col h-full overflow-hidden rounded-lg shadow-sm transition hover:shadow-lg ${cardClassName || 'bg-white'}`}>
       {/* Obraz */}
       <div className="relative w-full aspect-square">
         <Image
@@ -27,33 +27,21 @@ export default function ProductCard({ product }: Props) {
 
       {/* Treść (tytuł + cena) */}
       <div className="px-4 flex-1 flex flex-col items-center justify-center text-center">
-        <h3 className="text-lg font-display text-gray-900 mb-2 leading-tight">
+        <h3 className="text-lg font-display text-gray-900 dark:text-gray-100 mb-2 leading-tight">
           {product.title.rendered}
         </h3>
-        {price && (
+        {/*price && (
           <p className="text-base font-semibold text-brand-gold mb-4">
             {price} zł
           </p>
-        )}
+        )*/}
       </div>
 
       {/* Przycisk zawsze przyklejony do dołu */}
       <div className="px-4 pb-4">
       <Link
           href={`/katalog/${product.slug}`}
-          className="block w-full rounded-sm border-2 px-6 py-2 text-sm font-medium text-center transition-colors duration-300"
-          style={{
-            borderColor: '#BFA181',
-            color: '#BFA181',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#BFA181';
-            (e.currentTarget as HTMLAnchorElement).style.color = '#ffffff';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '';
-            (e.currentTarget as HTMLAnchorElement).style.color = '#BFA181';
-          }}
+          className="block w-full rounded-sm border-2 px-6 py-2 text-sm font-medium text-center transition-colors duration-300 border-[#BFA181] text-[#BFA181] hover:bg-[#BFA181] hover:text-white dark:bg-gray-900 dark:border-[#BFA181] dark:text-[#BFA181] dark:hover:bg-[#BFA181] dark:hover:text-gray-900"
         >
           Zobacz szczegóły
         </Link>
