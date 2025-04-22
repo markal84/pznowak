@@ -10,7 +10,7 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
   const img = product._embedded?.['wp:featuredmedia']?.[0]
   const imageUrl = img?.media_details?.sizes?.large?.source_url || img?.source_url || '/placeholder-image.png'
   const alt = img?.alt_text || product.title.rendered
-  const price = product.acf?.cena
+  //const price = product.acf?.cena
 
   return (
     <li className={`group flex flex-col h-full overflow-hidden rounded-lg shadow-sm transition hover:shadow-lg ${cardClassName || 'bg-white'}`}>

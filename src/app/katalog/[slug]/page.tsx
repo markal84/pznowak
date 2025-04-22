@@ -127,7 +127,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
           <div className="mt-10">
             <a
               href="/kontakt"
-              className="inline-block bg-gray-800 text-white hover:bg-gray-700 transition-colors duration-300 py-3 px-8 rounded-sm text-lg font-medium"
+              className="inline-block bg-gray-800 text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-3 px-8 rounded-sm text-lg font-medium"
             >
               Zapytaj o ten pierścionek
             </a>

@@ -1,4 +1,5 @@
 import React from 'react'
+import ContactForm from '@/components/ContactForm'
 
 const ContactPage = () => {
   return (
@@ -37,30 +38,11 @@ const ContactPage = () => {
         {/* Contact Form Placeholder */}
         <div>
           <h2 className="text-2xl font-serif font-light mb-4">Formularz Kontaktowy</h2>
-          <form className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">Imię i Nazwisko</label>
-              <input type="text" id="name" name="name" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-              <input type="email" id="email" name="email" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium mb-1">Wiadomość</label>
-              <textarea id="message" name="message" rows={4} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
-            </div>
-            <div>
-              <button type="submit" className="bg-gray-800 text-white hover:bg-gray-700 transition-colors duration-300 py-2 px-6 rounded-full font-medium">
-                Wyślij Wiadomość
-              </button>
-            </div>
-          </form>
-          {/*TODO: Implement form submission logic.*/}
+          <ContactForm />
         </div>
       </div>
     </div>
   )
 }
 
-export default ContactPage 
+export default ContactPage
