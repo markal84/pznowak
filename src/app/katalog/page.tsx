@@ -1,5 +1,4 @@
 import React from 'react'
-import Image from 'next/image'
 import { getProducts } from '@/lib/wordpress'
 import ProductsGrid from '@/components/ProductsGrid'
 

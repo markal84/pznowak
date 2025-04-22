@@ -34,7 +34,7 @@ export default function ContactForm() {
         setStatus('error')
         setError(data.error || 'Wystąpił błąd.')
       }
-    } catch (err) {
+    } catch {
       setStatus('error')
       setError('Wystąpił błąd sieci.')
     }
