@@ -2,6 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import Lightbox from 'yet-another-react-lightbox'
+import 'yet-another-react-lightbox/styles.css'
+import Captions from 'yet-another-react-lightbox/plugins/captions'
+import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
+import 'yet-another-react-lightbox/plugins/thumbnails.css'
+import 'yet-another-react-lightbox/plugins/captions.css'
 
 type GalleryPost = {
   id: number
@@ -26,6 +32,22 @@ export default function GalleryClient() {
   const [hasMore, setHasMore] = useState(true)
   const [totalPages, setTotalPages] = useState<number | null>(null)
   const loaderRef = useRef<HTMLDivElement>(null)
+
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+
+  // Przygotuj slajdy do lightboxa
+  const slides = items.map(item => {
+    const media = item._embedded?.['wp:featuredmedia']?.[0]
+    const src = media?.media_details.sizes.large?.source_url || media?.source_url || ''
+    const alt = media?.alt_text || item.title.rendered || 'Galeria Inspiracji'
+    return {
+      src,
+      alt,
+      description: item.title.rendered,
+    }
+  })
 
   useEffect(() => {
     if (!API_URL || !hasMore) return
@@ -81,12 +103,12 @@ export default function GalleryClient() {
         Zobacz przykłady naszych realizacji i znajdź inspirację dla swojej wymarzonej biżuterii.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {items.map(item => {
+        {items.map((item, idx) => {
           const media = item._embedded?.['wp:featuredmedia']?.[0]
           const src = media?.media_details.sizes.large?.source_url || media?.source_url || ''
           const alt = media?.alt_text || item.title.rendered || 'Galeria Inspiracji'
           return (
-            <div key={item.id} className="group">
+            <div key={item.id} className="group cursor-pointer" onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
               <div className="relative aspect-square rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300">
                 <Image
                   src={src}
@@ -102,6 +124,15 @@ export default function GalleryClient() {
           )
         })}
       </div>
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        slides={slides}
+        index={lightboxIndex}
+        plugins={[Captions, Thumbnails]}
+        captions={{ descriptionTextAlign: 'center' }}
+        thumbnails={{ position: 'bottom' }}
+      />
       {hasMore && <div ref={loaderRef} className="h-10"></div>}
     </div>
   )
