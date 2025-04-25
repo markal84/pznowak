@@ -34,7 +34,7 @@ const Button: React.FC<ButtonProps> = ({
 
   if (as === 'link' && href) {
     return (
-      <Link href={href} className={classes} {...(rest as any)}>
+      <Link href={href} className={classes} {...(rest as Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>)}>
         {children}
       </Link>
     )
