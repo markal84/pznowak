@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import Button from '../components/Button'
 
 export default function Home() {
   return (
@@ -26,9 +27,9 @@ export default function Home() {
       Tradycja, którą docenisz.<br />
       Jakość, którą pokochasz.
     </h1>
-    <Link href="/katalog" className="bg-white text-gray-900 hover:text-[#BFA181] hover:bg-gray-100 transition-colors duration-300 py-4 px-8 rounded-sm text-lg font-bold inline-block shadow-lg" >
-      Zobacz kolekcję 
-    </Link>
+    <Button as="link" href="/katalog" variant="secondary" className="py-4 px-8 text-lg">
+      Zobacz kolekcję
+    </Button>
   </div>
 </section>
 
@@ -40,12 +41,14 @@ export default function Home() {
           <p className="text-base leading-base mb-8">
             W naszej pracowni każdy pierścionek to dzieło sztuki, tworzone z dbałością o najmniejszy detal. Łączymy tradycyjne techniki złotnicze z nowoczesnym wzornictwem, aby spełnić Twoje marzenia o idealnej biżuterii. Specjalizujemy się w projektach na indywidualne zamówienie, dopasowanych do Twoich potrzeb i oczekiwań.
           </p>
-          <Link 
+          <Button 
+            as="link" 
             href="/o-nas" 
-            className="inline-block bg-gray-800 text-white hover:text-[#BFA181] hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-2 px-6 rounded-sm text-base font-bold"
+            variant="primary" 
+            className="py-2 px-6 text-base"
           >
             Poznaj naszą historię
-          </Link>
+          </Button>
         </div>
       </section>
 
@@ -94,12 +97,9 @@ export default function Home() {
              <div className="bg-gray-200 dark:bg-gray-700 p-6 rounded-lg shadow-inner flex flex-col items-center justify-center text-center">
                 <h3 className="text-xl font-serif font-normal leading-relaxed mb-4 dark:text-white">Odkryj Pełną Ofertę</h3>
                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-base mb-6">Zobacz wszystkie nasze unikalne projekty pierścionków zaręczynowych i obrączek.</p>
-                <Link 
-                  href="/katalog" 
-                  className="bg-gray-800 text-white hover:text-[#BFA181] hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-2 px-6 rounded-sm text-base font-bold inline-block"
-                >
+                <Button as="link" href="/katalog" variant="primary" className="py-2 px-6 text-base inline-block">
                   Przejdź do katalogu
-                </Link>
+                </Button>
              </div>
           </div>
         </div>
@@ -112,12 +112,14 @@ export default function Home() {
           <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-gray-300 leading-relaxed">
             Skontaktuj się z nami, aby omówić swój projekt. Z przyjemnością stworzymy dla Ciebie biżuterię marzeń.
           </p>
-          <Link
+          <Button
+            as="link"
             href="/kontakt"
-            className="bg-white text-gray-900 hover:text-[#BFA181] hover:bg-gray-200 transition-colors duration-300 py-4 px-8 rounded-sm text-lg font-bold inline-block"
+            variant="secondary"
+            className="py-4 px-8 text-lg"
           >
             Napisz do nas
-          </Link>
+          </Button>
         </div>
       </section>
     </>

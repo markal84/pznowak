@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import Button from './Button'
 
 // Podaj pełny URL do pliku send-contact.php na serwerze home.pl
 const PHP_ENDPOINT = 'http://serwer1542079.home.pl/autoinstalator/wordpress/send-contact.php' // <-- UZUPEŁNIJ TEN ADRES
@@ -103,13 +104,14 @@ export default function ContactForm() {
           onChange={handleChange}
         />
       </div>
-      <button
+      <Button
         type="submit"
         disabled={status === 'sending'}
-        className="bg-brand-gold text-white font-bold py-2 px-6 rounded hover:bg-[#BFA181]/90 transition-colors disabled:opacity-60"
+        className="w-full"
+        variant="primary"
       >
         {status === 'sending' ? 'Wysyłanie...' : 'Wyślij wiadomość'}
-      </button>
+      </Button>
       {status === 'success' && <p className="text-green-600 mt-2">Wiadomość została wysłana!</p>}
       {status === 'error' && <p className="text-red-600 mt-2">{error || 'Wystąpił błąd.'}</p>}
     </form>

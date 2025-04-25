@@ -3,6 +3,7 @@
 import Image, { StaticImageData } from 'next/image'
 
 // === Statyczne importy obrazów (ścieżka względna do folderu public) ===
+import imgGrandgrandfather from '../../public/about-us-grandgrandfather_Wiktor.jpg'
 import imgGrandfather from '../../public/about-us-grandfather.png'
 import imgFather from '../../public/about-us-father.png'
 import imgSon from '../../public/about-us-son.png'
@@ -17,6 +18,14 @@ interface HistoryEvent {
 }
 
 const history: HistoryEvent[] = [
+  {
+    id: 0,
+    year: '1890',
+    title: 'Założyciel tradycji',
+    description: 'Kowal Wiktor Nowak z Szańca, pierwsze projekty złotnicze.',
+    image: imgGrandgrandfather,
+    alt: 'Wiktor Nowak – Założyciel tradycji, kowal z Szańca',
+  },
   {
     id: 1,
     year: '1955',
@@ -91,10 +100,10 @@ export function RootsTimeline() {
               <span className="font-serif text-3xl text-amber-400">
                 {event.year}
               </span>
-              <h3 className="mt-2 text-lg font-medium text-white">
+              <h3 className="mt-2 text-lg font-medium text-white text-center px-2">
                 {event.title}
               </h3>
-              <p className="mt-2 px-6 text-center text-sm text-gray-200">
+              <p className="mt-2 px-6 text-center text-sm text-gray-200 mb-4">
                 {event.description}
               </p>
             </div>

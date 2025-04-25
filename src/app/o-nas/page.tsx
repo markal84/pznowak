@@ -32,7 +32,7 @@ const AboutPage = () => {
           Zapraszamy do świata, w którym biżuteria staje się opowieścią o miłości, historii i wyjątkowych chwilach w życiu.
         </p>
         <p className="text-base md:text-lg font-semibold text-center pt-4">
-          Tworzymy biżuterię z duszą. Dla Was – od trzech pokoleń.
+          Tworzymy biżuterię z duszą. Dla Was – od czterech pokoleń.
         </p>
 
         {/* --- Sekcja Zdjęć Pokoleniowych --- */}
