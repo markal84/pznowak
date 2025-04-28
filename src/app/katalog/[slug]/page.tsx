@@ -5,6 +5,11 @@ import { notFound } from 'next/navigation'
 import AccordionItem from '@/components/AccordionItem'
 import ProductGalleryClient from '../../../components/ProductGalleryClient'
 
+// Typ dla obrazka z ACF
+interface AcfImage {
+  url: string;
+}
+
 // Uwaga: Next.js w funkcjach takich jak generateMetadata oczekuje, że
 // params będzie Promise, dlatego definiujemy interfejs w ten sposób.
 interface ProductPageProps {
@@ -46,21 +51,15 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
   const acf = product.acf || {};
 
   // Galeria zdjęć z ACF (product_gallery_1, product_gallery_2, product_gallery_3) i zdjęcie wyróżniające
-  const gallery = [
+  const gallery: AcfImage[] = [
     acf.product_gallery_1,
     acf.product_gallery_2,
     acf.product_gallery_3
-  ].filter(Boolean)
+  ].filter((img): img is AcfImage => Boolean(img && typeof img === 'object' && 'url' in img))
   const featured = imageUrl;
   const slides = [
     ...(featured ? [{ src: featured }] : []),
-    ...gallery.map((img: any) =>
-      typeof img === 'string'
-        ? { src: img }
-        : img && img.url
-          ? { src: img.url }
-          : null
-    ).filter(Boolean)
+    ...gallery.map((img) => ({ src: img.url }))
   ];
 
   return (
