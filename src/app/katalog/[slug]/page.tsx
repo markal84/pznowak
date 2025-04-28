@@ -22,6 +22,17 @@ interface AcfFields {
   cena?: string
 }
 
+// na górze pliku app/katalog/[slug]/page.tsx
+interface WpMedia {
+  media_details?: {
+    sizes?: {
+      large?: { source_url: string }
+    }
+  }
+  source_url: string
+}
+
+
 // params jest Promisem, więc będziemy robić await params
 interface ProductPageProps { params: Promise<{ slug: string }> }
 
@@ -64,21 +75,23 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
   const API_BASE = process.env.NEXT_PUBLIC_WP_API_URL
 
   // 4) Fetch po media ID
-  const galleryMedia: GallerySlide[] = await Promise.all(
-    galleryIds.map(async (id) => {
-      const res = await fetch(`${API_BASE}/media/${id}`)
-      if (!res.ok) {
-        console.warn(`media/${id} fetch error:`, res.status)
-        return { src: '/placeholder-image.png' }
-      }
-      const media: any = await res.json()
-      const url =
-        media.media_details?.sizes?.large?.source_url ||
-        media.source_url ||
-        '/placeholder-image.png'
-      return { src: url }
-    })
-  )
+
+const galleryMedia: GallerySlide[] = await Promise.all(
+  galleryIds.map(async (id) => {
+    const res = await fetch(`${API_BASE}/media/${id}`)
+    if (!res.ok) {
+      console.warn(`media/${id} fetch error:`, res.status)
+      return { src: '/placeholder-image.png' }
+    }
+    // zamiast `any`:
+    const media = (await res.json()) as WpMedia
+    const url =
+      media.media_details?.sizes?.large?.source_url ||
+      media.source_url ||
+      '/placeholder-image.png'
+    return { src: url }
+  })
+)
 
   // 5) Tworzymy slides
   const slides: GallerySlide[] = [{ src: featured }, ...galleryMedia]

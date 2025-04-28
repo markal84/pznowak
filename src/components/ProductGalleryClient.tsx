@@ -15,12 +15,15 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
-  if (!slides || slides.length === 0) return null
+  if (!slides.length) return null
 
   return (
     <div>
       {/* Duże zdjęcie */}
-      <div onClick={() => { setLightboxIndex(0); setLightboxOpen(true) }} className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden shadow-lg cursor-pointer">
+      <div
+        onClick={() => { setLightboxIndex(0); setLightboxOpen(true) }}
+        className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden shadow-lg cursor-pointer"
+      >
         <Image
           src={slides[0].src}
           alt={imageAlt}
@@ -31,18 +34,28 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
           className="rounded-lg"
         />
       </div>
+
       {/* Miniaturki */}
       <div className="flex gap-2 mt-4">
         {slides.map((img, idx) => (
-          <img
+          <div
             key={idx}
-            src={img.src}
-            alt=""
-            className={`w-16 h-16 object-cover rounded cursor-pointer border ${idx === lightboxIndex ? 'ring-2 ring-brand-gold' : ''}`}
             onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}
-          />
+            className={`w-16 h-16 relative rounded-lg cursor-pointer overflow-hidden border ${
+              idx === lightboxIndex ? 'ring-2 ring-brand-gold' : ''
+            }`}
+          >
+            <Image
+              src={img.src}
+              alt={`Thumbnail ${idx + 1}`}
+              fill
+              sizes="64px"
+              style={{ objectFit: 'cover' }}
+            />
+          </div>
         ))}
       </div>
+
       {/* Lightbox */}
       <Lightbox
         open={lightboxOpen}
