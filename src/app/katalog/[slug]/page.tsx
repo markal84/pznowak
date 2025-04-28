@@ -1,141 +1,170 @@
+// app/katalog/[slug]/page.tsx
 import React from 'react'
-import { getProductBySlug } from '@/lib/wordpress'
-import type { Product } from '@/lib/wordpress'
 import { notFound } from 'next/navigation'
+import type { Product } from '@/lib/wordpress'
+import { getProductBySlug } from '@/lib/wordpress'
 import AccordionItem from '@/components/AccordionItem'
-import ProductGalleryClient from '../../../components/ProductGalleryClient'
+import ProductGalleryClient from '@/components/ProductGalleryClient'
+import Link from 'next/link'
 
-// Typ dla obrazka z ACF
-interface AcfImage {
-  url: string;
+interface GallerySlide { src: string }
+interface AcfFields {
+  product_gallery_1?: number
+  product_gallery_2?: number
+  product_gallery_3?: number
+  czy_posiada_kamien?: boolean
+  rodzaj_kamienia?: string
+  kolor_metalu?: string
+  czystosc_kamienia?: string
+  masa_karatowa?: string
+  dodatkowe_informacje?: string
+  pielegnacja?: string
+  cena?: string
 }
 
-// Uwaga: Next.js w funkcjach takich jak generateMetadata oczekuje, że
-// params będzie Promise, dlatego definiujemy interfejs w ten sposób.
-interface ProductPageProps {
-  params: Promise<{ slug: string }>;
-}
+// params jest Promisem, więc będziemy robić await params
+interface ProductPageProps { params: Promise<{ slug: string }> }
 
-// Generowanie dynamicznych metadanych (tytułu)
 export async function generateMetadata({ params }: ProductPageProps) {
-  // Oczekujemy rozwiązania params zanim użyjemy jego właściwości
-  const { slug } = await params;
-  const product = await getProductBySlug(slug);
-  if (!product) {
-    return { title: 'Produkt nie znaleziony' };
-  }
+  const { slug } = await params
+  const product = await getProductBySlug(slug)
   return {
-    title: product.title.rendered,
-  };
+    title: product ? product.title.rendered : 'Produkt nie znaleziony',
+  }
 }
 
-// Asynchroniczny komponent strony produktu
 const SingleProductPage = async ({ params }: ProductPageProps) => {
-  // Oczekujemy rozwiązania params zanim uzyskamy dostęp do slug
-  const { slug } = await params;
-  const product: Product | null = await getProductBySlug(slug);
+  // **await params** zanim weźmiesz slug
+  const { slug } = await params
+  const product: Product | null = await getProductBySlug(slug)
+  if (!product) return notFound()
 
-  if (!product) {
-    notFound();
-  }
-
-  // Pobieramy adres URL obrazu – z fallbackiem, gdy brak danych
-  const imageUrl =
-    product._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.large?.source_url ||
+  // 1) Featured image
+  const featured =
+    product._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.large
+      ?.source_url ||
     product._embedded?.['wp:featuredmedia']?.[0]?.source_url ||
-    '/placeholder-image.png';
+    '/placeholder-image.png'
   const imageAlt =
-    product._embedded?.['wp:featuredmedia']?.[0]?.alt_text || product.title.rendered;
+    product._embedded?.['wp:featuredmedia']?.[0]?.alt_text ||
+    product.title.rendered
 
-  // Ułatwiamy dostęp do dodatkowych pól (ACF)
-  const acf = product.acf || {};
-
-  // Galeria zdjęć z ACF (product_gallery_1, product_gallery_2, product_gallery_3) i zdjęcie wyróżniające
-  const gallery: AcfImage[] = [
+  // 2) Wyciągamy ID z ACF
+  const acf = product.acf as AcfFields
+  const galleryIds = [
     acf.product_gallery_1,
     acf.product_gallery_2,
-    acf.product_gallery_3
-  ].filter((img): img is AcfImage => Boolean(img && typeof img === 'object' && 'url' in img))
-  const featured = imageUrl;
-  const slides = [
-    ...(featured ? [{ src: featured }] : []),
-    ...gallery.map((img) => ({ src: img.url }))
-  ];
+    acf.product_gallery_3,
+  ].filter((id): id is number => Boolean(id))
+
+  // 3) Bazowy URL z .env.local
+  if (!process.env.NEXT_PUBLIC_WP_API_URL) {
+    throw new Error('Dodaj NEXT_PUBLIC_WP_API_URL do .env.local')
+  }
+  const API_BASE = process.env.NEXT_PUBLIC_WP_API_URL
+
+  // 4) Fetch po media ID
+  const galleryMedia: GallerySlide[] = await Promise.all(
+    galleryIds.map(async (id) => {
+      const res = await fetch(`${API_BASE}/media/${id}`)
+      if (!res.ok) {
+        console.warn(`media/${id} fetch error:`, res.status)
+        return { src: '/placeholder-image.png' }
+      }
+      const media: any = await res.json()
+      const url =
+        media.media_details?.sizes?.large?.source_url ||
+        media.source_url ||
+        '/placeholder-image.png'
+      return { src: url }
+    })
+  )
+
+  // 5) Tworzymy slides
+  const slides: GallerySlide[] = [{ src: featured }, ...galleryMedia]
 
   return (
     <div className="container mx-auto px-4 py-12">
+      {/* Breadcrumbs */}
+      <nav className="mb-8 text-sm" aria-label="Breadcrumb">
+        <ol className="list-none p-0 inline-flex text-gray-500 dark:text-gray-400">
+          <li>
+            <Link href="/katalog" className="hover:text-brand-gold transition-colors font-semibold">Katalog</Link>
+            <span className="mx-2">/</span>
+          </li>
+          <li aria-current="page" className="text-gray-900 dark:text-gray-100">{product.title.rendered}</li>
+        </ol>
+      </nav>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-        {/* Image Column z galerią */}
-        <div className="w-full top-24">
+        {/* Galeria */}
+        <div className="w-full">
           <ProductGalleryClient slides={slides} imageAlt={imageAlt} />
         </div>
 
-        {/* Kolumna ze szczegółami produktu */}
+        {/* Szczegóły produktu */}
         <div className="lg:pt-4">
           <h1
             className="text-3xl md:text-4xl font-serif font-light mb-6"
             dangerouslySetInnerHTML={{ __html: product.title.rendered }}
           />
 
-          {/* Sekcja specyfikacji */}
-          <div className="mb-8 border-t border-b border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+          <div className="mb-8 border-t border-b divide-y divide-gray-200">
             {acf.kolor_metalu && (
               <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-300">Kolor Metalu:</span>
-                <span className="font-medium text-gray-800 dark:text-gray-100">{acf.kolor_metalu}</span>
+                <span>Kolor Metalu:</span>
+                <span className="font-medium">{acf.kolor_metalu}</span>
               </div>
             )}
             {acf.czy_posiada_kamien && acf.rodzaj_kamienia && (
               <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-300">Rodzaj Kamienia:</span>
-                <span className="font-medium text-gray-800 dark:text-gray-100">{acf.rodzaj_kamienia}</span>
+                <span>Rodzaj Kamienia:</span>
+                <span className="font-medium">{acf.rodzaj_kamienia}</span>
               </div>
             )}
             {acf.czystosc_kamienia && (
               <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-300">Czystość Kamienia:</span>
-                <span className="font-medium text-gray-800 dark:text-gray-100">{acf.czystosc_kamienia}</span>
+                <span>Czystość Kamienia:</span>
+                <span className="font-medium">{acf.czystosc_kamienia}</span>
               </div>
             )}
             {acf.masa_karatowa && (
               <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-300">Masa Karatowa (ct):</span>
-                <span className="font-medium text-gray-800 dark:text-gray-100">{acf.masa_karatowa}</span>
+                <span>Masa Karatowa (ct):</span>
+                <span className="font-medium">{acf.masa_karatowa}</span>
               </div>
             )}
           </div>
 
-          {/* Sekcja Accordion */}
           <div className="space-y-1">
-            <AccordionItem title="Opis Produktu" initialOpen={true}>
+            <AccordionItem title="Opis Produktu" initialOpen>
               <div
-                className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: product.content.rendered || '' }}
+                className="prose prose-sm max-w-none leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: product.content.rendered }}
               />
             </AccordionItem>
             {acf.dodatkowe_informacje && (
               <AccordionItem title="Dodatkowe Informacje">
                 <div
-                  className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: acf.dodatkowe_informacje }}
+                  className="prose prose-sm max-w-none leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: acf.dodatkowe_informacje! }}
                 />
               </AccordionItem>
             )}
             {acf.pielegnacja && (
               <AccordionItem title="Pielęgnacja">
                 <div
-                  className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: acf.pielegnacja }}
+                  className="prose prose-sm max-w-none leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: acf.pielegnacja! }}
                 />
               </AccordionItem>
             )}
           </div>
 
-          {/* Przycisk przekierowujący do strony kontaktowej */}
           <div className="mt-10">
             <a
               href="/kontakt"
-              className="inline-block bg-gray-800 text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors duration-300 py-3 px-8 rounded-sm text-lg font-medium"
+              className="inline-block bg-gray-800 text-white py-3 px-8 rounded text-lg font-medium"
             >
               Zapytaj o ten pierścionek
             </a>
@@ -143,7 +172,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SingleProductPage;
+export default SingleProductPage
