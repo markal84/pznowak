@@ -7,6 +7,9 @@ const WP_API_URL = process.env.NEXT_PUBLIC_WP_API_URL;
 
 // Basic structure for ACF fields (adjust based on actual field types)
 interface ProductACF {
+  product_gallery_1?: { url: string };
+  product_gallery_2?: { url: string };
+  product_gallery_3?: { url: string };
   czy_posiada_kamien?: boolean;
   rodzaj_kamienia?: string;
   kolor_metalu?: string;
@@ -125,4 +128,4 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   }
 }
 
-// TODO: Add function to fetch a single product by slug or ID if needed 
+// TODO: Add function to fetch a single product by slug or ID if needed

@@ -2,8 +2,8 @@ import React from 'react'
 import { getProductBySlug } from '@/lib/wordpress'
 import type { Product } from '@/lib/wordpress'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import AccordionItem from '@/components/AccordionItem'
+import ProductGalleryClient from '../../../components/ProductGalleryClient'
 
 // Uwaga: Next.js w funkcjach takich jak generateMetadata oczekuje, że
 // params będzie Promise, dlatego definiujemy interfejs w ten sposób.
@@ -45,21 +45,30 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
   // Ułatwiamy dostęp do dodatkowych pól (ACF)
   const acf = product.acf || {};
 
+  // Galeria zdjęć z ACF (product_gallery_1, product_gallery_2, product_gallery_3) i zdjęcie wyróżniające
+  const gallery = [
+    acf.product_gallery_1,
+    acf.product_gallery_2,
+    acf.product_gallery_3
+  ].filter(Boolean)
+  const featured = imageUrl;
+  const slides = [
+    ...(featured ? [{ src: featured }] : []),
+    ...gallery.map((img: any) =>
+      typeof img === 'string'
+        ? { src: img }
+        : img && img.url
+          ? { src: img.url }
+          : null
+    ).filter(Boolean)
+  ];
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-        {/* Image Column */}
+        {/* Image Column z galerią */}
         <div className="w-full top-24">
-          <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden shadow-lg">
-            <Image
-              src={imageUrl}
-              alt={imageAlt}
-              fill
-              style={{ objectFit: 'cover' }}
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
-          </div>
+          <ProductGalleryClient slides={slides} imageAlt={imageAlt} />
         </div>
 
         {/* Kolumna ze szczegółami produktu */}
