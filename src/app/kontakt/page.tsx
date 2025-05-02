@@ -13,7 +13,7 @@ export default function ContactPage() {
       <div className="relative max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
           {/* LEWA KOLUMNA */}
-          <div className="bg-gray-50 dark:bg-gray-800 px-6 py-10 sm:p-10 lg:py-24 lg:px-8">
+          <div className="bg-gray-50 dark:bg-gray-800 px-6 py-10 sm:p-10 lg:py-24 lg:px-8 sm:rounded-xl">
             <h2 className="text-3xl font-serif tracking-tight text-gray-900 dark:text-white">
               Skontaktuj się z nami
             </h2>
