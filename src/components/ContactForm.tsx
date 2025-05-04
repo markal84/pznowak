@@ -14,7 +14,6 @@ export default function ContactForm() {
     website: '', // honeypot
   })
   const [status, setStatus] = useState<'idle'|'sending'|'success'|'error'>('idle')
-  const [error, setError] = useState<string|null>(null)
   const [showModal, setShowModal] = useState(false)
   const [modalSuccess, setModalSuccess] = useState<boolean|undefined>(undefined)
   const [modalError, setModalError] = useState<string|null>(null)
@@ -26,7 +25,6 @@ export default function ContactForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus('sending')
-    setError(null)
     try {
       const body = new URLSearchParams()
       // Połącz firstName i lastName w jedno pole name
@@ -50,14 +48,12 @@ export default function ContactForm() {
         setShowModal(true)
       } else {
         setStatus('error')
-        setError(data.error || 'Wystąpił błąd serwera.')
         setModalSuccess(false)
         setModalError(data.error || 'Wystąpił błąd serwera.')
         setShowModal(true)
       }
     } catch {
       setStatus('error')
-      setError('Wystąpił błąd sieci.')
       setModalSuccess(false)
       setModalError('Wystąpił błąd sieci.')
       setShowModal(true)

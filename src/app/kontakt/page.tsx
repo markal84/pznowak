@@ -49,11 +49,11 @@ export default function ContactPage() {
                 <dt className="sr-only">Email</dt>
                 <dd>
                   <a
-                    href="mailto:{EMAIL_ADDRESS}"
+                    href={`mailto:${EMAIL_ADDRESS}`}
                     className="flex items-center text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                   >
                     <FaEnvelope className="h-6 w-6 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                    <span className="ml-3">info@pznowak.pl</span>
+                    <span className="ml-3">{EMAIL_ADDRESS}</span>
                   </a>
                 </dd>
               </div>
