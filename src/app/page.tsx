@@ -1,8 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import Button from '../components/Button'
+import ProductCard from '../components/ProductCard'
+import { getProducts } from '../lib/wordpress'
 
-export default function Home() {
+export default async function Home() {
+  // Pobierz produkty z WordPressa
+  const products = await getProducts()
+  // Docelowo: produkty wybrane przez ACF (np. pole "Pokaż na stronie głównej" w WordPress)
+  // Teraz: wyświetlamy dwa pierwsze z katalogu
   return (
     <>
  {/* Hero Section */}
@@ -54,53 +60,29 @@ export default function Home() {
 
       {/* Featured Products Teaser */}
       <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-serif font-normal leading-h2 mb-12">Nasze Wyjątkowe Projekty</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Placeholder Product 1 */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
-               {/* Image Container */}
-               <div className="relative w-full h-48 rounded mb-4 overflow-hidden">
-                 <Image 
-                    src="/featured-1.png"
-                    alt="Pierścionek Klasyczna Elegancja"
-                    fill 
-                    style={{ objectFit: 'contain' }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                 />
-               </div>
-               <h3 className="text-xl font-serif font-normal leading-relaxed mb-2">Pierścionek &quot;Klasyczna Elegancja&quot;</h3>
-               <p className="text-sm text-gray-600 dark:text-gray-300 leading-base mb-4">Złoty pierścionek z centralnie osadzonym brylantem.</p>
-               <Link href="/katalog/produkt-1" className="link-subtle-hover text-sm font-bold mt-auto">
-                  Zobacz szczegóły
-               </Link>
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-normal leading-h2 mb-12 text-center">Nasze Wyjątkowe Projekty</h2>
+          {/*
+            Docelowo produkty będą wybierane przez ACF w WordPressie (np. pole "Pokaż na stronie głównej").
+            Na razie wyświetlamy dwa pierwsze z katalogu.
+          */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
+            {/* Produkt 1 */}
+            {products[0] && (
+              <ProductCard product={products[0]} cardClassName="bg-white dark:bg-gray-900 h-full" />
+            )}
+            {/* Produkt 2 */}
+            {products[1] && (
+              <ProductCard product={products[1]} cardClassName="bg-white dark:bg-gray-900 h-full" />
+            )}
+            {/* Box CTA w trzeciej kolumnie */}
+            <div className="bg-gray-200 dark:bg-gray-700 p-6 rounded-lg shadow-inner flex flex-col items-center justify-center text-center min-h-[340px] h-full">
+              <h3 className="text-xl font-serif font-normal leading-relaxed mb-4 dark:text-white">Odkryj Pełną Ofertę</h3>
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-base mb-6">Zobacz wszystkie nasze unikalne projekty pierścionków zaręczynowych i obrączek.</p>
+              <Button as="link" href="/katalog" variant="primary" className="py-2 px-6 text-base inline-block">
+                Przejdź do katalogu
+              </Button>
             </div>
-             {/* Placeholder Product 2 */}
-             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
-                {/* Image Container */}
-               <div className="relative w-full h-48 rounded mb-4 overflow-hidden">
-                 <Image 
-                    src="/featured-2.png"
-                    alt="Pierścionek Subtelny Blask"
-                    fill 
-                    style={{ objectFit: 'contain' }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                 />
-               </div>
-               <h3 className="text-xl font-serif font-normal leading-relaxed mb-2">Pierścionek &quot;Subtelny Blask&quot;</h3>
-               <p className="text-sm text-gray-600 dark:text-gray-300 leading-base mb-4">Delikatny złoty pierścionek z szafirem otoczonym małymi diamentami.</p>
-               <Link href="/katalog/produkt-2" className="link-subtle-hover text-sm font-bold mt-auto">
-                  Zobacz szczegóły
-               </Link>
-            </div>
-             {/* Call to Catalog */}
-             <div className="bg-gray-200 dark:bg-gray-700 p-6 rounded-lg shadow-inner flex flex-col items-center justify-center text-center">
-                <h3 className="text-xl font-serif font-normal leading-relaxed mb-4 dark:text-white">Odkryj Pełną Ofertę</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-base mb-6">Zobacz wszystkie nasze unikalne projekty pierścionków zaręczynowych i obrączek.</p>
-                <Button as="link" href="/katalog" variant="primary" className="py-2 px-6 text-base inline-block">
-                  Przejdź do katalogu
-                </Button>
-             </div>
           </div>
         </div>
       </section>
