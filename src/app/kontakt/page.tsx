@@ -1,11 +1,14 @@
 'use client'
 import React from 'react'
 import {
-  BuildingOffice2Icon,
-  PhoneIcon,
-  EnvelopeIcon,
-} from '@heroicons/react/24/outline'
+  FaPhone,
+  FaEnvelope,
+  FaFacebook,
+  FaInstagram,
+  FaMapMarkerAlt
+} from 'react-icons/fa'
 import ContactForm from '@/components/ContactForm'
+import { FACEBOOK_URL, INSTAGRAM_URL, PHONE_NUMBER, EMAIL_ADDRESS, ADDRESS, MAP_URL } from '@/lib/socials'
 
 export default function ContactPage() {
   return (
@@ -24,10 +27,9 @@ export default function ContactPage() {
               <div className="flex items-start">
                 <dt className="sr-only">Adres</dt>
                 <dd className="flex items-center text-base text-gray-500 dark:text-gray-400">
-                  <BuildingOffice2Icon className="h-6 w-6 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                  <FaMapMarkerAlt className="h-6 w-6 flex-shrink-0 text-gray-400" aria-hidden="true" />
                   <span className="ml-3">
-                    Kilińskiego 12<br />
-                    Busko-Zdrój, Polska
+                    {ADDRESS}
                   </span>
                 </dd>
               </div>
@@ -38,8 +40,8 @@ export default function ContactPage() {
                     href="tel:+48501321347"
                     className="flex items-center text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                   >
-                    <PhoneIcon className="h-6 w-6 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                    <span className="ml-3">+48 501 321 347</span>
+                    <FaPhone className="h-6 w-6 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                    <span className="ml-3">{PHONE_NUMBER}</span>
                   </a>
                 </dd>
               </div>
@@ -47,19 +49,27 @@ export default function ContactPage() {
                 <dt className="sr-only">Email</dt>
                 <dd>
                   <a
-                    href="mailto:info@pznowak.pl"
+                    href="mailto:{EMAIL_ADDRESS}"
                     className="flex items-center text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                   >
-                    <EnvelopeIcon className="h-6 w-6 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                    <FaEnvelope className="h-6 w-6 flex-shrink-0 text-gray-400" aria-hidden="true" />
                     <span className="ml-3">info@pznowak.pl</span>
                   </a>
                 </dd>
               </div>
                 {/* Miejsce pod mapkę */}
                 <div className="mt-4 flex justify-center">
-                  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d159.35864762218392!2d20.7162737763192!3d50.46997271013973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4717c37651ccfa81%3A0xcd63b70b2296c1f4!2sPhotogold.%20bar.%20Nowak%20M.!5e0!3m2!1spl!2spl!4v1746112420405!5m2!1spl!2spl" width="400" height="300"  allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+                  <iframe src={MAP_URL} width="400" height="300"  allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </dl>
+            <div className="flex items-center gap-8 mt-8 justify-center">
+              <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-brand-gold transition-colors">
+                <FaFacebook className="h-7 w-7" />
+              </a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-brand-gold transition-colors">
+                <FaInstagram className="h-7 w-7" />
+              </a>
+            </div>
           </div>
 
           {/* PRAWA KOLUMNA */}
