@@ -27,8 +27,8 @@ const Button: React.FC<ButtonProps> = ({
   const variants = {
     primary:
       'bg-gray-800 text-white hover:text-[#BFA181] hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200',
-    secondary:
-      'bg-white text-gray-900 hover:text-[#BFA181] hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:hover:text-[#BFA181] dark:hover:bg-gray-800',
+    secondary: 
+      'border-2 border-brand-gold text-brand-gold hover:bg-brand-gold/10 dark:hover:bg-gray-800',
   }
   const classes = `${base} ${variants[variant]} ${className}`
 
