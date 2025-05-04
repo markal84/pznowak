@@ -18,7 +18,7 @@ const navLinks = [
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [{ y }] = useWindowScroll()
-  const isScrolled = y > 24
+  const isScrolled = (y ?? 0) > 4 // Adjust this value to control when the header changes
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -27,7 +27,7 @@ const Header = () => {
   return (
     <>
       <header
-        className={`bg-white shadow-md sticky top-0 z-50 transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}
+        className={`bg-white dark:bg-gray-900 shadow-md sticky top-0 z-50 transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}
       >
         <div className={`max-w-7xl mx-auto px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}>
           {/* Logo */}
@@ -38,13 +38,15 @@ const Header = () => {
               width={isScrolled ? 90 : 140}
               height={isScrolled ? 90 : 140}
               priority
-              style={{ height: 'auto', transition: 'width 0.3s, height 0.3s' }}
+              className={
+                `h-auto transition-all duration-300 ${isScrolled ? '' : ''} dark:invert dark:hue-rotate-180`
+              }
             />
           </Link>
 
           {/* Desktop Navigation (Hidden on Mobile) */}
           <nav className='hidden md:block'>
-            <ul className='flex space-x-6 text-base font-medium tracking-wide font-serif'>
+            <ul className='flex space-x-6 text-base font-medium tracking-wide font-serif text-gray-900 dark:text-white'>
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <Link

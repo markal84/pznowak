@@ -1,6 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 @import "tailwindcss";
 
 :root {
@@ -17,8 +14,8 @@
 
 @layer components {
   .nav-link-hover {
-    @apply text-gray-800 transition-colors duration-300 border-b-2 border-transparent pb-1;
-    @apply hover:text-[#B8860B] hover:border-[#B8860B];
+    @apply text-gray-800 dark:text-white transition-colors duration-300 border-b-2 border-transparent pb-1;
+    @apply hover:text-[#B8860B] hover:border-[#B8860B] dark:hover:text-[#BFA181] dark:hover:border-[#BFA181];
   }
 
   .link-subtle-hover {
