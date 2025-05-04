@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import MobileMenu from './MobileMenu' // Import MobileMenu
+import { useWindowScroll } from '@uidotdev/usehooks'
 
 // Define navigation links
 const navLinks = [
@@ -16,6 +17,8 @@ const navLinks = [
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [{ y }] = useWindowScroll()
+  const isScrolled = y > 24
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -23,17 +26,19 @@ const Header = () => {
 
   return (
     <>
-      <header className='bg-white shadow-md sticky top-0 z-50'>
-        <div className='max-w-7xl mx-auto px-6 py-4 flex items-center justify-between'>
+      <header
+        className={`bg-white shadow-md sticky top-0 z-50 transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}
+      >
+        <div className={`max-w-7xl mx-auto px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}>
           {/* Logo */}
           <Link href="/" className='flex items-center'>
             <Image
               src="/logo.png"
               alt="Logo Michał Nowak"
-              width={140}
-              height={140}
+              width={isScrolled ? 90 : 140}
+              height={isScrolled ? 90 : 140}
               priority
-              style={{ height: 'auto' }}
+              style={{ height: 'auto', transition: 'width 0.3s, height 0.3s' }}
             />
           </Link>
 
