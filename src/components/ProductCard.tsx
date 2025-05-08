@@ -26,7 +26,7 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
       </div>
 
       {/* Treść (tytuł + cena) */}
-      <div className="px-4 flex-1 flex flex-col items-center justify-center text-center">
+      <div className="px-4 py-4 flex-1 flex flex-col items-center justify-center text-center">
         <h3 className="text-lg font-display text-gray-900 dark:text-gray-100 mb-2 leading-tight">
           {product.title.rendered}
         </h3>

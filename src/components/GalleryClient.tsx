@@ -40,7 +40,7 @@ export default function GalleryClient() {
   // Przygotuj slajdy do lightboxa
   const slides = items.map(item => {
     const media = item._embedded?.['wp:featuredmedia']?.[0]
-    const src = media?.media_details.sizes.large?.source_url || media?.source_url || ''
+    const src = media?.media_details?.sizes?.large?.source_url || media?.source_url || ''
     const alt = media?.alt_text || item.title.rendered || 'Galeria Inspiracji'
     return {
       src,
@@ -105,7 +105,7 @@ export default function GalleryClient() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {items.map((item, idx) => {
           const media = item._embedded?.['wp:featuredmedia']?.[0]
-          const src = media?.media_details.sizes.large?.source_url || media?.source_url || ''
+          const src = media?.media_details?.sizes?.large?.source_url || media?.source_url || ''
           const alt = media?.alt_text || item.title.rendered || 'Galeria Inspiracji'
           return (
             <div key={item.id} className="group cursor-pointer" onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
