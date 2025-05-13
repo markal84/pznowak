@@ -19,8 +19,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "PZ Nowak & Associates",
-  description: "",
+  title: "Pracownia Złotnicza Michał Nowak",
+  description: "Unikalna biżuteria tworzona z pasją. Pierścionki zaręczynowe, obrączki, biżuteria na zamówienie.",
 };
 
 export default function RootLayout({
