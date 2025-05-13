@@ -73,6 +73,7 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
       // Poprawka dla błędu: 'poster' is assigned a value but never used.
       // Używamy _poster, aby zasygnalizować, że celowo nie używamy tej zmiennej,
       // ale chcemy ją wykluczyć z reszty właściwości.
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { poster: _poster, ...videoSlideWithoutPoster } = slide
       return { ...videoSlideWithoutPoster, width: slide.width, height: slide.height }
     }
