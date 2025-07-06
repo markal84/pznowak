@@ -1,7 +1,7 @@
 import React from 'react'
 import { notFound } from 'next/navigation'
 import type { Product } from '@/lib/wordpress'
-import { getProductBySlug } from '@/lib/wordpress'
+import { getProductBySlug, getGlobalOptions } from '@/lib/wordpress'
 import AccordionItem from '@/components/AccordionItem'
 import ProductGalleryClient from '@/components/ProductGalleryClient'
 import Link from 'next/link'
@@ -76,6 +76,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
 const SingleProductPage = async ({ params }: ProductPageProps) => {
   const { slug } = await params
   const product: Product | null = await getProductBySlug(slug)
+  const globalOptions = await getGlobalOptions()
   if (!product) return notFound()
 
   const acf = product.acf as AcfFields
@@ -296,7 +297,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
               href="/kontakt"
               className="inline-block bg-gray-800 hover:bg-gray-900 dark:bg-brand-gold dark:hover:bg-yellow-500 text-white dark:text-gray-900 py-3 px-8 rounded text-lg font-medium transition-colors"
             >
-              Zapytaj o ten pierścionek
+              {globalOptions?.acf?.ask_button_text || 'Zapytaj o ten pierścionek'}
             </Link>
           </div>
         </div>
