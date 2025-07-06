@@ -193,3 +193,43 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
     return null;
   }
 }
+
+// Interface for Global Options (ACF Options Page)
+export interface GlobalOptions {
+  acf: {
+    [key: string]: any; // Define specific fields for type safety
+  };
+}
+
+/**
+ * Fetches global options from the ACF REST API.
+ * Assumes the ACF Options page is set up.
+ */
+export async function getGlobalOptions(): Promise<GlobalOptions | null> {
+  if (!WP_API_URL) {
+    console.error("WP_API_URL is not defined. Check your .env.local file.");
+    return null;
+  }
+  const endpoint = `${WP_API_URL}/acf/v3/options/options`;
+
+  try {
+    const response = await fetch(endpoint, {
+      next: { revalidate: 60 },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.warn(`ACF Options page not found (404).`);
+        return null;
+      }
+      console.error(`Failed to fetch global options: ${response.status} ${response.statusText}`, await response.text());
+      throw new Error(`Failed to fetch global options: ${response.status} ${response.statusText}`);
+    }
+
+    const options: GlobalOptions = await response.json();
+    return options;
+  } catch (error) {
+    console.error("Error fetching global options:", error);
+    return null;
+  }
+}
