@@ -72,6 +72,18 @@ export interface Product {
   // Add other standard WordPress fields if needed
 }
 
+// Main interface for a Page
+export interface Page {
+  id: number;
+  slug: string;
+  title: {
+    rendered: string;
+  };
+  content: {
+    rendered: string;
+  };
+}
+
 // --- API Fetching Functions ---
 
 /**
@@ -140,6 +152,44 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     }
   } catch (error) {
     console.error(`Error fetching product by slug ${slug}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetches a single page by its slug from the WordPress REST API.
+ */
+export async function getPageBySlug(slug: string): Promise<Page | null> {
+  if (!WP_API_URL) {
+    console.error("WP_API_URL is not defined. Check your .env.local file.");
+    return null;
+  }
+  const endpoint = `${WP_API_URL}/pages?slug=${slug}&_embed`;
+
+  try {
+    const response = await fetch(endpoint, {
+       next: { revalidate: 60 }
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.warn(`Page with slug "${slug}" not found (404).`);
+        return null;
+      }
+      console.error(`Failed to fetch page by slug ${slug}: ${response.status} ${response.statusText}`, await response.text());
+      throw new Error(`Failed to fetch page by slug ${slug}: ${response.status} ${response.statusText}`);
+    }
+
+    const pages: Page[] = await response.json();
+
+    if (pages.length > 0) {
+      return pages[0];
+    } else {
+      console.warn(`Page with slug "${slug}" not found in the response array, though status was OK.`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error fetching page by slug ${slug}:`, error);
     return null;
   }
 }
