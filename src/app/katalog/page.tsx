@@ -8,7 +8,7 @@ export default async function CatalogPage() {
   return (
     <>
       {/* Hero */}
-      <section className="py-20 brand-light">
+      <section className="py-20 bg-brand-light">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-display text-brand-gold tracking-wider">
             KATALOG
