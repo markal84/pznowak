@@ -6,8 +6,9 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'serwer1542079.home.pl',
-        port: '', // Default port (usually 443 for https)
-        pathname: '/autoinstalator/wordpress/wp-content/uploads/**', // Allow any image in uploads directory
+        port: '',
+        // Allow uploads from both /wordpress/ and /pznowak/ installs
+        pathname: '/autoinstalator/**/wp-content/uploads/**',
       },
     ],
   },
