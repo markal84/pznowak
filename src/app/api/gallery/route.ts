@@ -15,14 +15,24 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(url, { next: { revalidate: 30 } })
     const text = await res.text()
+
+    // Basic diagnostics to server logs
+    const ct = res.headers.get('Content-Type') || ''
+    if (!res.ok) {
+      console.error(`[api/gallery] Upstream error ${res.status} ${res.statusText} for ${url}`)
+      console.error(`[api/gallery] Body (first 300 chars):`, text.slice(0, 300))
+    } else if (!ct.includes('application/json')) {
+      console.warn(`[api/gallery] Non-JSON upstream response (Content-Type=${ct}). Body (first 300 chars):`, text.slice(0, 300))
+    }
+
     const headers = new Headers()
     // Forward total pages header if present
     const totalPages = res.headers.get('X-WP-TotalPages')
     if (totalPages) headers.set('X-WP-TotalPages', totalPages)
-    headers.set('Content-Type', res.headers.get('Content-Type') || 'application/json')
+    headers.set('Content-Type', ct || 'application/json')
     return new Response(text, { status: res.status, statusText: res.statusText, headers })
   } catch (e) {
+    console.error(`[api/gallery] Upstream fetch failed for ${url}:`, e)
     return new Response(JSON.stringify({ error: 'Upstream fetch failed' }), { status: 502 })
   }
 }
-
