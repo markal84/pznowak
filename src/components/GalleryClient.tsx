@@ -23,7 +23,8 @@ type GalleryPost = {
 }
 
 export default function GalleryClient() {
-  const API_URL = process.env.NEXT_PUBLIC_WP_API_URL || ''
+  // Use local API proxy to avoid CORS
+  const API_URL = ''
   const PER_PAGE = 9
 
   const [items, setItems] = useState<GalleryPost[]>([])
@@ -55,7 +56,7 @@ export default function GalleryClient() {
       setLoading(true)
       try {
         const res = await fetch(
-          `${API_URL}/gallery?_embed&per_page=${PER_PAGE}&page=${page}`
+          `/api/gallery?per_page=${PER_PAGE}&page=${page}`
         )
         const total = res.headers.get('X-WP-TotalPages')
         if (total) setTotalPages(parseInt(total, 10))
