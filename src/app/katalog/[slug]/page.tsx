@@ -81,6 +81,96 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
 
   const acf = product.acf as AcfFields
 
+  // Helpers: normalize various ACF return formats (ID | URL | Object | Array)
+  const API_BASE = process.env.NEXT_PUBLIC_WP_API_URL!
+
+  const toArray = <T,>(x: T | T[] | undefined | null): T[] =>
+    Array.isArray(x) ? x : x == null ? [] : [x]
+
+  const isNumericString = (s: string) => /^\d+$/.test(s.trim())
+
+  async function fetchMediaById(id: number): Promise<{ url: string; alt?: string; width?: number; height?: number; mime?: string } | null> {
+    try {
+      const res = await fetch(`${API_BASE}/media/${id}?context=embed`)
+      if (!res.ok) {
+        console.warn(`Błąd pobierania mediów ${id}:`, res.status)
+        return null
+      }
+      const media = (await res.json()) as any
+      const url =
+        media?.media_details?.sizes?.large?.source_url ||
+        media?.media_details?.sizes?.medium_large?.source_url ||
+        media?.source_url
+      if (!url) return null
+      return { url, alt: media?.alt_text || media?.title?.rendered, width: media?.media_details?.width, height: media?.media_details?.height, mime: media?.mime_type }
+    } catch (e) {
+      console.error(`Błąd przy pobieraniu mediów ${id}:`, e)
+      return null
+    }
+  }
+
+  async function resolveImagesFromField(field: unknown): Promise<ImageSlide[]> {
+    const items = toArray(field)
+    const slides: ImageSlide[] = []
+    for (const it of items) {
+      if (typeof it === 'number') {
+        const m = await fetchMediaById(it)
+        if (m?.url) slides.push({ src: m.url, alt: m.alt })
+      } else if (typeof it === 'string') {
+        if (isNumericString(it)) {
+          const m = await fetchMediaById(Number(it))
+          if (m?.url) slides.push({ src: m.url, alt: m.alt })
+        } else if (/^https?:\/\//.test(it)) {
+          slides.push({ src: it })
+        }
+      } else if (it && typeof it === 'object') {
+        const anyIt: any = it
+        if (typeof anyIt.id === 'number') {
+          const m = await fetchMediaById(anyIt.id)
+          if (m?.url) slides.push({ src: m.url, alt: m.alt })
+        } else if (typeof anyIt.url === 'string') {
+          slides.push({ src: anyIt.url, alt: anyIt.alt || anyIt.title?.rendered })
+        } else if (typeof anyIt.source_url === 'string') {
+          slides.push({ src: anyIt.source_url, alt: anyIt.alt_text || anyIt.title?.rendered })
+        }
+      }
+    }
+    return slides
+  }
+
+  async function resolveVideoFromField(field: unknown): Promise<VideoSlide | null> {
+    if (field == null) return null
+    const it = Array.isArray(field) ? field[0] : field
+    if (typeof it === 'number') {
+      const m = await fetchMediaById(it)
+      if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
+        return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: undefined, alt: m.alt, width: m.width, height: m.height }
+      }
+    } else if (typeof it === 'string') {
+      if (isNumericString(it)) {
+        const m = await fetchMediaById(Number(it))
+        if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
+          return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: undefined, alt: m.alt, width: m.width, height: m.height }
+        }
+      } else if (/^https?:\/\//.test(it)) {
+        return { type: 'video', sources: [{ src: it, type: /\.webm$/i.test(it) ? 'video/webm' : 'video/mp4' }] }
+      }
+    } else if (it && typeof it === 'object') {
+      const anyIt: any = it
+      if (typeof anyIt.id === 'number') {
+        const m = await fetchMediaById(anyIt.id)
+        if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
+          return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: undefined, alt: m.alt, width: m.width, height: m.height }
+        }
+      } else if (typeof anyIt.url === 'string') {
+        return { type: 'video', sources: [{ src: anyIt.url, type: anyIt.mime_type || (/\.webm$/i.test(anyIt.url) ? 'video/webm' : 'video/mp4') }] }
+      } else if (typeof anyIt.source_url === 'string') {
+        return { type: 'video', sources: [{ src: anyIt.source_url, type: anyIt.mime_type || (/\.webm$/i.test(anyIt.source_url) ? 'video/webm' : 'video/mp4') }] }
+      }
+    }
+    return null
+  }
+
   // 1) Featured image
   const featuredMediaItem = product._embedded?.['wp:featuredmedia']?.[0]
   const featured =
@@ -95,69 +185,16 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
   if (!process.env.NEXT_PUBLIC_WP_API_URL) {
     throw new Error('Dodaj NEXT_PUBLIC_WP_API_URL do .env.local')
   }
-  const API_BASE = process.env.NEXT_PUBLIC_WP_API_URL
-
-  // 2) Pobieranie obrazków z galerii ACF
-  const galleryImageIds = [
-    acf.product_gallery_1,
-    acf.product_gallery_2,
-    acf.product_gallery_3,
-  ]
-  .map(id => (typeof id === 'string' && id.trim() === '' ? undefined : Number(id))) // Konwertuj na Number, puste stringi na undefined
-  .filter((id): id is number => typeof id === 'number' && !isNaN(id) && id > 0);
-
-
-  const galleryImageMedia: ImageSlide[] = await Promise.all(
-    galleryImageIds.map(async (id) => {
-      try {
-        const res = await fetch(`${API_BASE}/media/${id}?context=embed`)
-        if (!res.ok) {
-          console.warn(`Błąd pobierania mediów galerii ${id}:`, res.status, await res.text())
-          return { src: '/placeholder-image.png', alt: 'Błąd ładowania obrazu' }
-        }
-        const media = (await res.json()) as WpMedia
-        const url =
-          media.media_details?.sizes?.large?.source_url ||
-          media.media_details?.sizes?.medium_large?.source_url ||
-          media.source_url ||
-          '/placeholder-image.png'
-        return { src: url, alt: media.alt_text || `Obraz z galerii ${id}` }
-      } catch (error) {
-        console.error(`Błąd przy pobieraniu mediów galerii ${id}:`, error)
-        return { src: '/placeholder-image.png', alt: 'Błąd ładowania obrazu' }
-      }
-    })
-  )
+  // 2) Pobieranie obrazków z galerii ACF (obsługa ID/URL/obiekt/array)
+  const galleryImageMediaArrays = await Promise.all([
+    resolveImagesFromField(acf.product_gallery_1),
+    resolveImagesFromField(acf.product_gallery_2),
+    resolveImagesFromField(acf.product_gallery_3),
+  ])
+  const galleryImageMedia: ImageSlide[] = galleryImageMediaArrays.flat()
 
   // 3) Pobieranie danych wideo z ACF (jeśli ID jest dostępne)
-  let videoSlideData: VideoSlide | null = null;
-  if (acf.video && (typeof acf.video === 'number' || (typeof acf.video === 'string' && acf.video.trim() !== ''))) {
-    const videoId = Number(acf.video);
-    if (!isNaN(videoId) && videoId > 0) {
-      try {
-        const res = await fetch(`${API_BASE}/media/${videoId}?context=embed`);
-        if (res.ok) {
-          const videoMedia = (await res.json()) as WpMedia;
-          if (videoMedia.source_url && videoMedia.mime_type?.startsWith('video/')) {
-            videoSlideData = {
-              type: 'video',
-              sources: [{ src: videoMedia.source_url, type: videoMedia.mime_type }],
-              poster: featured, // Użyj obrazka wyróżniającego jako poster dla wideo
-              alt: videoMedia.alt_text || videoMedia.title?.rendered || `${product.title.rendered} - Wideo`,
-              width: videoMedia.media_details?.width,
-              height: videoMedia.media_details?.height,
-            };
-          } else {
-            console.warn(`Pobrane media (ID: ${videoId}) nie są poprawnym plikiem wideo lub brakuje URL/mime_type. MIME: ${videoMedia.mime_type}, URL: ${videoMedia.source_url}`);
-          }
-        } else {
-          console.warn(`Błąd pobierania mediów wideo ${videoId}:`, res.status, await res.text());
-        }
-      } catch (error) {
-        console.error(`Błąd przy pobieraniu mediów wideo ${videoId}:`, error);
-      }
-    }
-  }
+  const videoSlideData = await resolveVideoFromField(acf.video)
 
   // 4) Tworzymy tablicę slajdów dla ProductGalleryClient
   const slides: Slide[] = [];
