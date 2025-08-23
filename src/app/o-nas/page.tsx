@@ -1,21 +1,22 @@
 import React from 'react'
 import Image from 'next/image'
 import RootsTimeline from '@/components/RootsTimeline'
-import { getPageBySlug } from '@/lib/wordpress'
-import { notFound } from 'next/navigation'
+import { getPageBySlug, getGlobalOptions } from '@/lib/wordpress'
+import AboutSections from '@/components/AboutSections'
 
 const AboutPage = async () => {
-  const page = await getPageBySlug('o-nas')
+  const [page, globalOptions] = await Promise.all([
+    getPageBySlug('o-nas'),
+    getGlobalOptions(),
+  ])
 
-  if (!page) {
-    notFound()
-  }
+  const html = page?.content?.rendered || ''
 
   return (
     <div className="container mx-auto px-4 py-12">
       <h1
         className="text-3xl md:text-4xl font-serif font-light mb-8 text-center"
-        dangerouslySetInnerHTML={{ __html: page.title.rendered }}
+        dangerouslySetInnerHTML={{ __html: page?.title.rendered || 'O nas' }}
       />
       <div className="max-w-3xl mx-auto leading-relaxed space-y-6 font-sans">
         {/* Image of the workshop - This can be replaced with a featured image from WordPress later if needed */}
@@ -30,15 +31,15 @@ const AboutPage = async () => {
           />
         </div>
 
-        <div
-          className="prose prose-lg dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: page.content.rendered }}
-        />
-
-        {/* --- Sekcja Zdjęć Pokoleniowych --- */}
+        {/* --- Sekcja Zdjęć Pokoleniowych (zawsze widoczna) --- */}
         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700">
           <RootsTimeline />
         </div>
+
+        {/* Sekcje sterowane treścią z WP po identyfikatorach (anchorach) */}
+        <AboutSections html={html} />
+
+        {/* Uwaga: Sekcja RootsTimeline renderowana jest wyżej zawsze. */}
       </div>
     </div>
   )
