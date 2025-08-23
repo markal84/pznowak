@@ -23,8 +23,7 @@ type GalleryPost = {
 }
 
 export default function GalleryClient() {
-  // Use local API proxy to avoid CORS
-  const API_URL = ''
+  // Korzystamy z lokalnego proxy API: /api/gallery
   const PER_PAGE = 9
 
   const [items, setItems] = useState<GalleryPost[]>([])
@@ -51,13 +50,11 @@ export default function GalleryClient() {
   })
 
   useEffect(() => {
-    if (!API_URL || !hasMore) return
+    if (!hasMore) return
     const fetchGallery = async () => {
       setLoading(true)
       try {
-        const res = await fetch(
-          `/api/gallery?per_page=${PER_PAGE}&page=${page}`
-        )
+        const res = await fetch(`/api/gallery?per_page=${PER_PAGE}&page=${page}`)
         const total = res.headers.get('X-WP-TotalPages')
         if (total) setTotalPages(parseInt(total, 10))
         if (!res.ok) throw new Error(`Fetch error ${res.status}`)
@@ -78,7 +75,7 @@ export default function GalleryClient() {
       }
     }
     fetchGallery()
-  }, [API_URL, page, hasMore, totalPages])
+  }, [page, hasMore, totalPages])
 
   useEffect(() => {
     if (!hasMore) return
