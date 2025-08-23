@@ -64,21 +64,13 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
   if (!slides || slides.length === 0) return null
 
   const firstSlide = slides[0]
+  // Znajdź pierwszy obraz (nie wideo) jako lepszy fallback postera
+  const firstImageSlide = slides.find((s) => (s as any).type !== 'video') as ImageSlide | undefined
 
   // Przygotowanie slajdów specjalnie dla Lightboxa
   // Dla wideo usuwamy 'poster', aby lightbox spróbował wygenerować go z klatki filmu,
   // ale zachowujemy width i height, jeśli są dostępne.
-  const lightboxSlides = slides.map(slide => {
-    if (slide.type === 'video') {
-      // Poprawka dla błędu: 'poster' is assigned a value but never used.
-      // Używamy _poster, aby zasygnalizować, że celowo nie używamy tej zmiennej,
-      // ale chcemy ją wykluczyć z reszty właściwości.
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { poster: _poster, ...videoSlideWithoutPoster } = slide
-      return { ...videoSlideWithoutPoster, width: slide.width, height: slide.height }
-    }
-    return slide
-  }) as YarlSlide[] // Poprawka dla błędu: Unexpected any. Używamy asercji do typu YarlSlide[].
+  const lightboxSlides = slides as unknown as YarlSlide[]
 
   return (
     <div>
@@ -91,7 +83,7 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setLightboxIndex(0); setLightboxOpen(true); }}} // Obsługa klawiatury
       >
         <Image
-          src={firstSlide.type === 'video' ? (firstSlide.poster || '/placeholder-image.png') : firstSlide.src}
+          src={firstSlide.type === 'video' ? (firstSlide.poster || firstImageSlide?.src || '/logo-placeholder.png') : firstSlide.src}
           alt={firstSlide.alt || imageAlt}
           fill
           style={{ objectFit: 'cover' }}
@@ -111,8 +103,8 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
         <div className="flex gap-2 mt-4 overflow-x-auto py-1">
           {slides.map((slide, idx) => {
             const isVideo = slide.type === 'video'
-            // Dla miniaturki na stronie zawsze używamy slide.poster (obrazka wyróżniającego) lub placeholder
-            const thumbnailUrl = isVideo ? (slide.poster || '/placeholder-image.png') : slide.src
+            // Dla miniaturki na stronie używamy: poster -> pierwszy obraz -> placeholder
+            const thumbnailUrl = isVideo ? (slide.poster || firstImageSlide?.src || '/logo-placeholder.png') : slide.src
             const thumbnailAlt = slide.alt || (isVideo ? `Miniatura wideo ${idx + 1}` : `Miniatura ${idx + 1}`)
 
             return (
@@ -137,8 +129,8 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
                   onError={(e) => {
                     // Opcjonalnie: obsługa błędu ładowania miniaturki, np. ustawienie domyślnego obrazka
                     console.error("Błąd ładowania miniaturki na stronie:", thumbnailUrl, e.currentTarget.naturalWidth);
-                    // e.currentTarget.src = '/placeholder-image.png'; // Przykład zastąpienia obrazka
-                  }}
+                    // e.currentTarget.src = '/logo-placeholder.png'; // Przykład zastąpienia obrazka
+                }}
                 />
                 {isVideo && (
                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors pointer-events-none">

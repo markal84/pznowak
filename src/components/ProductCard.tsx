@@ -8,7 +8,7 @@ interface Props { product: Product }
 
 export default function ProductCard({ product, cardClassName }: Props & { cardClassName?: string }) {
   const img = product._embedded?.['wp:featuredmedia']?.[0]
-  const imageUrl = img?.media_details?.sizes?.large?.source_url || img?.source_url || '/placeholder-image.png'
+  const imageUrl = img?.media_details?.sizes?.large?.source_url || img?.source_url || '/logo-placeholder.png'
   const alt = img?.alt_text || product.title.rendered
   //const price = product.acf?.cena
 

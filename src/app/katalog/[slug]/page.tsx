@@ -89,20 +89,38 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
 
   const isNumericString = (s: string) => /^\d+$/.test(s.trim())
 
-  async function fetchMediaById(id: number): Promise<{ url: string; alt?: string; width?: number; height?: number; mime?: string } | null> {
+  async function fetchMediaById(id: number): Promise<{ url: string; alt?: string; width?: number; height?: number; mime?: string; poster?: string } | null> {
     try {
-      const res = await fetch(`${API_BASE}/media/${id}?context=embed`)
+      // Użyjemy _embed, by ewentualnie wyciągnąć miniaturę (featuredmedia) dla wideo
+      const res = await fetch(`${API_BASE}/media/${id}?_embed`)
       if (!res.ok) {
         console.warn(`Błąd pobierania mediów ${id}:`, res.status)
         return null
       }
       const media = (await res.json()) as any
-      const url =
-        media?.media_details?.sizes?.large?.source_url ||
-        media?.media_details?.sizes?.medium_large?.source_url ||
-        media?.source_url
+      const mime: string | undefined = media?.mime_type
+      // Dla obrazów używamy zoptymalizowanych rozmiarów; dla wideo zawsze bierzemy plik wideo z source_url,
+      // a poster (miniaturę) próbujemy wyciągnąć z media_details.sizes.* jeśli dostępny
+      let url: string | undefined
+      let poster: string | undefined
+      if (mime && mime.startsWith('video/')) {
+        url = media?.source_url
+        poster = media?.media_details?.sizes?.large?.source_url ||
+                 media?.media_details?.sizes?.medium_large?.source_url ||
+                 media?.media_details?.sizes?.medium?.source_url ||
+                 media?.media_details?.sizes?.thumbnail?.source_url ||
+                 // Fallback: spróbuj użyć osadzonego featuredmedia, jeśli wideo ma przypisaną miniaturę w WP
+                 media?._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+                 undefined
+      } else {
+        url = media?.media_details?.sizes?.large?.source_url ||
+              media?.media_details?.sizes?.medium_large?.source_url ||
+              media?.media_details?.sizes?.medium?.source_url ||
+              media?.media_details?.sizes?.thumbnail?.source_url ||
+              media?.source_url
+      }
       if (!url) return null
-      return { url, alt: media?.alt_text || media?.title?.rendered, width: media?.media_details?.width, height: media?.media_details?.height, mime: media?.mime_type }
+      return { url, alt: media?.alt_text || media?.title?.rendered, width: media?.media_details?.width, height: media?.media_details?.height, mime, poster }
     } catch (e) {
       console.error(`Błąd przy pobieraniu mediów ${id}:`, e)
       return null
@@ -144,15 +162,16 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
     if (typeof it === 'number') {
       const m = await fetchMediaById(it)
       if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
-        return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: undefined, alt: m.alt, width: m.width, height: m.height }
+        return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: m.poster, alt: m.alt, width: m.width, height: m.height }
       }
     } else if (typeof it === 'string') {
       if (isNumericString(it)) {
         const m = await fetchMediaById(Number(it))
         if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
-          return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: undefined, alt: m.alt, width: m.width, height: m.height }
+          return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: m.poster, alt: m.alt, width: m.width, height: m.height }
         }
       } else if (/^https?:\/\//.test(it)) {
+        // Nie mamy meta z WP, więc postera nie znamy
         return { type: 'video', sources: [{ src: it, type: /\.webm$/i.test(it) ? 'video/webm' : 'video/mp4' }] }
       }
     } else if (it && typeof it === 'object') {
@@ -160,7 +179,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
       if (typeof anyIt.id === 'number') {
         const m = await fetchMediaById(anyIt.id)
         if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
-          return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: undefined, alt: m.alt, width: m.width, height: m.height }
+          return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: m.poster, alt: m.alt, width: m.width, height: m.height }
         }
       } else if (typeof anyIt.url === 'string') {
         return { type: 'video', sources: [{ src: anyIt.url, type: anyIt.mime_type || (/\.webm$/i.test(anyIt.url) ? 'video/webm' : 'video/mp4') }] }
@@ -177,7 +196,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
     featuredMediaItem?.media_details?.sizes?.large?.source_url ||
     featuredMediaItem?.media_details?.sizes?.medium_large?.source_url ||
     featuredMediaItem?.source_url ||
-    '/placeholder-image.png'
+    '/logo-placeholder.png'
   
   const imageAlt = featuredMediaItem?.alt_text || product.title.rendered
 
@@ -200,7 +219,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
   const slides: Slide[] = [];
 
   // Dodajemy obrazek wyróżniający jako pierwszy (jeśli istnieje i nie jest placeholderem)
-  if (featured && featured !== '/placeholder-image.png') {
+  if (featured && featured !== '/logo-placeholder.png') {
     slides.push({
       src: featured,
       alt: imageAlt,
@@ -234,7 +253,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
   });
 
   // Jeśli po deduplikacji nie ma slajdów, a był placeholder dla featured, dodajmy go
-  if (uniqueSlides.length === 0 && featured === '/placeholder-image.png') {
+  if (uniqueSlides.length === 0 && featured === '/logo-placeholder.png') {
     uniqueSlides.push({ src: featured, alt: imageAlt });
   }
 
