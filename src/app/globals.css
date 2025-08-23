@@ -18,12 +18,28 @@
   --font-display: var(--font-playfair), serif;
   --font-mono: monospace;
 
-  /* Brand colors */
-  --color-brand-gold: #BFA181;
-  --color-brand-gold-light: rgba(191, 161, 129, 0.3);
+  /* Brand colors (approved) */
+  --color-brand-gold: #B8860B;           /* primary accent */
+  --color-brand-gold-soft: #BFA181;      /* soft accent */
+  --color-brand-gold-light: rgba(184, 134, 11, 0.15);
   --color-brand-light: #F4F2EE;
   --color-brand-beige: #F5E1C3;
   --color-brand-gray: #F5F5F5;
+
+  /* Neutral palette (graphite tones) */
+  --color-neutral-900: #111827; /* bg/heading in dark contexts */
+  --color-neutral-700: #374151; /* body/dim text */
+
+  /* Radius (approved 8px) */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;           /* 8px default */
+  --radius-md: 0.5rem;
+  --radius-lg: 0.5rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 10px 0 rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 10px 25px -5px rgb(0 0 0 / 0.12);
 
   /* Typography scale */
   --text-base: 1rem;       /* 16px */
@@ -44,12 +60,12 @@
 @layer components {
   .nav-link-hover {
     @apply text-gray-800 dark:text-white transition-colors duration-300 border-b-2 border-transparent pb-1;
-    @apply hover:text-[#B8860B] hover:border-[#B8860B] dark:hover:text-[#BFA181] dark:hover:border-[#BFA181];
+    @apply hover:text-brand-gold hover:border-brand-gold dark:hover:text-brand-gold dark:hover:border-brand-gold;
   }
 
   .link-subtle-hover {
     @apply text-gray-800 dark:text-gray-100 transition-colors duration-300;
-    @apply hover:text-[#B8860B];
+    @apply hover:text-brand-gold;
   }
 }
 
@@ -63,5 +79,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-lato-sans), system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
