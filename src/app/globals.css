@@ -20,6 +20,8 @@
   --color-text-muted: #374151;   /* neutral-700 */
   --color-border: #e5e7eb;       /* gray-200 */
   --color-border-muted: rgba(229, 231, 235, 0.7);
+  /* Subtle divider color (light) */
+  --color-divider: rgba(17, 24, 39, 0.06);
 
   /* Fonts */
   --font-sans: var(--font-lato-sans), sans-serif;
@@ -77,6 +79,25 @@
 }
 
 @layer components {
+  /* Catalog grid subtle row dividers */
+  .catalog-grid > li { position: relative; }
+  .catalog-grid > li::before {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    top: -0.75rem; /* aligns with gap-6 (~1.5rem) */
+    height: 1.5rem;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--color-divider) 50%, transparent);
+  }
+  /* Hide divider for first row per breakpoint columns */
+  .catalog-grid > li:first-child::before { display: none; }
+  @media (min-width: 640px) { /* sm: 2 columns */
+    .catalog-grid > li:nth-child(-n+2)::before { display: none; }
+  }
+  @media (min-width: 1024px) { /* lg: 3 columns */
+    .catalog-grid > li:nth-child(-n+3)::before { display: none; }
+  }
   .skip-link {
     @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:text-black focus:dark:bg-gray-900 focus:dark:text-white focus:px-4 focus:py-2 focus:rounded;
   }
@@ -107,6 +128,8 @@
     --color-text: #f3f4f6;       /* gray-100 */
     --color-text-muted: #d1d5db; /* gray-300 */
     --color-border: #1f2937;     /* gray-800 */
+    /* Subtle divider color (dark) */
+    --color-divider: rgba(255, 255, 255, 0.08);
   }
 }
 

@@ -63,7 +63,7 @@ Uwagi implementacyjne:
 ### 6) Dostępność i responsywność
 - [ ] Kontrast AA (tekst/CTA/stan nieaktywny)
 - [ ] Focus visible i kolejność tab-stop
-- [ ] Responsywność: 360 / 768 / 1024 / 1280 (real test na localhost:3006)
+- [ ] Responsywność: 360 / 768 / 1024 / 1280 (real test na localhost)
 - [ ] Dark mode respektuje prefers-color-scheme (bez przełącznika lub z opcją nadpisania później)
 
 ### 7) Wydajność i porządki
@@ -90,7 +90,3 @@ Uwagi implementacyjne:
 - [ ] A11y/Responsive
 - [ ] Wydajność
 - [ ] PR
-
-### Następny krok (po tej sesji)
-- [x] Wdrożyć `Container` i `SectionTitle` na stronie głównej
-- [x] Lekkie odświeżenie `Header`/`Footer` dla spójności (kolory, spacing, hover/focus)
