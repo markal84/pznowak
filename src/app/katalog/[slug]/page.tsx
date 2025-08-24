@@ -337,7 +337,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
             <Button as="link" href="/kontakt" variant="primary" className="py-3 px-6 text-base">
               {globalOptions?.acf?.ask_button_text || 'Zapytaj o ten pierścionek'}
             </Button>
-            <div className="mt-3 md:mt-4 text-xs md:text-sm opacity-80 text-gray-600 dark:text-gray-400">
+            <div className="mt-4 md:mt-6 text-xs md:text-sm opacity-80 text-gray-600 dark:text-gray-400">
               Preferujesz szybko? Zadzwoń <a className="link-subtle-hover underline-offset-2 hover:underline" href={`tel:${PHONE_NUMBER.replace(/\s+/g, '')}`}>{PHONE_NUMBER}</a> lub napisz <a className="link-subtle-hover underline-offset-2 hover:underline" href={`mailto:${EMAIL_ADDRESS}`}>{EMAIL_ADDRESS}</a>.
             </div>
           </div>
