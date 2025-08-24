@@ -51,6 +51,7 @@ Uwagi implementacyjne:
 - [ ] Produkt: galeria + szczegóły
 - [x] Produkt: CTA kontakt/zapytanie (spójny Button, centered)
 - [ ] Galeria: spójne karty + lightbox, paginacja (infinite/load more)
+- [ ] Galeria: rozwiązać skalowanie wertykalnych zdjęć w układzie (masonry/grid) tak, by nie rozciągały się ponad realną rozdzielczość; dobrać sizes/srcset i ograniczenia max-rozmiaru dla desktop
 - [ ] O nas: sekcje kotwic (intro/mission/craft) + timeline
 - [ ] Kontakt: formularz, dane, mapa (opcjonalnie)
 
