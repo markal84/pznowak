@@ -71,6 +71,9 @@
 }
 
 @layer components {
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:text-black focus:dark:bg-gray-900 focus:dark:text-white focus:px-4 focus:py-2 focus:rounded;
+  }
   .nav-link-hover {
     @apply text-gray-800 dark:text-white transition-colors duration-300 border-b-2 border-transparent pb-1;
     @apply hover:text-brand-gold hover:border-brand-gold dark:hover:text-brand-gold dark:hover:border-brand-gold;

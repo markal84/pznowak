@@ -29,11 +29,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${lato.variable} ${playfair.variable}`}>
+    <html lang="pl" className={`${lato.variable} ${playfair.variable}`}>
       <body className="min-h-screen font-sans">
+        <a href="#main" className="skip-link">Przejdź do treści</a>
         <div className="min-h-screen flex flex-col">
           <Header />
-          <main className="flex-1">{children}</main>
+          <main id="main" className="flex-1">{children}</main>
           <Footer />
         </div>
       </body>
