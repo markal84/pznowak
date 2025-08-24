@@ -22,18 +22,18 @@ Uwagi implementacyjne:
 ## Checklista prac
 
 ### 1) Design tokens (kolory, typografia, spacing)
-- [ ] Kolory brand (złoto), neutrals (szarości/grafit), stany (hover/focus)
-- [ ] Paleta dark (tła, teksty, obramowania, stany) – dopasowana 1:1 do light
-- [ ] Skala typografii (H1–H6, lead, body, small) + wagi
+- [x] Kolory brand (złoto), neutrals (szarości/grafit), stany (hover/focus)
+- [x] Paleta dark (tła, teksty, obramowania, stany) – dopasowana 1:1 do light
+- [x] Skala typografii (H1–H6, lead, body, small) + wagi
 - [ ] Spacing (px/rem) i container widths (sm/md/lg/xl)
-- [ ] Radius (8px – zatwierdzony) i cienie (shadow-sm/md/lg)
-- [ ] Animacje (150–200ms, ease), focus ringi
+- [x] Radius (8px – zatwierdzony) i cienie (shadow-sm/md/lg)
+- [x] Animacje (150–200ms, ease), focus ringi
 
 ### 2) Komponenty bazowe
-- [ ] Button (primary/secondary/tertiary; sm/md/lg; full-width opcjonalnie)
-- [ ] Card (produkt/galeria: obraz, tytuł, meta, hover)
-- [ ] SectionTitle / Eyebrow (nagłówki sekcji)
-- [ ] Container (max-w, padding responsywny)
+- [x] Button (primary/secondary/tertiary; sm/md/lg; full-width opcjonalnie)
+- [x] Card (produkt/galeria: obraz, tytuł, meta, hover)
+- [x] SectionTitle / Eyebrow (nagłówki sekcji)
+- [x] Container (max-w, padding responsywny)
 - [ ] Input / Select / Textarea (stany: focus/invalid/disabled)
 - [ ] Badge/Tag (opcjonalnie do metadanych)
 - [ ] Warianty dark dla wszystkich powyższych
