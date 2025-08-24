@@ -5,16 +5,22 @@ interface Props {
   title: string;
   center?: boolean;
   className?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export default function SectionTitle({ eyebrow, title, center, className = "" }: Props) {
+const sizeMap = {
+  sm: 'text-2xl md:text-3xl',
+  md: 'text-3xl md:text-4xl',
+  lg: 'text-4xl md:text-5xl',
+} as const
+
+export default function SectionTitle({ eyebrow, title, center, className = "", size = 'md' }: Props) {
   return (
     <div className={[center ? "text-center" : "", className].join(" ")}> 
       {eyebrow && (
         <div className="text-sm tracking-widest uppercase text-brand-gold/90 mb-2">{eyebrow}</div>
       )}
-      <h2 className="font-display text-3xl md:text-4xl leading-tight text-gray-900 dark:text-white">{title}</h2>
+      <h2 className={["font-display leading-tight text-gray-900 dark:text-white", sizeMap[size]].join(' ')}>{title}</h2>
     </div>
   );
 }
-

@@ -372,7 +372,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
       </div>
       {/* Prezentacja / WOW */}
       <div className="mt-[var(--space-section-lg)]">
-        <SectionTitle eyebrow="Dlaczego my" title="Rzemiosło. Materiały. Zaufanie." center className="mb-6" />
+        <SectionTitle eyebrow="Dlaczego my" title="Rzemiosło. Materiały. Zaufanie." size="sm" center className="mb-6" />
         <WhyUs />
       </div>
     </div>

@@ -25,12 +25,12 @@ export default function WhyUs() {
       {items.map((it, idx) => (
         <div
           key={idx}
-          className="p-6 rounded-[8px] shadow-sm bg-[--color-surface] transition ease-[var(--ease-standard)] duration-200 hover:shadow-md hover:-translate-y-0.5 motion-reduce:transform-none"
+          className="p-6 rounded-[8px] shadow-sm bg-[--color-surface] transition ease-[var(--ease-standard)] duration-200 hover:shadow-md hover:-translate-y-0.5 motion-reduce:transform-none text-center"
         >
-          <div className="h-12 w-12 rounded-full bg-[color:var(--color-brand-gold-light)] text-brand-gold flex items-center justify-center mb-4">
+          <div className="h-12 w-12 rounded-full bg-[color:var(--color-brand-gold-light)] text-brand-gold flex items-center justify-center mx-auto mb-4">
             {it.icon}
           </div>
-          <h3 className="font-display text-xl md:text-2xl text-gray-900 dark:text-white mb-2">
+          <h3 className="font-display text-lg md:text-xl text-gray-900 dark:text-white mb-2">
             {it.title}
           </h3>
           <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -41,4 +41,3 @@ export default function WhyUs() {
     </div>
   )
 }
-
