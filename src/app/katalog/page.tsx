@@ -9,7 +9,7 @@ export default async function CatalogPage() {
   return (
     <>
       {/* Hero */}
-      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] bg-brand-light">
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] bg-[--color-surface]">
         <Container className="text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-display text-gray-900 dark:text-white tracking-normal md:tracking-wide">
             Katalog
