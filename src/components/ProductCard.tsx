@@ -14,7 +14,7 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
   //const price = product.acf?.cena
 
   return (
-    <li className={`group relative flex flex-col h-full overflow-hidden rounded-[8px] border border-[--color-border] dark:border-transparent shadow-sm transition hover:shadow-md focus-within:shadow-md ${cardClassName || 'bg-[--color-surface]'}`}>
+    <li className={`group relative flex flex-col h-full overflow-hidden rounded-[8px] border border-[--color-border-muted] dark:border-transparent shadow-sm transition ease-[var(--ease-standard)] duration-200 hover:shadow-md focus-within:shadow-md hover:-translate-y-0.5 focus-within:-translate-y-0.5 motion-reduce:transform-none motion-reduce:transition-none ${cardClassName || 'bg-[--color-surface]'}`}>
       {/* Stretched clickable overlay (mouse only) */}
       <Link
         href={`/katalog/${product.slug}`}
@@ -29,7 +29,7 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
           src={imageUrl}
           alt={alt}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-cover transition-transform duration-300 ease-[var(--ease-standard)] group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
           sizes="(min-width:1024px) 30vw, (min-width:640px) 50vw, 100vw"
         />
       </div>

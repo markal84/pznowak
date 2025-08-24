@@ -19,6 +19,7 @@
   --color-text: #111827;         /* neutral-900 */
   --color-text-muted: #374151;   /* neutral-700 */
   --color-border: #e5e7eb;       /* gray-200 */
+  --color-border-muted: rgba(229, 231, 235, 0.7);
 
   /* Fonts */
   --font-sans: var(--font-lato-sans), sans-serif;
