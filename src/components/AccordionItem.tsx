@@ -14,7 +14,7 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, initialO
   const toggleOpen = () => setIsOpen(!isOpen);
 
   return (
-    <div className="border-b border-[--color-divider]">
+    <div className="border-b" style={{ borderColor: 'var(--color-divider)' }}>
       <h2>
         <button
           type="button"

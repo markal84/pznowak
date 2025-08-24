@@ -81,6 +81,14 @@
 }
 
 @layer components {
+  /* Subtle divider helpers */
+  .keyfacts-divider {
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .keyfacts-divider > * + * {
+    border-top: 1px solid var(--color-divider);
+  }
   /* Catalog grid subtle row dividers */
   .catalog-grid > li { position: relative; }
   .catalog-grid > li::before {
