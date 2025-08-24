@@ -7,6 +7,8 @@ import ProductGalleryClient from '@/components/ProductGalleryClient'
 import Link from 'next/link'
 import Button from '@/components/Button'
 import { PHONE_NUMBER, EMAIL_ADDRESS } from '@/lib/socials'
+import SectionTitle from '@/components/ui/SectionTitle'
+import WhyUs from '@/components/WhyUs'
 
 // Typy slajdów (bez zmian, ale tu dla kompletności)
 interface ImageSlide {
@@ -367,6 +369,11 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
             )}
           </div>
         </div>
+      </div>
+      {/* Prezentacja / WOW */}
+      <div className="mt-[var(--space-section-lg)]">
+        <SectionTitle eyebrow="Dlaczego my" title="Rzemiosło. Materiały. Zaufanie." center className="mb-6" />
+        <WhyUs />
       </div>
     </div>
   )
