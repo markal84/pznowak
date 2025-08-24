@@ -14,9 +14,17 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
   //const price = product.acf?.cena
 
   return (
-    <li className={`group flex flex-col h-full overflow-hidden rounded-[8px] border border-[--color-border] shadow-sm transition hover:shadow-md focus-within:shadow-md ${cardClassName || 'bg-[--color-surface]'}`}>
-      {/* Obraz (klikany) */}
-      <Link href={`/katalog/${product.slug}`} aria-label={`Zobacz szczegóły: ${product.title.rendered}`} className="relative w-full aspect-square block">
+    <li className={`group relative flex flex-col h-full overflow-hidden rounded-[8px] border border-[--color-border] dark:border-transparent shadow-sm transition hover:shadow-md focus-within:shadow-md ${cardClassName || 'bg-[--color-surface]'}`}>
+      {/* Stretched clickable overlay (mouse only) */}
+      <Link
+        href={`/katalog/${product.slug}`}
+        aria-label={`Zobacz szczegóły: ${product.title.rendered}`}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="absolute inset-0 z-10"
+      />
+      {/* Obraz */}
+      <div className="relative w-full aspect-square">
         <Image
           src={imageUrl}
           alt={alt}
@@ -24,15 +32,13 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(min-width:1024px) 30vw, (min-width:640px) 50vw, 100vw"
         />
-      </Link>
+      </div>
 
       {/* Treść (tytuł + cena) */}
       <div className="px-4 py-4 flex-1 flex flex-col items-center justify-center text-center">
-        <Link href={`/katalog/${product.slug}`} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-[4px]">
-          <h3 className="text-lg font-display text-gray-900 dark:text-gray-100 mb-2 leading-tight">
-            {product.title.rendered}
-          </h3>
-        </Link>
+        <h3 className="text-lg font-display text-gray-900 dark:text-gray-100 mb-2 leading-tight">
+          {product.title.rendered}
+        </h3>
         {/*price && (
           <p className="text-base font-semibold text-brand-gold mb-4">
             {price} zł
@@ -42,7 +48,7 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
 
       {/* Przycisk CTA */}
       <div className="px-4 pb-4">
-        <Button as="link" href={`/katalog/${product.slug}`} variant="secondary" className="w-full py-2 text-sm">
+        <Button as="link" href={`/katalog/${product.slug}`} variant="secondary" className="w-full py-2 text-sm group-hover:text-brand-gold-soft group-hover:bg-gray-100 dark:group-hover:text-brand-gold-soft dark:group-hover:bg-gray-800">
           Zobacz szczegóły
         </Button>
       </div>
