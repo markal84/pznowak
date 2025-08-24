@@ -57,7 +57,7 @@ const history: HistoryEvent[] = [
 
 export function RootsTimeline() {
   return (
-    <section id="korzenie" className="mx-auto max-w-5xl px-6 py-[var(--space-section-md)]">
+    <section id="korzenie" className="w-full py-[var(--space-section-md)]">
       <h2 className="mb-12 text-center font-serif text-4xl sm:text-5xl font-light">
         Nasze korzenie
       </h2>
@@ -81,7 +81,7 @@ export function RootsTimeline() {
         {history.map((event) => (
           <li
             key={event.id}
-            className="group relative overflow-hidden rounded-lg shadow-sm"
+            className="group relative overflow-hidden rounded-lg shadow-sm bg-[--color-surface]"
           >
             <Image
               src={event.image}
@@ -92,15 +92,13 @@ export function RootsTimeline() {
               sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
               className="h-80 w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
-            {/* Overlay */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              <span className="font-serif text-3xl text-amber-400">
-                {event.year}
-              </span>
-              <h3 className="mt-2 text-lg font-medium text-white text-center px-2">
+            {/* Caption under image (no overlay) */}
+            <div className="p-4">
+              <span className="font-serif text-xl text-brand-gold block text-center">{event.year}</span>
+              <h3 className="mt-1 text-base font-medium text-gray-900 dark:text-white text-center">
                 {event.title}
               </h3>
-              <p className="mt-2 px-6 text-center text-sm text-gray-200 mb-4">
+              <p className="mt-2 text-center text-sm text-gray-700 dark:text-gray-300">
                 {event.description}
               </p>
             </div>

@@ -62,12 +62,12 @@ export default function AboutValuesCards({ html }: Props) {
 function Card({ data }: { data: CardData }) {
   const [open, setOpen] = useState(false)
   return (
-    <article className="p-6 rounded-[8px] shadow-sm bg-[--color-surface] transition ease-[var(--ease-standard)] duration-200 hover:shadow-md hover:-translate-y-0.5 motion-reduce:transform-none">
-      <div className="h-12 w-12 rounded-full bg-[color:var(--color-brand-gold-light)] text-brand-gold flex items-center justify-center mb-4">
+    <article className="p-6 rounded-[8px] shadow-sm bg-[--color-surface] transition ease-[var(--ease-standard)] duration-200 hover:shadow-md hover:-translate-y-0.5 motion-reduce:transform-none text-center">
+      <div className="h-12 w-12 rounded-full bg-[color:var(--color-brand-gold-light)] text-brand-gold flex items-center justify-center mx-auto mb-4">
         {iconMap[data.icon]}
       </div>
       <h3 className="font-display text-lg md:text-xl text-gray-900 dark:text-white mb-2">{data.title}</h3>
-      <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+      <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 mx-auto">
         <div dangerouslySetInnerHTML={{ __html: open ? data.fullHtml : data.snippetHtml }} />
       </div>
       {!open && data.fullHtml !== data.snippetHtml && (
@@ -82,4 +82,3 @@ function Card({ data }: { data: CardData }) {
     </article>
   )
 }
-
