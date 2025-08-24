@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import MobileMenu from './MobileMenu' // Import MobileMenu
 import { useWindowScroll } from '@uidotdev/usehooks'
+import { usePathname } from 'next/navigation'
 import Container from './ui/Container'
 
 // Define navigation links
@@ -20,6 +21,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [{ y }] = useWindowScroll()
   const isScrolled = (y ?? 0) > 4 // Adjust this value to control when the header changes
+  const pathname = usePathname()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -48,16 +50,20 @@ const Header = () => {
           {/* Desktop Navigation (Hidden on Mobile) */}
           <nav className='hidden md:block'>
             <ul className='flex space-x-6 text-base font-medium tracking-wide font-serif text-gray-900 dark:text-white'>
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="nav-link-hover"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href
+                return (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className={["nav-link-hover", isActive ? "nav-link-active" : ""].join(" ")}
+                      aria-current={isActive ? 'page' : undefined}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                )
+              })}
             </ul>
           </nav>
 

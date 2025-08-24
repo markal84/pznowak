@@ -25,7 +25,8 @@ Uwagi implementacyjne:
 - [x] Kolory brand (złoto), neutrals (szarości/grafit), stany (hover/focus)
 - [x] Paleta dark (tła, teksty, obramowania, stany) – dopasowana 1:1 do light
 - [x] Skala typografii (H1–H6, lead, body, small) + wagi
-- [ ] Spacing (px/rem) i container widths (sm/md/lg/xl)
+- [x] Spacing: sekcyjny rytm (`--space-section-sm/md/lg`)
+- [ ] Container widths (sm/md/lg/xl)
 - [x] Radius (8px – zatwierdzony) i cienie (shadow-sm/md/lg)
 - [x] Animacje (150–200ms, ease), focus ringi
 
@@ -39,7 +40,7 @@ Uwagi implementacyjne:
 - [ ] Warianty dark dla wszystkich powyższych
 
 ### 3) Layout i nawigacja
-- [ ] Header: aktywne linki, sticky, stan mobile (menu overlay)
+- [x] Header: aktywne linki (aria-current + styling), sticky, stan mobile (menu overlay)
 - [ ] Footer: kolumny linków, kontakt, prawa autorskie
 - [ ] Siatki: ogólna siatka sekcji, przerwy między blokami
 
@@ -53,7 +54,8 @@ Uwagi implementacyjne:
 - [ ] Kontakt: formularz, dane, mapa (opcjonalnie)
 
 ### 5) Interakcje i stany
-- [ ] Hover/focus states, aktywne linki, pressed
+- [x] Aktywne linki w nawigacji
+- [ ] Hover/focus states, pressed (globalnie)
 - [ ] Skeletony/placeholdery (ładowanie kart i obrazów)
 - [ ] Subtelne motion (transform/opacity, prefer-reduced-motion)
 

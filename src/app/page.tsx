@@ -43,7 +43,7 @@ export default async function Home() {
 
 
       {/* About Us Snippet */}
-      <section className="py-16 md:py-24">
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] xl:py-[var(--space-section-lg)]">
         <Container className="text-center">
           <div className="max-w-3xl mx-auto">
             <SectionTitle title="Mistrzowskie Rzemiosło" center />
@@ -63,7 +63,7 @@ export default async function Home() {
       </section>
 
       {/* Featured Products Teaser */}
-      <section className="py-16 md:py-24">
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] xl:py-[var(--space-section-lg)]">
         <Container>
           <SectionTitle title="Nasze Wyjątkowe Projekty" center className="mb-12" />
           {/*
@@ -92,7 +92,7 @@ export default async function Home() {
       </section>
 
       {/* Contact CTA */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-gray-700 to-gray-900 text-white">
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] xl:py-[var(--space-section-lg)] bg-gradient-to-r from-gray-700 to-gray-900 text-white">
         <Container className="text-center">
           <SectionTitle title="Masz Pomysł na Wyjątkowy Pierścionek?" center className="mb-6" />
           <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-gray-300 leading-relaxed">
