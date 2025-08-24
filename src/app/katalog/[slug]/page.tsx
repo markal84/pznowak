@@ -305,7 +305,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
           )}
 
           {/* Key facts: wrapper z podziałami i odstępem od CTA */}
-          <div className="mb-10 border-t border-b divide-y divide-gray-200 dark:border-gray-700 dark:divide-gray-700">
+          <div className="mb-10 border-t border-b divide-y border-[--color-divider] divide-[--color-divider]">
             {acf.kolor_metalu && (
               <div className="py-3 flex justify-between text-sm">
                 <span className="text-gray-500 dark:text-gray-400">Kolor metalu</span>

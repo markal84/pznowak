@@ -6,6 +6,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Ensure divider token exists at root for light mode */
+  --color-divider: rgba(17, 24, 39, 0.06);
 }
 
 @theme inline {
