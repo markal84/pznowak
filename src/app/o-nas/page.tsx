@@ -6,6 +6,7 @@ import AboutSections from '@/components/AboutSections'
 import Container from '@/components/ui/Container'
 import SectionTitle from '@/components/ui/SectionTitle'
 import StudioGrid from '@/components/StudioGrid'
+import AboutValuesCards from '@/components/AboutValuesCards'
 
 const AboutPage = async () => {
   const [page, globalOptions] = await Promise.all([
@@ -51,10 +52,11 @@ const AboutPage = async () => {
         </Container>
       </section>
 
-      {/* Sekcje z WP (anchor-based) */}
+      {/* Wartości – karty z treści WP (intro/mission/craft) */}
       <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
         <Container max="7xl">
-          <AboutSections html={html} />
+          <SectionTitle eyebrow="Wartości" title="Co jest dla nas ważne" size="sm" className="mb-6" />
+          <AboutValuesCards html={html} />
         </Container>
       </section>
     </>
