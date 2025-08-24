@@ -81,6 +81,17 @@
 }
 
 @layer components {
+  /* Timeline axis helper */
+  .timeline-axis { position: relative; }
+  .timeline-axis::before {
+    content: "";
+    position: absolute;
+    left: 0.75rem; /* aligns with bullet */
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background: var(--color-divider);
+  }
   /* Subtle divider helpers */
   .keyfacts-divider {
     border-top: 1px solid var(--color-divider);

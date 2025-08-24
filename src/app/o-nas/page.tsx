@@ -3,6 +3,9 @@ import Image from 'next/image'
 import RootsTimeline from '@/components/RootsTimeline'
 import { getPageBySlug, getGlobalOptions } from '@/lib/wordpress'
 import AboutSections from '@/components/AboutSections'
+import Container from '@/components/ui/Container'
+import SectionTitle from '@/components/ui/SectionTitle'
+import StudioGrid from '@/components/StudioGrid'
 
 const AboutPage = async () => {
   const [page, globalOptions] = await Promise.all([
@@ -12,36 +15,46 @@ const AboutPage = async () => {
 
   const html = page?.content?.rendered || ''
 
+  // Helper: extract first paragraph from HTML as lead (very simple fallback)
+  const leadMatch = html.match(/<p>(.*?)<\/p>/i)
+  const lead = leadMatch ? leadMatch[1] : ''
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1
-        className="text-3xl md:text-4xl font-serif font-light mb-8 text-center"
-        dangerouslySetInnerHTML={{ __html: page?.title.rendered || 'O nas' }}
-      />
-      <div className="max-w-3xl mx-auto leading-relaxed space-y-6 font-sans">
-        {/* Image of the workshop - This can be replaced with a featured image from WordPress later if needed */}
-        <div className="relative w-full h-64 bg-gray-200 dark:bg-gray-700 my-8 rounded overflow-hidden shadow-md">
-          <Image
-            src="/about-us-workshop.png"
-            alt="Wnętrze pracowni złotniczej Michała Nowaka"
-            fill
-            style={{ objectFit: 'cover' }}
-            sizes="(max-width: 768px) 100vw, 896px"
-            priority
-          />
-        </div>
+    <>
+      {/* Hero with feature image and left-aligned copy */}
+      <section className="relative min-h-[360px] md:min-h-[440px] overflow-hidden">
+        <Image src="/about-us-workshop.png" alt="Pracownia złotnicza – warsztat" fill sizes="100vw" className="object-cover" priority />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/10 dark:from-black/50 dark:to-black/20" />
+        <Container max="7xl" className="relative z-10 py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
+          <h1 className="text-3xl md:text-4xl font-serif font-light mb-6 md:mb-8 text-white" dangerouslySetInnerHTML={{ __html: page?.title.rendered || 'O nas' }} />
+          {lead && (
+            <p className="text-base md:text-lg leading-relaxed text-white/90 max-w-prose">{lead}</p>
+          )}
+        </Container>
+      </section>
 
-        {/* --- Sekcja Zdjęć Pokoleniowych (zawsze widoczna) --- */}
-        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700">
+      {/* Studio / Proces */}
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
+        <Container max="7xl">
+          <SectionTitle eyebrow="Studio / Proces" title="Jak pracujemy" size="sm" className="mb-6" />
+          <StudioGrid />
+        </Container>
+      </section>
+
+      {/* Nasze korzenie (timeline) */}
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] border-t" style={{ borderColor: 'var(--color-divider)' }}>
+        <Container max="7xl">
           <RootsTimeline />
-        </div>
+        </Container>
+      </section>
 
-        {/* Sekcje sterowane treścią z WP po identyfikatorach (anchorach) */}
-        <AboutSections html={html} />
-
-        {/* Uwaga: Sekcja RootsTimeline renderowana jest wyżej zawsze. */}
-      </div>
-    </div>
+      {/* Sekcje z WP (anchor-based) */}
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
+        <Container max="7xl">
+          <AboutSections html={html} />
+        </Container>
+      </section>
+    </>
   )
 }
 

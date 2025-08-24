@@ -57,16 +57,13 @@ const history: HistoryEvent[] = [
 
 export function RootsTimeline() {
   return (
-    <section id="korzenie" className="mx-auto max-w-5xl px-6 py-16">
+    <section id="korzenie" className="mx-auto max-w-5xl px-6 py-[var(--space-section-md)]">
       <h2 className="mb-12 text-center font-serif text-4xl sm:text-5xl font-light">
         Nasze korzenie
       </h2>
 
       {/* Mobile: pionowa oś czasu */}
-      <ul
-        role="list"
-        className="relative space-y-12 md:hidden before:absolute before:left-3 before:top-0 before:h-full before:w-px before:bg-gray-300 dark:before:bg-gray-700"
-      >
+      <ul role="list" className="relative space-y-12 md:hidden timeline-axis">
         {history.map((event) => (
           <li key={event.id} className="relative pl-8">
             <span className="absolute -left-[3px] top-0 h-3 w-3 rounded-full bg-amber-400" />
@@ -96,7 +93,7 @@ export function RootsTimeline() {
               className="h-80 w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
             {/* Overlay */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
               <span className="font-serif text-3xl text-amber-400">
                 {event.year}
               </span>
