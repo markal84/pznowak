@@ -6,6 +6,7 @@ import AccordionItem from '@/components/AccordionItem'
 import ProductGalleryClient from '@/components/ProductGalleryClient'
 import Link from 'next/link'
 import Button from '@/components/Button'
+import { PHONE_NUMBER, EMAIL_ADDRESS } from '@/lib/socials'
 
 // Typy slajdów (bez zmian, ale tu dla kompletności)
 interface ImageSlide {
@@ -284,41 +285,64 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
           )}
         </div>
 
-        {/* Szczegóły produktu - reszta bez zmian... */}
+        {/* Szczegóły produktu – prawa kolumna z lewym wyrównaniem i lepszą hierarchią */}
         <div className="lg:pt-4">
           <h1
-            className="text-3xl md:text-4xl font-serif font-light mb-6"
+            className="text-3xl md:text-4xl font-serif font-light mb-4 text-left"
             dangerouslySetInnerHTML={{ __html: product.title.rendered }}
           />
 
-          <div className="mb-8 border-t border-b divide-y divide-gray-200 dark:border-gray-700 dark:divide-gray-700">
+          {/* Lead (2–3 zdania). Preferuj excerpt; fallback: krótki opis ogólny. */}
+          {product.excerpt?.rendered ? (
+            <div
+              className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-8 prose prose-sm max-w-none dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: product.excerpt.rendered }}
+            />
+          ) : (
+            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
+              Ręcznie wykonany pierścionek tworzony z dbałością o każdy detal. Łączy klasyczną elegancję z nowoczesnym wykończeniem, aby subtelnie podkreślić wyjątkowe chwile.
+            </p>
+          )}
+
+          {/* CTA nad parametrami – po lewej */}
+          <div className="mb-8 text-left">
+            <Button as="link" href="/kontakt" variant="primary" className="py-3 px-6 text-base">
+              {globalOptions?.acf?.ask_button_text || 'Zapytaj o ten pierścionek'}
+            </Button>
+            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Preferujesz szybko? Zadzwoń <a className="link-subtle-hover underline-offset-2 hover:underline" href={`tel:${PHONE_NUMBER.replace(/\s+/g, '')}`}>{PHONE_NUMBER}</a> lub napisz <a className="link-subtle-hover underline-offset-2 hover:underline" href={`mailto:${EMAIL_ADDRESS}`}>{EMAIL_ADDRESS}</a>.
+            </div>
+          </div>
+
+          {/* Key facts: 2-kolumnowy grid, bez ciężkich linii */}
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-12 text-sm">
             {acf.kolor_metalu && (
-              <div className="py-3 flex justify-between text-sm">
-                <span>Kolor Metalu:</span>
-                <span className="font-medium">{acf.kolor_metalu}</span>
+              <div className="flex items-baseline gap-2">
+                <dt className="text-gray-500 dark:text-gray-400">Kolor metalu</dt>
+                <dd className="font-medium text-gray-900 dark:text-gray-100">{acf.kolor_metalu}</dd>
               </div>
             )}
             {acf.czy_posiada_kamien && acf.rodzaj_kamienia && (
-              <div className="py-3 flex justify-between text-sm">
-                <span>Rodzaj Kamienia:</span>
-                <span className="font-medium">{acf.rodzaj_kamienia}</span>
+              <div className="flex items-baseline gap-2">
+                <dt className="text-gray-500 dark:text-gray-400">Rodzaj kamienia</dt>
+                <dd className="font-medium text-gray-900 dark:text-gray-100">{acf.rodzaj_kamienia}</dd>
               </div>
             )}
             {acf.czystosc_kamienia && (
-              <div className="py-3 flex justify-between text-sm">
-                <span>Czystość Kamienia:</span>
-                <span className="font-medium">{acf.czystosc_kamienia}</span>
+              <div className="flex items-baseline gap-2">
+                <dt className="text-gray-500 dark:text-gray-400">Czystość kamienia</dt>
+                <dd className="font-medium text-gray-900 dark:text-gray-100">{acf.czystosc_kamienia}</dd>
               </div>
             )}
             {acf.masa_karatowa && (
-              <div className="py-3 flex justify-between text-sm">
-                <span>Masa Karatowa (ct):</span>
-                <span className="font-medium">{acf.masa_karatowa}</span>
+              <div className="flex items-baseline gap-2">
+                <dt className="text-gray-500 dark:text-gray-400">Masa karatowa</dt>
+                <dd className="font-medium text-gray-900 dark:text-gray-100">{acf.masa_karatowa}</dd>
               </div>
             )}
-          </div>
+          </dl>
 
-          <div className="space-y-1">
+          <div className="space-y-1 mt-12 text-left">
             <AccordionItem title="Opis Produktu" initialOpen>
               <div
                 className="prose prose-sm dark:prose-invert max-w-none leading-relaxed"
@@ -341,23 +365,6 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
                 />
               </AccordionItem>
             )}
-          </div>
-
-          {/* {acf.cena && (
-            <div className="mt-8 text-3xl font-semibold text-brand-gold">
-              {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(Number(acf.cena))}
-            </div>
-          )} */}
-
-          <div className="mt-10 text-center">
-            <Button
-              as="link"
-              href="/kontakt"
-              variant="primary"
-              className="py-3 px-8 text-lg"
-            >
-              {globalOptions?.acf?.ask_button_text || 'Zapytaj o ten pierścionek'}
-            </Button>
           </div>
         </div>
       </div>
