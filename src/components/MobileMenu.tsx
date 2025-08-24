@@ -26,7 +26,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, links }) => {
 
       <nav id="mobile-menu" className=" pt-12 flex flex-col items-center space-y-12">
         {links.map((link) => {
-          const isActive = pathname === link.href
+          const isActive = link.href === '/'
+            ? pathname === '/'
+            : pathname === link.href || pathname.startsWith(link.href + '/')
           return (
             <Link
               key={link.href}

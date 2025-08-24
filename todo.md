@@ -46,7 +46,8 @@ Uwagi implementacyjne:
 
 ### 4) Strony kluczowe
 - [ ] Home: hero, skróty do katalogu, highlighty
-- [ ] Katalog: siatka kart, filtry (UI), paginacja/ładowanie
+- [x] Katalog: H1, Container, sekcyjny spacing, aktywny nav dla /katalog/*
+- [ ] Katalog: filtry (UI), paginacja/ładowanie
 - [ ] Produkt: galeria + szczegóły
 - [x] Produkt: CTA kontakt/zapytanie (spójny Button, centered)
 - [ ] Galeria: spójne karty + lightbox, paginacja (infinite/load more)

@@ -51,7 +51,9 @@ const Header = () => {
           <nav className='hidden md:block'>
             <ul className='flex space-x-6 text-base font-medium tracking-wide font-serif text-gray-900 dark:text-white'>
               {navLinks.map((link) => {
-                const isActive = pathname === link.href
+                const isActive = link.href === '/'
+                  ? pathname === '/'
+                  : pathname === link.href || pathname.startsWith(link.href + '/')
                 return (
                   <li key={link.href}>
                     <Link

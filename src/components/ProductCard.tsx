@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Product } from '@/lib/wordpress'
+import Button from '@/components/Button'
 
 interface Props { product: Product }
 
@@ -13,9 +14,9 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
   //const price = product.acf?.cena
 
   return (
-    <li className={`group flex flex-col h-full overflow-hidden rounded-lg shadow-sm transition hover:shadow-lg ${cardClassName || 'bg-white'}`}>
-      {/* Obraz */}
-      <div className="relative w-full aspect-square">
+    <li className={`group flex flex-col h-full overflow-hidden rounded-[8px] border border-[--color-border] shadow-sm transition hover:shadow-md focus-within:shadow-md ${cardClassName || 'bg-[--color-surface]'}`}>
+      {/* Obraz (klikany) */}
+      <Link href={`/katalog/${product.slug}`} aria-label={`Zobacz szczegóły: ${product.title.rendered}`} className="relative w-full aspect-square block">
         <Image
           src={imageUrl}
           alt={alt}
@@ -23,13 +24,15 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(min-width:1024px) 30vw, (min-width:640px) 50vw, 100vw"
         />
-      </div>
+      </Link>
 
       {/* Treść (tytuł + cena) */}
       <div className="px-4 py-4 flex-1 flex flex-col items-center justify-center text-center">
-        <h3 className="text-lg font-display text-gray-900 dark:text-gray-100 mb-2 leading-tight">
-          {product.title.rendered}
-        </h3>
+        <Link href={`/katalog/${product.slug}`} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-[4px]">
+          <h3 className="text-lg font-display text-gray-900 dark:text-gray-100 mb-2 leading-tight">
+            {product.title.rendered}
+          </h3>
+        </Link>
         {/*price && (
           <p className="text-base font-semibold text-brand-gold mb-4">
             {price} zł
@@ -37,14 +40,11 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
         )*/}
       </div>
 
-      {/* Przycisk zawsze przyklejony do dołu */}
+      {/* Przycisk CTA */}
       <div className="px-4 pb-4">
-      <Link
-          href={`/katalog/${product.slug}`}
-          className="block w-full rounded-sm border-2 px-6 py-2 text-sm font-medium text-center transition-colors duration-300 border-[#BFA181] text-[#BFA181] hover:bg-[#BFA181] hover:text-white dark:bg-gray-900 dark:border-[#BFA181] dark:text-[#BFA181] dark:hover:bg-[#BFA181] dark:hover:text-gray-900"
-        >
+        <Button as="link" href={`/katalog/${product.slug}`} variant="secondary" className="w-full py-2 text-sm">
           Zobacz szczegóły
-        </Link>
+        </Button>
       </div>
     </li>
   )
