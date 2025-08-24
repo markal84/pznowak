@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import MobileMenu from './MobileMenu' // Import MobileMenu
 import { useWindowScroll } from '@uidotdev/usehooks'
+import Container from './ui/Container'
 
 // Define navigation links
 const navLinks = [
@@ -29,7 +30,7 @@ const Header = () => {
       <header
         className={`bg-white dark:bg-gray-900 shadow-md sticky top-0 z-50 transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}
       >
-        <div className={`max-w-7xl mx-auto px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}>
+        <Container max="7xl" className={`px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}>
           {/* Logo */}
           <Link href="/" className='flex items-center'>
             <Image
@@ -64,8 +65,10 @@ const Header = () => {
           <div className='md:hidden'>
             <button
               onClick={toggleMenu}
-              className='p-2 focus:outline-none'
+              className='p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
               aria-label='Toggle menu'
+              aria-expanded={isMenuOpen}
+              aria-controls='mobile-menu'
             >
               {/* Animated Hamburger/Close Icon */}
               <div className='w-6 h-5 flex flex-col justify-between items-center relative'>
@@ -75,7 +78,7 @@ const Header = () => {
               </div>
             </button>
           </div>
-        </div>
+        </Container>
       </header>
 
       {/* Mobile Menu Overlay */}

@@ -86,3 +86,7 @@ Uwagi implementacyjne:
 - [ ] A11y/Responsive
 - [ ] Wydajność
 - [ ] PR
+
+### Następny krok (po tej sesji)
+- [x] Wdrożyć `Container` i `SectionTitle` na stronie głównej
+- [x] Lekkie odświeżenie `Header`/`Footer` dla spójności (kolory, spacing, hover/focus)

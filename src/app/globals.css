@@ -61,6 +61,7 @@
   .nav-link-hover {
     @apply text-gray-800 dark:text-white transition-colors duration-300 border-b-2 border-transparent pb-1;
     @apply hover:text-brand-gold hover:border-brand-gold dark:hover:text-brand-gold dark:hover:border-brand-gold;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 focus-visible:rounded-[2px];
   }
 
   .link-subtle-hover {
