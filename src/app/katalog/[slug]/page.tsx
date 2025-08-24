@@ -274,8 +274,8 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-        {/* Galeria */}
-        <div className="w-full">
+        {/* Galeria (desktop: sticky for better ergonomics) */}
+        <div className="w-full lg:sticky lg:top-20">
           {uniqueSlides.length > 0 ? (
             <ProductGalleryClient slides={uniqueSlides} imageAlt={imageAlt} />
           ) : (
