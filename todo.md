@@ -46,7 +46,8 @@ Uwagi implementacyjne:
 ### 4) Strony kluczowe
 - [ ] Home: hero, skróty do katalogu, highlighty
 - [ ] Katalog: siatka kart, filtry (UI), paginacja/ładowanie
-- [ ] Produkt: galeria + szczegóły, CTA kontakt/zapytanie
+- [ ] Produkt: galeria + szczegóły
+- [x] Produkt: CTA kontakt/zapytanie (spójny Button, centered)
 - [ ] Galeria: spójne karty + lightbox, paginacja (infinite/load more)
 - [ ] O nas: sekcje kotwic (intro/mission/craft) + timeline
 - [ ] Kontakt: formularz, dane, mapa (opcjonalnie)

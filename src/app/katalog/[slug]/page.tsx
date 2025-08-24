@@ -5,6 +5,7 @@ import { getProductBySlug, getGlobalOptions } from '@/lib/wordpress'
 import AccordionItem from '@/components/AccordionItem'
 import ProductGalleryClient from '@/components/ProductGalleryClient'
 import Link from 'next/link'
+import Button from '@/components/Button'
 
 // Typy slajdów (bez zmian, ale tu dla kompletności)
 interface ImageSlide {
@@ -348,13 +349,15 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
             </div>
           )} */}
 
-          <div className="mt-10">
-            <Link
+          <div className="mt-10 text-center">
+            <Button
+              as="link"
               href="/kontakt"
-              className="inline-block bg-gray-800 hover:bg-gray-900 dark:bg-brand-gold dark:hover:bg-yellow-500 text-white dark:text-gray-900 py-3 px-8 rounded text-lg font-medium transition-colors"
+              variant="primary"
+              className="py-3 px-8 text-lg"
             >
               {globalOptions?.acf?.ask_button_text || 'Zapytaj o ten pierścionek'}
-            </Link>
+            </Button>
           </div>
         </div>
       </div>
