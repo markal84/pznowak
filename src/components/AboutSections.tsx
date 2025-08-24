@@ -63,20 +63,35 @@ export default function AboutSections({ html }: Props) {
 
       {hasAny ? (
         <>
-          {intro && (
-            <section className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: intro }} />
-          )}
-          {mission && (
-            <section className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: mission }} />
-          )}
-          {craft && (
-            <section className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: craft }} />
-          )}
+          {intro && <Condensed html={intro} />}
+          {mission && <Condensed html={mission} />}
+          {craft && <Condensed html={craft} />}
         </>
       ) : (
-        <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
+        <div className="prose prose-lg dark:prose-invert max-w-prose" dangerouslySetInnerHTML={{ __html: html }} />
       )}
     </div>
   )
 }
 
+function Condensed({ html }: { html: string }) {
+  const [open, setOpen] = useState(false)
+  const firstPara = useMemo(() => {
+    const m = html.match(/<p>([\s\S]*?)<\/p>/i)
+    return m ? m[0] : ''
+  }, [html])
+  return (
+    <section className="mb-8">
+      <div className="prose prose-lg dark:prose-invert max-w-prose" dangerouslySetInnerHTML={{ __html: open ? html : firstPara }} />
+      {!open && html !== firstPara && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="mt-3 text-sm text-gray-700 dark:text-gray-300 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded"
+        >
+          Czytaj więcej
+        </button>
+      )}
+    </section>
+  )
+}

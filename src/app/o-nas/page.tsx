@@ -36,7 +36,10 @@ const AboutPage = async () => {
       {/* Studio / Proces */}
       <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
         <Container max="7xl">
-          <SectionTitle eyebrow="Studio / Proces" title="Jak pracujemy" size="sm" className="mb-6" />
+          <SectionTitle eyebrow="Studio / Proces" title="Jak pracujemy" size="sm" className="mb-3" />
+          <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 leading-relaxed max-w-prose mb-6">
+            Od pierwszego szkicu po końcowe polerowanie – pracujemy ręcznie, z wyczuciem proporcji i materiału. Każdy detal ma znaczenie.
+          </p>
           <StudioGrid />
         </Container>
       </section>
