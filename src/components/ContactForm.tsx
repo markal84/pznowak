@@ -66,7 +66,8 @@ export default function ContactForm() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: body.toString(),
       })
-        const data = await res.json()
+        type ContactResponse = { ok: boolean; error?: string; ack_ok?: boolean }
+        const data: ContactResponse = await res.json()
         if (typeof window !== 'undefined') {
           // Prosty log diagnostyczny: status ack_ok z backendu (jeśli wdrożony)
           // Uwaga: pojawi się tylko, jeśli skrypt PHP zwraca 'ack_ok'
@@ -79,7 +80,7 @@ export default function ContactForm() {
           setForm({ firstName:'', lastName:'', email:'', phone:'', message:'', website:'' })
           setModalSuccess(true)
           setModalError(null)
-          setAckOk(Boolean((data as any).ack_ok))
+          setAckOk(Boolean(data.ack_ok))
           setShowModal(true)
           // focus zostanie przeniesiony do modala; po zamknięciu wróci na przycisk
         } else {
