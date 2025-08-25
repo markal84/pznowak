@@ -18,6 +18,7 @@ export default function ContactForm() {
   const [modalSuccess, setModalSuccess] = useState<boolean|undefined>(undefined)
   const [modalError, setModalError] = useState<string|null>(null)
   const submitButtonRef = useRef<HTMLButtonElement | null>(null)
+  const [ackOk, setAckOk] = useState<boolean | undefined>(undefined)
 
   const [errors, setErrors] = useState<{ [k: string]: string }>({})
 
@@ -73,25 +74,28 @@ export default function ContactForm() {
           // eslint-disable-next-line no-console
           console.log('[contact] response', data)
         }
-      if (data.ok) {
-        setStatus('success')
-        setForm({ firstName:'', lastName:'', email:'', phone:'', message:'', website:'' })
-        setModalSuccess(true)
-        setModalError(null)
-        setShowModal(true)
-        // focus zostanie przeniesiony do modala; po zamknięciu wróci na przycisk
-      } else {
+        if (data.ok) {
+          setStatus('success')
+          setForm({ firstName:'', lastName:'', email:'', phone:'', message:'', website:'' })
+          setModalSuccess(true)
+          setModalError(null)
+          setAckOk(Boolean((data as any).ack_ok))
+          setShowModal(true)
+          // focus zostanie przeniesiony do modala; po zamknięciu wróci na przycisk
+        } else {
+          setStatus('error')
+          setModalSuccess(false)
+          setModalError(data.error || 'Wystąpił błąd serwera.')
+          setAckOk(undefined)
+          setShowModal(true)
+        }
+      } catch {
         setStatus('error')
         setModalSuccess(false)
-        setModalError(data.error || 'Wystąpił błąd serwera.')
+        setModalError('Wystąpił błąd sieci.')
+        setAckOk(undefined)
         setShowModal(true)
       }
-    } catch {
-      setStatus('error')
-      setModalSuccess(false)
-      setModalError('Wystąpił błąd sieci.')
-      setShowModal(true)
-    }
   }
 
   return (
@@ -223,8 +227,10 @@ export default function ContactForm() {
         <ContactMessage
           success={modalSuccess}
           error={modalError}
+          ackOk={ackOk}
           onClose={() => {
             setShowModal(false)
+            setAckOk(undefined)
             // przywróć focus na przycisk wyślij
             setTimeout(() => submitButtonRef.current?.focus(), 0)
           }}

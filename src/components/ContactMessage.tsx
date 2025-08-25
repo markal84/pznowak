@@ -3,10 +3,11 @@ import React, { useEffect, useRef } from 'react'
 interface ContactMessageProps {
   success?: boolean
   error?: string | null
+  ackOk?: boolean
   onClose: () => void
 }
 
-const ContactMessage: React.FC<ContactMessageProps> = ({ success, error, onClose }) => {
+const ContactMessage: React.FC<ContactMessageProps> = ({ success, error, ackOk, onClose }) => {
   const dialogRef = useRef<HTMLDivElement | null>(null)
   const okButtonRef = useRef<HTMLButtonElement | null>(null)
   const lastActive = useRef<HTMLElement | null>(null)
@@ -48,7 +49,10 @@ const ContactMessage: React.FC<ContactMessageProps> = ({ success, error, onClose
         {success ? (
           <>
             <div id="contact-message-title" className="text-green-600 text-lg font-semibold mb-2">Wiadomość została wysłana!</div>
-            <div id="contact-message-desc" className="text-gray-700 dark:text-gray-200 mb-4">Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe.</div>
+            <div id="contact-message-desc" className="text-gray-700 dark:text-gray-200 mb-2">Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe.</div>
+            {ackOk && (
+              <div className="text-gray-700 dark:text-gray-200 mb-4">Wysłaliśmy potwierdzenie na Twój e‑mail.</div>
+            )}
           </>
         ) : (
           <>

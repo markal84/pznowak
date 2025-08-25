@@ -180,10 +180,18 @@ if (mail($to, $mailSubject, $mailBody, $headers, "-f $from")) {
         // wysyłka pomocnicza; brak wpływu na odpowiedź API
         $ackOk = @mail($email, $ackSubject, $ackBody, $ackHeaders, "-f $from");
     }
-    // Prosty log diagnostyczny do katalogu tymczasowego serwera
-    $logFile = sys_get_temp_dir() . '/contact_mail_' . date('Ymd') . '.log';
+    // Log diagnostyczny obok pliku skryptu (łatwiej znaleźć przez FTP), z bezpiecznym fallbackiem
+    $baseDir = __DIR__;
+    $logFile = $baseDir . '/contact_mail_' . date('Ymd') . '.log';
     $logLine = date('c') . " mail_ok=1 ack_ok=" . ($ackOk ? '1' : '0') . " from=$from to_service=$to to_client=$email\n";
-    @file_put_contents($logFile, $logLine, FILE_APPEND);
+    $logged = @file_put_contents($logFile, $logLine, FILE_APPEND);
+    if ($logged === false) {
+        $tmpFile = sys_get_temp_dir() . '/contact_mail_' . date('Ymd') . '.log';
+        $loggedTmp = @file_put_contents($tmpFile, $logLine, FILE_APPEND);
+        if ($loggedTmp === false) {
+            @error_log('[contact] ' . trim($logLine));
+        }
+    }
     echo json_encode(['ok' => true, 'ack_ok' => $ackOk]);
 } else {
     http_response_code(500);
