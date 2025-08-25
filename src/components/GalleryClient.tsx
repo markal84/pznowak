@@ -92,6 +92,29 @@ export default function GalleryClient() {
     return () => { if (el) observer.unobserve(el) }
   }, [loading, hasMore])
 
+  // Helper: best source url
+  const getSrc = (item: GalleryPost) => {
+    const media = item._embedded?.['wp:featuredmedia']?.[0] as any
+    const src: string = media?.media_details?.sizes?.large?.source_url || media?.source_url || ''
+    const alt: string = media?.alt_text || item.title.rendered || 'Galeria Inspiracji'
+    // Try to infer orientation if available
+    const w: number | undefined = media?.media_details?.width || media?.media_details?.sizes?.large?.width
+    const h: number | undefined = media?.media_details?.height || media?.media_details?.sizes?.large?.height
+    const orientation: 'portrait' | 'landscape' | 'square' =
+      typeof w === 'number' && typeof h === 'number'
+        ? (Math.abs(w - h) < Math.min(w, h) * 0.1 ? 'square' : (w > h ? 'landscape' : 'portrait'))
+        : 'landscape'
+    return { src, alt, orientation }
+  }
+
+  // Aspect ratio bucket based on orientation
+  const getAspect = (orientation: 'portrait' | 'landscape' | 'square', fallbackIndex = 0): '2/3' | '16/9' => {
+    if (orientation === 'portrait') return '2/3'
+    if (orientation === 'landscape') return '16/9'
+    // Square -> alternate for variety
+    return fallbackIndex % 2 === 0 ? '16/9' : '2/3'
+  }
+
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl md:text-4xl font-serif font-light mb-10 text-center">
@@ -100,28 +123,101 @@ export default function GalleryClient() {
       <p className="text-center mb-12 max-w-2xl mx-auto">
         Zobacz przykłady naszych realizacji i znajdź inspirację dla swojej wymarzonej biżuterii.
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {items.map((item, idx) => {
-          const media = item._embedded?.['wp:featuredmedia']?.[0]
-          const src = media?.media_details.sizes.large?.source_url || media?.source_url || ''
-          const alt = media?.alt_text || item.title.rendered || 'Galeria Inspiracji'
-          return (
-            <div key={item.id} className="group cursor-pointer" onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
-              <div className="relative aspect-square rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300">
-                <Image
-                  src={src}
-                  alt={alt}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  className="group-hover:scale-105 transition-transform duration-300"
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                  priority
-                />
+
+      {/* Prototyp A: Grid z koszykami + hero 16:9 (cover) */}
+      <section className="mb-16">
+        <h2 className="text-center text-sm tracking-widest text-gray-500 dark:text-gray-400 mb-6">Prototyp A: Grid 2:3 + 16:9, 3 kol., hero 16:9</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {/* Hero: pierwszy element, pełna szerokość (3 kolumny) */}
+          {items[0] && (() => {
+            const { src, alt } = getSrc(items[0])
+            return (
+              <div key={`hero-a-${items[0].id}`} className="group cursor-pointer md:col-span-3" onClick={() => { setLightboxIndex(0); setLightboxOpen(true) }}>
+                <div className="relative aspect-[16/9] rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300">
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    className="group-hover:scale-[1.02] transition-transform duration-300"
+                    sizes="100vw"
+                    priority
+                  />
+                </div>
               </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })()}
+          {/* Pozostałe kafle: koszyki 2:3 / 16:9 na podstawie orientacji lub naprzemiennie */}
+          {items.slice(1).map((item, i) => {
+            const idx = i + 1 // oryginalny indeks w items
+            const { src, alt, orientation } = getSrc(item)
+            const aspect = getAspect(orientation, i)
+            const aspectClass = aspect === '16/9' ? 'aspect-[16/9]' : 'aspect-[2/3]'
+            return (
+              <div key={`a-${item.id}`} className="group cursor-pointer" onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
+                <div className={`relative ${aspectClass} rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300`}>
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    className="group-hover:scale-[1.03] transition-transform duration-300"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Prototyp B: Grid z koszykami + hero 2:3 (cover), hero wprowadza pionowy akcent */}
+      <section>
+        <h2 className="text-center text-sm tracking-widest text-gray-500 dark:text-gray-400 mb-6">Prototyp B: Grid 2:3 + 16:9, 3 kol., hero 2:3</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {items[0] && (() => {
+            const { src, alt } = getSrc(items[0])
+            return (
+              <div key={`hero-b-${items[0].id}`} className="group cursor-pointer md:col-span-2" onClick={() => { setLightboxIndex(0); setLightboxOpen(true) }}>
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300">
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    className="group-hover:scale-[1.02] transition-transform duration-300"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw"
+                    priority
+                  />
+                </div>
+              </div>
+            )
+          })()}
+          {items.slice(1).map((item, i) => {
+            const idx = i + 1
+            const { src, alt, orientation } = getSrc(item)
+            const aspect = getAspect(orientation, i + 1)
+            const aspectClass = aspect === '16/9' ? 'aspect-[16/9]' : 'aspect-[2/3]'
+            return (
+              <div key={`b-${item.id}`} className="group cursor-pointer" onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
+                <div className={`relative ${aspectClass} rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300`}>
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    className="group-hover:scale-[1.03] transition-transform duration-300"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
@@ -131,6 +227,7 @@ export default function GalleryClient() {
         captions={{ descriptionTextAlign: 'center' }}
         thumbnails={{ position: 'bottom' }}
       />
+
       {hasMore && <div ref={loaderRef} className="h-10"></div>}
     </div>
   )
