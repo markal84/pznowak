@@ -14,7 +14,7 @@ import { FACEBOOK_URL, INSTAGRAM_URL, PHONE_NUMBER, EMAIL_ADDRESS, ADDRESS, MAP_
 export default function ContactPage() {
   const telHref = `tel:${PHONE_NUMBER.replace(/[^+\d]/g, '')}`
   return (
-    <section className="relative bg-[--color-bg]">
+    <section className="relative bg-[var(--color-bg)]">
       <Container as="div" max="2xl" className="py-[var(--space-section-md)]">
         <SectionTitle title="Skontaktuj się z nami" size="md" center className="mb-3" />
         <p className="text-center text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10">
@@ -23,7 +23,7 @@ export default function ContactPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* LEWA KOLUMNA: dane + mapa */}
-          <div className="bg-[--color-surface-muted] dark:bg-[--color-surface] border border-[--color-border] rounded-xl px-6 py-8 sm:p-8">
+          <div className="bg-[var(--color-surface-muted)] dark:bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-6 py-8 sm:p-8">
             <address className="not-italic">
               <dl className="space-y-6">
                 <div className="flex items-start">
@@ -61,8 +61,8 @@ export default function ContactPage() {
             </address>
 
             {/* Mapa: responsywna, z borderem i zaokrągleniem */}
-            <div className="mt-8 rounded-xl overflow-hidden border border-[--color-border]">
-              <div className="aspect-video">
+            <div className="mt-8 rounded-xl overflow-hidden border border-[var(--color-border)]">
+              <div className="aspect-video min-h-[260px] sm:min-h-[300px] lg:min-h-[360px]">
                 <iframe
                   src={MAP_URL}
                   title="Mapa dojazdu – PZ Nowak"
@@ -98,7 +98,7 @@ export default function ContactPage() {
           </div>
 
           {/* PRAWA KOLUMNA: formularz */}
-          <div className="bg-[--color-surface] border border-[--color-border] rounded-xl px-6 py-8 sm:px-8 shadow-md">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-6 py-8 sm:px-8 shadow-md">
             <ContactForm />
           </div>
         </div>
