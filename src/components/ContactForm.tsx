@@ -1,5 +1,5 @@
 'use client'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import Button from './Button'
 import ContactMessage from './ContactMessage'
 const PHP_ENDPOINT = 'http://serwer1542079.home.pl/autoinstalator/wordpress/send-contact.php'
@@ -203,7 +203,7 @@ export default function ContactForm() {
           />
         </div>
         <Button
-          ref={submitButtonRef as any}
+          ref={submitButtonRef}
           type="submit"
           disabled={status === 'sending'}
           className="w-full py-3 text-base disabled:opacity-70 disabled:cursor-not-allowed"

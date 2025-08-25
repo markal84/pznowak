@@ -173,11 +173,12 @@ if (mail($to, $mailSubject, $mailBody, $headers, "-f $from")) {
     $ackHeaders .= "Content-Transfer-Encoding: 8bit\r\n";
     $ackHeaders .= "Content-Language: pl\r\n";
     $ackHeaders .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+    $ackOk = false;
     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
         // wysyłka pomocnicza; brak wpływu na odpowiedź API
-        @mail($email, $ackSubject, $ackBody, $ackHeaders, "-f $from");
+        $ackOk = @mail($email, $ackSubject, $ackBody, $ackHeaders, "-f $from");
     }
-    echo json_encode(['ok' => true]);
+    echo json_encode(['ok' => true, 'ack_ok' => $ackOk]);
 } else {
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => 'Błąd wysyłki wiadomości.']);

@@ -1,27 +1,37 @@
 import React from 'react'
 import Link from 'next/link'
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+type CommonProps = {
   children: React.ReactNode
-  href?: string
-  as?: 'button' | 'link'
   className?: string
   variant?: 'primary' | 'secondary'
 }
+
+type LinkButtonProps = CommonProps & {
+  as?: 'link'
+  href: string
+} & React.AnchorHTMLAttributes<HTMLAnchorElement>
+
+type NativeButtonProps = CommonProps & {
+  as?: 'button'
+  href?: never
+} & React.ButtonHTMLAttributes<HTMLButtonElement>
+
+export type ButtonProps = LinkButtonProps | NativeButtonProps
 
 /**
  * Uniwersalny przycisk zgodny ze stylem strony głównej.
  * variant="primary" = ciemny (domyślny jak na stronie głównej),
  * variant="secondary" = jasny (np. do formularza kontaktowego)
  */
-const Button: React.FC<ButtonProps> = ({
+const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({
   children,
   href,
   as = 'button',
   className = '',
   variant = 'primary',
   ...rest
-}) => {
+}, ref) => {
   const base =
     'inline-flex items-center justify-center transition-colors duration-300 rounded-[8px] font-bold px-6 py-2 text-base shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60';
   const variants = {
@@ -34,16 +44,16 @@ const Button: React.FC<ButtonProps> = ({
 
   if (as === 'link' && href) {
     return (
-      <Link href={href} className={classes} {...(rest as Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>)}>
+      <Link href={href} className={classes} ref={ref as React.Ref<HTMLAnchorElement>} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
         {children}
       </Link>
     )
   }
   return (
-    <button type="button" className={classes} {...rest}>
+    <button ref={ref as React.Ref<HTMLButtonElement>} type="button" className={classes} {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
       {children}
     </button>
   )
-}
+})
 
 export default Button
