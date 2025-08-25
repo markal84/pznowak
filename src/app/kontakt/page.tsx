@@ -62,11 +62,11 @@ export default function ContactPage() {
 
             {/* Mapa: responsywna, z borderem i zaokrągleniem */}
             <div className="mt-8 rounded-xl overflow-hidden border border-[var(--color-border)]">
-              <div className="aspect-video min-h-[260px] sm:min-h-[300px] lg:min-h-[360px]">
+              <div className="relative aspect-video min-h-[260px] sm:min-h-[300px] lg:min-h-[380px]">
                 <iframe
                   src={MAP_URL}
                   title="Mapa dojazdu – PZ Nowak"
-                  className="w-full h-full"
+                  className="absolute inset-0 w-full h-full"
                   loading="lazy"
                   allowFullScreen
                   referrerPolicy="no-referrer-when-downgrade"
