@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 interface ContactMessageProps {
   success?: boolean
@@ -7,30 +7,60 @@ interface ContactMessageProps {
 }
 
 const ContactMessage: React.FC<ContactMessageProps> = ({ success, error, onClose }) => {
+  const dialogRef = useRef<HTMLDivElement | null>(null)
+  const okButtonRef = useRef<HTMLButtonElement | null>(null)
+  const lastActive = useRef<HTMLElement | null>(null)
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose()
-    }, 3000)
-    return () => clearTimeout(timer)
+    // zapamiętaj poprzedni fokus i przenieś do modala
+    lastActive.current = (document.activeElement as HTMLElement) || null
+    okButtonRef.current?.focus()
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+      } else if (e.key === 'Tab') {
+        // prosty focus trap: tylko element OK jest fokusowalny
+        e.preventDefault()
+        okButtonRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      // przywróć fokus
+      lastActive.current?.focus()
+    }
   }, [onClose])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-sm text-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="contact-message-title"
+        aria-describedby="contact-message-desc"
+        className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-sm text-center"
+        onClick={(e) => e.stopPropagation()}
+      >
         {success ? (
           <>
-            <div className="text-green-600 text-lg font-semibold mb-2">Wiadomość została wysłana!</div>
-            <div className="text-gray-700 dark:text-gray-200 mb-4">Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe.</div>
+            <div id="contact-message-title" className="text-green-600 text-lg font-semibold mb-2">Wiadomość została wysłana!</div>
+            <div id="contact-message-desc" className="text-gray-700 dark:text-gray-200 mb-4">Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe.</div>
           </>
         ) : (
           <>
-            <div className="text-red-600 text-lg font-semibold mb-2">Wystąpił błąd</div>
-            <div className="text-gray-700 dark:text-gray-200 mb-4">{error || 'Wystąpił błąd podczas wysyłania wiadomości.'}</div>
+            <div id="contact-message-title" className="text-red-600 text-lg font-semibold mb-2">Wystąpił błąd</div>
+            <div id="contact-message-desc" className="text-gray-700 dark:text-gray-200 mb-4">{error || 'Wystąpił błąd podczas wysyłania wiadomości.'}</div>
           </>
         )}
         <button
+          ref={okButtonRef}
           onClick={onClose}
-          className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors"
+          className="mt-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60"
+          autoFocus
         >
           OK
         </button>

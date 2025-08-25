@@ -63,6 +63,17 @@ $phone   = trim($data['phone']   ?? '');
 $subject = trim($data['subject'] ?? '');
 $message = trim($data['message'] ?? '');
 
+// Ochrona przed wstrzyknięciem nagłówków w polach tekstowych
+$name    = str_replace(["\r", "\n"], ' ', $name);
+$subject = str_replace(["\r", "\n"], ' ', $subject);
+
+// Limity długości – zapobieganie nadużyciom i ogromnym payloadom
+if (mb_strlen($name) > 200)   { $name = mb_substr($name, 0, 200) . '…'; }
+if (mb_strlen($email) > 200)  { $email = mb_substr($email, 0, 200); }
+if (mb_strlen($phone) > 100)  { $phone = mb_substr($phone, 0, 100); }
+if (mb_strlen($subject) > 200){ $subject = mb_substr($subject, 0, 200) . '…'; }
+if (mb_strlen($message) > 5000){ $message = mb_substr($message, 0, 5000) . "\n… (obcięto)"; }
+
 if (
     !$name ||
     !$email ||
@@ -76,6 +87,10 @@ if (
 }
 
 $mailSubject = "Nowa wiadomość z formularza: $subject";
+// Bezpieczne kodowanie tematu (diakrytyki)
+if (function_exists('mb_encode_mimeheader')) {
+    $mailSubject = mb_encode_mimeheader($mailSubject, 'UTF-8');
+}
 
 $mailBody = '<!DOCTYPE html>
 <html lang="pl">
@@ -128,9 +143,40 @@ $headers .= "Reply-To: $email\r\n";
 $headers .= "MIME-Version: 1.0\r\n";
 $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 $headers .= "Content-Transfer-Encoding: 8bit\r\n";
+$headers .= "Content-Language: pl\r\n";
+$headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
 
 // Wysyłka z parametrem -f (adres nadawcy musi być skrzynką na home.pl)
 if (mail($to, $mailSubject, $mailBody, $headers, "-f $from")) {
+    // Autoodpowiedź dla nadawcy (klienta)
+    $ackSubject = 'Dziękujemy za kontakt – PZ Nowak';
+    if (function_exists('mb_encode_mimeheader')) {
+        $ackSubject = mb_encode_mimeheader($ackSubject, 'UTF-8');
+    }
+    $ackBody = '<!DOCTYPE html>
+<html lang="pl">
+<head><meta charset="UTF-8"><title>Dziękujemy za wiadomość</title></head>
+<body style="font-family: Arial, sans-serif; background:#f9f9f9; color:#222;">
+  <div style="background:#fff; border-radius:8px; max-width:480px; margin:24px auto; padding:24px; box-shadow:0 2px 8px #0001;">
+    <h2 style="color:#1a202c; font-size:1.2rem; margin:0 0 12px;">Dziękujemy za kontakt</h2>
+    <p>Otrzymaliśmy Twoją wiadomość i odpowiemy najszybciej jak to możliwe.</p>
+    <p style="margin-top:16px; color:#444;"><strong>Podsumowanie:</strong></p>
+    <p style="white-space:pre-wrap; background:#f3f4f6; padding:12px; border-radius:6px;">' . nl2br(htmlspecialchars($message)) . '</p>
+    <p style="margin-top:16px; color:#666; font-size:12px;">Ta wiadomość została wygenerowana automatycznie. Nie odpowiadaj bezpośrednio na ten e-mail.</p>
+  </div>
+</body>
+</html>';
+    $ackHeaders  = "From: $from\r\n";
+    $ackHeaders .= "Reply-To: $to\r\n";
+    $ackHeaders .= "MIME-Version: 1.0\r\n";
+    $ackHeaders .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $ackHeaders .= "Content-Transfer-Encoding: 8bit\r\n";
+    $ackHeaders .= "Content-Language: pl\r\n";
+    $ackHeaders .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        // wysyłka pomocnicza; brak wpływu na odpowiedź API
+        @mail($email, $ackSubject, $ackBody, $ackHeaders, "-f $from");
+    }
     echo json_encode(['ok' => true]);
 } else {
     http_response_code(500);
