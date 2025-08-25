@@ -51,8 +51,8 @@ export default function ContactForm() {
       return
     }
     setStatus('sending')
-    try {
-      const body = new URLSearchParams()
+      try {
+        const body = new URLSearchParams()
       // Połącz firstName i lastName w jedno pole name
       body.append('name', (form.firstName + ' ' + form.lastName).trim())
       body.append('email', form.email)
@@ -65,7 +65,14 @@ export default function ContactForm() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: body.toString(),
       })
-      const data = await res.json()
+        const data = await res.json()
+        if (typeof window !== 'undefined') {
+          // Prosty log diagnostyczny: status ack_ok z backendu (jeśli wdrożony)
+          // Uwaga: pojawi się tylko, jeśli skrypt PHP zwraca 'ack_ok'
+          // (wgrana aktualna wersja na serwer).
+          // eslint-disable-next-line no-console
+          console.log('[contact] response', data)
+        }
       if (data.ok) {
         setStatus('success')
         setForm({ firstName:'', lastName:'', email:'', phone:'', message:'', website:'' })
