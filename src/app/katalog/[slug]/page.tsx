@@ -101,7 +101,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
         console.warn(`Błąd pobierania mediów ${id}:`, res.status)
         return null
       }
-      const media = (await res.json()) as any
+      const media = (await res.json()) as (WpMedia & { _embedded?: { 'wp:featuredmedia'?: Array<{ source_url: string }> } })
       const mime: string | undefined = media?.mime_type
       // Dla obrazów używamy zoptymalizowanych rozmiarów; dla wideo zawsze bierzemy plik wideo z source_url,
       // a poster (miniaturę) próbujemy wyciągnąć z media_details.sizes.* jeśli dostępny
@@ -146,14 +146,15 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
           slides.push({ src: it })
         }
       } else if (it && typeof it === 'object') {
-        const anyIt: any = it
-        if (typeof anyIt.id === 'number') {
-          const m = await fetchMediaById(anyIt.id)
+        type MediaLike = Partial<WpMedia> & { id?: number; url?: string; alt?: string }
+        const obj = it as MediaLike
+        if (typeof obj.id === 'number') {
+          const m = await fetchMediaById(obj.id)
           if (m?.url) slides.push({ src: m.url, alt: m.alt })
-        } else if (typeof anyIt.url === 'string') {
-          slides.push({ src: anyIt.url, alt: anyIt.alt || anyIt.title?.rendered })
-        } else if (typeof anyIt.source_url === 'string') {
-          slides.push({ src: anyIt.source_url, alt: anyIt.alt_text || anyIt.title?.rendered })
+        } else if (typeof obj.url === 'string') {
+          slides.push({ src: obj.url, alt: obj.alt || obj.title?.rendered })
+        } else if (typeof obj.source_url === 'string') {
+          slides.push({ src: obj.source_url, alt: obj.alt_text || obj.title?.rendered })
         }
       }
     }
@@ -179,16 +180,17 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
         return { type: 'video', sources: [{ src: it, type: /\.webm$/i.test(it) ? 'video/webm' : 'video/mp4' }] }
       }
     } else if (it && typeof it === 'object') {
-      const anyIt: any = it
-      if (typeof anyIt.id === 'number') {
-        const m = await fetchMediaById(anyIt.id)
+      type MediaLike = Partial<WpMedia> & { id?: number; url?: string }
+      const obj = it as MediaLike
+      if (typeof obj.id === 'number') {
+        const m = await fetchMediaById(obj.id)
         if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
           return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: m.poster, alt: m.alt, width: m.width, height: m.height }
         }
-      } else if (typeof anyIt.url === 'string') {
-        return { type: 'video', sources: [{ src: anyIt.url, type: anyIt.mime_type || (/\.webm$/i.test(anyIt.url) ? 'video/webm' : 'video/mp4') }] }
-      } else if (typeof anyIt.source_url === 'string') {
-        return { type: 'video', sources: [{ src: anyIt.source_url, type: anyIt.mime_type || (/\.webm$/i.test(anyIt.source_url) ? 'video/webm' : 'video/mp4') }] }
+      } else if (typeof obj.url === 'string') {
+        return { type: 'video', sources: [{ src: obj.url, type: obj.mime_type || (/\.webm$/i.test(obj.url) ? 'video/webm' : 'video/mp4') }] }
+      } else if (typeof obj.source_url === 'string') {
+        return { type: 'video', sources: [{ src: obj.source_url, type: obj.mime_type || (/\.webm$/i.test(obj.source_url) ? 'video/webm' : 'video/mp4') }] }
       }
     }
     return null

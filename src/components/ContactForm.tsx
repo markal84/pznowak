@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react'
 import Button from './Button'
 import ContactMessage from './ContactMessage'
-const PHP_ENDPOINT = 'http://serwer1542079.home.pl/autoinstalator/wordpress/send-contact.php'
+const PHP_ENDPOINT = 'http://serwer1542079.home.pl/autoinstalator/wordpress/send-contact-test.php?ack_mode=minimal&from=testwarsztat@michalnowak.com.pl&to=testwarsztat@michalnowak.com.pl'
 
 export default function ContactForm() {
   const [form, setForm] = useState({
@@ -69,10 +69,7 @@ export default function ContactForm() {
         type ContactResponse = { ok: boolean; error?: string; ack_ok?: boolean }
         const data: ContactResponse = await res.json()
         if (typeof window !== 'undefined') {
-          // Prosty log diagnostyczny: status ack_ok z backendu (jeśli wdrożony)
-          // Uwaga: pojawi się tylko, jeśli skrypt PHP zwraca 'ack_ok'
-          // (wgrana aktualna wersja na serwer).
-          // eslint-disable-next-line no-console
+          // Prosty log diagnostyczny na czas testów (ack_ok z backendu).
           console.log('[contact] response', data)
         }
         if (data.ok) {

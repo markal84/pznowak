@@ -24,7 +24,7 @@ export type ButtonProps = LinkButtonProps | NativeButtonProps
  * variant="primary" = ciemny (domyślny jak na stronie głównej),
  * variant="secondary" = jasny (np. do formularza kontaktowego)
  */
-const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({
+const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({ 
   children,
   href,
   as = 'button',
@@ -55,5 +55,7 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
     </button>
   )
 })
+
+Button.displayName = 'Button'
 
 export default Button

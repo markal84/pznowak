@@ -200,7 +200,8 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
 // Interface for Global Options (ACF Options Page)
 export interface GlobalOptions {
   acf: {
-    [key: string]: any; // Define specific fields for type safety
+    ask_button_text?: string;
+    [key: string]: unknown; // bardziej bezpieczne niż any
   };
 }
 

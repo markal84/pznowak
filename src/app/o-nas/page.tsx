@@ -1,18 +1,14 @@
 import React from 'react'
 import Image from 'next/image'
 import RootsTimeline from '@/components/RootsTimeline'
-import { getPageBySlug, getGlobalOptions } from '@/lib/wordpress'
-import AboutSections from '@/components/AboutSections'
+import { getPageBySlug } from '@/lib/wordpress'
 import Container from '@/components/ui/Container'
 import SectionTitle from '@/components/ui/SectionTitle'
 import StudioGrid from '@/components/StudioGrid'
 import AboutValuesCards from '@/components/AboutValuesCards'
 
 const AboutPage = async () => {
-  const [page, globalOptions] = await Promise.all([
-    getPageBySlug('o-nas'),
-    getGlobalOptions(),
-  ])
+  const page = await getPageBySlug('o-nas')
 
   const html = page?.content?.rendered || ''
 

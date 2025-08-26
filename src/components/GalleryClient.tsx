@@ -94,7 +94,20 @@ export default function GalleryClient() {
 
   // Helper: best source url
   const getSrc = (item: GalleryPost) => {
-    const media = item._embedded?.['wp:featuredmedia']?.[0] as any
+    type FeaturedMedia = {
+      source_url?: string
+      alt_text?: string
+      media_details?: {
+        width?: number
+        height?: number
+        sizes?: {
+          large?: { source_url?: string; width?: number; height?: number }
+          medium_large?: { source_url?: string; width?: number; height?: number }
+          medium?: { source_url?: string; width?: number; height?: number }
+        }
+      }
+    }
+    const media: FeaturedMedia | undefined = item._embedded?.['wp:featuredmedia']?.[0]
     const src: string = media?.media_details?.sizes?.large?.source_url || media?.source_url || ''
     const alt: string = media?.alt_text || item.title.rendered || 'Galeria Inspiracji'
     // Try to infer orientation if available

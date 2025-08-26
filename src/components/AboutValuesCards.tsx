@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaUser, FaBullseye, FaHammer } from 'react-icons/fa'
 
 interface Props { html: string }

@@ -1,9 +1,13 @@
 import React from "react";
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  as?: keyof JSX.IntrinsicElements;
-  max?: "lg" | "xl" | "2xl" | "7xl";
-}
+type MaxKey = "lg" | "xl" | "2xl" | "7xl";
+
+type AsProp<T extends React.ElementType> = {
+  as?: T;
+  max?: MaxKey;
+};
+
+type Props<T extends React.ElementType = 'div'> = AsProp<T> & Omit<React.ComponentPropsWithoutRef<T>, 'as'>;
 
 const maxMap = {
   lg: "max-w-4xl",
@@ -12,9 +16,9 @@ const maxMap = {
   "7xl": "max-w-7xl",
 };
 
-export default function Container({ as = "div", max = "2xl", className = "", ...rest }: Props) {
-  const Comp: any = as;
-  const maxClass = maxMap[max] || maxMap["2xl"];
-  return <Comp className={["mx-auto px-4", maxClass, className].join(" ")} {...(rest as any)} />;
+export default function Container<T extends React.ElementType = 'div'>({ as, max = "2xl", className = "", ...rest }: Props<T>) {
+  const Comp = (as || "div") as React.ElementType;
+  const maxClass = maxMap[max as MaxKey] || maxMap["2xl"];
+  const classes = ["mx-auto px-4", maxClass, className].join(" ");
+  return React.createElement(Comp, { className: classes, ...rest } as React.ComponentPropsWithoutRef<T>);
 }
-

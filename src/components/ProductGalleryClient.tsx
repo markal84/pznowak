@@ -65,7 +65,8 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
 
   const firstSlide = slides[0]
   // Znajdź pierwszy obraz (nie wideo) jako lepszy fallback postera
-  const firstImageSlide = slides.find((s) => (s as any).type !== 'video') as ImageSlide | undefined
+  const isVideoSlide = (s: Slide): s is VideoSlide => (s as VideoSlide).type === 'video'
+  const firstImageSlide = slides.find((s): s is ImageSlide => !isVideoSlide(s))
 
   // Przygotowanie slajdów specjalnie dla Lightboxa
   // Dla wideo usuwamy 'poster', aby lightbox spróbował wygenerować go z klatki filmu,

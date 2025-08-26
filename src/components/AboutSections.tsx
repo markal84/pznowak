@@ -51,7 +51,7 @@ export default function AboutSections({ html }: Props) {
   if (!html) {
     return (
       <p className="text-gray-600 dark:text-gray-300">
-        Dodaj treść na stronie "O nas" w WordPress lub użyj sekcji z kotwicami (about-intro, about-mission, about-craft).
+        Dodaj treść na stronie &quot;O nas&quot; w WordPress lub użyj sekcji z kotwicami (about-intro, about-mission, about-craft).
       </p>
     )
   }
