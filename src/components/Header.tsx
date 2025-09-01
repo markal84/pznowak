@@ -31,18 +31,40 @@ const Header = () => {
 
   // Aktualizuj CSS var --header-height na podstawie realnej wysokości headera
   useEffect(() => {
-    const updateVar = () => {
-      const h = headerRef.current?.offsetHeight ?? 64
-      if (typeof document !== 'undefined') {
-        document.documentElement.style.setProperty('--header-height', `${h}px`)
-      }
-    }
-    updateVar()
-    window.addEventListener('resize', updateVar)
-    window.addEventListener('orientationchange', updateVar)
+    const rafMeasure = () =>
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const h = headerRef.current?.offsetHeight ?? 64
+        if (typeof document !== 'undefined') {
+          document.documentElement.style.setProperty('--header-height', `${h}px`)
+        }
+      }))
+
+    rafMeasure()
+
+    const onResize = () => rafMeasure()
+    const onScroll = () => rafMeasure()
+    const onOrientation = () => rafMeasure()
+    const onTransitionEnd = () => rafMeasure()
+
+    window.addEventListener('resize', onResize)
+    window.addEventListener('orientationchange', onOrientation)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    const el = headerRef.current
+    el?.addEventListener('transitionend', onTransitionEnd)
+
     return () => {
-      window.removeEventListener('resize', updateVar)
-      window.removeEventListener('orientationchange', updateVar)
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('orientationchange', onOrientation)
+      window.removeEventListener('scroll', onScroll)
+      el?.removeEventListener('transitionend', onTransitionEnd)
+    }
+  }, [])
+
+  // Dodatkowo mierz po zmianie stanów (scroll/menu), by złapać initial/threshold zmiany
+  useEffect(() => {
+    const h = headerRef.current?.offsetHeight ?? 64
+    if (typeof document !== 'undefined') {
+      document.documentElement.style.setProperty('--header-height', `${h}px`)
     }
   }, [isScrolled, isMenuOpen])
 
