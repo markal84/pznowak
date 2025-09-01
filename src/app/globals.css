@@ -8,6 +8,8 @@
   --foreground: #171717;
   /* Ensure divider token exists at root for light mode */
   --color-divider: rgba(17, 24, 39, 0.06);
+  /* Approx header height for scroll-padding & mobile menu offset */
+  --header-height: 64px;
 }
 
 @theme inline {
@@ -160,6 +162,12 @@
     --color-divider: rgba(255, 255, 255, 0.08);
   }
 }
+
+@media (min-width: 768px) {
+  :root { --header-height: 80px; }
+}
+
+html { scroll-padding-top: var(--header-height); }
 
 body {
   background: var(--color-bg);

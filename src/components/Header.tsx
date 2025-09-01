@@ -36,10 +36,10 @@ const Header = () => {
       <header
         className={[
           'fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out',
-          // Mobile background: on homepage before scroll use semi-transparent; otherwise solid
-          isHome && !isScrolled ? 'bg-white/50 dark:bg-gray-900/50' : 'bg-white dark:bg-gray-900',
-          // Desktop: on homepage pre-scroll use subtle frosted transparency (no shadow); after scroll or not home use shadow
-          isTransparentDesktop ? 'md:bg-white/10 md:dark:bg-gray-900/10 md:backdrop-blur-sm md:shadow-none' : 'shadow-md',
+          // Mobile: semi-transparent both states + blur for readability
+          isHome ? 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm' : 'bg-white dark:bg-gray-900 backdrop-blur-sm',
+          // Desktop: homepage pre-scroll fully transparent (no blur, no shadow); otherwise solid with shadow
+          isTransparentDesktop ? 'md:bg-transparent md:dark:bg-transparent md:backdrop-blur-0 md:shadow-none' : 'md:bg-white md:dark:bg-gray-900 md:shadow-md',
           isScrolled ? 'py-2' : 'py-4',
           isTransparentDesktop ? 'header--transparent' : ''
         ].join(' ')}
@@ -89,7 +89,7 @@ const Header = () => {
                   aria-label='Facebook'
                   className='social-link text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
                 >
-                  <FaFacebook className='h-5 w-5' aria-hidden='true' />
+                  <FaFacebook className='h-6 w-6' aria-hidden='true' />
                 </a>
                 <a
                   href={INSTAGRAM_URL}
@@ -98,7 +98,7 @@ const Header = () => {
                   aria-label='Instagram'
                   className='social-link text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
                 >
-                  <FaInstagram className='h-5 w-5' aria-hidden='true' />
+                  <FaInstagram className='h-6 w-6' aria-hidden='true' />
                 </a>
               </li>
             </ul>
