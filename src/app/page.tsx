@@ -38,8 +38,8 @@ export default async function Home() {
   <div className="absolute inset-0 bg-black/30 dark:bg-black/50 z-10"></div>
 
   {/* Content: osadzone bliżej dołu (~80% wysokości) */}
-  <div className="relative z-20 px-6 text-white max-w-4xl mx-auto flex flex-col items-center pb-[16vh] md:pb-[20vh]">
-    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-[4.1rem] drop-shadow-xl mb-6 md:mb-8">
+  <div className="relative z-20 px-6 text-white max-w-4xl mx-auto flex flex-col items-center pb-[16vh] md:pb-[20vh] w-1/2 md:w-auto">
+    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-[4.1rem] drop-shadow-xl mb-[1.8rem] md:mb-[2.4rem]">
       Tradycja, którą docenisz.<br />
       Jakość, którą pokochasz.
     </h1>

@@ -55,20 +55,20 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, links }) => {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Facebook"
-            className="text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm"
+            className="p-2 text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm"
             onClick={(e) => e.stopPropagation()}
           >
-            <FaFacebook className="h-7 w-7" aria-hidden="true" />
+            <FaFacebook className="h-[34px] w-[34px]" aria-hidden="true" />
           </a>
           <a
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
-            className="text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm"
+            className="p-2 text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm"
             onClick={(e) => e.stopPropagation()}
           >
-            <FaInstagram className="h-7 w-7" aria-hidden="true" />
+            <FaInstagram className="h-[34px] w-[34px]" aria-hidden="true" />
           </a>
         </div>
       </nav>

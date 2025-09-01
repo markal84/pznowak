@@ -40,11 +40,13 @@ const Header = () => {
             <Image
               src="/logo.png"
               alt="Logo Michał Nowak"
-              width={isScrolled ? 110 : 160}
-              height={isScrolled ? 110 : 160}
+              width={200}
+              height={200}
               priority
               className={
-                `h-auto transition-all duration-300 dark:invert dark:hue-rotate-180`
+                `h-auto transition-all duration-300 dark:invert dark:hue-rotate-180 ${
+                  isScrolled ? 'w-[176px] md:w-[160px]' : 'w-[220px] md:w-[200px]'
+                }`
               }
             />
           </Link>

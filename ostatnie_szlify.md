@@ -1,10 +1,7 @@
-justowanie buton zobacz kolekcje w hero - w dol - moze na 80% wysokosci container hero -> czyli na 20% vh kontenera hero 
-zmiana grafiki na hero na efekt wow - generujemy grafike do hero soobno na ciemne a osobno na jasny motyw
-(- menu w ciemnej wersji - bardziej w ciemne szarości) - tego jeszcze nie robimy
-zmieniamy zddjecie michal + zdjecie warsztatu ( zdjecia dostacze - czyli w kodzie nic nie tu nie zmienia)
-zewikszyc rozmiar logo ( w pelnym header i zmniejszym header iedy przechodzimy w dol ekranu)
-- katalog - szczegoly produktu - dodac info ze masa karatowa może ulec zmianie wartości + - 3% ( opis ma byc proesjonalny i taki aby kielnt dokladnie rozumial o co chodzi)
-- katalog - usuwamy pielegnacje ,  zostawiamy tylko opis produktu (czy accordion module wtedy bedzie mial sens? z rugiej strony latwiej bedzie dodawac nowe accordion w razie jesli bedzie potrzeba - ale jesli zostanie jeden accordion to niech bedzie default rozwiniety)
 
-- zdjęcia do o nas => pracownia => detale => proces (zdjecia dostarcze, nie potrzebe zmiany w kodzie)
-- wrzucamy w header media - insta i fb ( social media linki rowniez w header w odpowienim miejscu atak aby zachowac stylizacje oraz spojnosc i czytelnosc header)
+poprawnki do szlifu - uwzglednij od tego momentu
+
+- hero text w wersji mobilnej na 50% szerokosci kontenera - odstep od textu do buttona zwieksz o 20% - zarowno w wersji mobilnej jak i desktop
+- logo wieksze o kolejne (width 200px w werji dekstop a 160px po scrollu) a o 10% wieksze w wersji mobile
+- katalog - szczegoly o roznicy w karatach dodac do kazdego produktu w opisie produktu (czyli nie w masa karatowa w liniach 331-341 bo narazie mase karatowa mamy uryta)
+- w mobile social linki w header wieksze o 20% , teraz trudniej na nie kliknac 
