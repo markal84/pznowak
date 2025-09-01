@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <>
  {/* Hero Section */}
-<section className="relative min-h-[60svh] flex flex-col justify-end text-center overflow-hidden">
+<section className="relative min-h-screen flex flex-col justify-end text-center overflow-hidden">
   {/* Background Image: osobne warianty dla light/dark */}
   {/* Tymczasowo używamy jednego pliku dla obu motywów; po dostarczeniu finalnych grafik podmień na hero-light.jpg / hero-dark.jpg */}
   <Image
@@ -37,8 +37,8 @@ export default async function Home() {
   {/* Overlay (mocniejszy w dark dla kontrastu) */}
   <div className="absolute inset-0 bg-black/30 dark:bg-black/50 z-10"></div>
 
-  {/* Content: osadzone bliżej dołu (~80% wysokości) */}
-  <div className="relative z-20 px-6 text-white max-w-4xl mx-auto flex flex-col items-center pb-[16vh] md:pb-[20vh]">
+  {/* Content: top ~60% wysokości, CTA bliżej dołu */}
+  <div className="absolute inset-x-0 top-[60vh] z-20 px-6 text-white max-w-4xl mx-auto flex flex-col items-center">
     <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight drop-shadow-xl mb-2 md:mb-3">
       Tradycja, którą docenisz.
     </h1>
