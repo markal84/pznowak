@@ -1,6 +1,7 @@
+
 'use client' // Needed for useState
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import MobileMenu from './MobileMenu' // Import MobileMenu
@@ -26,6 +27,24 @@ const Header = () => {
   const pathname = usePathname()
   const isHome = pathname === '/'
   const isTransparentDesktop = isHome && !isScrolled
+  const headerRef = useRef<HTMLElement | null>(null)
+
+  // Aktualizuj CSS var --header-height na podstawie realnej wysokości headera
+  useEffect(() => {
+    const updateVar = () => {
+      const h = headerRef.current?.offsetHeight ?? 64
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty('--header-height', `${h}px`)
+      }
+    }
+    updateVar()
+    window.addEventListener('resize', updateVar)
+    window.addEventListener('orientationchange', updateVar)
+    return () => {
+      window.removeEventListener('resize', updateVar)
+      window.removeEventListener('orientationchange', updateVar)
+    }
+  }, [isScrolled, isMenuOpen])
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -34,6 +53,7 @@ const Header = () => {
   return (
     <>
       <header
+        ref={headerRef}
         className={[
           'fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out',
           // Mobile: zawsze półprzezroczysty z lekkim blur
