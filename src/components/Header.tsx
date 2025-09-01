@@ -32,7 +32,7 @@ const Header = () => {
   return (
     <>
       <header
-        className={`bg-white dark:bg-gray-900 shadow-md sticky top-0 z-50 transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}
+        className={`bg-white dark:bg-gray-900 shadow-md fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}
       >
         <Container max="7xl" className={`px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}>
           {/* Logo */}
