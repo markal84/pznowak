@@ -24,6 +24,8 @@ const Header = () => {
   const [{ y }] = useWindowScroll()
   const isScrolled = (y ?? 0) > 4 // Adjust this value to control when the header changes
   const pathname = usePathname()
+  const isHome = pathname === '/'
+  const isTransparentDesktop = isHome && !isScrolled
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -32,7 +34,14 @@ const Header = () => {
   return (
     <>
       <header
-        className={`bg-white dark:bg-gray-900 shadow-md fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}
+        className={[
+          // Base solid background for mobile
+          'fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out bg-white dark:bg-gray-900',
+          // Desktop: make transparent on homepage until scrolled
+          isTransparentDesktop ? 'md:bg-transparent md:dark:bg-transparent md:shadow-none' : 'shadow-md',
+          isScrolled ? 'py-2' : 'py-4',
+          isTransparentDesktop ? 'header--transparent' : ''
+        ].join(' ')}
       >
         <Container max="7xl" className={`px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}>
           {/* Logo */}
@@ -77,7 +86,7 @@ const Header = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label='Facebook'
-                  className='text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
+                  className='social-link text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
                 >
                   <FaFacebook className='h-5 w-5' aria-hidden='true' />
                 </a>
@@ -86,7 +95,7 @@ const Header = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label='Instagram'
-                  className='text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
+                  className='social-link text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
                 >
                   <FaInstagram className='h-5 w-5' aria-hidden='true' />
                 </a>

@@ -42,7 +42,7 @@ export default async function Home() {
     <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight drop-shadow-xl mb-2 md:mb-3">
       Tradycja, którą docenisz.
     </h1>
-    <p className="text-2xl md:text-3xl font-serif font-normal text-white/90 drop-shadow mb-6 md:mb-8">
+    <p className="text-2xl md:text-3xl font-serif font-normal text-white/90 drop-shadow mb-6 md:mb-30">
       Jakość, którą pokochasz.
     </p>
     <Button as="link" href="/katalog" variant="primary" className="py-4 px-8 text-lg">

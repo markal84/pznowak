@@ -136,6 +136,13 @@
     @apply text-gray-800 dark:text-gray-100 transition-colors duration-300;
     @apply hover:text-brand-gold;
   }
+
+  /* Transparent header (desktop only via media query below) */
+  @media (min-width: 768px) {
+    .header--transparent .nav-link-hover { @apply text-white border-transparent; }
+    .header--transparent .nav-link-hover.nav-link-active { @apply text-brand-gold border-brand-gold; }
+    .header--transparent .social-link { @apply text-white; }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
