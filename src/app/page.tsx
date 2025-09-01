@@ -39,10 +39,12 @@ export default async function Home() {
 
   {/* Content: osadzone bliżej dołu (~80% wysokości) */}
   <div className="relative z-20 px-6 text-white max-w-4xl mx-auto flex flex-col items-center pb-[16vh] md:pb-[20vh] w-1/2 md:w-auto">
-    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-[4.1rem] drop-shadow-xl mb-[1.8rem] md:mb-[2.4rem]">
-      Tradycja, którą docenisz.<br />
-      Jakość, którą pokochasz.
+    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight drop-shadow-xl mb-2 md:mb-3">
+      Tradycja, którą docenisz.
     </h1>
+    <p className="text-2xl md:text-3xl font-serif font-normal text-white/90 drop-shadow mb-6 md:mb-8">
+      Jakość, którą pokochasz.
+    </p>
     <Button as="link" href="/katalog" variant="primary" className="py-4 px-8 text-lg">
       Zobacz kolekcję
     </Button>
