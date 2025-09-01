@@ -36,10 +36,12 @@ const Header = () => {
       <header
         className={[
           'fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out',
-          // Mobile: semi-transparent both states + blur for readability
-          isHome ? 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm' : 'bg-white dark:bg-gray-900 backdrop-blur-sm',
-          // Desktop: homepage pre-scroll fully transparent (no blur, no shadow); otherwise solid with shadow
-          isTransparentDesktop ? 'md:bg-transparent md:dark:bg-transparent md:backdrop-blur-0 md:shadow-none' : 'md:bg-white md:dark:bg-gray-900 md:shadow-md',
+          // Mobile: zawsze półprzezroczysty z lekkim blur
+          isHome ? 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm' : 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm',
+          // Desktop: na homepage przed scrollem w 100% transparent (bez blur); po scrolu lub poza homepage półprzezroczysty + blur
+          isHome && !isScrolled
+            ? 'md:bg-transparent md:dark:bg-transparent md:backdrop-blur-0'
+            : 'md:bg-white/50 md:dark:bg-gray-900/50 md:backdrop-blur-sm',
           isScrolled ? 'py-2' : 'py-4',
           isTransparentDesktop ? 'header--transparent' : ''
         ].join(' ')}

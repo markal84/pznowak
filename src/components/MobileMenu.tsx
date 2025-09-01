@@ -20,8 +20,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, links }) => {
   const pathname = usePathname()
   return (
     <div
-      className={`fixed inset-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm z-40 transition-opacity duration-300 ease-in-out md:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-      style={{ paddingTop: 'var(--header-height)' }}
+      className={`fixed inset-x-0 top-[var(--header-height)] bottom-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm z-40 transition-opacity duration-300 ease-in-out md:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       onClick={onClose}
     >
       {/* Optional: Add a close button inside the menu */}
@@ -29,7 +28,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, links }) => {
 
       <nav
         id="mobile-menu"
-        className="h-[calc(100svh-var(--header-height))] flex flex-col items-center justify-between px-8 pb-10"
+        className="h-full flex flex-col items-center justify-between px-8 pb-10"
       >
         <div className="flex flex-col items-center gap-10 mt-6">
         {links.map((link) => {
