@@ -14,24 +14,32 @@ export default async function Home() {
   return (
     <>
  {/* Hero Section */}
-<section className="relative min-h-screen flex items-center justify-center text-center overflow-hidden">
-  {/* Background Image */}
-  <Image 
-    src="/hero.png" 
-    alt="Tło pracowni złotniczej" 
-    fill 
-    style={{ objectFit: 'cover' }} 
-    priority 
-    className="z-0"
+<section className="relative min-h-[90svh] flex flex-col justify-end text-center overflow-hidden">
+  {/* Background Image: osobne warianty dla light/dark */}
+  {/* Tymczasowo używamy jednego pliku dla obu motywów; po dostarczeniu finalnych grafik podmień na hero-light.jpg / hero-dark.jpg */}
+  <Image
+    src="/hero.png"
+    alt="Tło pracowni złotniczej (jasny motyw)"
+    fill
+    style={{ objectFit: 'cover' }}
+    priority
+    className="z-0 block dark:hidden"
+  />
+  <Image
+    src="/hero.png"
+    alt="Tło pracowni złotniczej (ciemny motyw)"
+    fill
+    style={{ objectFit: 'cover' }}
+    priority
+    className="z-0 hidden dark:block"
   />
 
   {/* Overlay (mocniejszy w dark dla kontrastu) */}
   <div className="absolute inset-0 bg-black/30 dark:bg-black/50 z-10"></div>
 
-  {/* Content */}
-  <div className="relative z-20 px-6 py-12 text-white max-w-4xl flex flex-col items-center" style={{ transform: 'translateY(-20%)' }}>
-    {/* TODO: Zbadać dlaczego klasa leading-h1 z tailwind.config.ts nie działa poprawnie (nadpisywana?). Tymczasowo użyto leading-[4.1rem]. */}
-    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-[4.1rem] drop-shadow-xl mb-10">
+  {/* Content: osadzone bliżej dołu (~80% wysokości) */}
+  <div className="relative z-20 px-6 text-white max-w-4xl mx-auto flex flex-col items-center pb-[16vh] md:pb-[20vh]">
+    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-[4.1rem] drop-shadow-xl mb-6 md:mb-8">
       Tradycja, którą docenisz.<br />
       Jakość, którą pokochasz.
     </h1>

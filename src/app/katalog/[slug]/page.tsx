@@ -329,9 +329,14 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
               </div>
             )}
             {acf.masa_karatowa && (
-              <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">Masa karatowa</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{acf.masa_karatowa}</span>
+              <div className="py-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500 dark:text-gray-400">Masa karatowa</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{acf.masa_karatowa}</span>
+                </div>
+                <p className="mt-2 text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Uwaga: wartość masy karatowej może nieznacznie różnić się o ±3% w zależności od rozmiaru i techniki wykonania.
+                </p>
               </div>
             )}
           </div>
@@ -347,28 +352,13 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
           </div>
 
           <div className="space-y-1 mt-12 text-left">
-            <AccordionItem title="Opis Produktu" initialOpen>
+            <AccordionItem title="Opis produktu" initialOpen>
               <div
                 className="prose prose-sm dark:prose-invert max-w-prose leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: product.content.rendered }}
               />
             </AccordionItem>
-            {acf.dodatkowe_informacje && (
-              <AccordionItem title="Dodatkowe Informacje">
-                <div
-                  className="prose prose-sm dark:prose-invert max-w-prose leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: acf.dodatkowe_informacje! }}
-                />
-              </AccordionItem>
-            )}
-            {acf.pielegnacja && (
-              <AccordionItem title="Pielęgnacja">
-                <div
-                  className="prose prose-sm dark:prose-invert max-w-prose leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: acf.pielegnacja! }}
-                />
-              </AccordionItem>
-            )}
+            {/* Na życzenie: pozostawiamy wyłącznie opis produktu. */}
           </div>
         </div>
       </div>

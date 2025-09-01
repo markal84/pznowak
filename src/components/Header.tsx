@@ -7,6 +7,8 @@ import MobileMenu from './MobileMenu' // Import MobileMenu
 import { useWindowScroll } from '@uidotdev/usehooks'
 import { usePathname } from 'next/navigation'
 import Container from './ui/Container'
+import { FaFacebook, FaInstagram } from 'react-icons/fa'
+import { FACEBOOK_URL, INSTAGRAM_URL } from '@/lib/socials'
 
 // Define navigation links
 const navLinks = [
@@ -38,18 +40,18 @@ const Header = () => {
             <Image
               src="/logo.png"
               alt="Logo Michał Nowak"
-              width={isScrolled ? 90 : 140}
-              height={isScrolled ? 90 : 140}
+              width={isScrolled ? 110 : 160}
+              height={isScrolled ? 110 : 160}
               priority
               className={
-                `h-auto transition-all duration-300 ${isScrolled ? '' : ''} dark:invert dark:hue-rotate-180`
+                `h-auto transition-all duration-300 dark:invert dark:hue-rotate-180`
               }
             />
           </Link>
 
           {/* Desktop Navigation (Hidden on Mobile) */}
           <nav className='hidden md:block'>
-            <ul className='flex space-x-6 text-base font-medium tracking-wide font-serif text-gray-900 dark:text-white'>
+            <ul className='flex items-center gap-6 text-base font-medium tracking-wide font-serif text-gray-900 dark:text-white'>
               {navLinks.map((link) => {
                 const isActive = link.href === '/'
                   ? pathname === '/'
@@ -66,6 +68,27 @@ const Header = () => {
                   </li>
                 )
               })}
+              {/* Social icons (desktop) */}
+              <li className='ml-4 flex items-center gap-4'>
+                <a
+                  href={FACEBOOK_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label='Facebook'
+                  className='text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
+                >
+                  <FaFacebook className='h-5 w-5' aria-hidden='true' />
+                </a>
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label='Instagram'
+                  className='text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
+                >
+                  <FaInstagram className='h-5 w-5' aria-hidden='true' />
+                </a>
+              </li>
             </ul>
           </nav>
 

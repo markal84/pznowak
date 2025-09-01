@@ -2,6 +2,8 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { FaFacebook, FaInstagram } from 'react-icons/fa'
+import { FACEBOOK_URL, INSTAGRAM_URL } from '@/lib/socials'
 
 interface NavLink {
   href: string
@@ -47,6 +49,28 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, links }) => {
             </Link>
           )
         })}
+        <div className="flex items-center gap-8 pt-4">
+          <a
+            href={FACEBOOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+            className="text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <FaFacebook className="h-7 w-7" aria-hidden="true" />
+          </a>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <FaInstagram className="h-7 w-7" aria-hidden="true" />
+          </a>
+        </div>
       </nav>
     </div>
   )
