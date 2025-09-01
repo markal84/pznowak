@@ -35,10 +35,11 @@ const Header = () => {
     <>
       <header
         className={[
-          // Base solid background for mobile
-          'fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out bg-white dark:bg-gray-900',
-          // Desktop: make transparent on homepage until scrolled
-          isTransparentDesktop ? 'md:bg-transparent md:dark:bg-transparent md:shadow-none' : 'shadow-md',
+          'fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out',
+          // Mobile background: on homepage before scroll use semi-transparent; otherwise solid
+          isHome && !isScrolled ? 'bg-white/50 dark:bg-gray-900/50' : 'bg-white dark:bg-gray-900',
+          // Desktop: on homepage pre-scroll use subtle frosted transparency (no shadow); after scroll or not home use shadow
+          isTransparentDesktop ? 'md:bg-white/10 md:dark:bg-gray-900/10 md:backdrop-blur-sm md:shadow-none' : 'shadow-md',
           isScrolled ? 'py-2' : 'py-4',
           isTransparentDesktop ? 'header--transparent' : ''
         ].join(' ')}
