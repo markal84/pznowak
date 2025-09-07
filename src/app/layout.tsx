@@ -1,22 +1,7 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-const lato = Lato({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "700", "900"],
-  variable: "--font-lato-sans",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-playfair",
-});
 
 export const metadata: Metadata = {
   title: "Pracownia Złotnicza Michał Nowak",
@@ -29,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl" className={`${lato.variable} ${playfair.variable}`}>
+    <html lang="pl">
       <body className="min-h-screen font-sans">
         <a href="#main" className="skip-link">Przejdź do treści</a>
         <div className="min-h-screen flex flex-col">

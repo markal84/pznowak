@@ -1,0 +1,20 @@
+
+.App {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d1b00 100%);
+  color: #f0f0f0;
+  font-family: 'Georgia', serif;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .App {
+    font-size: 14px;
+  }
+}

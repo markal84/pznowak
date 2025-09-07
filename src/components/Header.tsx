@@ -69,7 +69,17 @@ const Header = () => {
   }, [isScrolled, isMenuOpen])
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
+    const willOpen = !isMenuOpen
+    setIsMenuOpen(willOpen)
+    if (willOpen && typeof window !== 'undefined') {
+      // Jeśli otwieramy menu na mobile i jesteśmy przewinięci w dół,
+      // przesuń widok do góry, aby menu było widoczne (push-down UX).
+      const isMobile = window.matchMedia('(max-width: 767px)').matches
+      if (isMobile) {
+        // Zmień przewijanie na natychmiastowe (znacznie szybsze niż domyślne smooth)
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      }
+    }
   }
 
   // Zamknij menu klawiszem Escape (a11y)
@@ -117,7 +127,7 @@ const Header = () => {
 
           {/* Desktop Navigation (Hidden on Mobile) */}
           <nav className='hidden md:block'>
-            <ul className='flex items-center gap-6 text-base font-medium tracking-wide font-serif text-gray-900 dark:text-white'>
+            <ul className='flex items-center gap-8 text-base font-medium tracking-wide font-serif text-gray-900 dark:text-white'>
               {navLinks.map((link) => {
                 const isActive = link.href === '/'
                   ? pathname === '/'

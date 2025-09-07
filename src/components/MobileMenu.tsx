@@ -38,7 +38,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, links }) => {
         aria-label="Główne menu"
         className="min-h-[240px] flex flex-col items-center justify-between px-8 pb-10"
       >
-        <div className="flex flex-col items-center gap-10 mt-6">
+        <div className="flex flex-col items-center gap-10 mt-6 mb-6">
         {links.map((link) => {
           const isActive = link.href === '/'
             ? pathname === '/'

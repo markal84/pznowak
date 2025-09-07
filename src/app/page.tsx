@@ -13,43 +13,52 @@ export default async function Home() {
   // Teraz: wyświetlamy dwa pierwsze z katalogu
   return (
     <>
- {/* Hero Section */}
-<section className="relative min-h-screen flex flex-col justify-end text-center overflow-hidden">
-  {/* Background Image: osobne warianty dla light/dark */}
-  {/* Tymczasowo używamy jednego pliku dla obu motywów; po dostarczeniu finalnych grafik podmień na hero-light.jpg / hero-dark.jpg */}
-  <Image
-    src="/hero.png"
-    alt="Tło pracowni złotniczej (jasny motyw)"
-    fill
-    style={{ objectFit: 'cover' }}
-    priority
-    className="z-0 block dark:hidden"
-  />
-  <Image
-    src="/hero.png"
-    alt="Tło pracowni złotniczej (ciemny motyw)"
-    fill
-    style={{ objectFit: 'cover' }}
-    priority
-    className="z-0 hidden dark:block"
-  />
-
-  {/* Overlay (mocniejszy w dark dla kontrastu) */}
-  <div className="absolute inset-0 bg-black/30 dark:bg-black/50 z-10"></div>
-
-  {/* Content: top ~60% wysokości, CTA bliżej dołu */}
-  <div className="absolute inset-x-0 top-[30vh] z-20 px-6 text-white max-w-4xl mx-auto flex flex-col items-center">
-    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight drop-shadow-xl mb-2 md:mb-3">
-      Tradycja, którą docenisz.
-    </h1>
-    <p className="text-2xl md:text-3xl font-serif font-normal text-white/90 drop-shadow mb-6 md:mb-30">
-      Jakość, którą pokochasz.
-    </p>
-    <Button as="link" href="/katalog" variant="primary" className="py-4 px-8 text-lg">
-      Zobacz kolekcję
-    </Button>
-  </div>
-</section>
+ {/* Hero Section – tło pełnoekranowe (jak wcześniej) + layout tekstu z compare */}
+ <section className="relative min-h-screen overflow-hidden">
+   {/* Tło: obraz pełnoekranowy light/dark */}
+   <Image
+     src="/hero.png"
+     alt="Tło pracowni złotniczej (jasny motyw)"
+     fill
+     priority
+     className="absolute inset-0 z-0 object-cover block dark:hidden"
+   />
+   <Image
+     src="/hero.png"
+     alt="Tło pracowni złotniczej (ciemny motyw)"
+     fill
+     priority
+     className="absolute inset-0 z-0 object-cover hidden dark:block"
+   />
+   {/* Overlay: przyciemnienie + subtelne radiale brand */}
+   <div className="absolute inset-0 z-10 bg-black/30 dark:bg-black/50" />
+   <div
+     aria-hidden
+     className="absolute inset-0 z-10 pointer-events-none opacity-70 dark:opacity-40"
+     style={{
+       background:
+         'radial-gradient(circle at 20% 80%, rgba(184,134,11,0.10) 0%, transparent 55%), radial-gradient(circle at 80% 20%, rgba(191,161,129,0.12) 0%, transparent 55%)',
+     }}
+   />
+   {/* Treść */}
+   <Container max="7xl" className="relative z-20">
+     <div className="min-h-[calc(100vh-var(--header-height))] flex items-center py-20">
+       <div className="max-w-2xl text-center md:text-left text-white">
+         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-light leading-tight">
+           Tradycja, którą <span className="relative text-[var(--color-brand-gold)] font-normal after:content-[''] after:absolute after:left-0 after:-bottom-2 after:h-[3px] after:w-full after:bg-gradient-to-r after:from-[var(--color-brand-gold)] after:to-[var(--color-brand-gold-soft)] after:rounded-[2px]">docenisz.</span>
+         </h1>
+         <p className="mt-6 text-lg sm:text-xl md:text-2xl italic text-white/90">
+           Jakość, którą pokochasz.
+         </p>
+         <div className="mt-8 flex flex-wrap gap-3 justify-center md:justify-start">
+           <Button as="link" href="/katalog" variant="primary" className="py-4 px-8 text-lg">
+             Zobacz kolekcję
+           </Button>
+         </div>
+       </div>
+     </div>
+   </Container>
+ </section>
 
 
       {/* About Us Snippet */}
@@ -57,7 +66,7 @@ export default async function Home() {
         <Container className="text-center">
           <div className="max-w-3xl mx-auto">
             <SectionTitle title="Mistrzowskie Rzemiosło" center />
-            <p className="text-lg md:text-xl leading-relaxed mb-8 text-gray-700 dark:text-gray-300">
+            <p className="text-lg md:text-xl leading-8 md:leading-9 mb-8 text-gray-700 dark:text-gray-300">
               W naszej pracowni każdy pierścionek to dzieło sztuki, tworzone z dbałością o najmniejszy detal. Łączymy tradycyjne techniki złotnicze z nowoczesnym wzornictwem, aby spełnić Twoje marzenia o idealnej biżuterii. Specjalizujemy się w projektach na indywidualne zamówienie, dopasowanych do Twoich potrzeb i oczekiwań.
             </p>
             <Button 

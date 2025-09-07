@@ -121,11 +121,11 @@ export default function GalleryClient() {
   }
 
   // Aspect ratio bucket based on orientation
-  const getAspect = (orientation: 'portrait' | 'landscape' | 'square', fallbackIndex = 0): '2/3' | '16/9' => {
+  // Cel: obok jednego pionowego (2/3 ~1.5w) mieszczą się dwa poziome (4/3 ~0.75w)
+  const getAspect = (orientation: 'portrait' | 'landscape' | 'square', _fallbackIndex = 0): '2/3' | '4/3' => {
     if (orientation === 'portrait') return '2/3'
-    if (orientation === 'landscape') return '16/9'
-    // Square -> alternate for variety
-    return fallbackIndex % 2 === 0 ? '16/9' : '2/3'
+    // Square traktujemy jak poziomy, dla lepszego wypełniania obok pionów
+    return '4/3'
   }
 
   return (
@@ -137,10 +137,8 @@ export default function GalleryClient() {
         Zobacz przykłady naszych realizacji i znajdź inspirację dla swojej wymarzonej biżuterii.
       </p>
 
-      {/* Prototyp A: Grid z koszykami + hero 16:9 (cover) */}
       <section className="mb-16">
-        <h2 className="text-center text-sm tracking-widest text-gray-500 dark:text-gray-400 mb-6">Prototyp A: Grid 2:3 + 16:9, 3 kol., hero 16:9</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 grid-flow-row-dense">
           {/* Hero: pierwszy element, pełna szerokość (3 kolumny) */}
           {items[0] && (() => {
             const { src, alt } = getSrc(items[0])
@@ -160,60 +158,15 @@ export default function GalleryClient() {
               </div>
             )
           })()}
-          {/* Pozostałe kafle: koszyki 2:3 / 16:9 na podstawie orientacji lub naprzemiennie */}
+          {/* Pozostałe kafle: pion = 2/3 + sm:row-span-2, poziom/kwadrat = 4/3 + sm:row-span-1 */}
           {items.slice(1).map((item, i) => {
             const idx = i + 1 // oryginalny indeks w items
             const { src, alt, orientation } = getSrc(item)
             const aspect = getAspect(orientation, i)
-            const aspectClass = aspect === '16/9' ? 'aspect-[16/9]' : 'aspect-[2/3]'
+            const aspectClass = aspect === '4/3' ? 'aspect-[4/3]' : 'aspect-[2/3]'
+            const rowSpanClass = orientation === 'portrait' ? 'sm:row-span-2' : 'sm:row-span-1'
             return (
-              <div key={`a-${item.id}`} className="group cursor-pointer" onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
-                <div className={`relative ${aspectClass} rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300`}>
-                  <Image
-                    src={src}
-                    alt={alt}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    className="group-hover:scale-[1.03] transition-transform duration-300"
-                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </section>
-
-      {/* Prototyp B: Grid z koszykami + hero 2:3 (cover), hero wprowadza pionowy akcent */}
-      <section>
-        <h2 className="text-center text-sm tracking-widest text-gray-500 dark:text-gray-400 mb-6">Prototyp B: Grid 2:3 + 16:9, 3 kol., hero 2:3</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {items[0] && (() => {
-            const { src, alt } = getSrc(items[0])
-            return (
-              <div key={`hero-b-${items[0].id}`} className="group cursor-pointer md:col-span-2" onClick={() => { setLightboxIndex(0); setLightboxOpen(true) }}>
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300">
-                  <Image
-                    src={src}
-                    alt={alt}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    className="group-hover:scale-[1.02] transition-transform duration-300"
-                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 66vw"
-                    priority
-                  />
-                </div>
-              </div>
-            )
-          })()}
-          {items.slice(1).map((item, i) => {
-            const idx = i + 1
-            const { src, alt, orientation } = getSrc(item)
-            const aspect = getAspect(orientation, i + 1)
-            const aspectClass = aspect === '16/9' ? 'aspect-[16/9]' : 'aspect-[2/3]'
-            return (
-              <div key={`b-${item.id}`} className="group cursor-pointer" onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
+              <div key={`a-${item.id}`} className={`group cursor-pointer ${rowSpanClass}`} onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
                 <div className={`relative ${aspectClass} rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300`}>
                   <Image
                     src={src}
