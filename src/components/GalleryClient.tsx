@@ -122,7 +122,7 @@ export default function GalleryClient() {
 
   // Aspect ratio bucket based on orientation
   // Cel: obok jednego pionowego (2/3 ~1.5w) mieszczą się dwa poziome (4/3 ~0.75w)
-  const getAspect = (orientation: 'portrait' | 'landscape' | 'square', _fallbackIndex = 0): '2/3' | '4/3' => {
+  const getAspect = (orientation: 'portrait' | 'landscape' | 'square'): '2/3' | '4/3' => {
     if (orientation === 'portrait') return '2/3'
     // Square traktujemy jak poziomy, dla lepszego wypełniania obok pionów
     return '4/3'
@@ -162,7 +162,7 @@ export default function GalleryClient() {
           {items.slice(1).map((item, i) => {
             const idx = i + 1 // oryginalny indeks w items
             const { src, alt, orientation } = getSrc(item)
-            const aspect = getAspect(orientation, i)
+            const aspect = getAspect(orientation)
             const aspectClass = aspect === '4/3' ? 'aspect-[4/3]' : 'aspect-[2/3]'
             const rowSpanClass = orientation === 'portrait' ? 'sm:row-span-2' : 'sm:row-span-1'
             return (

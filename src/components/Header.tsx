@@ -25,8 +25,6 @@ const Header = () => {
   const [{ y }] = useWindowScroll()
   const isScrolled = (y ?? 0) > 4 // Adjust this value to control when the header changes
   const pathname = usePathname()
-  const isHome = pathname === '/'
-  const isTransparentDesktop = isHome && !isScrolled
   const headerRef = useRef<HTMLElement | null>(null)
 
   // Aktualizuj CSS var --header-height na podstawie realnej wysokości headera
