@@ -12,6 +12,10 @@
   --header-height: 64px;
   /* Mobile menu target height (pushes content when open) */
   --mobile-menu-height: min(calc(100svh - var(--header-height)), 80svh);
+  /* Header appearance tokens */
+  --header-bg-light: rgba(255, 255, 255, 0.96);
+  --header-bg-dark: rgba(17, 24, 39, 0.96); /* ~gray-900 @ 10% */
+  --header-blur: 2px;
 }
 
 @theme inline {
@@ -157,9 +161,10 @@
 
   /* Transparent header (desktop only via media query below) */
   @media (min-width: 768px) {
-    .header--transparent .nav-link-hover { @apply text-white; }
+    /* W light mode linki muszą pozostać ciemne na jasnym hero */
+    .header--transparent .nav-link-hover { @apply text-gray-900 dark:text-white; }
     .header--transparent .nav-link-hover.nav-link-active { @apply text-brand-gold; }
-    .header--transparent .social-link { @apply text-white; }
+    .header--transparent .social-link { @apply text-gray-900 dark:text-white; }
   }
 }
 

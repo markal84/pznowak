@@ -98,14 +98,10 @@ const Header = () => {
         ref={headerRef}
         className={[
           'sticky top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out',
-          // Mobile: zawsze półprzezroczysty z lekkim blur
-          isHome ? 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm' : 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm',
-          // Desktop: na homepage przed scrollem w 100% transparent (bez blur); po scrolu lub poza homepage półprzezroczysty + blur
-          isHome && !isScrolled
-            ? 'md:bg-transparent md:dark:bg-transparent md:backdrop-blur-0'
-            : 'md:bg-white/50 md:dark:bg-gray-900/50 md:backdrop-blur-sm',
+          // Minimalna, spójna przezroczystość i blur z tokenów (light/dark, mobile/desktop)
+          'bg-[color:var(--header-bg-light)] dark:bg-[color:var(--header-bg-dark)] backdrop-blur-[var(--header-blur)]',
           isScrolled ? 'py-2' : 'py-4',
-          isTransparentDesktop ? 'header--transparent' : ''
+          // Bez specjalnego trybu transparent na desktop — ujednolicone wartości
         ].join(' ')}
       >
         <Container max="7xl" className={`px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}>

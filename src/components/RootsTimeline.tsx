@@ -31,7 +31,7 @@ const history: HistoryEvent[] = [
     year: '1955',
     title: 'Założyciel – Dziadek',
     description:
-      'Dziadek rozpoczął ręczną produkcję pierścionków w małym krakowskim warsztacie.',
+      'Dziadek rozpoczął ręczną produkcję pierścionków w małym buskim warsztacie.',
     image: imgGrandfather,
     alt: 'Dziadek – Założyciel pracowni',
   },

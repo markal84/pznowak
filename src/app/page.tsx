@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Button from '../components/Button'
 import Card from '../components/ui/Card'
 import ProductCard from '../components/ProductCard'
@@ -17,7 +18,7 @@ export default async function Home() {
  <section className="relative min-h-screen overflow-hidden">
    {/* Tło: obraz pełnoekranowy light/dark */}
    <Image
-     src="/hero.png"
+     src="/hero-light.png"
      alt="Tło pracowni złotniczej (jasny motyw)"
      fill
      priority
@@ -31,7 +32,7 @@ export default async function Home() {
      className="absolute inset-0 z-0 object-cover hidden dark:block"
    />
    {/* Overlay: przyciemnienie + subtelne radiale brand */}
-   <div className="absolute inset-0 z-10 bg-black/30 dark:bg-black/50" />
+   <div className="absolute inset-0 z-10 bg-black/20 dark:bg-black/40" />
    <div
      aria-hidden
      className="absolute inset-0 z-10 pointer-events-none opacity-70 dark:opacity-40"
@@ -42,10 +43,10 @@ export default async function Home() {
    />
    {/* Treść */}
    <Container max="7xl" className="relative z-20">
-     <div className="min-h-[calc(100vh-var(--header-height))] flex items-center py-20">
-       <div className="max-w-2xl text-center md:text-left text-white">
+    <div className="min-h-screen flex items-center py-20">
+       <div className="max-w-2xl text-center md:text-left text-white -translate-y-12 sm:-translate-y-16 md:-translate-y-20 lg:-translate-y-24">
          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-light leading-tight">
-           Tradycja, którą <span className="relative text-[var(--color-brand-gold)] font-normal after:content-[''] after:absolute after:left-0 after:-bottom-2 after:h-[3px] after:w-full after:bg-gradient-to-r after:from-[var(--color-brand-gold)] after:to-[var(--color-brand-gold-soft)] after:rounded-[2px]">docenisz.</span>
+           <span className="relative text-[var(--color-brand-gold)] font-normal after:content-[''] after:absolute after:left-0 after:-bottom-2 after:h-[3px] after:w-full after:bg-gradient-to-r after:from-[var(--color-brand-gold)] after:to-[var(--color-brand-gold-soft)] after:rounded-[2px]">Tradycja,</span> którą docenisz.
          </h1>
          <p className="mt-6 text-lg sm:text-xl md:text-2xl italic text-white/90">
            Jakość, którą pokochasz.
@@ -63,10 +64,10 @@ export default async function Home() {
 
       {/* About Us Snippet */}
       <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] xl:py-[var(--space-section-lg)]">
-        <Container className="text-center">
+        <Container className="text-center mb-2">
           <div className="max-w-3xl mx-auto">
             <SectionTitle title="Mistrzowskie Rzemiosło" center />
-            <p className="text-lg md:text-xl leading-8 md:leading-9 mb-8 text-gray-700 dark:text-gray-300">
+            <p className="text-lg italic leading-8 md:leading-9 mb-8 text-gray-700 dark:text-gray-300">
               W naszej pracowni każdy pierścionek to dzieło sztuki, tworzone z dbałością o najmniejszy detal. Łączymy tradycyjne techniki złotnicze z nowoczesnym wzornictwem, aby spełnić Twoje marzenia o idealnej biżuterii. Specjalizujemy się w projektach na indywidualne zamówienie, dopasowanych do Twoich potrzeb i oczekiwań.
             </p>
             <Button 
@@ -99,10 +100,17 @@ export default async function Home() {
               <ProductCard product={products[1]} cardClassName="bg-white dark:bg-gray-900 h-full" />
             )}
             {/* Box CTA w trzeciej kolumnie */}
-            <Card className="p-6 flex flex-col items-center justify-center text-center min-h-[340px] h-full">
+            <Card className="group relative p-6 flex flex-col items-center justify-center text-center min-h-[340px] h-full overflow-hidden">
+              <Link
+                href="/katalog"
+                aria-label="Przejdź do katalogu"
+                tabIndex={-1}
+                aria-hidden
+                className="absolute inset-0 z-10"
+              />
               <h3 className="text-2xl font-serif font-normal leading-tight mb-3 text-gray-900 dark:text-white">Odkryj Pełną Ofertę</h3>
               <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-6">Zobacz wszystkie nasze unikalne projekty pierścionków zaręczynowych i obrączek.</p>
-              <Button as="link" href="/katalog" variant="primary" className="py-2 px-6 text-base inline-block">
+              <Button as="link" href="/katalog" variant="primary" className="py-2 px-6 text-base inline-block relative z-20 group-hover:bg-neutral-800 group-hover:text-brand-gold-soft dark:group-hover:bg-gray-200 dark:group-hover:text-neutral-900">
                 Przejdź do katalogu
               </Button>
             </Card>
@@ -111,10 +119,10 @@ export default async function Home() {
       </section>
 
       {/* Contact CTA */}
-      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] xl:py-[var(--space-section-lg)] bg-gradient-to-r from-gray-700 to-gray-900 text-white">
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] xl:py-[var(--space-section-lg)] bg-gradient-to-r from-[var(--color-brand-light)] to-[var(--color-brand-beige)] dark:from-gray-700 dark:to-gray-900 text-gray-900 dark:text-white">
         <Container className="text-center">
           <SectionTitle title="Masz Pomysł na Wyjątkowy Pierścionek?" center className="mb-6" />
-          <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-gray-300 leading-relaxed">
+          <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300 leading-relaxed">
             Skontaktuj się z nami, aby omówić swój projekt. Z przyjemnością stworzymy dla Ciebie biżuterię marzeń.
           </p>
           <Button

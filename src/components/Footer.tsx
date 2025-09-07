@@ -26,9 +26,6 @@ const Footer = () => {
             <div className="flex items-center gap-3 mb-3 justify-center sm:justify-start">
               <Image src="/logo.png" alt="Logo Michał Nowak" width={140} height={40} className="h-auto w-[140px] dark:invert dark:hue-rotate-180" />
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 max-w-xs mx-auto sm:mx-0">
-              Rzemiosło tworzone przez pokolenia. Biżuteria personalizowana z dbałością o każdy detal.
-            </p>
           </div>
 
           {/* Szybkie linki */}

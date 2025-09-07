@@ -299,11 +299,11 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
           {/* Lead (2–3 zdania). Preferuj excerpt; fallback: krótki opis ogólny. */}
           {product.excerpt?.rendered ? (
             <div
-              className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6 prose prose-sm max-w-prose dark:prose-invert"
+              className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-6 prose prose-sm max-w-prose dark:prose-invert"
               dangerouslySetInnerHTML={{ __html: product.excerpt.rendered }}
             />
           ) : (
-            <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6 max-w-prose">
+            <p className="text-base md:text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6 max-w-prose">
               Ręcznie wykonany pierścionek tworzony z dbałością o każdy detal. Łączy klasyczną elegancję z nowoczesnym wykończeniem, aby subtelnie podkreślić wyjątkowe chwile.
             </p>
           )}
