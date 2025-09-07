@@ -72,12 +72,22 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen)
   }
 
+  // Zamknij menu klawiszem Escape (a11y)
+  useEffect(() => {
+    if (!isMenuOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isMenuOpen])
+
   return (
     <>
       <header
         ref={headerRef}
         className={[
-          'fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out',
+          'sticky top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out',
           // Mobile: zawsze półprzezroczysty z lekkim blur
           isHome ? 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm' : 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm',
           // Desktop: na homepage przed scrollem w 100% transparent (bez blur); po scrolu lub poza homepage półprzezroczysty + blur

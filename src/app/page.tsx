@@ -38,7 +38,7 @@ export default async function Home() {
   <div className="absolute inset-0 bg-black/30 dark:bg-black/50 z-10"></div>
 
   {/* Content: top ~60% wysokości, CTA bliżej dołu */}
-  <div className="absolute inset-x-0 top-[60vh] z-20 px-6 text-white max-w-4xl mx-auto flex flex-col items-center">
+  <div className="absolute inset-x-0 top-[30vh] z-20 px-6 text-white max-w-4xl mx-auto flex flex-col items-center">
     <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight drop-shadow-xl mb-2 md:mb-3">
       Tradycja, którą docenisz.
     </h1>

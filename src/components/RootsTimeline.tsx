@@ -83,15 +83,20 @@ export function RootsTimeline() {
             key={event.id}
             className="group relative overflow-hidden rounded-lg shadow-sm bg-[--color-surface]"
           >
-            <Image
-              src={event.image}
-              alt={event.alt}
-              placeholder="blur"
-              width={600}
-              height={750}
-              sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
-              className="h-80 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+            {/*
+              Zmiana: object-contain, aby całe zdjęcie było widoczne.
+              Stały aspekt + neutralne tło ogranicza CLS i zapewnia estetyczne „pasy”.
+            */}
+            <div className="relative w-full bg-[--color-surface-muted] aspect-[4/5] lg:aspect-[3/4]">
+              <Image
+                src={event.image}
+                alt={event.alt}
+                placeholder="blur"
+                fill
+                sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
+                className="object-contain object-center p-2 transition-transform duration-200 group-hover:scale-[1.02] motion-reduce:transform-none"
+              />
+            </div>
             {/* Caption under image (no overlay) */}
             <div className="p-4">
               <span className="font-serif text-xl text-brand-gold block text-center">{event.year}</span>

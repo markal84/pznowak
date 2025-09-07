@@ -20,15 +20,23 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, links }) => {
   const pathname = usePathname()
   return (
     <div
-      className={`fixed inset-x-0 top-[var(--header-height)] bottom-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm z-40 transition-opacity duration-300 ease-in-out md:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      /*
+        Mobile-only, w przepływie dokumentu pod headerem.
+        Animuje max-height, co płynnie spycha treść w dół.
+      */
+      className={[
+        'md:hidden overflow-hidden bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm',
+        'transition-[max-height,opacity] ease-in-out',
+        'motion-safe:duration-200 motion-reduce:transition-none',
+        isOpen ? 'max-h-[var(--mobile-menu-height)] opacity-100' : 'max-h-0 opacity-0 pointer-events-none',
+      ].join(' ')}
+      aria-hidden={!isOpen}
       onClick={onClose}
     >
-      {/* Optional: Add a close button inside the menu */}
-      {/* <button onClick={onClose} className="absolute top-4 right-4 text-3xl text-gray-700">&times;</button> */}
-
       <nav
         id="mobile-menu"
-        className="h-full flex flex-col items-center justify-between px-8 pb-10"
+        aria-label="Główne menu"
+        className="min-h-[240px] flex flex-col items-center justify-between px-8 pb-10"
       >
         <div className="flex flex-col items-center gap-10 mt-6">
         {links.map((link) => {

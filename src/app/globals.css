@@ -10,6 +10,8 @@
   --color-divider: rgba(17, 24, 39, 0.06);
   /* Approx header height for scroll-padding & mobile menu offset */
   --header-height: 64px;
+  /* Mobile menu target height (pushes content when open) */
+  --mobile-menu-height: min(calc(100svh - var(--header-height)), 80svh);
 }
 
 @theme inline {
