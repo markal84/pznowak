@@ -10,6 +10,8 @@ const WP_REST_BASE = WP_V2_ROOT.replace(/\/wp\/v2$/, '');
 
 // Basic structure for ACF fields (adjust based on actual field types)
 interface ProductACF {
+  // Marketingowy lead (2–3 zdania) renderowany nad kluczowymi danymi
+  lead?: string;
   product_gallery_1?: number | string; // Zaktualizowane na podstawie poprzednich dyskusji
   product_gallery_2?: number | string; // Zaktualizowane
   product_gallery_3?: number | string; // Zaktualizowane

@@ -296,17 +296,20 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
             dangerouslySetInnerHTML={{ __html: product.title.rendered }}
           />
 
-          {/* Lead (2–3 zdania). Preferuj excerpt; fallback: krótki opis ogólny. */}
-          {product.excerpt?.rendered ? (
-            <div
-              className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-6 prose prose-sm max-w-prose dark:prose-invert"
-              dangerouslySetInnerHTML={{ __html: product.excerpt.rendered }}
-            />
-          ) : (
-            <p className="text-base md:text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6 max-w-prose">
-              Ręcznie wykonany pierścionek tworzony z dbałością o każdy detal. Łączy klasyczną elegancję z nowoczesnym wykończeniem, aby subtelnie podkreślić wyjątkowe chwile.
-            </p>
-          )}
+          {/* Lead (2–3 zdania). Priorytet: ACF lead → Excerpt → fallback. */}
+          {(() => {
+            const lead = (product.acf as { lead?: string })?.lead?.trim()
+            if (lead) {
+              return (
+                <p className="text-base md:text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6 max-w-prose">{lead}</p>
+              )
+            }
+            return (
+              <p className="text-base md:text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6 max-w-prose">
+                Ręcznie wykonany pierścionek tworzony z dbałością o każdy detal. Łączy klasyczną elegancję z nowoczesnym wykończeniem, aby subtelnie podkreślić wyjątkowe chwile.
+              </p>
+            )
+          })()}
 
           {/* Key facts: wrapper z podziałami i odstępem od CTA */}
           <div className="mb-10 keyfacts-divider">
@@ -342,12 +345,12 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
               {globalOptions?.acf?.ask_button_text || 'Zapytaj o ten pierścionek'}
             </Button>
             <div className="mt-4 md:mt-6 text-xs md:text-sm opacity-80 text-gray-600 dark:text-gray-400">
-              Preferujesz szybko? Zadzwoń <a className="link-subtle-hover underline-offset-2 hover:underline" href={`tel:${PHONE_NUMBER.replace(/\s+/g, '')}`}>{PHONE_NUMBER}</a> lub napisz <a className="link-subtle-hover underline-offset-2 hover:underline" href={`mailto:${EMAIL_ADDRESS}`}>{EMAIL_ADDRESS}</a>.
+              Lub zadzwoń <a className="link-subtle-hover underline-offset-2 hover:underline" href={`tel:${PHONE_NUMBER.replace(/\s+/g, '')}`}>{PHONE_NUMBER}</a> lub napisz <a className="link-subtle-hover underline-offset-2 hover:underline" href={`mailto:${EMAIL_ADDRESS}`}>{EMAIL_ADDRESS}</a>.
             </div>
           </div>
 
           <div className="space-y-1 mt-12 text-left">
-            <AccordionItem title="Opis produktu" initialOpen>
+            <AccordionItem title="Opis i materiały" initialOpen>
               <div
                 className="prose prose-sm dark:prose-invert max-w-prose leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: product.content.rendered }}
