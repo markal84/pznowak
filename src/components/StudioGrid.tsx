@@ -3,7 +3,7 @@ import Image from 'next/image'
 const items = [
   {
     src: '/about-us-workshop.png',
-    alt: 'Pracownia – stanowisko pracy',
+    alt: 'Pracownia - stanowisko pracy',
     title: 'Pracownia',
     text: 'Miejsce, w którym każdy detal powstaje ręcznie.'
   },
@@ -17,7 +17,7 @@ const items = [
     src: '/about-us-proccess.png',
     alt: 'Proces twórczy',
     title: 'Proces',
-    text: 'Od szkicu po gotową formę – przejrzyście i z pasją.'
+    text: 'Od szkicu po gotową formę - przejrzyście i z pasją.'
   },
 ]
 

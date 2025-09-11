@@ -65,7 +65,7 @@ export default function ContactPage() {
               <div className="relative aspect-video min-h-[260px] sm:min-h-[300px] lg:min-h-[380px]">
                 <iframe
                   src={MAP_URL}
-                  title="Mapa dojazdu – PZ Nowak"
+                  title="Mapa dojazdu - PZ Nowak"
                   className="absolute inset-0 w-full h-full"
                   loading="lazy"
                   allowFullScreen

@@ -21,37 +21,34 @@ const history: HistoryEvent[] = [
   {
     id: 0,
     year: '1890',
-    title: 'Założyciel tradycji',
-    description: 'Kowal Wiktor Nowak z Szańca, pierwsze projekty złotnicze.',
+    title: 'Wiktor Nowak',
+    description: 'Kowal z Szańca. Przywoził narzędzia z Francji, tworzył pierwsze projekty biżuterii.',
     image: imgGrandgrandfather,
-    alt: 'Wiktor Nowak – Założyciel tradycji, kowal z Szańca',
+    alt: 'Wiktor Nowak - kowal z Szańca, początki tradycji',
   },
   {
     id: 1,
     year: '1955',
-    title: 'Założyciel – Dziadek',
-    description:
-      'Dziadek rozpoczął ręczną produkcję pierścionków w małym buskim warsztacie.',
+    title: 'Stanisław Nowak',
+    description: 'Mistrz złotnictwa lat 50. Rozwijał warsztat, szkolił się u najlepszych w regionie.',
     image: imgGrandfather,
-    alt: 'Dziadek – Założyciel pracowni',
+    alt: 'Stanisław Nowak - mistrz złotnictwa, lata pięćdziesiąte',
   },
   {
     id: 2,
     year: '1985',
-    title: 'Kontynuacja – Ojciec',
-    description:
-      'Ojciec wprowadził nowoczesne techniki jubilerskie i szlify diamentów GIA.',
+    title: 'Mieczysław Nowak',
+    description: 'Tytan pracy. Tworzył cenione projekty lat 80., dziś trafiające do renowacji w pracowni.',
     image: imgFather,
-    alt: 'Ojciec – Kontynuator tradycji',
+    alt: 'Mieczysław Nowak - twórca projektów, lata osiemdziesiąte',
   },
   {
     id: 3,
-    year: '2024',
-    title: 'Nowa era – Michał',
-    description:
-      'Michał uruchomił konfigurator 3D i sprzedaż online na całym świecie.',
+    year: 'Obecnie',
+    title: 'Michał Nowak',
+    description: 'Kultywuje tradycję. Ręczna oprawa i projekty z kamieniami szlachetnymi, dbałość o detale.',
     image: imgSon,
-    alt: 'Michał – Obecny właściciel',
+    alt: 'Michał Nowak - kultywuje tradycję, biżuteria z kamieniami',
   },
 ]
 
