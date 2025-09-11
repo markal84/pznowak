@@ -6,10 +6,17 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $allowed = [
   'https://pznowak.pl',
   'https://www.pznowak.pl',
+  // dev servers
   'http://localhost:3000',
   'http://localhost:3006',
+  'http://localhost:5055',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3006',
+  'http://127.0.0.1:5055',
 ];
-if (in_array($origin, $allowed, true)) {
+// allow any localhost:* as a fallback for dev
+$isLocalhost = (bool)preg_match('~^https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$~', $origin);
+if ($origin && (in_array($origin, $allowed, true) || $isLocalhost)) {
   header('Access-Control-Allow-Origin: ' . $origin);
 } else {
   header('Access-Control-Allow-Origin: https://pznowak.pl');

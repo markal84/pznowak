@@ -1,6 +1,6 @@
 // src/lib/socials.ts
 
-export const FACEBOOK_URL = "https://www.facebook.com";
+export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61568506251939";
 export const INSTAGRAM_URL = "https://www.instagram.com";
 export const PHONE_NUMBER = "+48 501 321 347";
 export const EMAIL_ADDRESS = "kontakt@pznowak.pl";
