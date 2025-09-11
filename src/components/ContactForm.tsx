@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react'
 import Button from './Button'
 import ContactMessage from './ContactMessage'
-const PHP_ENDPOINT = process.env.NEXT_PUBLIC_PHP_ENDPOINT || 'http://serwer1542079.home.pl/autoinstalator/wordpress/send-contact.php'
+const PHP_ENDPOINT = process.env.NEXT_PUBLIC_PHP_ENDPOINT || 'http://serwer1542079.home.pl/autoinstalator/pznowak/send-contact.php'
 
 export default function ContactForm() {
   const [form, setForm] = useState({
