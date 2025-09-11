@@ -1,7 +1,19 @@
 <?php
 // Pozwól na żądania CORS z localhost (tylko do testów!)
 // Po wdrożeniu na produkcję ustaw tu swoją domenę zamiast *
-header('Access-Control-Allow-Origin: *');
+// CORS: tylko z dozwolonych domen (prod + dev)
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$allowed = [
+  'https://pznowak.pl',
+  'https://www.pznowak.pl',
+  'http://localhost:3000',
+  'http://localhost:3006',
+];
+if (in_array($origin, $allowed, true)) {
+  header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+  header('Access-Control-Allow-Origin: https://pznowak.pl');
+}
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -11,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // send-contact.php
 // Adres e-mail nadawcy i odbiorcy (zmień na adres domeny pznowak przed wdrożeniem produkcyjnym)
-$from = 'testwarsztat@michalnowak.com.pl'; // <-- ZMIEŃ na adres z domeny pznowak przed produkcją
-$to   = 'testwarsztat@michalnowak.com.pl'; // <-- ZMIEŃ na adres z domeny pznowak przed produkcją
+$from = 'kontakt@pznowak.pl';
+$to   = 'kontakt@pznowak.pl';
 
 header('Content-Type: application/json');
 
