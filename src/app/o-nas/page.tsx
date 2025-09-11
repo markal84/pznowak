@@ -1,46 +1,61 @@
 import React from 'react'
 import Image from 'next/image'
 import RootsTimeline from '@/components/RootsTimeline'
-// Placeholder for potential image imports
+import { getPageBySlug } from '@/lib/wordpress'
+import Container from '@/components/ui/Container'
+import SectionTitle from '@/components/ui/SectionTitle'
+import StudioGrid from '@/components/StudioGrid'
+import AboutValuesCards from '@/components/AboutValuesCards'
 
-const AboutPage = () => {
+const AboutPage = async () => {
+  const page = await getPageBySlug('o-nas')
+
+  const html = page?.content?.rendered || ''
+
+  // Helper: extract first paragraph from HTML as lead (very simple fallback)
+  const leadMatch = html.match(/<p>(.*?)<\/p>/i)
+  const lead = leadMatch ? leadMatch[1] : ''
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl md:text-4xl font-serif font-light mb-8 text-center">Michał Nowak - Pracownia Złotnicza</h1>
-      <div className="max-w-3xl mx-auto leading-relaxed space-y-6 font-sans">
-        {/* Image of the workshop */}
-        <div className="relative w-full h-64 bg-gray-200 dark:bg-gray-700 my-8 rounded overflow-hidden shadow-md">
-          <Image 
-            src="/about-us-workshop.png"
-            alt="Wnętrze pracowni złotniczej Michała Nowaka" 
-            fill 
-            style={{ objectFit: 'cover' }} 
-            sizes="(max-width: 768px) 100vw, 896px"
-            priority
-          />
-        </div>
-        <p className="text-base md:text-lg font-light">
-          W naszej rodzinie złotnictwo to coś więcej niż zawód – to prawdziwa tradycja przekazywana z ojca na syna już od trzech pokoleń. Każdy pierścionek, który opuszcza naszą pracownię, to nie tylko efekt kunsztownego rzemiosła, ale także historia, emocje i pasja do piękna.
-        </p>
-        <p className="text-base md:text-lg font-light">
-          Od ponad 60 lat łączymy klasyczne techniki jubilerskie z nowoczesnym podejściem, tworząc biżuterię o niepowtarzalnym charakterze. Cenimy ręczną pracę, dbałość o najdrobniejszy detal oraz materiały najwyższej jakości – dlatego każdy nasz wyrób jest unikalnym dziełem sztuki, które z dumą może być przekazywane kolejnym pokoleniom.
-        </p>
-        <p className="text-base md:text-lg font-light">
-          Nasz warsztat jest miejscem, w którym tradycja spotyka nowoczesność. To tutaj realizujemy Wasze marzenia – projektując pierścionki zaręczynowe, obrączki i unikatową biżuterię na indywidualne zamówienie, zgodnie z Waszą wizją i oczekiwaniami.
-        </p>
-        <p className="text-base md:text-lg font-light">
-          Zapraszamy do świata, w którym biżuteria staje się opowieścią o miłości, historii i wyjątkowych chwilach w życiu.
-        </p>
-        <p className="text-base md:text-lg font-semibold text-center pt-4">
-          Tworzymy biżuterię z duszą. Dla Was – od czterech pokoleń.
-        </p>
+    <>
+      {/* Hero with feature image and left-aligned copy */}
+      <section className="relative min-h-[360px] md:min-h-[440px] overflow-hidden">
+        <Image src="/about-us-workshop.png" alt="Pracownia złotnicza – warsztat" fill sizes="100vw" className="object-cover" priority />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/10 dark:from-black/50 dark:to-black/20" />
+        <Container max="7xl" className="relative z-10 py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
+          <h1 className="text-3xl md:text-4xl font-serif font-light mb-6 md:mb-8 text-white" dangerouslySetInnerHTML={{ __html: page?.title.rendered || 'O nas' }} />
+          {lead && (
+            <p className="text-base md:text-lg leading-relaxed text-white/90 max-w-prose">{lead}</p>
+          )}
+        </Container>
+      </section>
 
-        {/* --- Sekcja Zdjęć Pokoleniowych --- */}
-        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700">
+      {/* Studio / Proces */}
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
+        <Container max="7xl">
+          <SectionTitle eyebrow="Studio / Proces" title="Jak pracujemy" size="sm" className="mb-3" />
+          <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 leading-relaxed max-w-prose mb-6">
+            Od pierwszego szkicu po końcowe polerowanie – pracujemy ręcznie, z wyczuciem proporcji i materiału. Każdy detal ma znaczenie.
+          </p>
+          <StudioGrid />
+        </Container>
+      </section>
+
+      {/* Nasze korzenie (timeline) */}
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] border-t" style={{ borderColor: 'var(--color-divider)' }}>
+        <Container max="7xl">
           <RootsTimeline />
-        </div>
-      </div>
-    </div>
+        </Container>
+      </section>
+
+      {/* Wartości – karty z treści WP (intro/mission/craft) */}
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
+        <Container max="7xl">
+          <SectionTitle eyebrow="Wartości" title="Co jest dla nas ważne" size="sm" className="mb-6" />
+          <AboutValuesCards html={html} />
+        </Container>
+      </section>
+    </>
   )
 }
 

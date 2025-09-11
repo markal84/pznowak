@@ -1,38 +1,204 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/aspect-ratio";
+@plugin "@tailwindcss/forms";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Ensure divider token exists at root for light mode */
+  --color-divider: rgba(17, 24, 39, 0.06);
+  /* Approx header height for scroll-padding & mobile menu offset */
+  --header-height: 64px;
+  /* Mobile menu target height (pushes content when open) */
+  --mobile-menu-height: min(calc(100svh - var(--header-height)), 80svh);
+  /* Header appearance tokens */
+  --header-bg-light: rgba(255, 255, 255, 0.96);
+  --header-bg-dark: rgba(17, 24, 39, 0.96); /* ~gray-900 @ 10% */
+  --header-blur: 2px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* Semantic colors */
+  --color-bg: var(--background);
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f7f7;
+  --color-text: #111827;         /* neutral-900 */
+  --color-text-muted: #374151;   /* neutral-700 */
+  --color-border: #e5e7eb;       /* gray-200 */
+  --color-border-muted: rgba(229, 231, 235, 0.7);
+  /* Subtle divider color (light) */
+  --color-divider: rgba(17, 24, 39, 0.06);
+
+  /* Fonts */
+  /* Typography updated to compare (Georgia) */
+  --font-sans: Georgia, ui-serif, "Times New Roman", Times, serif;
+  --font-serif: Georgia, ui-serif, "Times New Roman", Times, serif;
+  --font-display: Georgia, ui-serif, "Times New Roman", Times, serif;
+  --font-mono: monospace;
+
+  /* Brand colors (approved) */
+  --color-brand-gold: #B8860B;           /* primary accent */
+  --color-brand-gold-soft: #BFA181;      /* soft accent */
+  --color-brand-gold-light: rgba(184, 134, 11, 0.15);
+  --color-brand-light: #F4F2EE;
+  --color-brand-beige: #F5E1C3;
+  --color-brand-gray: #F5F5F5;
+
+  /* Neutral palette (graphite tones) */
+  --color-neutral-900: #111827; /* bg/heading in dark contexts */
+  --color-neutral-700: #374151; /* body/dim text */
+
+  /* Radius (approved 8px) */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;           /* 8px default */
+  --radius-md: 0.5rem;
+  --radius-lg: 0.5rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 10px 0 rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 10px 25px -5px rgb(0 0 0 / 0.12);
+
+  /* Motion */
+  --duration-150: 150ms;
+  --duration-200: 200ms;
+  --duration-300: 300ms;            /* align with compare */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-smooth: ease;              /* compare style */
+
+  /* Typography scale */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.25rem;      /* 20px */
+  --text-xl: 1.563rem;     /* 25px */
+  --text-2xl: 1.953rem;    /* 31px */
+  --text-3xl: 2.441rem;    /* 39px */
+  --text-4xl: 3.052rem;    /* 49px */
+
+  /* Line heights */
+  --leading-base: 1.5rem;   /* 24px */
+  --leading-relaxed: 2rem;  /* 32px */
+  --leading-h3: 2.5rem;     /* 40px */
+  --leading-h2: 3rem;       /* 48px */
+  --leading-h1: 4rem;       /* 64px */
+
+  /* Section spacing rhythm */
+  --space-section-sm: 3rem;  /* 48px */
+  --space-section-md: 4rem;  /* 64px */
+  --space-section-lg: 6rem;  /* 96px */
 }
 
 @layer components {
-  .nav-link-hover {
-    @apply text-gray-800 dark:text-white transition-colors duration-300 border-b-2 border-transparent pb-1;
-    @apply hover:text-[#B8860B] hover:border-[#B8860B] dark:hover:text-[#BFA181] dark:hover:border-[#BFA181];
+  /* Timeline axis helper */
+  .timeline-axis { position: relative; }
+  .timeline-axis::before {
+    content: "";
+    position: absolute;
+    left: 0.75rem; /* aligns with bullet */
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background: var(--color-divider);
   }
+  /* Subtle divider helpers */
+  .keyfacts-divider {
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .keyfacts-divider > * + * {
+    border-top: 1px solid var(--color-divider);
+  }
+  /* Catalog grid subtle row dividers */
+  .catalog-grid > li { position: relative; }
+  .catalog-grid > li::before {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    top: -0.75rem; /* aligns with gap-6 (~1.5rem) */
+    height: 1.5rem;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--color-divider) 50%, transparent);
+  }
+  /* Hide divider for first row per breakpoint columns */
+  .catalog-grid > li:first-child::before { display: none; }
+  @media (min-width: 640px) { /* sm: 2 columns */
+    .catalog-grid > li:nth-child(-n+2)::before { display: none; }
+  }
+  @media (min-width: 1024px) { /* lg: 3 columns */
+    .catalog-grid > li:nth-child(-n+3)::before { display: none; }
+  }
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:text-black focus:dark:bg-gray-900 focus:dark:text-white focus:px-4 focus:py-2 focus:rounded;
+  }
+  .nav-link-hover {
+    @apply relative text-gray-800 dark:text-white transition-colors duration-300 pb-1;
+    @apply hover:text-brand-gold dark:hover:text-brand-gold;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 focus-visible:rounded-[2px];
+  }
+  /* Animated underline (compare import) */
+  .nav-link-hover::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: -2px;
+    height: 2px;
+    width: 0;
+    background: var(--color-brand-gold);
+    transition: width var(--duration-300) var(--ease-smooth);
+  }
+  .nav-link-hover:hover::after,
+  .nav-link-hover:focus-visible::after { width: 100%; }
+  /* Active state: keep text gold + underline visible */
+  .nav-link-hover.nav-link-active { @apply text-brand-gold dark:text-brand-gold; }
+  .nav-link-hover.nav-link-active::after { width: 100%; }
 
   .link-subtle-hover {
     @apply text-gray-800 dark:text-gray-100 transition-colors duration-300;
-    @apply hover:text-[#B8860B];
+    @apply hover:text-brand-gold;
   }
+
+  /* Transparent header (desktop only via media query below) */
+  @media (min-width: 768px) {
+    /* W light mode linki muszą pozostać ciemne na jasnym hero */
+    .header--transparent .nav-link-hover { @apply text-gray-900 dark:text-white; }
+    .header--transparent .nav-link-hover.nav-link-active { @apply text-brand-gold; }
+    .header--transparent .social-link { @apply text-gray-900 dark:text-white; }
+  }
+}
+
+/* Ensure font utilities map to our tokens (override Tailwind defaults) */
+@layer utilities {
+  .font-sans { font-family: var(--font-sans); }
+  .font-serif { font-family: var(--font-serif); }
+  .font-display { font-family: var(--font-display); }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    /* Dark semantic overrides */
+    --color-bg: #0a0a0a;
+    --color-surface: #111213;
+    --color-surface-muted: #0f1011;
+    --color-text: #f3f4f6;       /* gray-100 */
+    --color-text-muted: #d1d5db; /* gray-300 */
+    --color-border: #1f2937;     /* gray-800 */
+    /* Subtle divider color (dark) */
+    --color-divider: rgba(255, 255, 255, 0.08);
   }
 }
 
+@media (min-width: 768px) {
+  :root { --header-height: 80px; }
+}
+
+html { scroll-padding-top: var(--header-height); }
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
 }

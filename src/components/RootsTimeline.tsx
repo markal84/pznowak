@@ -3,7 +3,7 @@
 import Image, { StaticImageData } from 'next/image'
 
 // === Statyczne importy obrazów (ścieżka względna do folderu public) ===
-import imgGrandgrandfather from '../../public/about-us-grandgrandfather_Wiktor.jpg'
+import imgGrandgrandfather from '../../public/about-us-grandgrandfather_Wiktor.png'
 import imgGrandfather from '../../public/about-us-grandfather.png'
 import imgFather from '../../public/about-us-father.png'
 import imgSon from '../../public/about-us-son.png'
@@ -21,52 +21,46 @@ const history: HistoryEvent[] = [
   {
     id: 0,
     year: '1890',
-    title: 'Założyciel tradycji',
-    description: 'Kowal Wiktor Nowak z Szańca, pierwsze projekty złotnicze.',
+    title: 'Wiktor Nowak',
+    description: 'Kowal z Szańca. Przywoził narzędzia z Francji, tworzył pierwsze projekty biżuterii.',
     image: imgGrandgrandfather,
-    alt: 'Wiktor Nowak – Założyciel tradycji, kowal z Szańca',
+    alt: 'Wiktor Nowak - kowal z Szańca, początki tradycji',
   },
   {
     id: 1,
     year: '1955',
-    title: 'Założyciel – Dziadek',
-    description:
-      'Dziadek rozpoczął ręczną produkcję pierścionków w małym krakowskim warsztacie.',
+    title: 'Stanisław Nowak',
+    description: 'Mistrz złotnictwa lat 50. Rozwijał warsztat, szkolił się u najlepszych w regionie.',
     image: imgGrandfather,
-    alt: 'Dziadek – Założyciel pracowni',
+    alt: 'Stanisław Nowak - mistrz złotnictwa, lata pięćdziesiąte',
   },
   {
     id: 2,
     year: '1985',
-    title: 'Kontynuacja – Ojciec',
-    description:
-      'Ojciec wprowadził nowoczesne techniki jubilerskie i szlify diamentów GIA.',
+    title: 'Mieczysław Nowak',
+    description: 'Tytan pracy. Tworzył cenione projekty lat 80., dziś trafiające do renowacji w pracowni.',
     image: imgFather,
-    alt: 'Ojciec – Kontynuator tradycji',
+    alt: 'Mieczysław Nowak - twórca projektów, lata osiemdziesiąte',
   },
   {
     id: 3,
-    year: '2024',
-    title: 'Nowa era – Michał',
-    description:
-      'Michał uruchomił konfigurator 3D i sprzedaż online na całym świecie.',
+    year: 'Obecnie',
+    title: 'Michał Nowak',
+    description: 'Kultywuje tradycję. Ręczna oprawa i projekty z kamieniami szlachetnymi, dbałość o detale.',
     image: imgSon,
-    alt: 'Michał – Obecny właściciel',
+    alt: 'Michał Nowak - kultywuje tradycję, biżuteria z kamieniami',
   },
 ]
 
 export function RootsTimeline() {
   return (
-    <section id="korzenie" className="mx-auto max-w-5xl px-6 py-16">
+    <section id="korzenie" className="w-full py-[var(--space-section-md)]">
       <h2 className="mb-12 text-center font-serif text-4xl sm:text-5xl font-light">
         Nasze korzenie
       </h2>
 
       {/* Mobile: pionowa oś czasu */}
-      <ul
-        role="list"
-        className="relative space-y-12 md:hidden before:absolute before:left-3 before:top-0 before:h-full before:w-px before:bg-gray-300 dark:before:bg-gray-700"
-      >
+      <ul role="list" className="relative space-y-12 md:hidden timeline-axis">
         {history.map((event) => (
           <li key={event.id} className="relative pl-8">
             <span className="absolute -left-[3px] top-0 h-3 w-3 rounded-full bg-amber-400" />
@@ -84,26 +78,29 @@ export function RootsTimeline() {
         {history.map((event) => (
           <li
             key={event.id}
-            className="group relative overflow-hidden rounded-lg shadow-sm"
+            className="group relative overflow-hidden rounded-lg shadow-sm bg-[--color-surface]"
           >
-            <Image
-              src={event.image}
-              alt={event.alt}
-              placeholder="blur"
-              width={600}
-              height={750}
-              sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
-              className="h-80 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-            {/* Overlay */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              <span className="font-serif text-3xl text-amber-400">
-                {event.year}
-              </span>
-              <h3 className="mt-2 text-lg font-medium text-white text-center px-2">
+            {/*
+              Zmiana: object-contain, aby całe zdjęcie było widoczne.
+              Stały aspekt + neutralne tło ogranicza CLS i zapewnia estetyczne „pasy”.
+            */}
+            <div className="relative w-full bg-[--color-surface-muted] aspect-[4/5] lg:aspect-[3/4]">
+              <Image
+                src={event.image}
+                alt={event.alt}
+                placeholder="blur"
+                fill
+                sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
+                className="object-contain object-center p-2 transition-transform duration-200 group-hover:scale-[1.02] motion-reduce:transform-none"
+              />
+            </div>
+            {/* Caption under image (no overlay) */}
+            <div className="p-4">
+              <span className="font-serif text-xl text-brand-gold block text-center">{event.year}</span>
+              <h3 className="mt-1 text-base font-medium text-gray-900 dark:text-white text-center">
                 {event.title}
               </h3>
-              <p className="mt-2 px-6 text-center text-sm text-gray-200 mb-4">
+              <p className="mt-2 text-center text-sm text-gray-700 dark:text-gray-300">
                 {event.description}
               </p>
             </div>

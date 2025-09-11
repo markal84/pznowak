@@ -23,7 +23,7 @@ type GalleryPost = {
 }
 
 export default function GalleryClient() {
-  const API_URL = process.env.NEXT_PUBLIC_WP_API_URL || ''
+  // Korzystamy z lokalnego proxy API: /api/gallery
   const PER_PAGE = 9
 
   const [items, setItems] = useState<GalleryPost[]>([])
@@ -50,13 +50,13 @@ export default function GalleryClient() {
   })
 
   useEffect(() => {
-    if (!API_URL || !hasMore) return
+    if (!hasMore) return
     const fetchGallery = async () => {
       setLoading(true)
       try {
-        const res = await fetch(
-          `${API_URL}/gallery?_embed&per_page=${PER_PAGE}&page=${page}`
-        )
+        const base = (process.env.NEXT_PUBLIC_WP_API_URL || '').replace(/\/$/, '')
+        const url = `${base}/gallery?_embed&per_page=${PER_PAGE}&page=${page}`
+        const res = await fetch(url)
         const total = res.headers.get('X-WP-TotalPages')
         if (total) setTotalPages(parseInt(total, 10))
         if (!res.ok) throw new Error(`Fetch error ${res.status}`)
@@ -77,7 +77,7 @@ export default function GalleryClient() {
       }
     }
     fetchGallery()
-  }, [API_URL, page, hasMore, totalPages])
+  }, [page, hasMore, totalPages])
 
   useEffect(() => {
     if (!hasMore) return
@@ -94,6 +94,42 @@ export default function GalleryClient() {
     return () => { if (el) observer.unobserve(el) }
   }, [loading, hasMore])
 
+  // Helper: best source url
+  const getSrc = (item: GalleryPost) => {
+    type FeaturedMedia = {
+      source_url?: string
+      alt_text?: string
+      media_details?: {
+        width?: number
+        height?: number
+        sizes?: {
+          large?: { source_url?: string; width?: number; height?: number }
+          medium_large?: { source_url?: string; width?: number; height?: number }
+          medium?: { source_url?: string; width?: number; height?: number }
+        }
+      }
+    }
+    const media: FeaturedMedia | undefined = item._embedded?.['wp:featuredmedia']?.[0]
+    const src: string = media?.media_details?.sizes?.large?.source_url || media?.source_url || ''
+    const alt: string = media?.alt_text || item.title.rendered || 'Galeria Inspiracji'
+    // Try to infer orientation if available
+    const w: number | undefined = media?.media_details?.width || media?.media_details?.sizes?.large?.width
+    const h: number | undefined = media?.media_details?.height || media?.media_details?.sizes?.large?.height
+    const orientation: 'portrait' | 'landscape' | 'square' =
+      typeof w === 'number' && typeof h === 'number'
+        ? (Math.abs(w - h) < Math.min(w, h) * 0.1 ? 'square' : (w > h ? 'landscape' : 'portrait'))
+        : 'landscape'
+    return { src, alt, orientation }
+  }
+
+  // Aspect ratio bucket based on orientation
+  // Cel: obok jednego pionowego (2/3 ~1.5w) mieszczą się dwa poziome (4/3 ~0.75w)
+  const getAspect = (orientation: 'portrait' | 'landscape' | 'square'): '2/3' | '4/3' => {
+    if (orientation === 'portrait') return '2/3'
+    // Square traktujemy jak poziomy, dla lepszego wypełniania obok pionów
+    return '4/3'
+  }
+
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl md:text-4xl font-serif font-light mb-10 text-center">
@@ -102,28 +138,54 @@ export default function GalleryClient() {
       <p className="text-center mb-12 max-w-2xl mx-auto">
         Zobacz przykłady naszych realizacji i znajdź inspirację dla swojej wymarzonej biżuterii.
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {items.map((item, idx) => {
-          const media = item._embedded?.['wp:featuredmedia']?.[0]
-          const src = media?.media_details.sizes.large?.source_url || media?.source_url || ''
-          const alt = media?.alt_text || item.title.rendered || 'Galeria Inspiracji'
-          return (
-            <div key={item.id} className="group cursor-pointer" onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
-              <div className="relative aspect-square rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300">
-                <Image
-                  src={src}
-                  alt={alt}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  className="group-hover:scale-105 transition-transform duration-300"
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                  priority
-                />
+
+      <section className="mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 grid-flow-row-dense">
+          {/* Hero: pierwszy element, pełna szerokość (3 kolumny) */}
+          {items[0] && (() => {
+            const { src, alt } = getSrc(items[0])
+            return (
+              <div key={`hero-a-${items[0].id}`} className="group cursor-pointer md:col-span-3" onClick={() => { setLightboxIndex(0); setLightboxOpen(true) }}>
+                <div className="relative aspect-[16/9] rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300">
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    className="group-hover:scale-[1.02] transition-transform duration-300"
+                    sizes="100vw"
+                    priority
+                  />
+                </div>
               </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })()}
+          {/* Pozostałe kafle: pion = 2/3 + sm:row-span-2, poziom/kwadrat = 4/3 + sm:row-span-1 */}
+          {items.slice(1).map((item, i) => {
+            const idx = i + 1 // oryginalny indeks w items
+            const { src, alt, orientation } = getSrc(item)
+            const aspect = getAspect(orientation)
+            const aspectClass = aspect === '4/3' ? 'aspect-[4/3]' : 'aspect-[2/3]'
+            const rowSpanClass = orientation === 'portrait' ? 'sm:row-span-2' : 'sm:row-span-1'
+            return (
+              <div key={`a-${item.id}`} className={`group cursor-pointer ${rowSpanClass}`} onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
+                <div className={`relative ${aspectClass} rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300`}>
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    className="group-hover:scale-[1.03] transition-transform duration-300"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
@@ -133,6 +195,7 @@ export default function GalleryClient() {
         captions={{ descriptionTextAlign: 'center' }}
         thumbnails={{ position: 'bottom' }}
       />
+
       {hasMore && <div ref={loaderRef} className="h-10"></div>}
     </div>
   )

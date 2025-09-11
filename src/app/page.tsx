@@ -1,7 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
 import Button from '../components/Button'
+import Card from '../components/ui/Card'
 import ProductCard from '../components/ProductCard'
 import { getProducts } from '../lib/wordpress'
+import Container from '../components/ui/Container'
+import SectionTitle from '../components/ui/SectionTitle'
 
 export default async function Home() {
   // Pobierz produkty z WordPressa
@@ -10,57 +14,78 @@ export default async function Home() {
   // Teraz: wyświetlamy dwa pierwsze z katalogu
   return (
     <>
- {/* Hero Section */}
-<section className="relative min-h-screen flex items-center justify-center text-center overflow-hidden">
-  {/* Background Image */}
-  <Image 
-    src="/hero.png" 
-    alt="Tło pracowni złotniczej" 
-    fill 
-    style={{ objectFit: 'cover' }} 
-    priority 
-    className="z-0"
-  />
-
-  {/* Dark Overlay */}
-  <div className="absolute inset-0 bg-black/30 z-10"></div>
-
-  {/* Content */}
-  <div className="relative z-20 px-6 py-12 text-white max-w-4xl flex flex-col items-center" style={{ transform: 'translateY(-20%)' }}>
-    {/* TODO: Zbadać dlaczego klasa leading-h1 z tailwind.config.ts nie działa poprawnie (nadpisywana?). Tymczasowo użyto leading-[4.1rem]. */}
-    <h1 className="text-4xl md:text-5xl font-serif font-bold leading-[4.1rem] drop-shadow-xl mb-10">
-      Tradycja, którą docenisz.<br />
-      Jakość, którą pokochasz.
-    </h1>
-    <Button as="link" href="/katalog" variant="secondary" className="py-4 px-8 text-lg">
-      Zobacz kolekcję
-    </Button>
-  </div>
-</section>
+ {/* Hero Section – tło pełnoekranowe (jak wcześniej) + layout tekstu z compare */}
+ <section className="relative min-h-screen overflow-hidden">
+   {/* Tło: obraz pełnoekranowy light/dark */}
+   <Image
+     src="/hero-light.png"
+     alt="Tło pracowni złotniczej (jasny motyw)"
+     fill
+     priority
+     className="absolute inset-0 z-0 object-cover block dark:hidden"
+   />
+   <Image
+     src="/hero.png"
+     alt="Tło pracowni złotniczej (ciemny motyw)"
+     fill
+     priority
+     className="absolute inset-0 z-0 object-cover hidden dark:block"
+   />
+   {/* Overlay: przyciemnienie + subtelne radiale brand */}
+   <div className="absolute inset-0 z-10 bg-black/20 dark:bg-black/40" />
+   <div
+     aria-hidden
+     className="absolute inset-0 z-10 pointer-events-none opacity-70 dark:opacity-40"
+     style={{
+       background:
+         'radial-gradient(circle at 20% 80%, rgba(184,134,11,0.10) 0%, transparent 55%), radial-gradient(circle at 80% 20%, rgba(191,161,129,0.12) 0%, transparent 55%)',
+     }}
+   />
+   {/* Treść */}
+   <Container max="7xl" className="relative z-20">
+    <div className="min-h-screen flex items-center py-20">
+       <div className="max-w-2xl text-center md:text-left text-white -translate-y-12 sm:-translate-y-16 md:-translate-y-20 lg:-translate-y-24">
+         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-light leading-tight">
+           <span className="relative text-[var(--color-brand-gold)] font-normal after:content-[''] after:absolute after:left-0 after:-bottom-2 after:h-[3px] after:w-full after:bg-gradient-to-r after:from-[var(--color-brand-gold)] after:to-[var(--color-brand-gold-soft)] after:rounded-[2px]">Tradycja,</span> którą docenisz.
+         </h1>
+         <p className="mt-6 text-lg sm:text-xl md:text-2xl italic text-white/90">
+           Jakość, którą pokochasz.
+         </p>
+         <div className="mt-8 flex flex-wrap gap-3 justify-center md:justify-start">
+           <Button as="link" href="/katalog" variant="primary" className="py-4 px-8 text-lg">
+             Zobacz kolekcję
+           </Button>
+         </div>
+       </div>
+     </div>
+   </Container>
+ </section>
 
 
       {/* About Us Snippet */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 text-center max-w-3xl">
-          <h2 className="text-3xl md:text-4xl font-serif font-normal leading-h2 mb-6">Mistrzowskie Rzemiosło</h2>
-          <p className="text-base leading-base mb-8">
-            W naszej pracowni każdy pierścionek to dzieło sztuki, tworzone z dbałością o najmniejszy detal. Łączymy tradycyjne techniki złotnicze z nowoczesnym wzornictwem, aby spełnić Twoje marzenia o idealnej biżuterii. Specjalizujemy się w projektach na indywidualne zamówienie, dopasowanych do Twoich potrzeb i oczekiwań.
-          </p>
-          <Button 
-            as="link" 
-            href="/o-nas" 
-            variant="primary" 
-            className="py-2 px-6 text-base"
-          >
-            Poznaj naszą historię
-          </Button>
-        </div>
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] xl:py-[var(--space-section-lg)]">
+        <Container className="text-center mb-2">
+          <div className="max-w-3xl mx-auto">
+            <SectionTitle title="Mistrzowskie Rzemiosło" center />
+            <p className="text-lg italic leading-8 md:leading-9 mb-8 mt-4 text-gray-700 dark:text-gray-300">
+              W naszej pracowni każdy pierścionek to dzieło sztuki, tworzone z dbałością o najmniejszy detal. Łączymy tradycyjne techniki złotnicze z nowoczesnym wzornictwem, aby spełnić Twoje marzenia o idealnej biżuterii. Specjalizujemy się w projektach na indywidualne zamówienie, dopasowanych do Twoich potrzeb i oczekiwań.
+            </p>
+            <Button 
+              as="link" 
+              href="/o-nas" 
+              variant="primary" 
+              className="py-2 px-6 text-base"
+            >
+              Poznaj naszą historię
+            </Button>
+          </div>
+        </Container>
       </section>
 
       {/* Featured Products Teaser */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-serif font-normal leading-h2 mb-12 text-center">Nasze Wyjątkowe Projekty</h2>
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] xl:py-[var(--space-section-lg)]">
+        <Container>
+          <SectionTitle title="Nasze Wyjątkowe Projekty" center className="mb-12" />
           {/*
             Docelowo produkty będą wybierane przez ACF w WordPressie (np. pole "Pokaż na stronie głównej").
             Na razie wyświetlamy dwa pierwsze z katalogu.
@@ -75,33 +100,40 @@ export default async function Home() {
               <ProductCard product={products[1]} cardClassName="bg-white dark:bg-gray-900 h-full" />
             )}
             {/* Box CTA w trzeciej kolumnie */}
-            <div className="bg-gray-200 dark:bg-gray-700 p-6 rounded-lg shadow-inner flex flex-col items-center justify-center text-center min-h-[340px] h-full">
-              <h3 className="text-xl font-serif font-normal leading-relaxed mb-4 dark:text-white">Odkryj Pełną Ofertę</h3>
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-base mb-6">Zobacz wszystkie nasze unikalne projekty pierścionków zaręczynowych i obrączek.</p>
-              <Button as="link" href="/katalog" variant="primary" className="py-2 px-6 text-base inline-block">
+            <Card className="group relative p-6 flex flex-col items-center justify-center text-center min-h-[340px] h-full overflow-hidden">
+              <Link
+                href="/katalog"
+                aria-label="Przejdź do katalogu"
+                tabIndex={-1}
+                aria-hidden
+                className="absolute inset-0 z-10"
+              />
+              <h3 className="text-2xl font-serif font-normal leading-tight mb-3 text-gray-900 dark:text-white">Odkryj Pełną Ofertę</h3>
+              <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-6">Zobacz wszystkie nasze unikalne projekty pierścionków zaręczynowych i obrączek.</p>
+              <Button as="link" href="/katalog" variant="primary" className="py-2 px-6 text-base inline-block relative z-20 group-hover:bg-neutral-800 group-hover:text-brand-gold-soft dark:group-hover:bg-gray-200 dark:group-hover:text-neutral-900">
                 Przejdź do katalogu
               </Button>
-            </div>
+            </Card>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Contact CTA */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-gray-700 to-gray-900 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-serif font-normal leading-h2 mb-6">Masz Pomysł na Wyjątkowy Pierścionek?</h2>
-          <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-gray-300 leading-relaxed">
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] xl:py-[var(--space-section-lg)] bg-gradient-to-r from-[var(--color-brand-light)] to-[var(--color-brand-beige)] dark:from-gray-700 dark:to-gray-900 text-gray-900 dark:text-white">
+        <Container className="text-center">
+          <SectionTitle title="Masz Pomysł na Wyjątkowy Pierścionek?" center className="mb-6" />
+          <p className="text-lg mb-8 max-w-2xl mx-auto text-gray-700 dark:text-gray-300 leading-relaxed">
             Skontaktuj się z nami, aby omówić swój projekt. Z przyjemnością stworzymy dla Ciebie biżuterię marzeń.
           </p>
           <Button
             as="link"
             href="/kontakt"
-            variant="secondary"
+            variant="primary"
             className="py-4 px-8 text-lg"
           >
             Napisz do nas
           </Button>
-        </div>
+        </Container>
       </section>
     </>
   );

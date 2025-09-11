@@ -14,11 +14,11 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, initialO
   const toggleOpen = () => setIsOpen(!isOpen);
 
   return (
-    <div className="border-b border-gray-200">
+    <div className="border-b" style={{ borderColor: 'var(--color-divider)' }}>
       <h2>
         <button
           type="button"
-          className="flex items-center justify-between w-full py-4 px-2 text-left font-medium hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none"
+          className="flex items-center justify-between w-full py-4 px-2 text-left font-medium hover:bg-gray-50/40 dark:hover:bg-white/5 focus:outline-none"
           onClick={toggleOpen}
           aria-expanded={isOpen}
         >

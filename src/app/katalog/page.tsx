@@ -1,6 +1,7 @@
 import React from 'react'
 import { getProducts } from '@/lib/wordpress'
 import ProductsGrid from '@/components/ProductsGrid'
+import Container from '@/components/ui/Container'
 
 export default async function CatalogPage() {
   const products = await getProducts()
@@ -8,19 +9,23 @@ export default async function CatalogPage() {
   return (
     <>
       {/* Hero */}
-      <section className="py-20 brand-light">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display text-brand-gold tracking-wider">
-            KATALOG
-          </h2>
-        </div>
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] bg-[--color-surface]">
+        <Container max="7xl" className="text-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display text-gray-900 dark:text-white tracking-normal md:tracking-wide">
+            Katalog
+          </h1>
+        </Container>
+        {/* Subtelny divider dopasowany do szerokości grida */}
+        <Container max="7xl">
+          <div className="mt-4 border-b" style={{ borderColor: 'var(--color-divider)' }} />
+        </Container>
       </section>
 
       {/* Grid produktów */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 max-w-7xl">
+      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
+        <Container max="7xl">
           <ProductsGrid products={products} />
-        </div>
+        </Container>
       </section>
     </>
   )

@@ -1,17 +1,44 @@
-// app/katalog/[slug]/page.tsx
 import React from 'react'
 import { notFound } from 'next/navigation'
 import type { Product } from '@/lib/wordpress'
-import { getProductBySlug } from '@/lib/wordpress'
+import { getProductBySlug, getGlobalOptions, getProducts } from '@/lib/wordpress'
 import AccordionItem from '@/components/AccordionItem'
 import ProductGalleryClient from '@/components/ProductGalleryClient'
 import Link from 'next/link'
+import Button from '@/components/Button'
+import { PHONE_NUMBER, EMAIL_ADDRESS } from '@/lib/socials'
+import SectionTitle from '@/components/ui/SectionTitle'
+import WhyUs from '@/components/WhyUs'
 
-interface GallerySlide { src: string }
+// Typy slajdów (bez zmian, ale tu dla kompletności)
+interface ImageSlide {
+  src: string
+  alt?: string
+  type?: undefined
+}
+
+interface VideoSlideSource {
+  src: string
+  type: string
+}
+
+interface VideoSlide {
+  type: 'video'
+  sources: VideoSlideSource[]
+  poster?: string
+  alt?: string
+  width?: number
+  height?: number
+}
+
+type Slide = ImageSlide | VideoSlide;
+
+
 interface AcfFields {
-  product_gallery_1?: number
-  product_gallery_2?: number
-  product_gallery_3?: number
+  product_gallery_1?: number | string // Może być ID lub pusty string
+  product_gallery_2?: number | string
+  product_gallery_3?: number | string
+  video?: number | string // <-- Zmienione: ID pliku wideo lub pusty string
   czy_posiada_kamien?: boolean
   rodzaj_kamienia?: string
   kolor_metalu?: string
@@ -22,18 +49,24 @@ interface AcfFields {
   cena?: string
 }
 
-// na górze pliku app/katalog/[slug]/page.tsx
 interface WpMedia {
   media_details?: {
     sizes?: {
+      thumbnail?: { source_url: string }
+      medium?: { source_url: string }
       large?: { source_url: string }
+      medium_large?: { source_url: string } // <-- Dodane medium_large
+      full?: { source_url: string }
     }
+    width?: number; // Dla wideo i obrazów
+    height?: number; // Dla wideo i obrazów
   }
   source_url: string
+  alt_text?: string
+  mime_type?: string // Ważne dla wideo
+  title?: { rendered: string }; // Czasem przydatne dla alt
 }
 
-
-// params jest Promisem, więc będziemy robić await params
 interface ProductPageProps { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: ProductPageProps) {
@@ -44,57 +77,198 @@ export async function generateMetadata({ params }: ProductPageProps) {
   }
 }
 
+// Pre-render all product pages for static export
+export async function generateStaticParams() {
+  const products = await getProducts()
+  return products.map(p => ({ slug: p.slug }))
+}
+
 const SingleProductPage = async ({ params }: ProductPageProps) => {
-  // **await params** zanim weźmiesz slug
   const { slug } = await params
   const product: Product | null = await getProductBySlug(slug)
+  const globalOptions = await getGlobalOptions()
   if (!product) return notFound()
 
-  // 1) Featured image
-  const featured =
-    product._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.large
-      ?.source_url ||
-    product._embedded?.['wp:featuredmedia']?.[0]?.source_url ||
-    '/placeholder-image.png'
-  const imageAlt =
-    product._embedded?.['wp:featuredmedia']?.[0]?.alt_text ||
-    product.title.rendered
-
-  // 2) Wyciągamy ID z ACF
   const acf = product.acf as AcfFields
-  const galleryIds = [
-    acf.product_gallery_1,
-    acf.product_gallery_2,
-    acf.product_gallery_3,
-  ].filter((id): id is number => Boolean(id))
 
-  // 3) Bazowy URL z .env.local
+  // Helpers: normalize various ACF return formats (ID | URL | Object | Array)
+  const API_BASE = process.env.NEXT_PUBLIC_WP_API_URL!
+
+  const toArray = <T,>(x: T | T[] | undefined | null): T[] =>
+    Array.isArray(x) ? x : x == null ? [] : [x]
+
+  const isNumericString = (s: string) => /^\d+$/.test(s.trim())
+
+  async function fetchMediaById(id: number): Promise<{ url: string; alt?: string; width?: number; height?: number; mime?: string; poster?: string } | null> {
+    try {
+      // Użyjemy _embed, by ewentualnie wyciągnąć miniaturę (featuredmedia) dla wideo
+      const res = await fetch(`${API_BASE}/media/${id}?_embed`)
+      if (!res.ok) {
+        console.warn(`Błąd pobierania mediów ${id}:`, res.status)
+        return null
+      }
+      const media = (await res.json()) as (WpMedia & { _embedded?: { 'wp:featuredmedia'?: Array<{ source_url: string }> } })
+      const mime: string | undefined = media?.mime_type
+      // Dla obrazów używamy zoptymalizowanych rozmiarów; dla wideo zawsze bierzemy plik wideo z source_url,
+      // a poster (miniaturę) próbujemy wyciągnąć z media_details.sizes.* jeśli dostępny
+      let url: string | undefined
+      let poster: string | undefined
+      if (mime && mime.startsWith('video/')) {
+        url = media?.source_url
+        poster = media?.media_details?.sizes?.large?.source_url ||
+                 media?.media_details?.sizes?.medium_large?.source_url ||
+                 media?.media_details?.sizes?.medium?.source_url ||
+                 media?.media_details?.sizes?.thumbnail?.source_url ||
+                 // Fallback: spróbuj użyć osadzonego featuredmedia, jeśli wideo ma przypisaną miniaturę w WP
+                 media?._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+                 undefined
+      } else {
+        url = media?.media_details?.sizes?.large?.source_url ||
+              media?.media_details?.sizes?.medium_large?.source_url ||
+              media?.media_details?.sizes?.medium?.source_url ||
+              media?.media_details?.sizes?.thumbnail?.source_url ||
+              media?.source_url
+      }
+      if (!url) return null
+      return { url, alt: media?.alt_text || media?.title?.rendered, width: media?.media_details?.width, height: media?.media_details?.height, mime, poster }
+    } catch (e) {
+      console.error(`Błąd przy pobieraniu mediów ${id}:`, e)
+      return null
+    }
+  }
+
+  async function resolveImagesFromField(field: unknown): Promise<ImageSlide[]> {
+    const items = toArray(field)
+    const slides: ImageSlide[] = []
+    for (const it of items) {
+      if (typeof it === 'number') {
+        const m = await fetchMediaById(it)
+        if (m?.url) slides.push({ src: m.url, alt: m.alt })
+      } else if (typeof it === 'string') {
+        if (isNumericString(it)) {
+          const m = await fetchMediaById(Number(it))
+          if (m?.url) slides.push({ src: m.url, alt: m.alt })
+        } else if (/^https?:\/\//.test(it)) {
+          slides.push({ src: it })
+        }
+      } else if (it && typeof it === 'object') {
+        type MediaLike = Partial<WpMedia> & { id?: number; url?: string; alt?: string }
+        const obj = it as MediaLike
+        if (typeof obj.id === 'number') {
+          const m = await fetchMediaById(obj.id)
+          if (m?.url) slides.push({ src: m.url, alt: m.alt })
+        } else if (typeof obj.url === 'string') {
+          slides.push({ src: obj.url, alt: obj.alt || obj.title?.rendered })
+        } else if (typeof obj.source_url === 'string') {
+          slides.push({ src: obj.source_url, alt: obj.alt_text || obj.title?.rendered })
+        }
+      }
+    }
+    return slides
+  }
+
+  async function resolveVideoFromField(field: unknown): Promise<VideoSlide | null> {
+    if (field == null) return null
+    const it = Array.isArray(field) ? field[0] : field
+    if (typeof it === 'number') {
+      const m = await fetchMediaById(it)
+      if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
+        return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: m.poster, alt: m.alt, width: m.width, height: m.height }
+      }
+    } else if (typeof it === 'string') {
+      if (isNumericString(it)) {
+        const m = await fetchMediaById(Number(it))
+        if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
+          return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: m.poster, alt: m.alt, width: m.width, height: m.height }
+        }
+      } else if (/^https?:\/\//.test(it)) {
+        // Nie mamy meta z WP, więc postera nie znamy
+        return { type: 'video', sources: [{ src: it, type: /\.webm$/i.test(it) ? 'video/webm' : 'video/mp4' }] }
+      }
+    } else if (it && typeof it === 'object') {
+      type MediaLike = Partial<WpMedia> & { id?: number; url?: string }
+      const obj = it as MediaLike
+      if (typeof obj.id === 'number') {
+        const m = await fetchMediaById(obj.id)
+        if (m?.url && (m.mime?.startsWith('video/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(m.url))) {
+          return { type: 'video', sources: [{ src: m.url, type: m.mime || 'video/mp4' }], poster: m.poster, alt: m.alt, width: m.width, height: m.height }
+        }
+      } else if (typeof obj.url === 'string') {
+        return { type: 'video', sources: [{ src: obj.url, type: obj.mime_type || (/\.webm$/i.test(obj.url) ? 'video/webm' : 'video/mp4') }] }
+      } else if (typeof obj.source_url === 'string') {
+        return { type: 'video', sources: [{ src: obj.source_url, type: obj.mime_type || (/\.webm$/i.test(obj.source_url) ? 'video/webm' : 'video/mp4') }] }
+      }
+    }
+    return null
+  }
+
+  // 1) Featured image
+  const featuredMediaItem = product._embedded?.['wp:featuredmedia']?.[0]
+  const featured =
+    featuredMediaItem?.media_details?.sizes?.large?.source_url ||
+    featuredMediaItem?.media_details?.sizes?.medium_large?.source_url ||
+    featuredMediaItem?.source_url ||
+    '/logo-placeholder.png'
+  
+  const imageAlt = featuredMediaItem?.alt_text || product.title.rendered
+
+  // Bazowy URL z .env.local
   if (!process.env.NEXT_PUBLIC_WP_API_URL) {
     throw new Error('Dodaj NEXT_PUBLIC_WP_API_URL do .env.local')
   }
-  const API_BASE = process.env.NEXT_PUBLIC_WP_API_URL
+  // 2) Pobieranie obrazków z galerii ACF (obsługa ID/URL/obiekt/array)
+  const galleryImageMediaArrays = await Promise.all([
+    resolveImagesFromField(acf.product_gallery_1),
+    resolveImagesFromField(acf.product_gallery_2),
+    resolveImagesFromField(acf.product_gallery_3),
+  ])
+  const galleryImageMedia: ImageSlide[] = galleryImageMediaArrays.flat()
 
-  // 4) Fetch po media ID
+  // 3) Pobieranie danych wideo z ACF (jeśli ID jest dostępne)
+  const videoSlideData = await resolveVideoFromField(acf.video)
 
-const galleryMedia: GallerySlide[] = await Promise.all(
-  galleryIds.map(async (id) => {
-    const res = await fetch(`${API_BASE}/media/${id}`)
-    if (!res.ok) {
-      console.warn(`media/${id} fetch error:`, res.status)
-      return { src: '/placeholder-image.png' }
+  // 4) Tworzymy tablicę slajdów dla ProductGalleryClient
+  const slides: Slide[] = [];
+
+  // Dodajemy obrazek wyróżniający jako pierwszy (jeśli istnieje i nie jest placeholderem)
+  if (featured && featured !== '/logo-placeholder.png') {
+    slides.push({
+      src: featured,
+      alt: imageAlt,
+    });
+  }
+
+  // Dodajemy wideo (jeśli zostało pobrane)
+  if (videoSlideData) {
+    slides.push(videoSlideData);
+  }
+
+  // Dodajemy pozostałe obrazki z galerii
+  slides.push(...galleryImageMedia);
+  
+  // 5) Usuwamy duplikaty slajdów (np. jeśli obrazek wyróżniający jest też w galerii)
+  const uniqueSlides = slides.filter((slide, index, self) => {
+    if (slide.type === 'video') {
+      // Dla wideo, unikalność na podstawie źródła wideo
+      return index === self.findIndex(s => 
+        s.type === 'video' && 
+        s.sources && s.sources.length > 0 && 
+        slide.sources && slide.sources.length > 0 && 
+        s.sources[0].src === slide.sources[0].src
+      );
+    } else {
+      // Dla obrazów, unikalność na podstawie src obrazu
+      return index === self.findIndex(s => 
+        s.type !== 'video' && s.src === slide.src
+      );
     }
-    // zamiast `any`:
-    const media = (await res.json()) as WpMedia
-    const url =
-      media.media_details?.sizes?.large?.source_url ||
-      media.source_url ||
-      '/placeholder-image.png'
-    return { src: url }
-  })
-)
+  });
 
-  // 5) Tworzymy slides
-  const slides: GallerySlide[] = [{ src: featured }, ...galleryMedia]
+  // Jeśli po deduplikacji nie ma slajdów, a był placeholder dla featured, dodajmy go
+  if (uniqueSlides.length === 0 && featured === '/logo-placeholder.png') {
+    uniqueSlides.push({ src: featured, alt: imageAlt });
+  }
+
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -110,79 +284,95 @@ const galleryMedia: GallerySlide[] = await Promise.all(
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-        {/* Galeria */}
-        <div className="w-full">
-          <ProductGalleryClient slides={slides} imageAlt={imageAlt} />
+        {/* Galeria (desktop: sticky for better ergonomics) */}
+        <div className="w-full lg:sticky lg:top-20">
+          {uniqueSlides.length > 0 ? (
+            <ProductGalleryClient slides={uniqueSlides} imageAlt={imageAlt} />
+          ) : (
+            // Możesz tu wyświetlić jakiś fallback, jeśli nie ma żadnych obrazów/wideo
+            <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden shadow-lg">
+            </div>
+          )}
         </div>
 
-        {/* Szczegóły produktu */}
+        {/* Szczegóły produktu – prawa kolumna z lewym wyrównaniem i lepszą hierarchią */}
         <div className="lg:pt-4">
           <h1
-            className="text-3xl md:text-4xl font-serif font-light mb-6"
+            className="text-3xl md:text-4xl font-serif font-light mb-6 md:mb-8 text-left"
             dangerouslySetInnerHTML={{ __html: product.title.rendered }}
           />
 
-          <div className="mb-8 border-t border-b divide-y divide-gray-200">
+          {/* Lead (2–3 zdania). Priorytet: ACF lead → Excerpt → fallback. */}
+          {(() => {
+            const lead = (product.acf as { lead?: string })?.lead?.trim()
+            if (lead) {
+              return (
+                <p className="text-base md:text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6 max-w-prose">{lead}</p>
+              )
+            }
+            return (
+              <p className="text-base md:text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6 max-w-prose">
+                Ręcznie wykonany pierścionek tworzony z dbałością o każdy detal. Łączy klasyczną elegancję z nowoczesnym wykończeniem, aby subtelnie podkreślić wyjątkowe chwile.
+              </p>
+            )
+          })()}
+
+          {/* Key facts: wrapper z podziałami i odstępem od CTA */}
+          <div className="mb-10 keyfacts-divider">
             {acf.kolor_metalu && (
               <div className="py-3 flex justify-between text-sm">
-                <span>Kolor Metalu:</span>
-                <span className="font-medium">{acf.kolor_metalu}</span>
+                <span className="text-gray-500 dark:text-gray-400">Kolor metalu</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{acf.kolor_metalu}</span>
               </div>
             )}
             {acf.czy_posiada_kamien && acf.rodzaj_kamienia && (
               <div className="py-3 flex justify-between text-sm">
-                <span>Rodzaj Kamienia:</span>
-                <span className="font-medium">{acf.rodzaj_kamienia}</span>
+                <span className="text-gray-500 dark:text-gray-400">Rodzaj kamienia</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{acf.rodzaj_kamienia}</span>
               </div>
             )}
             {acf.czystosc_kamienia && (
               <div className="py-3 flex justify-between text-sm">
-                <span>Czystość Kamienia:</span>
-                <span className="font-medium">{acf.czystosc_kamienia}</span>
+                <span className="text-gray-500 dark:text-gray-400">Czystość kamienia</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{acf.czystosc_kamienia}</span>
               </div>
             )}
             {acf.masa_karatowa && (
               <div className="py-3 flex justify-between text-sm">
-                <span>Masa Karatowa (ct):</span>
-                <span className="font-medium">{acf.masa_karatowa}</span>
+                <span className="text-gray-500 dark:text-gray-400">Masa karatowa</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{acf.masa_karatowa}</span>
               </div>
             )}
           </div>
 
-          <div className="space-y-1">
-            <AccordionItem title="Opis Produktu" initialOpen>
-              <div
-                className="prose prose-sm max-w-none leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: product.content.rendered }}
-              />
-            </AccordionItem>
-            {acf.dodatkowe_informacje && (
-              <AccordionItem title="Dodatkowe Informacje">
-                <div
-                  className="prose prose-sm max-w-none leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: acf.dodatkowe_informacje! }}
-                />
-              </AccordionItem>
-            )}
-            {acf.pielegnacja && (
-              <AccordionItem title="Pielęgnacja">
-                <div
-                  className="prose prose-sm max-w-none leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: acf.pielegnacja! }}
-                />
-              </AccordionItem>
-            )}
+          {/* CTA bez dolnego marginesu + whisper kontakt */}
+          <div className="text-left">
+            <Button as="link" href="/kontakt" variant="primary" className="py-3 px-6 text-base">
+              {globalOptions?.acf?.ask_button_text || 'Zapytaj o ten pierścionek'}
+            </Button>
+            <div className="mt-4 md:mt-6 text-xs md:text-sm opacity-80 text-gray-600 dark:text-gray-400">
+              Lub zadzwoń <a className="link-subtle-hover underline-offset-2 hover:underline" href={`tel:${PHONE_NUMBER.replace(/\s+/g, '')}`}>{PHONE_NUMBER}</a> lub napisz <a className="link-subtle-hover underline-offset-2 hover:underline" href={`mailto:${EMAIL_ADDRESS}`}>{EMAIL_ADDRESS}</a>.
+            </div>
           </div>
 
-          <div className="mt-10">
-            <a
-              href="/kontakt"
-              className="inline-block bg-gray-800 text-white py-3 px-8 rounded text-lg font-medium"
-            >
-              Zapytaj o ten pierścionek
-            </a>
+          <div className="space-y-1 mt-12 text-left">
+            <AccordionItem title="Opis i materiały" initialOpen>
+              <div
+                className="prose prose-sm dark:prose-invert max-w-prose leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: product.content.rendered }}
+              />
+              <p className="mt-4 text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Uwaga: masa karatowa kamieni może nieznacznie różnić się o ±3% w zależności od rozmiaru i techniki wykonania.
+              </p>
+            </AccordionItem>
+            {/* Na życzenie: pozostawiamy wyłącznie opis produktu. */}
           </div>
         </div>
+      </div>
+      {/* Prezentacja / WOW */}
+      <div className="mt-[var(--space-section-lg)]">
+        <SectionTitle eyebrow="Dlaczego my" title="Rzemiosło. Materiały. Zaufanie." size="sm" center className="mb-6" />
+        <WhyUs />
       </div>
     </div>
   )
