@@ -1,7 +1,7 @@
 import React from 'react'
 import { notFound } from 'next/navigation'
 import type { Product } from '@/lib/wordpress'
-import { getProductBySlug, getGlobalOptions } from '@/lib/wordpress'
+import { getProductBySlug, getGlobalOptions, getProducts } from '@/lib/wordpress'
 import AccordionItem from '@/components/AccordionItem'
 import ProductGalleryClient from '@/components/ProductGalleryClient'
 import Link from 'next/link'
@@ -75,6 +75,12 @@ export async function generateMetadata({ params }: ProductPageProps) {
   return {
     title: product ? product.title.rendered : 'Produkt nie znaleziony',
   }
+}
+
+// Pre-render all product pages for static export
+export async function generateStaticParams() {
+  const products = await getProducts()
+  return products.map(p => ({ slug: p.slug }))
 }
 
 const SingleProductPage = async ({ params }: ProductPageProps) => {

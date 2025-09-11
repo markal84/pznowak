@@ -54,7 +54,9 @@ export default function GalleryClient() {
     const fetchGallery = async () => {
       setLoading(true)
       try {
-        const res = await fetch(`/api/gallery?per_page=${PER_PAGE}&page=${page}`)
+        const base = (process.env.NEXT_PUBLIC_WP_API_URL || '').replace(/\/$/, '')
+        const url = `${base}/gallery?_embed&per_page=${PER_PAGE}&page=${page}`
+        const res = await fetch(url)
         const total = res.headers.get('X-WP-TotalPages')
         if (total) setTotalPages(parseInt(total, 10))
         if (!res.ok) throw new Error(`Fetch error ${res.status}`)
