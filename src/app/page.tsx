@@ -67,7 +67,7 @@ export default async function Home() {
         <Container className="text-center mb-2">
           <div className="max-w-3xl mx-auto">
             <SectionTitle title="Mistrzowskie Rzemiosło" center />
-            <p className="text-lg italic leading-8 md:leading-9 mb-8 text-gray-700 dark:text-gray-300">
+            <p className="text-lg italic leading-8 md:leading-9 mb-8 mt-4 text-gray-700 dark:text-gray-300">
               W naszej pracowni każdy pierścionek to dzieło sztuki, tworzone z dbałością o najmniejszy detal. Łączymy tradycyjne techniki złotnicze z nowoczesnym wzornictwem, aby spełnić Twoje marzenia o idealnej biżuterii. Specjalizujemy się w projektach na indywidualne zamówienie, dopasowanych do Twoich potrzeb i oczekiwań.
             </p>
             <Button 

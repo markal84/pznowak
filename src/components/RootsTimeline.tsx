@@ -3,7 +3,7 @@
 import Image, { StaticImageData } from 'next/image'
 
 // === Statyczne importy obrazów (ścieżka względna do folderu public) ===
-import imgGrandgrandfather from '../../public/about-us-grandgrandfather_Wiktor.jpg'
+import imgGrandgrandfather from '../../public/about-us-grandgrandfather_Wiktor.png'
 import imgGrandfather from '../../public/about-us-grandfather.png'
 import imgFather from '../../public/about-us-father.png'
 import imgSon from '../../public/about-us-son.png'
