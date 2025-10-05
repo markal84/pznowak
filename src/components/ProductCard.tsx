@@ -24,12 +24,12 @@ export default function ProductCard({ product, cardClassName }: Props & { cardCl
         className="absolute inset-0 z-10"
       />
       {/* Obraz */}
-      <div className="relative w-full aspect-square">
+      <div className="relative w-full aspect-square overflow-hidden bg-[--color-surface-muted] dark:bg-gray-900/60 p-4">
         <Image
           src={imageUrl}
           alt={alt}
           fill
-          className="object-cover transition-transform duration-300 ease-[var(--ease-standard)] group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
+          className="object-contain transition-opacity duration-300 ease-[var(--ease-standard)] group-hover:opacity-90 motion-reduce:transition-none"
           sizes="(min-width:1024px) 30vw, (min-width:640px) 50vw, 100vw"
         />
       </div>
