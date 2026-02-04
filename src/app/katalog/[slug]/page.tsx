@@ -102,7 +102,7 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
   async function fetchMediaById(id: number): Promise<{ url: string; alt?: string; width?: number; height?: number; mime?: string; poster?: string } | null> {
     try {
       // Użyjemy _embed, by ewentualnie wyciągnąć miniaturę (featuredmedia) dla wideo
-      const res = await fetch(`${API_BASE}/media/${id}?_embed`)
+      const res = await fetch(`${API_BASE}/media/${id}?_embed`, { next: { revalidate: 60 } })
       if (!res.ok) {
         console.warn(`Błąd pobierania mediów ${id}:`, res.status)
         return null

@@ -101,19 +101,32 @@ export async function getProducts(): Promise<Product[]> {
     console.error("WP_API_URL is not defined. Check your .env.local file.");
     return [];
   }
-  const endpoint = `${WP_V2_ROOT}/${productCptSlug}?_embed`;
+
+  const perPage = 50; // Wystarczające dla katalogu, zmniejsza liczbę zapytań
+  const products: Product[] = [];
+  let page = 1;
+  let totalPages = 1;
 
   try {
-    const response = await fetch(endpoint, {
-       next: { revalidate: 60 }
-    });
+    do {
+      const url = `${WP_V2_ROOT}/${productCptSlug}?_embed&per_page=${perPage}&page=${page}&orderby=date&order=desc`;
+      const response = await fetch(url, {
+        next: { revalidate: 60 },
+      });
 
-    if (!response.ok) {
-      console.error(`Failed to fetch products: ${response.status} ${response.statusText}`, await response.text());
-      throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`);
-    }
+      if (!response.ok) {
+        console.error(`Failed to fetch products page ${page}: ${response.status} ${response.statusText}`, await response.text());
+        throw new Error(`Failed to fetch products page ${page}: ${response.status} ${response.statusText}`);
+      }
 
-    const products: Product[] = await response.json();
+      const pageProducts: Product[] = await response.json();
+      products.push(...pageProducts);
+
+      const totalPagesHeader = response.headers.get('X-WP-TotalPages');
+      totalPages = totalPagesHeader ? Number.parseInt(totalPagesHeader, 10) || 1 : 1;
+      page += 1;
+    } while (page <= totalPages);
+
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);

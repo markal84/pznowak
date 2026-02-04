@@ -78,7 +78,7 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
       {/* Główny obraz/poster wideo */}
       <div
         onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
-        className="relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-transform duration-200 ease-[var(--ease-standard)] hover:-translate-y-0.5 motion-reduce:transform-none cursor-pointer group"
+        className="relative aspect-square bg-[--color-surface-muted] dark:bg-gray-900/70 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-transform duration-200 ease-[var(--ease-standard)] hover:-translate-y-0.5 motion-reduce:transform-none cursor-pointer group p-6 sm:p-8"
         role="button" // Dodanie roli dla dostępności
         tabIndex={0} // Umożliwienie focusu
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setLightboxIndex(0); setLightboxOpen(true); }}} // Obsługa klawiatury
@@ -87,10 +87,10 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
           src={firstSlide.type === 'video' ? (firstSlide.poster || firstImageSlide?.src || '/logo-placeholder.png') : firstSlide.src}
           alt={firstSlide.alt || imageAlt}
           fill
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: 'contain' }}
           sizes="(max-width: 1024px) 100vw, 50vw" // Dostosuj wg potrzeb
           priority // Dla LCP (Largest Contentful Paint)
-          className="rounded-lg transition-opacity duration-300 ease-[var(--ease-standard)] group-hover:opacity-90"
+          className="rounded-lg object-contain transition-opacity duration-300 ease-[var(--ease-standard)] group-hover:opacity-90"
         />
         {firstSlide.type === 'video' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors pointer-events-none">
@@ -125,7 +125,7 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
                   alt={thumbnailAlt}
                   fill
                   sizes="64px" // Zgodne z w-16 h-16 (64px)
-                  style={{ objectFit: 'cover' }}
+                  style={{ objectFit: 'contain' }}
                   className="transition-opacity duration-300 group-hover:opacity-75"
                   onError={(e) => {
                     // Opcjonalnie: obsługa błędu ładowania miniaturki, np. ustawienie domyślnego obrazka
