@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // output: 'export', // Wykomentowane dla ISR na Vercel; odkomentuj dla static build na home.pl
+  output: 'export', // Static build for home.pl (no Node)
   trailingSlash: true,
   images: {
     unoptimized: true,
