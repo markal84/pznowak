@@ -13,3 +13,27 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 /* On a phone, introduce the piece before the longer explanation. */
 @media(max-width:760px){.hero{display:flex;flex-direction:column}.hero-copy{display:contents}.hero-copy>.eyebrow{order:1;margin:30px 24px 18px;max-width:330px}.hero-copy>h1{order:2;margin:0 24px;font-size:clamp(2.45rem,10vw,3.5rem)}.hero-image{order:3;margin-top:28px;aspect-ratio:1.35}.hero-copy>.lead{order:4;margin:26px 24px 0}.hero-copy>.actions{order:5;margin:24px 24px 0}.hero-copy>.hero-note{order:6;margin:26px 24px 30px}.hero-image .image-note{font-size:.8125rem}.hero-image .image-note span:last-child{display:none}}
+
+/* Family history: four generations in one line, a vertical sequence on phones. */
+.roots-section{border-top:1px solid var(--line)}
+.roots-intro{max-width:380px;color:var(--muted);line-height:1.8}
+.roots-timeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:30px;list-style:none;padding:0;margin:56px 0 0}
+.roots-date{position:relative;border-top:1px solid #b8a589;padding-top:23px;margin-bottom:25px;font-family:Georgia,serif;font-size:1.8rem;color:var(--gold)}
+.roots-date:before{content:"";position:absolute;left:0;top:-5px;width:9px;height:9px;background:var(--gold);border-radius:50%}
+.roots-portrait{aspect-ratio:4/5;background:#eeece6;overflow:hidden}
+.roots-portrait img{height:100%;width:100%;object-fit:contain}
+.roots-copy h3{font-size:1.65rem;margin-top:24px;line-height:1.2}
+.roots-copy p{color:var(--muted);margin-top:14px;font-size:1rem}
+@media(max-width:900px){.roots-timeline{grid-template-columns:repeat(2,minmax(0,1fr));gap:45px 28px}}
+@media(max-width:600px){.roots-timeline{display:block;margin-top:35px;border-left:1px solid #b8a589;margin-left:5px}.roots-entry{position:relative;padding-left:26px;padding-bottom:38px}.roots-entry:last-child{padding-bottom:0}.roots-date{border:0;padding-top:0;margin-bottom:18px;font-size:1.65rem}.roots-date:before{left:-31px;top:11px}.roots-portrait{width:160px;aspect-ratio:4/5}.roots-copy h3{margin-top:20px;font-size:1.75rem}.roots-copy p{max-width:430px}.roots-intro{font-size:1rem}}
+
+/* Campaign concept: preserve the gemstone and band in both hero crops. */
+.hero-image{background:#102231}
+.hero-image>img{object-position:50% 54%}
+.hero-image .image-note{color:#edf0f2;font-size:.875rem}
+.hero-image .image-note span:last-child{border-color:#a1adb6}
+@media(max-width:760px){.hero-image{aspect-ratio:1.2}.hero-image>img{object-position:50% 58%}.hero-image .image-note{font-size:.8125rem}}
+
+.arrow-icon{display:inline-block;vertical-align:middle;flex-shrink:0;width:20px;height:20px}
+.mobile-call a{gap:8px}
+@media(max-width:760px){.product-card .photo>span{background:rgba(250,249,246,.94);width:32px;height:32px;bottom:10px;right:10px}.product-card .photo .arrow-icon{width:17px;height:17px}}
