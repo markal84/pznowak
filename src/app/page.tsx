@@ -43,7 +43,7 @@ export default async function Home() {
       <section className="relative min-h-[calc(100svh-var(--action-bar-height))] md:min-h-[92vh] flex flex-col overflow-hidden section-dark">
         <div className="absolute inset-0 hero-zoom">
           <Image
-            src="/hero.png"
+            src="/hero-v2.png"
             alt=""
             fill
             priority
@@ -111,10 +111,10 @@ export default async function Home() {
             <p className="eyebrow">Warsztat</p>
             <h2 className="mt-3 text-[2.3rem] md:text-[3rem]">Ta sama dokładność. Inne czasy.</h2>
             <p className="mt-5 text-lg muted leading-relaxed">
-              Każdy projekt zaczyna się od rysunku warsztatowego, tak jak sto lat temu. Potem są ręce, ogień, pilnik
-              i lupa. Zmieniło się tylko to, że dziś możesz zobaczyć szkic i porozmawiać o nim, zanim dotkniemy złota.
+              Przy tym samym typie stołu zmieniały się narzędzia. Około 1900 roku były pilniki, grawery i proste
+              imadło. Dziś obok nich pracują mikroskop i drukarka 3D. Ręczne wykończenie i miara dokładności pozostały te same.
             </p>
-            <p className="mt-4 text-sm muted">Przesuń suwak, aby porównać szkic z gotowym pierścionkiem.</p>
+            <p className="mt-4 text-sm muted">Przesuń suwak, aby porównać warsztat około 1900 roku i dziś.</p>
             <div className="mt-8">
               <Button as="link" href="/o-nas" variant="light">Poznaj pracownię</Button>
             </div>

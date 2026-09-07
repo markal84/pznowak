@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useState } from 'react'
 import Image from 'next/image'
 
 /**
- * Interaktywny element „szkic → pierścionek”.
+ * Interaktywny element „warsztat około 1900 roku → warsztat dziś”.
  * Kontener ma stałe proporcje (3:2), obie warstwy są absolutne, a suwak zmienia
  * tylko clip-path i transform uchwytu. Żaden element strony nie zmienia położenia.
  */
@@ -46,10 +46,10 @@ export default function SketchReveal() {
       onPointerCancel={onPointerUp}
       style={{ cursor: 'ew-resize' }}
     >
-      {/* Warstwa 1: szkic techniczny (po lewej) */}
+      {/* Warstwa 1: warsztat około 1900 roku (po lewej) */}
       <div className="absolute inset-0" aria-hidden>
         <Image
-          src="/workshop-ring-sketch-v2.png"
+          src="/workshop-1900-v3.png"
           alt=""
           fill
           sizes="(min-width:1024px) 50vw, 100vw"
@@ -58,11 +58,11 @@ export default function SketchReveal() {
         />
       </div>
 
-      {/* Warstwa 2: zdjęcie (po prawej), przycinane clip-path */}
+      {/* Warstwa 2: współczesny warsztat (po prawej), przycinany clip-path */}
       <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${pos}%)` }}>
         <Image
-          src="/workshop-ring-photo-v2.png"
-          alt="Fotorealistyczny kierunek zdjęcia pierścionka z ciemnoniebieskim szafirem"
+          src="/workshop-today-v3.png"
+          alt="Współczesny warsztat złotniczy z mikroskopem i częściowo widoczną drukarką 3D"
           fill
           sizes="(min-width:1024px) 50vw, 100vw"
           className="object-cover"
@@ -70,7 +70,7 @@ export default function SketchReveal() {
         />
         <span className="absolute right-4 top-4 text-[11px] font-semibold tracking-[0.18em] uppercase bg-ink/70 text-ivory px-2.5 py-1 rounded-sm">Dziś</span>
       </div>
-      <span aria-hidden className="absolute left-4 top-4 text-[11px] font-semibold tracking-[0.18em] uppercase bg-ivory/80 text-ink px-2.5 py-1 rounded-sm">Szkic</span>
+      <span aria-hidden className="absolute left-4 top-4 text-[11px] font-semibold tracking-[0.18em] uppercase bg-ivory/80 text-ink px-2.5 py-1 rounded-sm">Ok. 1900</span>
 
       {/* Linia podziału + uchwyt (przesuwany transformem) */}
       <div className="absolute inset-y-0 left-0 w-full pointer-events-none" style={{ transform: `translateX(${pos}%)` }}>
@@ -79,7 +79,7 @@ export default function SketchReveal() {
       <button
         type="button"
         role="slider"
-        aria-label="Przesuń, aby porównać szkic z gotowym pierścionkiem"
+        aria-label="Przesuń, aby porównać warsztat około 1900 roku ze współczesnym warsztatem"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(pos)}
