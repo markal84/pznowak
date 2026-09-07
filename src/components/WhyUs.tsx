@@ -1,43 +1,24 @@
 import React from 'react'
 import { FaRegGem, FaTools, FaShieldAlt } from 'react-icons/fa'
 
-export default function WhyUs() {
-  const items = [
-    {
-      icon: <FaTools className="h-6 w-6" />,
-      title: 'Rzemiosło ręczne',
-      text: 'Każdy projekt powstaje w naszej pracowni – z dbałością o detal i trwałość użytkową.',
-    },
-    {
-      icon: <FaRegGem className="h-6 w-6" />,
-      title: 'Szlachetne materiały',
-      text: 'Złoto i kamienie pochodzą ze sprawdzonych źródeł – transparentność i jakość bez kompromisów.',
-    },
-    {
-      icon: <FaShieldAlt className="h-6 w-6" />,
-      title: 'Zaufanie i gwarancja',
-      text: 'Pomagamy w pielęgnacji i serwisie. Jesteśmy z Tobą także po zakupie.',
-    },
-  ]
+const items = [
+  { icon: FaTools, title: 'Wykonanie ręczne', text: 'Kucie, oprawa i polerowanie robimy sami, w pracowni. Nie zlecamy nic na zewnątrz.' },
+  { icon: FaRegGem, title: 'Sprawdzone materiały', text: 'Złoto z certyfikowanych źródeł, kamienie oglądane na żywo przed decyzją.' },
+  { icon: FaShieldAlt, title: 'Dożywotni serwis', text: 'Czyszczenie, zmiana rozmiaru, odnowienie. Jesteśmy z Tobą także po latach.' },
+]
 
+export default function WhyUs() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {items.map((it, idx) => (
-        <div
-          key={idx}
-          className="p-6 rounded-[8px] shadow-sm bg-[--color-surface] transition ease-[var(--ease-standard)] duration-200 hover:shadow-md hover:-translate-y-0.5 motion-reduce:transform-none text-center"
-        >
-          <div className="h-12 w-12 rounded-full bg-[color:var(--color-brand-gold-light)] text-brand-gold flex items-center justify-center mx-auto mb-4">
-            {it.icon}
-          </div>
-          <h3 className="font-display text-lg md:text-xl text-gray-900 dark:text-white mb-2">
-            {it.title}
-          </h3>
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-            {it.text}
-          </p>
-        </div>
+    <ul className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+      {items.map((it, i) => (
+        <li key={it.title} className="reveal rounded-lg bg-paper border border-line p-6 md:p-8" data-delay={String(i)}>
+          <span className="h-12 w-12 rounded-full bg-gold-soft text-gold flex items-center justify-center" aria-hidden>
+            <it.icon className="h-5 w-5" />
+          </span>
+          <h3 className="mt-5 text-2xl">{it.title}</h3>
+          <p className="mt-2 muted leading-relaxed">{it.text}</p>
+        </li>
       ))}
-    </div>
+    </ul>
   )
 }
