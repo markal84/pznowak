@@ -1,189 +1,118 @@
+'use client'
 
-'use client' // Needed for useState
-
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import MobileMenu from './MobileMenu' // Import MobileMenu
-import { useWindowScroll } from '@uidotdev/usehooks'
 import { usePathname } from 'next/navigation'
-import Container from './ui/Container'
-import { FaFacebook, FaInstagram } from 'react-icons/fa'
-import { FACEBOOK_URL, INSTAGRAM_URL } from '@/lib/socials'
+import MobileMenu from './MobileMenu'
+import { FaPhone } from 'react-icons/fa'
+import { PHONE_NUMBER } from '@/lib/socials'
 
-// Define navigation links
-const navLinks = [
-  { href: '/', label: 'GŁÓWNA' },
-  { href: '/katalog', label: 'KATALOG' },
-  { href: '/o-nas', label: 'O NAS' },
-  { href: '/galeria', label: 'GALERIA' },
-  { href: '/kontakt', label: 'KONTAKT' },
+export const navLinks = [
+  { href: '/', label: 'Strona główna' },
+  { href: '/katalog', label: 'Katalog' },
+  { href: '/o-nas', label: 'O pracowni' },
+  { href: '/galeria', label: 'Galeria' },
+  { href: '/kontakt', label: 'Kontakt' },
 ]
 
+export function isActivePath(pathname: string, href: string) {
+  return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/')
+}
+
+/**
+ * Nagłówek o STAŁEJ wysokości (--header-height). Zmienia się tylko tło/cień po przewinięciu,
+ * więc treść pod nim nigdy nie „skacze”. Na stronie głównej leży na hero (przezroczysty),
+ * po przewinięciu staje się jasny.
+ */
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [{ y }] = useWindowScroll()
-  const isScrolled = (y ?? 0) > 4 // Adjust this value to control when the header changes
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
-  const headerRef = useRef<HTMLElement | null>(null)
+  const onHero = pathname === '/' && !scrolled && !menuOpen
 
-  // Aktualizuj CSS var --header-height na podstawie realnej wysokości headera
   useEffect(() => {
-    const rafMeasure = () =>
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        const h = headerRef.current?.offsetHeight ?? 64
-        if (typeof document !== 'undefined') {
-          document.documentElement.style.setProperty('--header-height', `${h}px`)
-        }
-      }))
-
-    rafMeasure()
-
-    const onResize = () => rafMeasure()
-    const onScroll = () => rafMeasure()
-    const onOrientation = () => rafMeasure()
-    const onTransitionEnd = () => rafMeasure()
-
-    window.addEventListener('resize', onResize)
-    window.addEventListener('orientationchange', onOrientation)
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    const el = headerRef.current
-    el?.addEventListener('transitionend', onTransitionEnd)
-
-    return () => {
-      window.removeEventListener('resize', onResize)
-      window.removeEventListener('orientationchange', onOrientation)
-      window.removeEventListener('scroll', onScroll)
-      el?.removeEventListener('transitionend', onTransitionEnd)
-    }
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Dodatkowo mierz po zmianie stanów (scroll/menu), by złapać initial/threshold zmiany
-  useEffect(() => {
-    const h = headerRef.current?.offsetHeight ?? 64
-    if (typeof document !== 'undefined') {
-      document.documentElement.style.setProperty('--header-height', `${h}px`)
-    }
-  }, [isScrolled, isMenuOpen])
+  useEffect(() => { setMenuOpen(false) }, [pathname])
 
-  const toggleMenu = () => {
-    const willOpen = !isMenuOpen
-    setIsMenuOpen(willOpen)
-    if (willOpen && typeof window !== 'undefined') {
-      // Jeśli otwieramy menu na mobile i jesteśmy przewinięci w dół,
-      // przesuń widok do góry, aby menu było widoczne (push-down UX).
-      const isMobile = window.matchMedia('(max-width: 767px)').matches
-      if (isMobile) {
-        // Zmień przewijanie na natychmiastowe (znacznie szybsze niż domyślne smooth)
-        window.scrollTo({ top: 0, behavior: 'auto' })
-      }
-    }
-  }
-
-  // Zamknij menu klawiszem Escape (a11y)
-  useEffect(() => {
-    if (!isMenuOpen) return
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsMenuOpen(false)
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [isMenuOpen])
+  const close = useCallback(() => setMenuOpen(false), [])
+  const telHref = `tel:${PHONE_NUMBER.replace(/[^+\d]/g, '')}`
 
   return (
     <>
       <header
-        ref={headerRef}
         className={[
-          'sticky top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out',
-          // Minimalna, spójna przezroczystość i blur z tokenów (light/dark, mobile/desktop)
-          'bg-[color:var(--header-bg-light)] dark:bg-[color:var(--header-bg-dark)] backdrop-blur-[var(--header-blur)]',
-          isScrolled ? 'py-2' : 'py-4',
-          // Bez specjalnego trybu transparent na desktop — ujednolicone wartości
+          'fixed top-0 inset-x-0 z-50 h-[var(--header-height)] transition-[background-color,box-shadow,border-color] duration-300',
+          onHero
+            ? 'header-on-hero bg-transparent border-b border-transparent'
+            : 'bg-ivory/95 backdrop-blur border-b border-line',
+          menuOpen ? 'bg-ivory' : '',
         ].join(' ')}
       >
-        <Container max="7xl" className={`px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}>
-          {/* Logo */}
-          <Link href="/" className='flex items-center'>
+        <div className="container-x h-full flex items-center justify-between gap-6">
+          <Link href="/" className="flex items-center shrink-0" aria-label="Pracownia Złotnicza Michał Nowak – strona główna">
             <Image
               src="/logo.png"
-              alt="Logo Michał Nowak"
+              alt="Michał Nowak – logo"
               width={200}
-              height={200}
+              height={106}
               priority
-              className={
-                `h-auto transition-all duration-300 dark:invert dark:hue-rotate-180 ${
-                  isScrolled ? 'w-[176px] md:w-[160px]' : 'w-[220px] md:w-[200px]'
-                }`
-              }
+              className={['h-auto w-[132px] md:w-[150px] transition-[filter] duration-300', onHero ? 'invert' : ''].join(' ')}
             />
           </Link>
 
-          {/* Desktop Navigation (Hidden on Mobile) */}
-          <nav className='hidden md:block'>
-            <ul className='flex items-center gap-8 text-base font-medium tracking-wide font-serif text-gray-900 dark:text-white'>
-              {navLinks.map((link) => {
-                const isActive = link.href === '/'
-                  ? pathname === '/'
-                  : pathname === link.href || pathname.startsWith(link.href + '/')
-                return (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className={["nav-link-hover", isActive ? "nav-link-active" : ""].join(" ")}
-                      aria-current={isActive ? 'page' : undefined}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                )
-              })}
-              {/* Social icons (desktop) */}
-              <li className='ml-4 flex items-center gap-4'>
-                <a
-                  href={FACEBOOK_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label='Facebook'
-                  className='social-link text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
-                >
-                  <FaFacebook className='h-6 w-6' aria-hidden='true' />
-                </a>
-                <a
-                  href={INSTAGRAM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label='Instagram'
-                  className='social-link text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
-                >
-                  <FaInstagram className='h-6 w-6' aria-hidden='true' />
-                </a>
-              </li>
+          <nav className="hidden md:block" aria-label="Menu główne">
+            <ul className="flex items-center gap-7 lg:gap-9">
+              {navLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="nav-link" aria-current={isActivePath(pathname, l.href) ? 'page' : undefined}>
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
 
-          {/* Hamburger Menu Button (Mobile Only) */}
-          <div className='md:hidden'>
-            <button
-              onClick={toggleMenu}
-              className='p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
-              aria-label='Toggle menu'
-              aria-expanded={isMenuOpen}
-              aria-controls='mobile-menu'
-            >
-              {/* Animated Hamburger/Close Icon */}
-              <div className='w-6 h-5 flex flex-col justify-between items-center relative'>
-                <span className={`block w-full h-0.5 bg-gray-800 dark:bg-gray-100 rounded-full transition-transform duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 translate-y-[9px]' : ''}`}></span>
-                <span className={`block w-full h-0.5 bg-gray-800 dark:bg-gray-100 rounded-full transition-opacity duration-300 ease-in-out ${isMenuOpen ? 'opacity-0' : ''}`}></span>
-                <span className={`block w-full h-0.5 bg-gray-800 dark:bg-gray-100 rounded-full transition-transform duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 -translate-y-[9px]' : ''}`}></span>
-              </div>
-            </button>
-          </div>
-        </Container>
+          <a
+            href={telHref}
+            className={[
+              'hidden md:inline-flex items-center gap-2 h-11 px-4 rounded border text-sm font-semibold tracking-wide transition-colors',
+              onHero
+                ? 'border-white/40 text-white hover:bg-white/10'
+                : 'border-line-strong text-ink hover:border-gold hover:text-gold',
+            ].join(' ')}
+          >
+            <FaPhone className="h-4 w-4" aria-hidden />
+            {PHONE_NUMBER}
+          </a>
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            className={['md:hidden inline-flex items-center gap-2 h-11 px-2 -mr-2', onHero ? 'text-white' : 'text-ink'].join(' ')}
+            aria-label={menuOpen ? 'Zamknij menu' : 'Otwórz menu'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+          >
+            <span className="text-xs font-semibold tracking-[0.18em] uppercase">{menuOpen ? 'Zamknij' : 'Menu'}</span>
+            <span className="relative w-6 h-5 block" aria-hidden>
+              <span className={`absolute left-0 top-0 h-[2px] w-full bg-current rounded transition-transform duration-300 ${menuOpen ? 'translate-y-[9px] rotate-45' : ''}`} />
+              <span className={`absolute left-0 top-[9px] h-[2px] w-full bg-current rounded transition-opacity duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
+              <span className={`absolute left-0 bottom-0 h-[2px] w-full bg-current rounded transition-transform duration-300 ${menuOpen ? '-translate-y-[9px] -rotate-45' : ''}`} />
+            </span>
+          </button>
+        </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
-      <MobileMenu isOpen={isMenuOpen} onClose={toggleMenu} links={navLinks} />
+      {/* Rezerwacja miejsca pod nagłówkiem na podstronach (na stronie głównej hero wchodzi pod nagłówek) */}
+      {pathname !== '/' && <div aria-hidden className="h-[var(--header-height)]" />}
+
+      <MobileMenu open={menuOpen} onClose={close} links={navLinks} />
     </>
   )
 }

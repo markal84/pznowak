@@ -6,6 +6,11 @@ const WP_V2_ROOT = (process.env.NEXT_PUBLIC_WP_API_URL || '').replace(/\/$/, '')
 // Derive the generic REST base (https://domain/wp-json) for non-wp/v2 namespaces like ACF
 const WP_REST_BASE = WP_V2_ROOT.replace(/\/wp\/v2$/, '');
 
+import { MOCK_PRODUCTS, MOCK_ABOUT_PAGE } from './mock-data';
+
+// Tryb podglądu: bez skonfigurowanego API zwracamy dane zastępcze zamiast pustych list.
+export const USE_MOCKS = !WP_V2_ROOT;
+
 // --- Type Definitions ---
 
 // Basic structure for ACF fields (adjust based on actual field types)
@@ -97,9 +102,9 @@ export interface Page {
  */
 export async function getProducts(): Promise<Product[]> {
   const productCptSlug = 'ring'; // Użyj poprawnej nazwy CPT
-  if (!WP_V2_ROOT) {
-    console.error("WP_API_URL is not defined. Check your .env.local file.");
-    return [];
+  if (USE_MOCKS) {
+    console.warn("WP_API_URL is not defined – using mock products.");
+    return MOCK_PRODUCTS;
   }
 
   const perPage = 50; // Wystarczające dla katalogu, zmniejsza liczbę zapytań
@@ -140,9 +145,8 @@ export async function getProducts(): Promise<Product[]> {
  */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const productCptSlug = 'ring'; // Użyj poprawnej nazwy CPT
-  if (!WP_V2_ROOT) {
-    console.error("WP_API_URL is not defined. Check your .env.local file.");
-    return null;
+  if (USE_MOCKS) {
+    return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
   }
   const endpoint = `${WP_V2_ROOT}/${productCptSlug}?slug=${slug}&_embed`;
 
@@ -178,9 +182,8 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
  * Fetches a single page by its slug from the WordPress REST API.
  */
 export async function getPageBySlug(slug: string): Promise<Page | null> {
-  if (!WP_V2_ROOT) {
-    console.error("WP_API_URL is not defined. Check your .env.local file.");
-    return null;
+  if (USE_MOCKS) {
+    return slug === 'o-nas' ? MOCK_ABOUT_PAGE : null;
   }
   const endpoint = `${WP_V2_ROOT}/pages?slug=${slug}&_embed`;
 
@@ -225,8 +228,7 @@ export interface GlobalOptions {
  * Assumes the ACF Options page is set up.
  */
 export async function getGlobalOptions(): Promise<GlobalOptions | null> {
-  if (!WP_REST_BASE) {
-    console.error("WP_API_URL is not defined. Check your .env.local file.");
+  if (USE_MOCKS) {
     return null;
   }
   const endpoint = `${WP_REST_BASE}/acf/v3/options/options`;

@@ -1,26 +1,28 @@
-import React from "react";
+import React from 'react'
 
 interface Props {
-  eyebrow?: string;
-  title: string;
-  center?: boolean;
-  className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  eyebrow?: string
+  title: string
+  lead?: string
+  center?: boolean
+  className?: string
+  size?: 'sm' | 'md' | 'lg'
+  as?: 'h1' | 'h2'
 }
 
 const sizeMap = {
-  sm: 'text-2xl md:text-3xl',
-  md: 'text-3xl md:text-4xl',
-  lg: 'text-4xl md:text-5xl',
+  sm: 'text-[1.9rem] md:text-[2.4rem]',
+  md: 'text-[2.3rem] md:text-[3rem]',
+  lg: 'text-[2.6rem] md:text-[3.6rem]',
 } as const
 
-export default function SectionTitle({ eyebrow, title, center, className = "", size = 'md' }: Props) {
+export default function SectionTitle({ eyebrow, title, lead, center, className = '', size = 'md', as = 'h2' }: Props) {
+  const Tag = as
   return (
-    <div className={[center ? "text-center" : "", className].join(" ")}> 
-      {eyebrow && (
-        <div className="text-sm tracking-widest uppercase text-brand-gold/90 mb-2">{eyebrow}</div>
-      )}
-      <h2 className={["font-display leading-tight text-gray-900 dark:text-white", sizeMap[size]].join(' ')}>{title}</h2>
+    <div className={[center ? 'text-center mx-auto' : '', 'max-w-3xl reveal', className].join(' ')}>
+      {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
+      <Tag className={sizeMap[size]}>{title}</Tag>
+      {lead && <p className="mt-4 text-lg muted leading-relaxed max-w-2xl">{lead}</p>}
     </div>
-  );
+  )
 }

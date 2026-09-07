@@ -1,72 +1,44 @@
 import React, { useEffect, useRef } from 'react'
 
-interface ContactMessageProps {
-  success?: boolean
-  error?: string | null
-  ackOk?: boolean
-  onClose: () => void
-}
+interface Props { success?: boolean; error?: string | null; ackOk?: boolean; onClose: () => void }
 
-const ContactMessage: React.FC<ContactMessageProps> = ({ success, error, ackOk, onClose }) => {
-  const dialogRef = useRef<HTMLDivElement | null>(null)
+const ContactMessage: React.FC<Props> = ({ success, error, ackOk, onClose }) => {
   const okButtonRef = useRef<HTMLButtonElement | null>(null)
-  const lastActive = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    // zapamiętaj poprzedni fokus i przenieś do modala
-    lastActive.current = (document.activeElement as HTMLElement) || null
     okButtonRef.current?.focus()
-
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        onClose()
-      } else if (e.key === 'Tab') {
-        // prosty focus trap: tylko element OK jest fokusowalny
-        e.preventDefault()
-        okButtonRef.current?.focus()
-      }
+      if (e.key === 'Escape') { e.preventDefault(); onClose() }
+      else if (e.key === 'Tab') { e.preventDefault(); okButtonRef.current?.focus() }
     }
     document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      // przywróć fokus
-      lastActive.current?.focus()
-    }
+    return () => document.removeEventListener('keydown', onKeyDown)
   }, [onClose])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/50 p-4" onClick={onClose}>
       <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="contact-message-title"
-        aria-describedby="contact-message-desc"
-        className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-sm text-center"
+        role="dialog" aria-modal="true" aria-labelledby="contact-message-title" aria-describedby="contact-message-desc"
+        className="bg-paper rounded-lg shadow-lg p-8 w-full max-w-md text-center"
         onClick={(e) => e.stopPropagation()}
       >
+        <span className={['mx-auto h-12 w-12 rounded-full flex items-center justify-center', success ? 'bg-gold-soft text-gold' : 'bg-red-50 text-red-700'].join(' ')} aria-hidden>
+          {success ? '✓' : '!'}
+        </span>
         {success ? (
           <>
-            <div id="contact-message-title" className="text-green-600 text-lg font-semibold mb-2">Wiadomość została wysłana!</div>
-            <div id="contact-message-desc" className="text-gray-700 dark:text-gray-200 mb-2">Dziękujemy za kontakt. Odpowiemy najszybciej jak to możliwe.</div>
-            {ackOk && (
-              <div className="text-gray-700 dark:text-gray-200 mb-4">Wysłaliśmy potwierdzenie na Twój e‑mail.</div>
-            )}
+            <h2 id="contact-message-title" className="mt-4 text-2xl">Dziękujemy, wiadomość dotarła</h2>
+            <p id="contact-message-desc" className="mt-2 muted">Odpowiemy najszybciej, jak to możliwe, zwykle w ciągu jednego dnia roboczego.</p>
+            {ackOk && <p className="mt-2 text-sm muted">Wysłaliśmy potwierdzenie na Twój e-mail.</p>}
           </>
         ) : (
           <>
-            <div id="contact-message-title" className="text-red-600 text-lg font-semibold mb-2">Wystąpił błąd</div>
-            <div id="contact-message-desc" className="text-gray-700 dark:text-gray-200 mb-4">{error || 'Wystąpił błąd podczas wysyłania wiadomości.'}</div>
+            <h2 id="contact-message-title" className="mt-4 text-2xl">Nie udało się wysłać</h2>
+            <p id="contact-message-desc" className="mt-2 muted">{error || 'Wystąpił błąd podczas wysyłania wiadomości.'}</p>
           </>
         )}
-        <button
-          ref={okButtonRef}
-          onClick={onClose}
-          className="mt-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60"
-          autoFocus
-        >
-          OK
+        <button ref={okButtonRef} onClick={onClose} className="mt-6 h-12 px-8 rounded bg-ink text-ivory font-semibold hover:bg-graphite-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">
+          Zamknij
         </button>
       </div>
     </div>
