@@ -42,3 +42,21 @@
 .atelier-photo figcaption{position:absolute;inset:auto 0 0;padding:32px 20px 16px;color:#fff;background:linear-gradient(transparent,rgba(10,20,29,.75));font-size:.8125rem;line-height:1.5}
 .atelier-photo img{object-position:50% 50%}
 @media(max-width:760px){.story-grid .atelier-photo img{object-position:50% 72%}}
+
+/* The loupe uses an absolute overlay; activation never changes document geometry. */
+.loupe-study{min-width:0}
+.loupe-stage{isolation:isolate;user-select:none;touch-action:pan-y}
+.loupe-stage.is-active{touch-action:none;cursor:crosshair}
+.loupe-stage>img{pointer-events:none}
+.loupe-glass{position:absolute;overflow:hidden;border-radius:50%;pointer-events:none;background:#eeefed;border:1px solid #c5ac7e;box-shadow:0 0 0 5px rgba(250,249,246,.34),0 12px 32px rgba(10,25,38,.19);transition:opacity .24s ease;z-index:2}
+.loupe-scale{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);padding:2px 9px;background:rgba(23,43,61,.86);color:#fff;border-radius:20px;font-size:.75rem;letter-spacing:.1em}
+.loupe-stage-label{position:absolute;bottom:18px;left:20px;font-size:.8125rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);pointer-events:none;background:rgba(250,249,246,.86);padding:5px 10px}
+.loupe-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid #c7cbc9}
+.loupe-toggle{display:flex;align-items:center;gap:12px;padding:8px 0;border:0;background:none;color:var(--ink);min-height:48px}
+.loupe-switch{display:inline-flex;align-items:center;width:36px;height:21px;border:1px solid #87959e;border-radius:20px;padding:3px;margin-left:4px;background:transparent}
+.loupe-switch>span{width:13px;height:13px;border-radius:50%;background:#6c7b85;transition:transform .2s ease,background .2s ease}
+.loupe-toggle[aria-pressed=true] .loupe-switch{background:var(--navy);border-color:var(--navy)}
+.loupe-toggle[aria-pressed=true] .loupe-switch>span{transform:translateX(13px);background:#ead7b3}
+.loupe-status{font-size:.875rem;color:var(--muted);width:5.5rem;text-align:right}
+.loupe-help{font-size:.875rem;line-height:1.7;color:var(--muted);margin-top:14px}
+@media(prefers-reduced-motion:reduce){.loupe-glass,.loupe-switch>span{transition:none}}
