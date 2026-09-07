@@ -175,7 +175,7 @@ export default async function Home() {
 
       {/* KONTAKT */}
       <section className="section section-dark relative overflow-hidden">
-        <Image src="/about-us-workshop.png" alt="" fill sizes="100vw" className="object-cover opacity-20" />
+        <Image src="/atelier-workshop-v2.png" alt="" fill sizes="100vw" className="object-cover opacity-20" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-graphite/70 to-graphite" />
         <div className="container-x relative grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-7 reveal">

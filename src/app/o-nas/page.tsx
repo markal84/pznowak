@@ -22,7 +22,7 @@ const AboutPage = async () => {
   return (
     <>
       <section className="relative section-dark overflow-hidden">
-        <Image src="/about-us-workshop.png" alt="" fill priority sizes="100vw" className="object-cover opacity-35" />
+        <Image src="/atelier-workshop-v2.png" alt="" fill priority sizes="100vw" className="object-cover opacity-35" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-graphite via-graphite/70 to-graphite/30" />
         <div className="container-x relative pt-14 md:pt-24 pb-14 md:pb-24 max-w-3xl">
           <p className="eyebrow reveal is-visible">O pracowni</p>

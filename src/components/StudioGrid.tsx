@@ -1,9 +1,9 @@
 import Image from 'next/image'
 
 const items = [
-  { src: '/about-us-workshop.png', alt: 'Stanowisko pracy w pracowni złotniczej', title: 'Pracownia', text: 'Miejsce, w którym każdy detal powstaje ręcznie, pod lupą i przy dobrym świetle.' },
-  { src: '/about-us-details.png', alt: 'Zbliżenie na oprawę kamienia', title: 'Detale', text: 'Precyzyjna obróbka i wykończenie, które czuć w dotyku, nie tylko widać.' },
-  { src: '/about-us-proccess.png', alt: 'Szkic projektu i narzędzia na stole', title: 'Proces', text: 'Od szkicu po gotową formę. Przejrzyście, etap po etapie, bez niespodzianek.' },
+  { src: '/atelier-workshop-v2.png', alt: 'Fotorealistyczny kierunek zdjęcia stanowiska w pracowni złotniczej', title: 'Pracownia', text: 'Miejsce, w którym każdy detal powstaje ręcznie, pod lupą i przy dobrym świetle.' },
+  { src: '/atelier-detail-v2.png', alt: 'Fotorealistyczny kierunek zdjęcia precyzyjnej pracy złotnika', title: 'Detale', text: 'Precyzyjna obróbka i wykończenie, które czuć w dotyku, nie tylko widać.' },
+  { src: '/atelier-process-v2.png', alt: 'Fotorealistyczny kierunek zdjęcia szkicu i narzędzi złotniczych', title: 'Proces', text: 'Od szkicu po gotową formę. Przejrzyście, etap po etapie, bez niespodzianek.' },
 ]
 
 export default function StudioGrid() {
