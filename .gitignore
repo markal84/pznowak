@@ -44,3 +44,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# tracked backend documentation and safe environment template
+!backend/README.md
+!backend/.env.example
