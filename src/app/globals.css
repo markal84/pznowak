@@ -60,3 +60,6 @@
 .loupe-status{font-size:.875rem;color:var(--muted);width:5.5rem;text-align:right}
 .loupe-help{font-size:.875rem;line-height:1.7;color:var(--muted);margin-top:14px}
 @media(prefers-reduced-motion:reduce){.loupe-glass,.loupe-switch>span{transition:none}}
+
+.api-test-panel{padding-block:48px 90px}.api-test-state{min-height:320px;border:1px solid var(--line);background:#eeefed;padding:52px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}.api-test-state h2{font-size:clamp(2rem,3vw,3rem)}.api-test-state p{color:var(--muted);margin-top:18px}.api-test-state .button{margin-top:28px}.api-test-error{border-color:#a96b62}.api-test-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;margin-bottom:38px}.api-test-toolbar h2{font-size:clamp(2rem,3vw,3rem)}.api-test-toolbar p{color:var(--muted);margin-top:15px}.api-test-toolbar .eyebrow{margin-bottom:14px}.api-test-toolbar .button{flex-shrink:0}.api-test-note{margin-top:34px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:.9375rem}.api-test-grid .photo{background:#eeefed}
+@media(max-width:760px){.api-test-panel{padding-block:34px 64px}.api-test-state{min-height:280px;padding:34px 24px}.api-test-toolbar{align-items:flex-start;flex-direction:column;gap:24px}.api-test-toolbar .button{width:100%}}

@@ -4,6 +4,10 @@
     {
       "source": "/health",
       "destination": "/api/health"
+    },
+    {
+      "source": "/products",
+      "destination": "/api/products"
     }
   ]
 }

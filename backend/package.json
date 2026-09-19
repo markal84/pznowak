@@ -9,6 +9,6 @@
   "scripts": {
     "dev": "vercel dev",
     "test": "node --test",
-    "check": "node --check api/health.js && node --test"
+    "check": "node --check api/health.js && node --check api/products.js && node --test"
   }
 }
