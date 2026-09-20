@@ -1,19 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export', // Static build for home.pl (no Node)
+  output: 'export', // Portable static frontend; dynamic data is supplied by the CMS/API.
   trailingSlash: true,
   images: {
     unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'serwer1542079.home.pl',
-        port: '',
-        // Allow uploads from both /wordpress/ and /pznowak/ installs
-        pathname: '/autoinstalator/**/wp-content/uploads/**',
-      },
-    ],
   },
 };
 

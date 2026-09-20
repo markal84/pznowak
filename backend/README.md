@@ -5,12 +5,12 @@ Minimalny, niezależny backend katalogu przygotowany do osobnego wdrożenia na V
 ## Dostępne endpointy
 
 - `GET /health` potwierdza, że usługa działa.
-- `GET /products` zwraca trzy losowe opublikowane produkty z Neon PostgreSQL.
+- `GET /products` zwraca trzy losowe opublikowane produkty z tabel Payload CMS w Neon PostgreSQL.
 - `GET /products?limit=5` pozwala zmienić liczbę wyników w zakresie od 1 do 10.
 - `OPTIONS` pozwala łączyć się z API z innej domeny.
 
-Backend ma obecnie wyłącznie publiczny odczyt z bazy. Nie ma jeszcze zapisu danych,
-logowania, CMS, MCP ani WebMCP.
+Backend ma wyłącznie publiczny odczyt z bazy. Zapis, logowanie i zarządzanie
+produktami są obsługiwane przez osobną aplikację Payload w katalogu `cms`.
 
 ## Konfiguracja bazy
 
@@ -42,9 +42,10 @@ odtwarzane z domysłów.
 
 ## Media katalogu
 
-Zdjęcia i filmy stagingu są przechowywane w publicznym Vercel Blob Store
-`pznowak-catalog-media` w regionie Frankfurt. Store jest podłączony tylko do
-środowisk Preview i Development; produkcja nie ma jeszcze jego tokenu zapisu.
+Zdjęcia i filmy produktów są zarządzane przez Payload i przechowywane w
+publicznym Vercel Blob pod prefiksem `cms/media`. Publiczny backend odczytuje
+główne zdjęcia z relacji `cms_products_media` → `cms_media`; nie korzysta z
+adresów WordPressa ani home.pl.
 
 Migrację mediów uruchamia:
 
@@ -52,11 +53,10 @@ Migrację mediów uruchamia:
 npm run media:migrate:staging
 ```
 
-Skrypt wysyła 110 unikalnych zdjęć z `public/jewelry`, kopiuje 27 filmów ze
-starego serwera WordPressa, pomija pliki już obecne w Blob i zapisuje publiczne
-adresy CDN w Neon staging. Oryginalne ścieżki pozostają w bazie jako informacja
-źródłowa i awaryjny fallback. Sekret `BLOB_READ_WRITE_TOKEN` jest pobierany z
-Vercela do ignorowanego pliku `.env.local` i nie trafia do repozytorium.
+To historyczne polecenie służy wyłącznie do odtworzenia starego stagingowego
+importu. Bieżące media należy dodawać przez Payload. Sekret
+`BLOB_READ_WRITE_TOKEN` jest przechowywany w ignorowanym pliku `.env.local` i
+nie trafia do repozytorium.
 
 ## Backup bazy na VPS
 

@@ -8,9 +8,14 @@ export type PublicProduct = {
   slug: string
   name: string
   lead: string
+  description: string
   imagePath: string
+  images: string[]
+  video: string
   metal: string
   stone: string
+  carats: string
+  clarity: string
 }
 
 export function parseProductsLimit(value: string | null | undefined): number {
@@ -29,18 +34,31 @@ function populatedMedia(asset: number | Media): Media | null {
 
 export function serializePublicProduct(product: Product): PublicProduct {
   const mediaEntries = product.media ?? []
-  const primaryEntry = mediaEntries.find(({ asset, isPrimary }) => isPrimary && populatedMedia(asset))
-  const firstPopulatedEntry = mediaEntries.find(({ asset }) => populatedMedia(asset))
-  const image = populatedMedia((primaryEntry ?? firstPopulatedEntry)?.asset ?? 0)
+  const imageEntries = mediaEntries.filter(({ asset }) =>
+    populatedMedia(asset)?.mimeType?.startsWith('image/'),
+  )
+  const primaryEntry = imageEntries.find(({ isPrimary }) => isPrimary)
+  const image = populatedMedia((primaryEntry ?? imageEntries[0])?.asset ?? 0)
+  const images = imageEntries
+    .map(({ asset }) => populatedMedia(asset)?.url ?? '')
+    .filter((url) => url.length > 0)
+  const video = mediaEntries
+    .map(({ asset }) => populatedMedia(asset))
+    .find((asset) => asset?.mimeType?.startsWith('video/'))
 
   return {
     id: product.legacy?.wordpressId ?? product.id,
     slug: product.slug,
     name: product.name,
     lead: product.lead ?? '',
+    description: product.description ?? '',
     imagePath: image?.url ?? '',
+    images,
+    video: video?.url ?? '',
     metal: product.metal ?? '',
     stone: product.stone ?? '',
+    carats: product.carats ?? '',
+    clarity: product.clarity ?? '',
   }
 }
 

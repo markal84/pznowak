@@ -20,6 +20,7 @@ const product = {
         id: 2,
         alt: 'Drugie zdjęcie',
         url: 'https://example.public.blob.vercel-storage.com/cms/media/secondary.jpg',
+        mimeType: 'image/jpeg',
         updatedAt: '2026-09-20T00:00:00.000Z',
         createdAt: '2026-09-20T00:00:00.000Z',
       },
@@ -30,10 +31,22 @@ const product = {
         id: 1,
         alt: 'Zdjęcie główne',
         url: 'https://example.public.blob.vercel-storage.com/cms/media/primary.jpg',
+        mimeType: 'image/jpeg',
         updatedAt: '2026-09-20T00:00:00.000Z',
         createdAt: '2026-09-20T00:00:00.000Z',
       },
       isPrimary: true,
+    },
+    {
+      asset: {
+        id: 3,
+        alt: 'Film produktu',
+        url: 'https://example.public.blob.vercel-storage.com/cms/media/product.mp4',
+        mimeType: 'video/mp4',
+        updatedAt: '2026-09-20T00:00:00.000Z',
+        createdAt: '2026-09-20T00:00:00.000Z',
+      },
+      isPrimary: false,
     },
   ],
   sortOrder: 0,
@@ -56,9 +69,17 @@ describe('public products compatibility', () => {
       slug: 'merope-2',
       name: 'Merope',
       lead: 'Elegancki pierścionek Merope',
+      description: '',
       imagePath: 'https://example.public.blob.vercel-storage.com/cms/media/primary.jpg',
+      images: [
+        'https://example.public.blob.vercel-storage.com/cms/media/secondary.jpg',
+        'https://example.public.blob.vercel-storage.com/cms/media/primary.jpg',
+      ],
+      video: 'https://example.public.blob.vercel-storage.com/cms/media/product.mp4',
       metal: 'Złoto',
       stone: 'Diament',
+      carats: '',
+      clarity: '',
     })
   })
 

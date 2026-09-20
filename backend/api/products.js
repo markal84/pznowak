@@ -54,7 +54,7 @@ export function createProductsHandler({
           available,
           count: products.length,
           randomized: true,
-          source: "neon_postgres",
+          source: "payload_cms",
         },
       });
     } catch (error) {

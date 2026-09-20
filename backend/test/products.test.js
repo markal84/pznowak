@@ -74,7 +74,7 @@ function createResponse() {
   };
 }
 
-test("GET /products returns three unique products from Neon", async () => {
+test("GET /products returns three unique products from Payload CMS", async () => {
   const response = createResponse();
   const productsHandler = createHandler();
 
@@ -85,7 +85,7 @@ test("GET /products returns three unique products from Neon", async () => {
   assert.equal(new Set(response.body.products.map(({ id }) => id)).size, 3);
   assert.equal(response.body.meta.available, 8);
   assert.equal(response.body.meta.randomized, true);
-  assert.equal(response.body.meta.source, "neon_postgres");
+  assert.equal(response.body.meta.source, "payload_cms");
 
   for (const product of response.body.products) {
     assert.equal(typeof product.name, "string");

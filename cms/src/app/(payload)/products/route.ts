@@ -23,7 +23,9 @@ export async function OPTIONS() {
 
 export async function GET(request: Request) {
   try {
-    const limit = parseProductsLimit(new URL(request.url).searchParams.get('limit'))
+    const searchParams = new URL(request.url).searchParams
+    const returnAll = searchParams.get('all') === 'true'
+    const limit = parseProductsLimit(searchParams.get('limit'))
     const payload = await getPayload({ config })
     const result = await payload.find({
       collection: 'products',
@@ -41,7 +43,7 @@ export async function GET(request: Request) {
     const availableProducts = result.docs
       .map(serializePublicProduct)
       .filter(({ imagePath }) => imagePath.length > 0)
-    const products = sampleProducts(availableProducts, limit)
+    const products = returnAll ? availableProducts : sampleProducts(availableProducts, limit)
 
     return Response.json(
       {
@@ -49,7 +51,7 @@ export async function GET(request: Request) {
         meta: {
           available: availableProducts.length,
           count: products.length,
-          randomized: true,
+          randomized: !returnAll,
           source: 'payload_cms',
         },
       },
