@@ -45,6 +45,7 @@ export default buildConfig({
       clientUploads: true,
       collections: {
         media: {
+          disablePayloadAccessControl: true,
           prefix: 'cms/media',
         },
       },
