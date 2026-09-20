@@ -27,6 +27,19 @@ npm run db:setup
 Polecenie jest powtarzalne: tworzy brakującą tabelę i aktualizuje osiem rekordów
 testowych bez ich dublowania.
 
+## Backup bazy na VPS
+
+Skrypt `ops/backup-neon.sh` tworzy skompresowany backup przez bezpośrednie
+połączenie `DATABASE_URL_UNPOOLED`, sprawdza go poleceniem `pg_restore --list`
+i usuwa kopie starsze niż 30 dni. Na VPS jest uruchamiany codziennie przez cron.
+
+Sekret połączenia znajduje się wyłącznie na serwerze w pliku
+`/home/marcin/.config/pznowak-backup/database.env` z uprawnieniami `600`.
+Kopie trafiają do `/home/marcin/backups/pznowak-neon` i nie są częścią repozytorium.
+Przy odtwarzaniu kopii do innego serwera należy użyć opcji
+`pg_restore --no-owner --no-privileges`, ponieważ neonowy właściciel bazy nie
+musi istnieć w docelowej instancji PostgreSQL.
+
 ## Lokalna kontrola
 
 ```bash
