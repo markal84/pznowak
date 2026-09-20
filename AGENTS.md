@@ -10,7 +10,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Project tooling preference
 
-For Vercel platform operations, use the official `@Vercel` connector first.
-Use Vercel CLI only when the connector does not expose the required operation.
-Do not use Vercel agent skills for this project. Keep the Vercel plugin and
-Vercel CLI available; the plugin provides the official connector.
+For Vercel platform operations, choose the single most appropriate capability
+for the task. Prefer the official `@Vercel` connector for remote project and
+account operations. Use a focused Vercel skill when it adds implementation
+guidance that the connector does not provide, and use Vercel CLI when the
+connector does not expose the required operation. Avoid loading overlapping
+skills and connector documentation for the same simple action.
