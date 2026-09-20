@@ -9,6 +9,12 @@
   "scripts": {
     "dev": "vercel dev",
     "test": "node --test",
-    "check": "node --check api/health.js && node --check api/products.js && node --test"
+    "check": "node --check api/health.js && node --check api/products.js && node --check lib/database.js && node --check lib/products-repository.js && node --check scripts/migrate.js && node --check scripts/seed.js && node --test",
+    "db:migrate": "node --env-file=.env.local scripts/migrate.js",
+    "db:seed": "node --env-file=.env.local scripts/seed.js",
+    "db:setup": "npm run db:migrate && npm run db:seed"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0"
   }
 }
