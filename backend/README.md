@@ -14,18 +14,31 @@ logowania, CMS, MCP ani WebMCP.
 
 ## Konfiguracja bazy
 
-Sekrety lokalne znajdują się w `.env.local`, a lokalny kontekst Neon w `.neon`.
-Oba są wykluczone z Gita. Wymagane nazwy zmiennych są opisane w
-`.env.example`; prawdziwych wartości nie należy kopiować do repozytorium.
+Sekrety produkcji znajdują się w `.env.local`, sekrety gałęzi staging w
+`.env.staging.local`, a lokalny kontekst Neon w `.neon`. Wszystkie te pliki są
+wykluczone z Gita. Wymagane nazwy zmiennych są opisane w `.env.example`;
+prawdziwych wartości nie należy kopiować do repozytorium.
 
-Po połączeniu katalogu z projektem Neon strukturę i dane testowe przygotowują:
+Na Vercelu `DATABASE_URL` dla środowiska Preview wskazuje na gałąź Neon
+`staging`, a zmienna dla Production na gałąź `production`. Migracje i importy
+korzystają z bezpośredniego `DATABASE_URL_UNPOOLED`; działające API korzysta z
+połączenia puli `DATABASE_URL`.
+
+Docelową strukturę katalogu i dane z `src/lib/collection.json` przygotowuje na
+staging:
 
 ```bash
-npm run db:setup
+npm run db:setup:staging
 ```
 
-Polecenie jest powtarzalne: tworzy brakującą tabelę i aktualizuje osiem rekordów
-testowych bez ich dublowania.
+Polecenie jest powtarzalne. Tworzy lub aktualizuje tabele produktów, mediów,
+galerii i historii importów, a następnie importuje 34 opublikowane produkty,
+133 przypisane media oraz 11 elementów galerii bez dublowania produktów.
+
+Repozytorium zawiera wyłącznie 34 opublikowane produkty. Nie zawiera treści 17
+produktów oczekujących i jednego szkicu widocznych wcześniej w WordPressie;
+te rekordy wymagają osobnego eksportu z uwierzytelnionego panelu i nie są
+odtwarzane z domysłów.
 
 ## Backup bazy na VPS
 

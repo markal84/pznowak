@@ -1,7 +1,7 @@
 import { products } from "../data/products.js";
 import { getDatabase } from "../lib/database.js";
 
-const sql = getDatabase();
+const sql = getDatabase({ direct: true });
 
 for (const product of products) {
   await sql`

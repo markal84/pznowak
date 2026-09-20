@@ -1,15 +1,18 @@
 import { neon } from "@neondatabase/serverless";
 
-let database;
+const databases = new Map();
 
-export function getDatabase() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is not configured");
+export function getDatabase({ direct = false } = {}) {
+  const variableName = direct ? "DATABASE_URL_UNPOOLED" : "DATABASE_URL";
+  const connectionString = process.env[variableName];
+
+  if (!connectionString) {
+    throw new Error(`${variableName} is not configured`);
   }
 
-  if (!database) {
-    database = neon(process.env.DATABASE_URL);
+  if (!databases.has(variableName)) {
+    databases.set(variableName, neon(connectionString));
   }
 
-  return database;
+  return databases.get(variableName);
 }

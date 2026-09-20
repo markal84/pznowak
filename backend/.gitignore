@@ -1,4 +1,4 @@
 .vercel
 .neon
-.env.local
+.env*.local
 node_modules
