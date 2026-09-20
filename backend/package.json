@@ -9,16 +9,18 @@
   "scripts": {
     "dev": "vercel dev",
     "test": "node --test",
-    "check": "node --check api/health.js && node --check api/products.js && node --check lib/catalog-import.js && node --check lib/database.js && node --check lib/products-repository.js && node --check scripts/import-catalog.js && node --check scripts/migrate.js && node --check scripts/seed.js && node --test",
+    "check": "node --check api/health.js && node --check api/products.js && node --check lib/catalog-import.js && node --check lib/database.js && node --check lib/media-manifest.js && node --check lib/products-repository.js && node --check scripts/import-catalog.js && node --check scripts/migrate-media.js && node --check scripts/migrate.js && node --check scripts/seed.js && node --test",
     "db:migrate": "node --env-file=.env.local scripts/migrate.js",
     "db:seed": "node --env-file=.env.local scripts/seed.js",
     "db:import": "node --env-file=.env.local scripts/import-catalog.js",
     "db:setup": "npm run db:migrate && npm run db:import",
     "db:migrate:staging": "node --env-file=.env.staging.local scripts/migrate.js",
     "db:import:staging": "node --env-file=.env.staging.local scripts/import-catalog.js",
-    "db:setup:staging": "npm run db:migrate:staging && npm run db:import:staging"
+    "db:setup:staging": "npm run db:migrate:staging && npm run db:import:staging",
+    "media:migrate:staging": "node --env-file=.env.local --env-file=.env.staging.local scripts/migrate-media.js"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0"
+    "@neondatabase/serverless": "^1.1.0",
+    "@vercel/blob": "^2.8.0"
   }
 }

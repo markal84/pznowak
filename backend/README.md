@@ -40,6 +40,24 @@ produktów oczekujących i jednego szkicu widocznych wcześniej w WordPressie;
 te rekordy wymagają osobnego eksportu z uwierzytelnionego panelu i nie są
 odtwarzane z domysłów.
 
+## Media katalogu
+
+Zdjęcia i filmy stagingu są przechowywane w publicznym Vercel Blob Store
+`pznowak-catalog-media` w regionie Frankfurt. Store jest podłączony tylko do
+środowisk Preview i Development; produkcja nie ma jeszcze jego tokenu zapisu.
+
+Migrację mediów uruchamia:
+
+```bash
+npm run media:migrate:staging
+```
+
+Skrypt wysyła 110 unikalnych zdjęć z `public/jewelry`, kopiuje 27 filmów ze
+starego serwera WordPressa, pomija pliki już obecne w Blob i zapisuje publiczne
+adresy CDN w Neon staging. Oryginalne ścieżki pozostają w bazie jako informacja
+źródłowa i awaryjny fallback. Sekret `BLOB_READ_WRITE_TOKEN` jest pobierany z
+Vercela do ignorowanego pliku `.env.local` i nie trafia do repozytorium.
+
 ## Backup bazy na VPS
 
 Skrypt `ops/backup-neon.sh` tworzy skompresowany backup przez bezpośrednie

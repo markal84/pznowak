@@ -9,7 +9,17 @@ export async function loadRandomPublishedProducts(limit) {
         slug,
         name,
         lead,
-        image_path AS "imagePath",
+        COALESCE(
+          (
+            SELECT COALESCE(product_media.public_url, product_media.source_url)
+            FROM product_media
+            WHERE product_media.product_id = products.id
+              AND product_media.kind = 'image'
+            ORDER BY product_media.is_primary DESC, product_media.position ASC
+            LIMIT 1
+          ),
+          image_path
+        ) AS "imagePath",
         metal,
         stone
       FROM products

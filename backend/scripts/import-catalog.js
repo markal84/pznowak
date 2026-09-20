@@ -68,8 +68,6 @@ for (const product of catalog.products) {
       updated_at = now()
   `];
 
-  queries.push(sql`DELETE FROM product_media WHERE product_id = ${product.id}`);
-
   for (const media of product.media) {
     queries.push(sql`
       INSERT INTO product_media (
@@ -88,6 +86,31 @@ for (const product of catalog.products) {
         ${media.position},
         ${media.isPrimary}
       )
+      ON CONFLICT (product_id, kind, position) DO UPDATE SET
+        source_url = EXCLUDED.source_url,
+        public_url = CASE
+          WHEN product_media.source_url = EXCLUDED.source_url THEN product_media.public_url
+          ELSE NULL
+        END,
+        alt_text = EXCLUDED.alt_text,
+        is_primary = EXCLUDED.is_primary,
+        updated_at = now()
+    `);
+  }
+
+  const imageCount = product.media.filter(({ kind }) => kind === "image").length;
+  const hasVideo = product.media.some(({ kind }) => kind === "video");
+  queries.push(sql`
+    DELETE FROM product_media
+    WHERE product_id = ${product.id}
+      AND kind = 'image'
+      AND position >= ${imageCount}
+  `);
+
+  if (!hasVideo) {
+    queries.push(sql`
+      DELETE FROM product_media
+      WHERE product_id = ${product.id} AND kind = 'video'
     `);
   }
 
@@ -120,6 +143,10 @@ for (const item of catalog.gallery) {
       wordpress_id = EXCLUDED.wordpress_id,
       name = EXCLUDED.name,
       source_url = EXCLUDED.source_url,
+      public_url = CASE
+        WHEN gallery_items.source_url = EXCLUDED.source_url THEN gallery_items.public_url
+        ELSE NULL
+      END,
       alt_text = EXCLUDED.alt_text,
       position = EXCLUDED.position,
       status = EXCLUDED.status,

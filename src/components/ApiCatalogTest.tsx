@@ -144,7 +144,7 @@ export default function ApiCatalogTest() {
         ))}
       </ul>
 
-      <p className="api-test-note">Dane produktów pochodzą z API. Zdjęcia są nadal dostarczane przez statyczny frontend Astry.</p>
+      <p className="api-test-note">Dane produktów pochodzą z Neon przez API, a zdjęcia są dostarczane z Vercel Blob CDN.</p>
     </section>
   );
 }
