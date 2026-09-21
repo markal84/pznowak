@@ -34,9 +34,18 @@ export async function GET(request: Request) {
       overrideAccess: false,
       sort: 'sortOrder',
       where: {
-        _status: {
-          equals: 'published',
-        },
+        and: [
+          {
+            _status: {
+              equals: 'published',
+            },
+          },
+          {
+            archived: {
+              not_equals: true,
+            },
+          },
+        ],
       },
     })
 

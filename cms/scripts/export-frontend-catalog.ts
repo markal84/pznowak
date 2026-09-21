@@ -34,7 +34,9 @@ try {
     limit: 500,
     overrideAccess: true,
     sort: 'sortOrder',
-    where: { _status: { equals: 'published' } },
+    where: {
+      and: [{ _status: { equals: 'published' } }, { archived: { not_equals: true } }],
+    },
   })
 
   const products = result.docs.map((product) => {
@@ -67,7 +69,9 @@ try {
 
   const videoCount = products.filter(({ video }) => video.length > 0).length
   if (products.length !== 34 || videoCount !== 27) {
-    throw new Error(`Snapshot verification failed: ${products.length} products, ${videoCount} videos`)
+    throw new Error(
+      `Snapshot verification failed: ${products.length} products, ${videoCount} videos`,
+    )
   }
 
   await writeFile(

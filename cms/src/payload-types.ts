@@ -168,6 +168,10 @@ export interface Product {
       | boolean
       | null;
   };
+  /**
+   * Archiwizacja automatycznie wycofuje produkt z publikacji.
+   */
+  archived?: boolean | null;
   sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -360,6 +364,7 @@ export interface ProductsSelect<T extends boolean = true> {
         wordpressId?: T;
         sourcePayload?: T;
       };
+  archived?: T;
   sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -16,6 +16,7 @@ wp_ring_importer.py
 
 # testing
 /coverage
+/output/
 
 # next.js
 /.next/

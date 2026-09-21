@@ -1,10 +1,7 @@
 import { slugField, type CollectionConfig } from 'payload'
 
-import {
-  isAdmin,
-  isAdminOrEditor,
-  isAuthenticatedOrPublished,
-} from '../access/permissions'
+import { isAdmin, isAdminOrEditor, isAuthenticatedOrPublished } from '../access/permissions'
+import { applyArchiveStatus, validateProductMedia } from '../lib/product-workflow'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -15,7 +12,7 @@ export const Products: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'slug', '_status', 'sortOrder', 'updatedAt'],
+    defaultColumns: ['name', 'slug', '_status', 'archived', 'sortOrder', 'updatedAt'],
     group: 'Katalog',
     listSearchableFields: ['name', 'slug', 'metal', 'stone'],
     description: 'Pierścionki widoczne w katalogu strony.',
@@ -32,6 +29,9 @@ export const Products: CollectionConfig = {
   versions: {
     drafts: true,
     maxPerDoc: 30,
+  },
+  hooks: {
+    beforeChange: [({ data }) => applyArchiveStatus(data)],
   },
   fields: [
     {
@@ -117,6 +117,7 @@ export const Products: CollectionConfig = {
                 description: 'Pierwsze zdjęcie główne jest używane na liście produktów.',
                 initCollapsed: true,
               },
+              validate: validateProductMedia,
               fields: [
                 {
                   name: 'asset',
@@ -165,6 +166,17 @@ export const Products: CollectionConfig = {
           ],
         },
       ],
+    },
+    {
+      name: 'archived',
+      type: 'checkbox',
+      label: 'Archiwalny',
+      defaultValue: false,
+      index: true,
+      admin: {
+        description: 'Archiwizacja automatycznie wycofuje produkt z publikacji.',
+        position: 'sidebar',
+      },
     },
     {
       name: 'sortOrder',

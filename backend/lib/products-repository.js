@@ -27,6 +27,7 @@ export async function loadRandomPublishedProducts(limit) {
       FROM cms_products
       WHERE cms_products._status = 'published'
         AND cms_products.deleted_at IS NULL
+        AND COALESCE(cms_products.archived, false) = false
       ORDER BY random()
       LIMIT ${limit}
     `,
@@ -35,6 +36,7 @@ export async function loadRandomPublishedProducts(limit) {
       FROM cms_products
       WHERE cms_products._status = 'published'
         AND cms_products.deleted_at IS NULL
+        AND COALESCE(cms_products.archived, false) = false
     `,
   ]);
 
