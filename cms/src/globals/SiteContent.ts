@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { isAdminOrEditor } from '../access/permissions'
+import { triggerFrontendRebuild } from '../lib/frontend-publication'
 
 export const SiteContent: GlobalConfig = {
   slug: 'site-content',
@@ -18,6 +19,14 @@ export const SiteContent: GlobalConfig = {
   versions: {
     drafts: true,
     max: 30,
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc, previousDoc, req }) => {
+        await triggerFrontendRebuild(doc, previousDoc, req)
+        return doc
+      },
+    ],
   },
   fields: [
     {

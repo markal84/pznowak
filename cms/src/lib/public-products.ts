@@ -1,4 +1,4 @@
-import type { Media, Product } from '../payload-types'
+import type { GalleryItem, Media, Product, SiteContent } from '../payload-types'
 
 export const DEFAULT_PRODUCTS_LIMIT = 3
 export const MAX_PRODUCTS_LIMIT = 10
@@ -18,6 +18,24 @@ export type PublicProduct = {
   clarity: string
 }
 
+export type PublicGalleryItem = {
+  id: number
+  name: string
+  image: string
+}
+
+export type PublicSiteContent = Pick<
+  SiteContent,
+  | 'aboutHeading'
+  | 'aboutText'
+  | 'address'
+  | 'email'
+  | 'homeHeading'
+  | 'homeLead'
+  | 'openingHours'
+  | 'phone'
+>
+
 export function parseProductsLimit(value: string | null | undefined): number {
   const parsed = Number.parseInt(value ?? String(DEFAULT_PRODUCTS_LIMIT), 10)
 
@@ -28,8 +46,29 @@ export function parseProductsLimit(value: string | null | undefined): number {
   return Math.min(Math.max(parsed, 1), MAX_PRODUCTS_LIMIT)
 }
 
-function populatedMedia(asset: number | Media): Media | null {
+export function populatedMedia(asset: number | Media): Media | null {
   return typeof asset === 'object' && asset !== null ? asset : null
+}
+
+export function serializePublicGalleryItem(item: GalleryItem): PublicGalleryItem {
+  return {
+    id: item.wordpressId ?? item.id,
+    name: item.name,
+    image: populatedMedia(item.image)?.url ?? '',
+  }
+}
+
+export function serializePublicSiteContent(content: SiteContent): PublicSiteContent {
+  return {
+    aboutHeading: content.aboutHeading ?? null,
+    aboutText: content.aboutText ?? null,
+    address: content.address ?? null,
+    email: content.email ?? null,
+    homeHeading: content.homeHeading ?? null,
+    homeLead: content.homeLead ?? null,
+    openingHours: content.openingHours ?? null,
+    phone: content.phone ?? null,
+  }
 }
 
 export function serializePublicProduct(product: Product): PublicProduct {

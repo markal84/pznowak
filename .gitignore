@@ -49,3 +49,5 @@ next-env.d.ts
 # tracked backend documentation and safe environment template
 !backend/README.md
 !backend/.env.example
+!cms/README.md
+!cms/.env.example

@@ -5,6 +5,7 @@ import {
   isAdminOrEditor,
   isAuthenticatedOrPublished,
 } from '../access/permissions'
+import { triggerFrontendRebuild } from '../lib/frontend-publication'
 
 export const GalleryItems: CollectionConfig = {
   slug: 'gallery-items',
@@ -31,6 +32,14 @@ export const GalleryItems: CollectionConfig = {
   versions: {
     drafts: true,
     maxPerDoc: 30,
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc, previousDoc, req }) => {
+        await triggerFrontendRebuild(doc, previousDoc, req)
+        return doc
+      },
+    ],
   },
   fields: [
     {

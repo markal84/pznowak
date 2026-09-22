@@ -4,7 +4,8 @@ import ArrowIcon from '@/components/ArrowIcon';
 import Link from 'next/link';
 import {useEffect, useState} from 'react';
 
-const productsEndpoint = 'https://pznowak-catalog-api-test.vercel.app/products?limit=3';
+const productsEndpoint = process.env.NEXT_PUBLIC_CMS_PRODUCTS_URL
+  ?? 'https://pznowak-cms.vercel.app/products?limit=3';
 
 type ApiProduct = {
   id: number;
@@ -90,7 +91,7 @@ export default function ApiCatalogTest() {
         <div className="api-test-state">
           <span className="eyebrow">Łączenie z API</span>
           <h2>Pobieram trzy pierścionki…</h2>
-          <p>Strona czeka na odpowiedź niezależnego backendu Vercel.</p>
+          <p>Strona czeka na odpowiedź publicznego API Payload CMS.</p>
         </div>
       </section>
     );
@@ -102,7 +103,7 @@ export default function ApiCatalogTest() {
         <div className="api-test-state api-test-error">
           <span className="eyebrow">Brak odpowiedzi</span>
           <h2>Nie udało się pobrać katalogu.</h2>
-          <p>{error ?? 'Backend nie zwrócił danych.'}</p>
+          <p>{error ?? 'CMS nie zwrócił danych.'}</p>
           <button className="button" type="button" onClick={refreshProducts}>Spróbuj ponownie</button>
         </div>
       </section>

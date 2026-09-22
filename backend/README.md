@@ -1,6 +1,11 @@
 # pznowak catalog API
 
-Minimalny, niezależny backend katalogu przygotowany do osobnego wdrożenia na Vercelu.
+Historyczny, niezależny backend katalogu wdrożony osobno na Vercelu.
+
+Nowi konsumenci powinni używać kanonicznego endpointu Payload:
+`https://pznowak-cms.vercel.app/products`. Ten katalog pozostaje tymczasowo dla
+zgodności i narzędzi utrzymaniowych; nie należy dodawać tu nowej logiki
+publikacji.
 
 ## Dostępne endpointy
 

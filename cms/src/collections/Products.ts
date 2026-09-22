@@ -1,6 +1,7 @@
 import { slugField, type CollectionConfig } from 'payload'
 
 import { isAdmin, isAdminOrEditor, isAuthenticatedOrPublished } from '../access/permissions'
+import { triggerFrontendRebuild } from '../lib/frontend-publication'
 import { applyArchiveStatus, validateProductMedia } from '../lib/product-workflow'
 
 export const Products: CollectionConfig = {
@@ -31,6 +32,12 @@ export const Products: CollectionConfig = {
     maxPerDoc: 30,
   },
   hooks: {
+    afterChange: [
+      async ({ doc, previousDoc, req }) => {
+        await triggerFrontendRebuild(doc, previousDoc, req)
+        return doc
+      },
+    ],
     beforeChange: [({ data }) => applyArchiveStatus(data)],
   },
   fields: [
