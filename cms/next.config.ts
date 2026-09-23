@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
   // Allow the dev client/HMR resources from that loopback origin as well.
   allowedDevOrigins: ['127.0.0.1'],
   images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
+    ],
     localPatterns: [
       {
         pathname: '/api/media/file/**',

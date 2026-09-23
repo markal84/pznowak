@@ -1,59 +1,8 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
-import { getPayload } from 'payload'
-import React from 'react'
-import { fileURLToPath } from 'url'
-
-import config from '@/payload.config'
-import './styles.css'
-
-export default async function HomePage() {
-  const headers = await getHeaders()
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
-
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
-
-  return (
-    <div className="home">
-      <div className="content">
-        <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
-          />
-        </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
-        <div className="links">
-          <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Go to admin panel
-          </a>
-          <a
-            className="docs"
-            href="https://payloadcms.com/docs"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Documentation
-          </a>
-        </div>
-      </div>
-      <div className="footer">
-        <p>Update this page by editing</p>
-        <a className="codeLink" href={fileURL}>
-          <code>app/(frontend)/page.tsx</code>
-        </a>
-      </div>
-    </div>
-  )
-}
+import ArrowIcon from '@/components/ArrowIcon';
+import Link from 'next/link';
+import {getProducts, getSiteContent} from '@/lib/collection';
+import JewelCard from '@/components/JewelCard';
+import RingStudy from '@/components/RingStudy';
+import ContactBand from '@/components/ContactBand';
+export const dynamic = 'force-dynamic';
+export default async function Home(){const [products, siteContent] = await Promise.all([getProducts(), getSiteContent()]);return <><section className="hero"><div className="hero-copy"><span className="eyebrow">Michał Nowak · Pracownia złotnicza</span><h1>{siteContent.homeHeading === 'Niepowtarzalny. Jak Twoja historia.' ? <>Niepowtarzalny.<br/>Jak <em>Twoja historia.</em></> : (siteContent.homeHeading || <>Niepowtarzalny.<br/>Jak <em>Twoja historia.</em></>)}</h1><p className="lead">{siteContent.homeLead || 'Pierścionki i biżuteria tworzone na indywidualne zamówienie. Od pierwszego pomysłu po detal, który zostanie z Tobą na lata.'}</p><div className="actions"><Link className="button" href="/kontakt">Stwórzmy Twój pierścionek <span aria-hidden="true"><ArrowIcon /></span></Link><Link className="text-link" href="/katalog">Zobacz projekty <span aria-hidden="true"><ArrowIcon direction="down" /></span></Link></div><p className="hero-note">Rodzinna pracownia w Busku-Zdroju</p></div><div className="hero-image"><img src="/hero-ring-concept.webp" alt="Wizualizacja AI: złoty pierścionek z granatowym szafirem i ręcznie grawerowaną oprawą — kierunek sesji zdjęciowej" width="1254" height="1254" fetchPriority="high"/><div className="image-note"><span>Kierunek sesji · wizualizacja AI</span><span aria-hidden="true"><ArrowIcon direction="down-left" /></span></div></div></section><div className="trust-line"><div className="wrap trust-inner"><span><b aria-hidden="true">✧</b> Indywidualny projekt</span><span><b aria-hidden="true">✧</b> Ręczne wykończenie</span><span><b aria-hidden="true">✧</b> Bezpośredni kontakt ze złotnikiem</span></div></div><section className="section home-selection"><div className="wrap"><div className="section-heading"><div><span className="eyebrow">Wybrane projekty</span><h2>Początek Twojej <em>inspiracji.</em></h2></div><Link className="text-link" href="/katalog">Wszystkie pierścionki <span aria-hidden="true"><ArrowIcon /></span></Link></div><ul className="product-grid">{products.slice(0,3).map(p=><JewelCard key={p.id} product={p}/>)}</ul><p className="collection-note">Wybierz projekt, który Cię porusza. O jego indywidualnej wersji porozmawiamy w pracowni.</p></div></section><section className="section atelier"><div className="wrap atelier-grid"><figure className="atelier-photo"><img className="atelier-image" src="/atelier-craft-concept.webp" alt="Wizualizacja AI: dłonie złotnika podczas precyzyjnej pracy przy złotym pierścionku" width="1448" height="1086" loading="lazy"/><figcaption>Kierunek sesji · wizualizacja AI</figcaption></figure><div><span className="eyebrow">Za biżuterią stoi człowiek</span><h2>Rzemiosło z tradycją.<br/><em>Osobiste podejście.</em></h2><p className="lead">Jesteśmy rodzinną pracownią złotniczą. Tworzymy w małych seriach i na zamówienie — tak, aby biżuteria była dopasowana do osoby.</p><p className="lead">Łączymy klasyczny warsztat z projektowaniem 3D. Rozmawiamy o materiale, proporcjach i wygodzie. Każdy etap ma znaczenie.</p><Link className="text-link" style={{marginTop:28}} href="/o-nas">Poznaj naszą pracownię <span aria-hidden="true"><ArrowIcon /></span></Link><div className="signature"><img src="/logo.png" alt="" width="76" height="54"/><div>Michał Nowak<p>Pracownia Złotnicza · Busko-Zdrój</p></div></div></div></div></section><section className="section" id="jak-pracujemy"><div className="wrap"><span className="eyebrow">Od rozmowy do gotowej biżuterii</span><h2>Twój pierścionek.<br/><em>Krok po kroku.</em></h2><div className="steps">{[['01','Rozmawiamy','Opowiedz o osobie, okazji i swoich inspiracjach. Porozmawiamy o oczekiwaniach, budżecie i terminie.'],['02','Projektujemy','Dobieramy metal i kamienie, tworzymy szkic oraz model 3D. Wspólnie dopracowujemy proporcje i szczegóły.'],['03','Tworzymy','Ręcznie wykańczamy i polerujemy biżuterię, dbając o detal, trwałość oraz wygodę noszenia.']].map(([n,t,p])=><div className="step" key={n}><span>{n}</span><h3>{t}</h3><p>{p}</p></div>)}</div></div></section>{products[0] && <RingStudy product={products[0]}/>}<ContactBand/></>}

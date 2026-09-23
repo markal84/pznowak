@@ -5,7 +5,7 @@ import {
   isAdminOrEditor,
   isAuthenticatedOrPublished,
 } from '../access/permissions'
-import { triggerFrontendRebuild } from '../lib/frontend-publication'
+import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-publication'
 
 export const GalleryItems: CollectionConfig = {
   slug: 'gallery-items',
@@ -36,10 +36,11 @@ export const GalleryItems: CollectionConfig = {
   hooks: {
     afterChange: [
       async ({ doc, previousDoc, req }) => {
-        await triggerFrontendRebuild(doc, previousDoc, req)
+        revalidateAfterChange('gallery', doc, previousDoc, req)
         return doc
       },
     ],
+    afterDelete: [({ doc, req }) => revalidateAfterDelete('gallery', doc, req)],
   },
   fields: [
     {

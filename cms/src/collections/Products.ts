@@ -1,7 +1,7 @@
 import { slugField, type CollectionConfig } from 'payload'
 
 import { isAdmin, isAdminOrEditor, isAuthenticatedOrPublished } from '../access/permissions'
-import { triggerFrontendRebuild } from '../lib/frontend-publication'
+import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-publication'
 import { applyArchiveStatus, validateProductMedia } from '../lib/product-workflow'
 
 export const Products: CollectionConfig = {
@@ -34,10 +34,11 @@ export const Products: CollectionConfig = {
   hooks: {
     afterChange: [
       async ({ doc, previousDoc, req }) => {
-        await triggerFrontendRebuild(doc, previousDoc, req)
+        revalidateAfterChange('product', doc, previousDoc, req)
         return doc
       },
     ],
+    afterDelete: [({ doc, req }) => revalidateAfterDelete('product', doc, req)],
     beforeChange: [({ data }) => applyArchiveStatus(data)],
   },
   fields: [

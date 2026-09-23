@@ -25,34 +25,23 @@ Historyczny projekt Vercel `backend` nie jest już źródłem dla nowych
 konsumentów. Pozostaje tymczasowo jako ścieżka zgodności i zostanie wycofany po
 okresie obserwacji.
 
-## Snapshot statycznego frontendu
+## Dynamiczny frontend
 
-Frontend jest statycznym eksportem Next.js, dlatego opublikowane dane Payload są
-zapisywane do kontrolowanego snapshotu przed zbudowaniem strony:
-
-```bash
-npm run export:frontend
-```
-
-Polecenie tworzy `src/lib/catalog-snapshot.json`, sprawdza 34 produkty i 27
-filmów, 11 pozycji galerii oraz nie przenosi pól technicznych importu.
-
-Na Vercelu frontend ma zmienną `CMS_CATALOG_URL` wskazującą na
-`https://pznowak-cms.vercel.app/products?all=true`. Jego `prebuild` odświeża
-snapshot z tego endpointu. Opublikowanie lub wycofanie produktu, pozycji galerii
-albo `site-content` w produkcyjnym CMS-ie wywołuje deploy hook frontendu przez
-sekretną zmienną `FRONTEND_DEPLOY_HOOK_URL`.
-
-Bez `CMS_CATALOG_URL` lokalny build celowo używa ostatniego zatwierdzonego
-snapshotu, więc praca offline pozostaje możliwa.
+Publiczne strony i panel Payload działają w jednej aplikacji `pznowak-cms`.
+Strony `/`, `/katalog`, `/katalog/[slug]`, `/galeria`, `/o-nas` i
+`/kontakt` czytają opublikowane dane przez Payload Local API po stronie serwera.
+Wyniki są buforowane pod tagami `products`, `gallery` i `site-content`.
+Hooki Payload odświeżają odpowiednie tagi i ścieżki po publikacji, wycofaniu
+lub usunięciu treści. Nie jest potrzebny eksport danych ani kolejny build.
+`/products` pozostaje publicznym API dla zewnętrznych konsumentów.
 
 ## Środowiska i Vercel
 
 - projekt `pznowak-cms`, root `cms`, uruchamia Payload i publiczne API;
-- projekt `pznowak`, root repozytorium, buduje statyczny frontend;
+- projekt `pznowak`, root repozytorium, pozostaje historycznym frontendem;
 - projekt `backend` jest historycznym API zgodności;
 - Preview CMS korzysta z gałęzi Neon `staging`;
-- Production CMS korzysta z gałęzi Neon `production`;
+- Production CMS nie jest aktywowany; sekretów produkcyjnych nie dodano;
 - runtime CMS jest przypięty do `fra1`, blisko Neon `aws-eu-central-1`.
 
 Staging ma ten sam schemat migracji co production, ale tylko kontrolowany zestaw

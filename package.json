@@ -5,9 +5,7 @@
   "scripts": {
     "dev-turbo": "next dev --turbopack",
     "dev": "next dev",
-    "prebuild": "node scripts/sync-cms-snapshot.mjs",
     "build": "next build",
-    "export": "next build && next export",
     "start": "next start",
     "lint": "eslint ."
   },

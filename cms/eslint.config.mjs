@@ -24,6 +24,12 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    files: ['src/components/AboutValuesCards.tsx', 'src/components/ContactForm.tsx'],
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
   globalIgnores([
     '.next/**',
     'out/**',

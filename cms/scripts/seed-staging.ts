@@ -23,7 +23,7 @@ type Snapshot = {
 }
 
 const applyChanges = process.argv.includes('--apply')
-const snapshotPath = fileURLToPath(new URL('../../src/lib/catalog-snapshot.json', import.meta.url))
+const snapshotPath = fileURLToPath(new URL('../../src/lib/collection.json', import.meta.url))
 
 if (process.env.NEON_BRANCH !== 'staging') {
   throw new Error('seed-staging must run with NEON_BRANCH=staging')
@@ -34,7 +34,7 @@ const productSource = snapshot.products[0]
 const gallerySource = snapshot.gallery[0]
 
 if (!productSource?.images[0] || !gallerySource?.image) {
-  throw new Error('The frontend snapshot does not contain staging seed media')
+  throw new Error('The legacy catalog does not contain staging seed media')
 }
 
 const payload = await getPayload({ config: await config })
