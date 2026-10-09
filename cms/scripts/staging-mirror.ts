@@ -7,7 +7,7 @@ import { getPayload } from 'payload'
 import type { Media, Product } from '../src/payload-types'
 
 // Production is read through SQL in a single READ ONLY snapshot, never Payload.
-const require = createRequire(import.meta.url)
+const require = createRequire(import.meta.resolve('@payloadcms/db-postgres'))
 const { Client } = require('pg')
 const apply = process.argv.includes('--apply')
 if (process.argv.includes('--check') && apply) throw new Error('Choose --check or --apply')
