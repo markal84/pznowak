@@ -22,8 +22,8 @@ type LegacyCatalog = {
 
 const applyChanges = process.argv.includes('--apply')
 const expectedGalleryCount = 11
-const catalogPath = fileURLToPath(new URL('../../src/lib/collection.json', import.meta.url))
-const publicPath = fileURLToPath(new URL('../../public', import.meta.url))
+const catalogPath = fileURLToPath(new URL('../../data/legacy/collection.json', import.meta.url))
+const publicPath = fileURLToPath(new URL('../../data/legacy', import.meta.url))
 
 const siteContent = {
   homeHeading: 'Niepowtarzalny. Jak Twoja historia.',

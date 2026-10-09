@@ -485,8 +485,14 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface SiteContent {
   id: number;
+  /**
+   * Otocz fragment gwiazdkami, aby był kursywą.
+   */
   homeHeading?: string | null;
   homeLead?: string | null;
+  /**
+   * Otocz fragment gwiazdkami, aby był kursywą.
+   */
   aboutHeading?: string | null;
   aboutText?: string | null;
   phone?: string | null;

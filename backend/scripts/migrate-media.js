@@ -7,7 +7,7 @@ import { list, put } from "@vercel/blob";
 import { getDatabase } from "../lib/database.js";
 import { buildMediaManifest } from "../lib/media-manifest.js";
 
-const catalogUrl = new URL("../../src/lib/collection.json", import.meta.url);
+const catalogUrl = new URL("../../data/legacy/collection.json", import.meta.url);
 const catalog = JSON.parse(await readFile(fileURLToPath(catalogUrl), "utf8"));
 const manifest = buildMediaManifest(catalog);
 const sql = getDatabase({ direct: true });
@@ -27,7 +27,7 @@ async function listExistingBlobs() {
 
 async function uploadMedia(entry) {
   if (entry.kind === "image") {
-    const imageUrl = new URL(`../../public${entry.sourceUrl}`, import.meta.url);
+    const imageUrl = new URL(`../../data/legacy${entry.sourceUrl}`, import.meta.url);
     const body = await readFile(fileURLToPath(imageUrl));
 
     return put(entry.pathname, body, {

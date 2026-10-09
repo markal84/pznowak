@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { buildCatalogImport } from "../lib/catalog-import.js";
 import { getDatabase } from "../lib/database.js";
 
-const catalogUrl = new URL("../../src/lib/collection.json", import.meta.url);
+const catalogUrl = new URL("../../data/legacy/collection.json", import.meta.url);
 const catalogSource = await readFile(fileURLToPath(catalogUrl), "utf8");
 const catalog = buildCatalogImport(JSON.parse(catalogSource));
 const sourceHash = createHash("sha256").update(catalogSource).digest("hex");
@@ -167,7 +167,7 @@ await sql`
     gallery_count
   )
   VALUES (
-    'src/lib/collection.json',
+    'data/legacy/collection.json',
     ${sourceHash},
     ${catalog.products.length},
     ${mediaCount},

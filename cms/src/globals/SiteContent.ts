@@ -39,6 +39,7 @@ export const SiteContent: GlobalConfig = {
               name: 'homeHeading',
               type: 'text',
               label: 'Nagłówek',
+              admin: { description: 'Otocz fragment gwiazdkami, aby był kursywą.' },
             },
             {
               name: 'homeLead',
@@ -54,6 +55,7 @@ export const SiteContent: GlobalConfig = {
               name: 'aboutHeading',
               type: 'text',
               label: 'Nagłówek',
+              admin: { description: 'Otocz fragment gwiazdkami, aby był kursywą.' },
             },
             {
               name: 'aboutText',

@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { buildMediaManifest } from "../lib/media-manifest.js";
 
-const source = await readFile(new URL("../../src/lib/collection.json", import.meta.url), "utf8");
+const source = await readFile(new URL("../../data/legacy/collection.json", import.meta.url), "utf8");
 const manifest = buildMediaManifest(JSON.parse(source));
 
 test("media manifest contains every unique image and video", () => {

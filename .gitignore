@@ -51,3 +51,8 @@ next-env.d.ts
 !backend/.env.example
 !cms/README.md
 !cms/.env.example
+
+!cms/docs/
+!cms/docs/**/*.md
+!data/legacy/README.md
+/.playwright-cli/

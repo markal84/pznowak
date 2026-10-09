@@ -2,6 +2,8 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdmin, isAdminOrEditor } from '../access/permissions'
 
+import { assertStagingOwnsMedia, isStagingEnvironment, STAGING_MEDIA_PREFIX } from '../lib/staging-media'
+
 export const Media: CollectionConfig = {
   slug: 'media',
   dbName: 'cms_media',
@@ -21,6 +23,22 @@ export const Media: CollectionConfig = {
     delete: isAdmin,
   },
   trash: true,
+  hooks: {
+    beforeChange: [({ data, originalDoc, operation }) => {
+      if (operation === 'update') assertStagingOwnsMedia(originalDoc)
+      if (isStagingEnvironment()) {
+        if (data.prefix && data.prefix !== STAGING_MEDIA_PREFIX) {
+          throw new Error('Staging uploads must use cms/media-staging.')
+        }
+        data.prefix = STAGING_MEDIA_PREFIX
+      }
+      return data
+    }],
+    beforeDelete: [async ({ id, req }) => {
+      const doc = await req.payload.findByID({ collection: 'media', id, depth: 0, req })
+      assertStagingOwnsMedia(doc)
+    }],
+  },
   fields: [
     {
       name: 'alt',

@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { buildCatalogImport } from "../lib/catalog-import.js";
 
-const catalogSource = await readFile(new URL("../../src/lib/collection.json", import.meta.url), "utf8");
+const catalogSource = await readFile(new URL("../../data/legacy/collection.json", import.meta.url), "utf8");
 const catalog = buildCatalogImport(JSON.parse(catalogSource));
 
 test("catalog import maps all repository products and gallery items", () => {

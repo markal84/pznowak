@@ -23,7 +23,8 @@
     "staging:seed": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-staging.ts --apply",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "staging:mirror": "node --import=tsx/esm scripts/staging-mirror.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

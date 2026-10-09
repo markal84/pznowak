@@ -29,7 +29,7 @@ Na Vercelu `DATABASE_URL` dla środowiska Preview wskazuje na gałąź Neon
 korzystają z bezpośredniego `DATABASE_URL_UNPOOLED`; działające API korzysta z
 połączenia puli `DATABASE_URL`.
 
-Docelową strukturę katalogu i dane z `src/lib/collection.json` przygotowuje na
+Docelową strukturę katalogu i dane z `data/legacy/collection.json` przygotowuje na
 staging:
 
 ```bash

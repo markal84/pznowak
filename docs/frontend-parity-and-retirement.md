@@ -61,3 +61,9 @@ kursywą fragmenty starego wzorca; trzeba ustalić ich docelowy sposób edycji.
 **Warunek usunięcia:** pełna zgodność zaakceptowanego wyglądu i treści,
 działające ścieżki odtwarzania danych oraz zielona weryfikacja Preview.
 Do tego czasu stary frontend pozostaje w repozytorium.
+
+## Realizacja 2026-10-09
+
+Dane importowe: `data/legacy/collection.json` i `data/legacy/jewelry/`.
+Kopie dla działającej starej aplikacji pozostają w root. Wyniki bieżącego
+porównania i testów: `cms/docs/parity-2026-10-09/PARITY.md` oraz `RAPORT.md`.

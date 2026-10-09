@@ -28,8 +28,8 @@ type LegacyCatalog = {
 const expectedProductCount = 34
 const expectedImageCount = 106
 const applyChanges = process.argv.includes('--apply')
-const catalogPath = fileURLToPath(new URL('../../src/lib/collection.json', import.meta.url))
-const publicPath = fileURLToPath(new URL('../../public', import.meta.url))
+const catalogPath = fileURLToPath(new URL('../../data/legacy/collection.json', import.meta.url))
+const publicPath = fileURLToPath(new URL('../../data/legacy', import.meta.url))
 
 function mimeTypeFor(filename: string): string {
   switch (path.extname(filename).toLowerCase()) {

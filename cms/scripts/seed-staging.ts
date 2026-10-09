@@ -23,7 +23,7 @@ type Snapshot = {
 }
 
 const applyChanges = process.argv.includes('--apply')
-const snapshotPath = fileURLToPath(new URL('../../src/lib/collection.json', import.meta.url))
+const snapshotPath = fileURLToPath(new URL('../../data/legacy/collection.json', import.meta.url))
 
 if (process.env.NEON_BRANCH !== 'staging') {
   throw new Error('seed-staging must run with NEON_BRANCH=staging')

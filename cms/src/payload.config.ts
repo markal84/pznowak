@@ -3,6 +3,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
 import { buildConfig } from 'payload'
+import { pl } from 'payload/i18n/pl'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
@@ -12,6 +13,8 @@ import { Products } from './collections/Products'
 import { GalleryItems } from './collections/GalleryItems'
 import { SiteContent } from './globals/SiteContent'
 import { resolveCmsEnvironment } from './lib/environment'
+
+import { isStagingEnvironment, STAGING_MEDIA_PREFIX } from './lib/staging-media'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -23,6 +26,10 @@ const environment = resolveCmsEnvironment({
 })
 
 export default buildConfig({
+  i18n: {
+    fallbackLanguage: 'pl',
+    supportedLanguages: { pl },
+  },
   admin: {
     user: Users.slug,
     importMap: {
@@ -51,7 +58,7 @@ export default buildConfig({
       collections: {
         media: {
           disablePayloadAccessControl: true,
-          prefix: 'cms/media',
+          prefix: isStagingEnvironment() ? STAGING_MEDIA_PREFIX : 'cms/media',
         },
       },
       token: environment.blobReadWriteToken,

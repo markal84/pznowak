@@ -22,7 +22,7 @@ type LegacyCatalog = {
 const expectedVideoCount = 27
 const applyChanges = process.argv.includes('--apply')
 const deleteLegacyVideos = process.argv.includes('--delete-legacy')
-const catalogPath = fileURLToPath(new URL('../../src/lib/collection.json', import.meta.url))
+const catalogPath = fileURLToPath(new URL('../../data/legacy/collection.json', import.meta.url))
 
 if (deleteLegacyVideos && !applyChanges) {
   throw new Error('--delete-legacy requires --apply')
