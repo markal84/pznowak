@@ -79,3 +79,6 @@
 .cms-ring-placeholder__message{position:absolute;inset:auto 10px 10px;text-align:center;color:#5d5b56;font-size:.75rem;line-height:1.3}
 @keyframes cms-ring-sketch-spin{to{transform:rotateY(360deg)}}
 @media(prefers-reduced-motion:reduce){.cms-ring-placeholder__spin{animation:none}.cms-ring-image .cms-ring-image__source{transition:none}}
+
+/* One thin border for form focus, replacing the forms plugin ring and global outline. */
+.contact-form input:focus,.contact-form textarea:focus{outline:none;box-shadow:none;border-color:var(--gold)}
