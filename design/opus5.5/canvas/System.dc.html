@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>System wizualny pracowni</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3}
+img{display:block}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1500px; box-sizing: border-box; padding: 72px 80px; background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 32px; row-gap: 64px; align-content: start">
+
+  <div style="grid-column: span 12; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #22262A; padding-bottom: 20px">
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <h1 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 64px; line-height: 1; letter-spacing: -0.02em">System wizualny</h1>
+      <span style="font-size: 15px; color: #575C5F">Matowe srebro, aksamit z tacy jubilerskiej, papierowa przywieszka i oryginalny podpis MN</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px">
+      <img src="/_blob/80fbd8ae27f6887ea4723494333c3e7e" alt="Logo Michał Nowak na jasnym tle" style="height: 72px; width: auto">
+      <span style="display: flex; align-items: center; height: 96px; padding: 0 22px; background: #1D3832"><img src="/_blob/80fbd8ae27f6887ea4723494333c3e7e" alt="Logo Michał Nowak w wersji jasnej na ciemnym tle" style="height: 72px; width: auto; filter: invert(1)"></span>
+    </div>
+  </div>
+
+  <section style="grid-column: span 7; display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 15px; font-weight: 600">Kolory</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+      <sc-for list="{{colors}}" as="c" hint-placeholder-count="9">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="{{c.swatch}}"></div>
+          <span style="font-size: 15px; font-weight: 600">{{c.name}}</span>
+          <span style="font-size: 13px; color: #575C5F">{{c.hex}}, {{c.role}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="grid-column: span 5; display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 15px; font-weight: 600">Typografia</h2>
+    <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #A9AAA3; padding-top: 14px">
+      <span style="font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 64px; line-height: 1; letter-spacing: -0.025em">Pierścionek</span>
+      <span style="font-size: 13px; color: #575C5F">Newsreader Light 300, nagłówki 46–92 px, interlinia 0,98–1,04</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #A9AAA3; padding-top: 14px">
+      <span style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 30px; line-height: 1.1">Z biżuterią do naprawy</span>
+      <span style="font-size: 13px; color: #575C5F">Newsreader Regular 400, śródtytuły 22–38 px, nazwy pierścionków</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #A9AAA3; padding-top: 14px">
+      <span style="font-size: 17px; line-height: 1.62">Zaczynamy od rozmowy o osobie, która będzie go nosić. Potem rysujemy i wyceniamy.</span>
+      <span style="font-size: 13px; color: #575C5F">Schibsted Grotesk 400–600, tekst 15,5–18 px, interlinia 1,55–1,65, szerokość do 36 em</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #A9AAA3; padding-top: 14px">
+      <span style="font-size: 15px; color: #3A3F43">Etykiety i przyciski piszemy zdaniem: bez wersalików, bez strzałek, czasownikiem mówiącym, co się stanie.</span>
+    </div>
+  </section>
+
+  <section style="grid-column: span 7; display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 15px; font-weight: 600">Przywieszka: znak rozpoznawczy</h2>
+    <div style="display: flex; gap: 32px; align-items: flex-end; background: #1D3832; padding: 40px">
+      <span style="position: relative; display: flex; flex-direction: column; gap: 2px; background: #FBFBF8; padding: 10px 16px 10px 30px; clip-path: polygon(13px 0, 100% 0, 100% 100%, 13px 100%, 0 calc(100% - 13px), 0 13px)">
+        <span aria-hidden="true" style="position: absolute; left: 10px; top: 50%; width: 7px; height: 7px; margin-top: -4px; border-radius: 50%; background: #2E2A24; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.15">Harmonia</span>
+        <span style="font-size: 12.5px; color: #575C5F">Morganit, diamenty</span>
+      </span>
+      <span style="position: relative; display: flex; flex-direction: column; gap: 4px; background: #FBFBF8; padding: 14px 22px 14px 36px; clip-path: polygon(16px 0, 100% 0, 100% 100%, 16px 100%, 0 calc(100% - 16px), 0 16px)">
+        <span aria-hidden="true" style="position: absolute; left: 12px; top: 50%; width: 9px; height: 9px; margin-top: -5px; border-radius: 50%; background: #2E2A24; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+        <span style="font-size: 12.5px; color: #575C5F">Zlecenie nr [0000]</span>
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 22px; line-height: 1.15">Zmiana rozmiaru</span>
+      </span>
+      <span style="position: relative; flex: 1 1 auto; display: flex; flex-direction: column; gap: 8px; background: #FBFBF8; padding: 22px 26px 22px 54px; clip-path: polygon(22px 0, 100% 0, 100% 100%, 22px 100%, 0 calc(100% - 22px), 0 22px)">
+        <span aria-hidden="true" style="position: absolute; left: 18px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: #1D3832; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 22px">Karta zlecenia</span>
+        <span style="font-size: 14px; color: #575C5F">Kamień: szafir, owal. Złoto: żółte.</span>
+      </span>
+    </div>
+    <p style="margin: 0; font-size: 14.5px; line-height: 1.55; color: #3A3F43">Papierowa przywieszka z dziurką, jaką w pracowni dostaje każda przyjęta rzecz. Używana tylko do nazwy pierścionka, numeru zlecenia i karty projektu. Ścięte rogi i otwór od strony sznurka, bez cienia, bez obrotu.</p>
+  </section>
+
+  <section style="grid-column: span 5; display: flex; flex-direction: column; gap: 20px">
+    <h2 style="margin: 0; font-size: 15px; font-weight: 600">Przyciski i pola</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center">
+      <span style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 26px; border-radius: 999px; background: #1D3832; color: #F3F4EF; font-size: 15px; font-weight: 500">Umów wizytę</span>
+      <span style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 26px; border-radius: 999px; box-shadow: inset 0 0 0 1px #22262A; font-size: 15px; font-weight: 500">Naprawy i przeróbki</span>
+      <span style="font-size: 15px; font-weight: 500; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px">Przeglądaj pierścionki</span>
+    </div>
+    <div style="display: flex; gap: 14px; align-items: center; background: #1D3832; padding: 20px">
+      <span style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 26px; border-radius: 999px; background: #F3F4EF; color: #1D3832; font-size: 15px; font-weight: 500">Umów rozmowę o projekcie</span>
+      <span style="font-size: 15px; font-weight: 500; color: #E9E3D3; text-decoration: underline; text-underline-offset: 6px">Więcej</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 15px; font-weight: 500">Telefon</span>
+      <span style="display: flex; align-items: center; min-height: 50px; padding: 0 14px; border: 1px solid #A9AAA3; border-radius: 2px; background: #FBFBF8; color: #7A7F82; font-size: 16px">+48</span>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap">
+      <span style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #1D3832; color: #F3F4EF; font-size: 14.5px; font-weight: 500"><span style="width: 11px; height: 11px; border-radius: 50%; background: #2F4F8F; box-shadow: inset 0 0 0 1px rgba(255,255,255,.4)"></span>Niebieskie</span>
+      <span style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #FBFBF8; font-size: 14.5px"><span style="width: 11px; height: 11px; border-radius: 50%; background: #2F6B4F"></span>Zielone</span>
+    </div>
+    <span style="font-size: 13px; color: #575C5F">Przyciski w kształcie obrączki, min. 44 px wysokości. Fokus: obrys 2 px #A9782A.</span>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const sw = (hex, line) => 'height: 88px; background: ' + hex + '; box-shadow: inset 0 0 0 1px ' + (line || 'rgba(34,38,42,.12)');
+    return {
+      colors: [
+        { name: 'Matowe srebro', hex: '#E7E8E3', role: 'tło stron', swatch: sw('#E7E8E3', '#A9AAA3') },
+        { name: 'Cień srebra', hex: '#DDDFD8', role: 'pasy sekcji', swatch: sw('#DDDFD8') },
+        { name: 'Papier', hex: '#FBFBF8', role: 'przywieszki, pola', swatch: sw('#FBFBF8') },
+        { name: 'Aksamit', hex: '#1D3832', role: 'przyciski, ciemne sekcje', swatch: sw('#1D3832') },
+        { name: 'Grafit', hex: '#22262A', role: 'tekst, stopka', swatch: sw('#22262A') },
+        { name: 'Grafit jasny', hex: '#575C5F', role: 'tekst pomocniczy', swatch: sw('#575C5F') },
+        { name: 'Patyna', hex: '#7C5B1E', role: 'lata i numery na jasnym', swatch: sw('#7C5B1E') },
+        { name: 'Złoto na aksamicie', hex: '#C8A15A', role: 'numery na ciemnym', swatch: sw('#C8A15A') },
+        { name: 'Linia', hex: '#A9AAA3', role: 'podziały, ramki pól', swatch: sw('#A9AAA3') }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

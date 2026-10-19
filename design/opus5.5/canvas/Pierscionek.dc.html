@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Phoebe — pierścionek z tanzanitem</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3;color:#22262A;font-family:'Schibsted Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#22262A}a:hover{color:#1D3832}
+img{display:block;max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;border-radius:999px;background:#1D3832;color:#F3F4EF;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;font-family:inherit;transition:background-color .15s}
+.btn:hover{background:#2C5148;color:#fff}
+.btn-line{background:transparent;color:#22262A;box-shadow:inset 0 0 0 1px #22262A}.btn-line:hover{background:#22262A;color:#F3F4EF}
+.tl{color:#22262A;font-size:15px;font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.tl:hover{color:#1D3832;text-decoration-thickness:2px}
+.navl{text-decoration:none;color:#3A3F43}.navl:hover{color:#1D3832;text-decoration:underline;text-underline-offset:7px;text-decoration-thickness:1px}
+.card{text-decoration:none;color:#22262A}.card:hover .nm{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.thumb{cursor:pointer;font-family:inherit}
+:focus-visible{outline:2px solid #A9782A;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:720px){.pad{padding-left:20px!important;padding-right:20px!important}}
+</style>
+</helmet>
+
+<div style="background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif">
+<dc-import name="Header" active="katalog" hint-size="100%,96px"></dc-import>
+
+<main>
+<nav aria-label="Ścieżka" class="pad" style="max-width: 1320px; margin: 0 auto; padding: 28px 40px 0; font-size: 14px; color: #575C5F">
+  <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px">
+    <li><a href="Katalog.dc.html" style="color: #3A3F43">Pierścionki</a></li>
+    <li aria-hidden="true">/</li>
+    <li aria-current="page">Phoebe</li>
+  </ol>
+</nav>
+
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 28px 40px 96px; display: flex; flex-wrap: wrap; gap: 48px 72px; align-items: flex-start">
+  <div style="flex: 1 1 600px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+    <div style="position: relative">
+      <img src="{{main.img}}" alt="{{main.alt}}" style="width: 100%; aspect-ratio: 3 / 2; object-fit: cover">
+      <sc-if value="{{main.isVideo}}" hint-placeholder-val="{{ false }}">
+        <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(20,24,22,.35)">
+          <span style="display: flex; align-items: center; gap: 12px; background: #FBFBF8; color: #22262A; border-radius: 999px; padding: 12px 22px 12px 16px; font-size: 15px; font-weight: 500">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="10" fill="none" stroke="#22262A" stroke-width="1.4"></circle><path d="M9 7 L15 11 L9 15 Z" fill="#22262A"></path></svg>
+            Odtwórz film
+          </span>
+        </span>
+      </sc-if>
+    </div>
+    <div role="group" aria-label="Zdjęcia pierścionka" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{thumbs}}" as="t" hint-placeholder-count="5">
+        <button type="button" class="thumb" aria-label="{{t.label}}" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}" style="{{t.style}}">
+          <img src="{{t.img}}" alt="" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover">
+          <sc-if value="{{t.isVideo}}" hint-placeholder-val="{{ false }}">
+            <span aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(20,24,22,.4); color: #fff; font-size: 13px; font-weight: 600">Film</span>
+          </sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <h1 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(52px, 5.4vw, 84px); line-height: 0.95; letter-spacing: -0.025em">Phoebe</h1>
+      <p style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 22px; line-height: 1.45; color: #3A3F43">Wiktoriański charakter i fioletowo-niebieski ogień tanzanitu w koronie z diamentów.</p>
+    </div>
+
+    <div style="position: relative; background: #FBFBF8; padding: 28px 30px 26px 54px; clip-path: polygon(22px 0, 100% 0, 100% 100%, 22px 100%, 0 calc(100% - 22px), 0 22px)">
+      <span aria-hidden="true" style="position: absolute; left: 18px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: #E7E8E3; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+      <dl style="margin: 0; display: grid; grid-template-columns: minmax(120px, auto) 1fr; gap: 12px 24px; font-size: 15.5px; line-height: 1.45">
+        <dt style="color: #575C5F">Kamień główny</dt><dd style="margin: 0">Tanzanit</dd>
+        <dt style="color: #575C5F">Kamienie boczne</dt><dd style="margin: 0">Diamenty w koronie</dd>
+        <dt style="color: #575C5F">Złoto</dt><dd style="margin: 0">Żółte, [próba do uzupełnienia]</dd>
+        <dt style="color: #575C5F">Rozmiar</dt><dd style="margin: 0">Wykonamy w Twoim rozmiarze</dd>
+        <dt style="color: #575C5F">Czas wykonania</dt><dd style="margin: 0">[TERMIN], ustalamy przy zamówieniu</dd>
+        <dt style="color: #575C5F; border-top: 1px solid #C9CBC4; padding-top: 12px">Cena</dt><dd style="margin: 0; border-top: 1px solid #C9CBC4; padding-top: 12px; font-weight: 600">od [X] zł w tej wersji</dd>
+      </dl>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center">
+        <a class="btn" href="Kontakt.dc.html">Zapytaj o ten pierścionek</a>
+        <a class="btn btn-line" href="tel:+48501321347">Zadzwoń: 501 321 347</a>
+      </div>
+      <p style="margin: 0; font-size: 14.5px; line-height: 1.55; color: #575C5F">Formularz otworzy się z nazwą tego projektu. Wystarczy dopisać, co chcesz zmienić.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px; border-top: 1px solid #A9AAA3; padding-top: 24px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 26px; line-height: 1.15">Co możesz zmienić</h2>
+      <ul style="margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 8px; font-size: 15.5px; line-height: 1.55; color: #3A3F43">
+        <li>Kamień główny, na przykład szafir zamiast tanzanitu</li>
+        <li>Kolor złota obrączki i oprawy</li>
+        <li>Grubość obrączki i wysokość osadzenia kamienia</li>
+        <li>Grawer po wewnętrznej stronie</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section style="background: #1D3832; color: #EEF0EA">
+  <div class="pad" style="max-width: 1320px; margin: 0 auto; padding: 88px 40px; display: flex; flex-direction: column; gap: 44px">
+    <h2 style="margin: 0; max-width: 18em; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(34px, 3.6vw, 50px); line-height: 1.06; letter-spacing: -0.015em; color: #F6F5EF">Jak zamówić projekt z kolekcji</h2>
+    <ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px 48px">
+      <li style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #3E6159; padding-top: 18px">
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 22px; color: #C8A15A">1</span>
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600">Napisz lub zadzwoń</h3>
+        <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #C9D1CB">Podaj nazwę projektu i powiedz, co chcesz w nim zmienić.</p>
+      </li>
+      <li style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #3E6159; padding-top: 18px">
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 22px; color: #C8A15A">2</span>
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600">Wybierz kamień i rozmiar</h3>
+        <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #C9D1CB">W pracowni pokażemy kamienie i zmierzymy palec. Potem dostajesz wycenę.</p>
+      </li>
+      <li style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #3E6159; padding-top: 18px">
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 22px; color: #C8A15A">3</span>
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600">Odbierz pierścionek</h3>
+        <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #C9D1CB">Wykonujemy go w pracowni. Damy znać, kiedy będzie gotowy do przymiarki.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 96px 40px 112px; display: flex; flex-direction: column; gap: 36px">
+  <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 40px">
+    <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(34px, 3.6vw, 50px); line-height: 1.06; letter-spacing: -0.015em">Podobne pierścionki</h2>
+    <a class="tl" href="Katalog.dc.html">Wszystkie pierścionki</a>
+  </div>
+  <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 28px">
+    <sc-for list="{{similar}}" as="r" hint-placeholder-count="4">
+      <li>
+        <a class="card" href="Pierscionek.dc.html" style="display: block; position: relative">
+          <img src="{{r.img}}" alt="{{r.alt}}" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover">
+          <span style="position: absolute; left: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 2px; background: #FBFBF8; padding: 10px 16px 10px 30px; clip-path: polygon(13px 0, 100% 0, 100% 100%, 13px 100%, 0 calc(100% - 13px), 0 13px)">
+            <span aria-hidden="true" style="position: absolute; left: 10px; top: 50%; width: 7px; height: 7px; margin-top: -4px; border-radius: 50%; background: #2E2A24; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+            <span class="nm" style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.15">{{r.name}}</span>
+            <span style="font-size: 12.5px; line-height: 1.4; color: #575C5F">{{r.stone}}</span>
+          </span>
+        </a>
+      </li>
+    </sc-for>
+  </ul>
+</section>
+</main>
+
+<dc-import name="Footer" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { idx: 0 };
+  }
+  renderVals() {
+    const media = [
+      { img: '/_blob/4fa66d805ee6b389ece50804db03b3fe', alt: 'Phoebe: tanzanit w koronie z diamentów, widok z boku', label: 'Zdjęcie 1: widok z boku' },
+      { img: '/_blob/d2cb136dbd3930b97ca0febc0868ee4e', alt: 'Phoebe z bliska: oprawa tanzanitu', label: 'Zdjęcie 2: oprawa z bliska' },
+      { img: '/_blob/a80fd08901f585c31b6c8f950449bc28', alt: 'Phoebe: obrączka i korona z diamentów', label: 'Zdjęcie 3: obrączka' },
+      { img: '/_blob/8687b1b1c0f3b452b5181374a0e8348d', alt: 'Phoebe w innym ujęciu', label: 'Zdjęcie 4: inne ujęcie' },
+      { img: '/_blob/d2cb136dbd3930b97ca0febc0868ee4e', alt: 'Kadr z filmu o pierścionku Phoebe', label: 'Film o pierścionku', isVideo: true }
+    ];
+    const idx = this.state.idx;
+    return {
+      main: { ...media[idx], isVideo: !!media[idx].isVideo },
+      thumbs: media.map((m, i) => ({
+        img: m.img,
+        label: m.label,
+        isVideo: !!m.isVideo,
+        pressed: i === idx ? 'true' : 'false',
+        style: 'position: relative; display: block; padding: 0; border: 0; background: none; box-shadow: ' + (i === idx ? '0 0 0 2px #1D3832' : '0 0 0 1px #C9CBC4') + '; opacity: ' + (i === idx ? '1' : '0.82'),
+        pick: () => this.setState({ idx: i })
+      })),
+      similar: [
+        { name: 'Pelagia', stone: 'Szafir, diamenty', img: '/_blob/340193eea7eba57901aa631d4cfcec07', alt: 'Pierścionek Pelagia z szafirem' },
+        { name: 'Nyx', stone: 'Topaz London Blue, diamenty', img: '/_blob/fdc5a55f138061aa14496e617fcccdb5', alt: 'Pierścionek Nyx z topazem London Blue' },
+        { name: 'Aria', stone: 'Ametyst, diamenty', img: '/_blob/d1b2c8aeb320bf1ff09df114b44c9b5a', alt: 'Pierścionek Aria z ametystem' },
+        { name: 'Cyane', stone: 'Niebieski diament w halo', img: '/_blob/c303422391878ca75789f551b3814dcb', alt: 'Pierścionek Cyane z niebieskim diamentem' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

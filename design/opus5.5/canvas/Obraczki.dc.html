@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Obrączki ślubne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3;color:#22262A;font-family:'Schibsted Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#22262A}a:hover{color:#1D3832}
+img{display:block;max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;border-radius:999px;background:#1D3832;color:#F3F4EF;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;font-family:inherit;transition:background-color .15s}
+.btn:hover{background:#2C5148;color:#fff}
+.btn-light{background:#F3F4EF;color:#1D3832}.btn-light:hover{background:#fff;color:#1D3832}
+.tl{color:#22262A;font-size:15px;font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.tl:hover{color:#1D3832;text-decoration-thickness:2px}
+.navl{text-decoration:none;color:#3A3F43}.navl:hover{color:#1D3832;text-decoration:underline;text-underline-offset:7px;text-decoration-thickness:1px}
+.chip{font-family:inherit;cursor:pointer;transition:background-color .15s,color .15s}
+.chip:hover{box-shadow:inset 0 0 0 1px #22262A}
+:focus-visible{outline:2px solid #A9782A;outline-offset:3px}
+summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}
+.plus{transition:transform .2s}details[open] .plus{transform:rotate(45deg)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:720px){.pad{padding-left:20px!important;padding-right:20px!important}}
+</style>
+</helmet>
+
+<div style="background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif">
+<dc-import name="Header" active="obraczki" hint-size="100%,100px"></dc-import>
+
+<main>
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 64px 40px 40px; display: flex; flex-wrap: wrap; gap: 24px 72px; align-items: flex-end; justify-content: space-between">
+  <h1 style="margin: 0; flex: 1 1 460px; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(46px, 5.8vw, 84px); line-height: 1; letter-spacing: -0.025em">Obrączki ślubne</h1>
+  <div style="flex: 1 1 380px; max-width: 32em; display: flex; flex-direction: column; gap: 14px">
+    <p style="margin: 0; font-size: 18px; line-height: 1.62; color: #3A3F43">Z naszych wzorów albo zaprojektowane dla Was dwojga. Mierzymy oboje, dobieramy szerokość i wykończenie, a w środku grawerujemy to, co ważne.</p>
+    <p style="margin: 0; font-size: 16px; font-weight: 500">Od [X] zł za parę</p>
+  </div>
+</section>
+
+<section class="pad" aria-label="Dobierz obrączki" style="max-width: 1320px; margin: 0 auto; padding: 24px 40px 104px">
+  <div style="display: flex; flex-wrap: wrap; background: #FBFBF8">
+    <div style="flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; padding: 40px; background: #DDDFD8">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px">
+        <span style="font-size: 14px; color: #575C5F">Przekrój obrączki, skala orientacyjna</span>
+        <span style="font-size: 14px; color: #575C5F">{{widthLabel}}</span>
+      </div>
+      <svg role="img" aria-label="{{svgLabel}}" viewBox="0 0 300 170" style="display: block; width: 100%; max-height: 360px">
+        <defs>
+          <pattern id="mat" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.6" fill="#000" fill-opacity="0.14"></circle><circle cx="3" cy="3" r="0.5" fill="#fff" fill-opacity="0.25"></circle></pattern>
+          <pattern id="szczotka" width="300" height="3" patternUnits="userSpaceOnUse"><line x1="0" y1="1" x2="300" y2="1" stroke="#000" stroke-opacity="0.13" stroke-width="0.7"></line></pattern>
+        </defs>
+        <path d="{{bandPath}}" fill="{{metal}}"></path>
+        <path d="{{bandPath}}" fill="{{texture}}"></path>
+        <path d="{{shinePath}}" fill="none" stroke="#FFFFFF" stroke-opacity="{{shine}}" stroke-width="2.4" stroke-linecap="round"></path>
+        <path d="{{bandPath}}" fill="none" stroke="#22262A" stroke-opacity="0.35" stroke-width="0.8"></path>
+        <line x1="{{dimX1}}" y1="138" x2="{{dimX2}}" y2="138" stroke="#575C5F" stroke-width="0.8"></line>
+        <line x1="{{dimX1}}" y1="132" x2="{{dimX1}}" y2="144" stroke="#575C5F" stroke-width="0.8"></line>
+        <line x1="{{dimX2}}" y1="132" x2="{{dimX2}}" y2="144" stroke="#575C5F" stroke-width="0.8"></line>
+        <text x="150" y="160" text-anchor="middle" font-size="11" fill="#3A3F43" font-family="Schibsted Grotesk, sans-serif">{{widthLabel}}</text>
+        <text x="150" y="22" text-anchor="middle" font-size="10" fill="#575C5F" font-family="Schibsted Grotesk, sans-serif">strona zewnętrzna</text>
+        <text x="150" y="122" text-anchor="middle" font-size="10" fill="#575C5F" font-family="Schibsted Grotesk, sans-serif">przylega do palca</text>
+      </svg>
+      <p style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 24px; line-height: 1.3">{{summary}}</p>
+    </div>
+
+    <div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 26px; padding: 40px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1.1">Dobierzcie wstępnie parę</h2>
+      <div role="group" aria-labelledby="o-profil" style="display: flex; flex-direction: column; gap: 10px">
+        <span id="o-profil" style="font-size: 14px; color: #575C5F">Profil</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{profiles}}" as="c" hint-placeholder-count="4">
+            <button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+          </sc-for>
+        </div>
+        <span style="font-size: 14px; line-height: 1.5; color: #3A3F43">{{profileHint}}</span>
+      </div>
+      <div role="group" aria-labelledby="o-szer" style="display: flex; flex-direction: column; gap: 10px">
+        <span id="o-szer" style="font-size: 14px; color: #575C5F">Szerokość</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{widths}}" as="c" hint-placeholder-count="5">
+            <button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div role="group" aria-labelledby="o-wyk" style="display: flex; flex-direction: column; gap: 10px">
+        <span id="o-wyk" style="font-size: 14px; color: #575C5F">Wykończenie</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{finishes}}" as="c" hint-placeholder-count="3">
+            <button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div role="group" aria-labelledby="o-zloto" style="display: flex; flex-direction: column; gap: 10px">
+        <span id="o-zloto" style="font-size: 14px; color: #575C5F">Kolor złota</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{golds}}" as="c" hint-placeholder-count="2">
+            <button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}"><span aria-hidden="true" style="{{c.dot}}"></span>{{c.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #C9CBC4; padding-top: 22px">
+        <a class="btn" href="Kontakt.dc.html" style="align-self: flex-start">Umów przymiarkę obrączek</a>
+        <span style="font-size: 14px; line-height: 1.5; color: #575C5F">Wybór zapiszemy w wiadomości. Na przymiarce pokażemy próbki szerokości i wykończeń na żywo. Cena zależy od szerokości, wagi i próby złota.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background: #1D3832; color: #EEF0EA">
+  <div class="pad" style="max-width: 1320px; margin: 0 auto; padding: 96px 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 48px 72px">
+    <div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #3E6159; padding-top: 22px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(32px, 3.4vw, 46px); line-height: 1.06; color: #F6F5EF">Z naszych wzorów</h2>
+      <p style="margin: 0; max-width: 32em; font-size: 16.5px; line-height: 1.62; color: #C9D1CB">Wybieracie jeden z wzorów, które pokażemy w pracowni, i dopasowujemy go do Waszych rozmiarów. To najprostsza i najszybsza droga.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #3E6159; padding-top: 22px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(32px, 3.4vw, 46px); line-height: 1.06; color: #F6F5EF">Zaprojektowane dla Was</h2>
+      <p style="margin: 0; max-width: 32em; font-size: 16.5px; line-height: 1.62; color: #C9D1CB">Własny kształt, kamienie, łączenie kolorów złota albo obrączka dopasowana kształtem do pierścionka zaręczynowego, tak żeby przylegały do siebie.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 104px 40px; display: flex; flex-direction: column; gap: 40px">
+  <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(36px, 4vw, 56px); line-height: 1.04; letter-spacing: -0.015em">Obrączki z pracowni</h2>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px">
+    <div role="img" aria-label="Miejsce na zdjęcie obrączek" style="aspect-ratio: 4 / 5; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; background: #DDDFD8; box-shadow: inset 0 0 0 1px #C9CBC4; font-size: 15px; color: #575C5F">[Zdjęcie pary obrączek z pracowni]</div>
+    <div role="img" aria-label="Miejsce na zdjęcie obrączek" style="aspect-ratio: 4 / 5; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; background: #DDDFD8; box-shadow: inset 0 0 0 1px #C9CBC4; font-size: 15px; color: #575C5F">[Zdjęcie graweru w środku obrączki]</div>
+    <div role="img" aria-label="Miejsce na zdjęcie obrączek" style="aspect-ratio: 4 / 5; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; background: #DDDFD8; box-shadow: inset 0 0 0 1px #C9CBC4; font-size: 15px; color: #575C5F">[Zdjęcie obrączki obok pierścionka zaręczynowego]</div>
+  </div>
+</section>
+
+<section style="border-top: 1px solid #C9CBC4">
+  <div class="pad" style="max-width: 1320px; margin: 0 auto; padding: 104px 40px 120px; display: flex; flex-wrap: wrap; gap: 48px 96px">
+    <h2 style="margin: 0; flex: 1 1 320px; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(36px, 4vw, 56px); line-height: 1.04; letter-spacing: -0.015em">Pytania o obrączki</h2>
+    <div style="flex: 2 1 560px; min-width: 0; display: flex; flex-direction: column; border-top: 1px solid #A9AAA3">
+      <details open="" style="border-bottom: 1px solid #A9AAA3">
+        <summary style="display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 22px 0; font-size: 19px; font-weight: 500">Kiedy przyjść na przymiarkę?<span class="plus" aria-hidden="true" style="font-family: Newsreader, serif; font-size: 30px; font-weight: 300; line-height: 1">+</span></summary>
+        <p style="margin: 0 0 24px; max-width: 36em; font-size: 16px; line-height: 1.62; color: #3A3F43">Najlepiej razem i z zapasem przed ślubem. Wykonanie trwa zwykle [TERMIN]. Palce zmieniają się w ciągu dnia, dlatego mierzymy kilkoma obręczami.</p>
+      </details>
+      <details style="border-bottom: 1px solid #A9AAA3">
+        <summary style="display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 22px 0; font-size: 19px; font-weight: 500">Czy możemy użyć złota z rodzinnej biżuterii?<span class="plus" aria-hidden="true" style="font-family: Newsreader, serif; font-size: 30px; font-weight: 300; line-height: 1">+</span></summary>
+        <p style="margin: 0 0 24px; max-width: 36em; font-size: 16px; line-height: 1.62; color: #3A3F43">Najczęściej tak. Najpierw sprawdzimy próbę i ilość złota, potem powiemy, ile trzeba dołożyć.</p>
+      </details>
+      <details style="border-bottom: 1px solid #A9AAA3">
+        <summary style="display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 22px 0; font-size: 19px; font-weight: 500">Co można wygrawerować?<span class="plus" aria-hidden="true" style="font-family: Newsreader, serif; font-size: 30px; font-weight: 300; line-height: 1">+</span></summary>
+        <p style="margin: 0 0 24px; max-width: 36em; font-size: 16px; line-height: 1.62; color: #3A3F43">Datę, imiona albo krótki napis po wewnętrznej stronie. Ile znaków się zmieści, zależy od szerokości obrączki.</p>
+      </details>
+      <details style="border-bottom: 1px solid #A9AAA3">
+        <summary style="display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 22px 0; font-size: 19px; font-weight: 500">Czy obrączki mogą być różne?<span class="plus" aria-hidden="true" style="font-family: Newsreader, serif; font-size: 30px; font-weight: 300; line-height: 1">+</span></summary>
+        <p style="margin: 0 0 24px; max-width: 36em; font-size: 16px; line-height: 1.62; color: #3A3F43">Tak. Często są tego samego wzoru, ale w innej szerokości, albo jedna ma kamień, a druga nie.</p>
+      </details>
+    </div>
+  </div>
+</section>
+</main>
+
+<dc-import name="Footer" hint-size="100%,480px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { profile: 'komfort', width: 5, finish: 'polerowane', gold: 'zolte' };
+  }
+  shape(profile, W) {
+    const H = 64, x0 = (300 - W) / 2, y0 = 40, x1 = x0 + W, y1 = y0 + H, cx = 150;
+    const f = (n) => Math.round(n * 10) / 10;
+    if (profile === 'plaska') {
+      const r = 5;
+      return {
+        band: `M${f(x0 + r)} ${y0} H${f(x1 - r)} Q${f(x1)} ${y0} ${f(x1)} ${y0 + r} V${y1 - r} Q${f(x1)} ${y1} ${f(x1 - r)} ${y1} H${f(x0 + r)} Q${f(x0)} ${y1} ${f(x0)} ${y1 - r} V${y0 + r} Q${f(x0)} ${y0} ${f(x0 + r)} ${y0} Z`,
+        shine: `M${f(x0 + W * 0.18)} ${y0 + 7} H${f(x1 - W * 0.18)}`
+      };
+    }
+    if (profile === 'polokragla') {
+      return {
+        band: `M${f(x0)} ${y1} V${y0 + H * 0.62} C${f(x0)} ${y0 - H * 0.18} ${f(x1)} ${y0 - H * 0.18} ${f(x1)} ${y0 + H * 0.62} V${y1} Z`,
+        shine: `M${f(cx - W * 0.28)} ${y0 + H * 0.28} Q${cx} ${y0 + 2} ${f(cx + W * 0.28)} ${y0 + H * 0.28}`
+      };
+    }
+    if (profile === 'fazowana') {
+      return {
+        band: `M${f(x0)} ${y1} V${y0 + H * 0.38} L${f(x0 + W * 0.13)} ${y0} H${f(x1 - W * 0.13)} L${f(x1)} ${y0 + H * 0.38} V${y1} Z`,
+        shine: `M${f(x0 + W * 0.2)} ${y0 + 6} H${f(x1 - W * 0.2)}`
+      };
+    }
+    return {
+      band: `M${f(x0)} ${y0 + H * 0.5} C${f(x0)} ${y0 - H * 0.12} ${f(x1)} ${y0 - H * 0.12} ${f(x1)} ${y0 + H * 0.5} C${f(x1)} ${y1 + H * 0.02} ${f(x0)} ${y1 + H * 0.02} ${f(x0)} ${y0 + H * 0.5} Z`,
+      shine: `M${f(cx - W * 0.28)} ${y0 + H * 0.24} Q${cx} ${y0 + 3} ${f(cx + W * 0.28)} ${y0 + H * 0.24}`
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const profiles = [
+      { id: 'plaska', label: 'Płaska', hint: 'Nowoczesna, wyraźna krawędź. Dobrze wygląda w szerszych obrączkach.' },
+      { id: 'polokragla', label: 'Półokrągła', hint: 'Klasyczna, zaokrąglona na zewnątrz, płaska od środka.' },
+      { id: 'komfort', label: 'Komfort', hint: 'Zaokrąglona z obu stron. Łatwo ją wsunąć i wygodnie się nosi na co dzień.' },
+      { id: 'fazowana', label: 'Fazowana', hint: 'Płaski wierzch ze ściętymi krawędziami, które łapią światło.' }
+    ];
+    const widths = [3, 4, 5, 6, 7];
+    const finishes = [
+      { id: 'polerowane', label: 'Polerowane' },
+      { id: 'matowe', label: 'Matowe' },
+      { id: 'szczotkowane', label: 'Szczotkowane' }
+    ];
+    const golds = [
+      { id: 'zolte', label: 'Żółte', c: '#CDA85C' },
+      { id: 'biale', label: 'Białe', c: '#D3D3CE' }
+    ];
+    const chip = (on) => on
+      ? 'display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #1D3832; color: #F3F4EF; font-size: 14.5px; font-weight: 500'
+      : 'display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #E7E8E3; color: #22262A; font-size: 14.5px';
+    const W = s.width * 30;
+    const sh = this.shape(s.profile, W);
+    const p = profiles.find((x) => x.id === s.profile);
+    const fin = finishes.find((x) => x.id === s.finish);
+    const g = golds.find((x) => x.id === s.gold);
+    return {
+      profiles: profiles.map((x) => ({ label: x.label, pressed: x.id === s.profile ? 'true' : 'false', style: chip(x.id === s.profile), pick: () => this.setState({ profile: x.id }) })),
+      widths: widths.map((w) => ({ label: w + ' mm', pressed: w === s.width ? 'true' : 'false', style: chip(w === s.width), pick: () => this.setState({ width: w }) })),
+      finishes: finishes.map((x) => ({ label: x.label, pressed: x.id === s.finish ? 'true' : 'false', style: chip(x.id === s.finish), pick: () => this.setState({ finish: x.id }) })),
+      golds: golds.map((x) => ({ label: x.label, pressed: x.id === s.gold ? 'true' : 'false', style: chip(x.id === s.gold), dot: 'width: 12px; height: 12px; border-radius: 50%; background: ' + x.c + '; box-shadow: inset 0 0 0 1px rgba(34,38,42,.3)', pick: () => this.setState({ gold: x.id }) })),
+      profileHint: p.hint,
+      bandPath: sh.band,
+      shinePath: sh.shine,
+      metal: g.c,
+      texture: s.finish === 'matowe' ? 'url(#mat)' : s.finish === 'szczotkowane' ? 'url(#szczotka)' : 'none',
+      shine: s.finish === 'polerowane' ? '0.85' : '0.25',
+      dimX1: (300 - W) / 2,
+      dimX2: (300 + W) / 2,
+      widthLabel: s.width + ' mm szerokości',
+      svgLabel: 'Przekrój obrączki: profil ' + p.label.toLowerCase() + ', ' + s.width + ' mm, ' + fin.label.toLowerCase() + ', ' + g.label.toLowerCase() + ' złoto',
+      summary: 'Profil ' + p.label.toLowerCase() + ', ' + s.width + ' mm, ' + fin.label.toLowerCase() + ', ' + g.label.toLowerCase() + ' złoto'
+    };
+  }
+}
+</script>
+</body>
+</html>

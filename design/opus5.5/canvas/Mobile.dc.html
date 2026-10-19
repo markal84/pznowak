@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Strona główna na telefonie</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3}
+a{color:#22262A}
+img{display:block;max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:999px;background:#1D3832;color:#F3F4EF;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;font-family:inherit}
+.btn-light{background:#F3F4EF;color:#1D3832}
+.btn-line{background:transparent;color:#22262A;box-shadow:inset 0 0 0 1px #22262A}
+.tl{color:#22262A;font-size:15px;font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.iconbtn{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid #A9782A;outline-offset:3px}
+summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}
+.plus{transition:transform .2s}details[open] .plus{transform:rotate(45deg)}
+</style>
+</helmet>
+
+<div style="position: relative; width: 390px; min-height: 4300px; background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif">
+
+<header style="position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 20px; background: #E7E8E3; border-bottom: 1px solid #C9CBC4">
+  <a href="Main.dc.html" aria-label="Michał Nowak, pracownia złotnicza — strona główna" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #22262A">
+    <img src="/_blob/80fbd8ae27f6887ea4723494333c3e7e" alt="" style="display: block; height: 46px; width: auto">
+    <span style="font-size: 12px; line-height: 1.3; color: #3A3F43">Pracownia złotnicza<br>Busko-Zdrój</span>
+  </a>
+  <button type="button" class="iconbtn" aria-expanded="{{menuExpanded}}" aria-controls="m-menu" aria-label="{{menuLabel}}" onClick="{{toggle}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: #FBFBF8; color: #22262A">
+    <sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><path d="M4 4 L16 16 M16 4 L4 16" stroke="#22262A" stroke-width="1.6" stroke-linecap="round"></path></svg>
+    </sc-if>
+    <sc-if value="{{closed}}" hint-placeholder-val="{{ true }}">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><path d="M3 6 H17 M3 14 H17" stroke="#22262A" stroke-width="1.6" stroke-linecap="round"></path></svg>
+    </sc-if>
+  </button>
+</header>
+
+<sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
+  <nav id="m-menu" aria-label="Menu główne" style="position: absolute; top: 73px; left: 0; right: 0; z-index: 4; height: 700px; background: #E7E8E3; padding: 16px 20px 32px; display: flex; flex-direction: column; gap: 4px">
+    <a href="Katalog.dc.html" style="padding: 12px 0; border-bottom: 1px solid #C9CBC4; font-family: Newsreader, Georgia, serif; font-size: 28px; text-decoration: none">Pierścionki</a>
+    <a href="Obraczki.dc.html" style="padding: 12px 0; border-bottom: 1px solid #C9CBC4; font-family: Newsreader, Georgia, serif; font-size: 28px; text-decoration: none">Obrączki</a>
+    <a href="NaZamowienie.dc.html" style="padding: 12px 0; border-bottom: 1px solid #C9CBC4; font-family: Newsreader, Georgia, serif; font-size: 28px; text-decoration: none">Na zamówienie</a>
+    <a href="Naprawy.dc.html" style="padding: 12px 0; border-bottom: 1px solid #C9CBC4; font-family: Newsreader, Georgia, serif; font-size: 28px; text-decoration: none">Naprawy i przeróbki</a>
+    <a href="Realizacje.dc.html" style="padding: 12px 0; border-bottom: 1px solid #C9CBC4; font-family: Newsreader, Georgia, serif; font-size: 28px; text-decoration: none">Realizacje</a>
+    <a href="Pracownia.dc.html" style="padding: 12px 0; border-bottom: 1px solid #C9CBC4; font-family: Newsreader, Georgia, serif; font-size: 28px; text-decoration: none">Pracownia</a>
+    <a href="Kontakt.dc.html" style="padding: 12px 0; border-bottom: 1px solid #C9CBC4; font-family: Newsreader, Georgia, serif; font-size: 28px; text-decoration: none">Kontakt</a>
+    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 28px; font-size: 15px; line-height: 1.5; color: #3A3F43">
+      <span>Kilińskiego 12, Busko-Zdrój</span>
+      <span>Pon.–pt. 8:00–16:00, sob. 10:00–16:00</span>
+    </div>
+  </nav>
+</sc-if>
+
+<main>
+  <section style="padding: 32px 20px 40px; display: flex; flex-direction: column; gap: 22px">
+    <h1 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 48px; line-height: 0.98; letter-spacing: -0.025em">Pierścionek zrobiony dla jednej osoby.</h1>
+    <p style="margin: 0; font-size: 16.5px; line-height: 1.6; color: #3A3F43">Biżuteria na zamówienie z rodzinnej pracowni w Busku-Zdroju. Nowakowie pracują w rzemiośle od 1890 roku.</p>
+    <figure style="margin: 8px 0 0; position: relative">
+      <img src="/_blob/4fa66d805ee6b389ece50804db03b3fe" alt="Pierścionek Phoebe z tanzanitem w koronie z diamentów" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; object-position: 55% 50%">
+      <a href="Pierscionek.dc.html" style="position: absolute; left: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 2px; background: #FBFBF8; padding: 10px 16px 10px 30px; text-decoration: none; color: #22262A; clip-path: polygon(13px 0, 100% 0, 100% 100%, 13px 100%, 0 calc(100% - 13px), 0 13px)">
+        <span aria-hidden="true" style="position: absolute; left: 10px; top: 50%; width: 7px; height: 7px; margin-top: -4px; border-radius: 50%; background: #2E2A24; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.15">Phoebe</span>
+        <span style="font-size: 12.5px; color: #575C5F">Tanzanit, diamenty</span>
+      </a>
+    </figure>
+    <a class="tl" href="Katalog.dc.html" style="align-self: flex-start; padding: 6px 0">Zobacz 34 pierścionki z pracowni</a>
+  </section>
+
+  <section style="background: #DDDFD8; border-top: 1px solid #C9CBC4; border-bottom: 1px solid #C9CBC4; padding: 48px 0 52px; display: flex; flex-direction: column; gap: 24px">
+    <h2 style="margin: 0; padding: 0 20px; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 34px; line-height: 1.05">Cztery pokolenia przy jednym fachu</h2>
+    <ol style="list-style: none; margin: 0; padding: 0 20px; display: flex; gap: 14px; overflow-x: auto">
+      <sc-for list="{{family}}" as="f" hint-placeholder-count="4">
+        <li style="flex: 0 0 210px; display: flex; flex-direction: column; gap: 10px">
+          <img src="{{f.img}}" alt="{{f.alt}}" style="width: 210px; height: 250px; object-fit: cover; object-position: {{f.pos}}">
+          <span style="font-size: 13px; font-weight: 600; color: #7C5B1E">{{f.year}}</span>
+          <span style="font-family: Newsreader, Georgia, serif; font-size: 21px; line-height: 1.15">{{f.name}}</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #3A3F43">{{f.text}}</span>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+
+  <section style="padding: 52px 20px; display: flex; flex-direction: column; gap: 28px">
+    <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 34px; line-height: 1.05">Z czym możesz do nas przyjść</h2>
+    <a href="NaZamowienie.dc.html" style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #22262A; padding-top: 16px; text-decoration: none">
+      <span style="font-family: Newsreader, Georgia, serif; font-size: 24px; line-height: 1.15">Z pomysłem na nowy pierścionek</span>
+      <span style="font-size: 15px; line-height: 1.55; color: #3A3F43">Szkic, model 3D i wycena, zanim zaczniemy pracę.</span>
+    </a>
+    <a href="Katalog.dc.html" style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #22262A; padding-top: 16px; text-decoration: none">
+      <span style="font-family: Newsreader, Georgia, serif; font-size: 24px; line-height: 1.15">Po projekt z naszej kolekcji</span>
+      <span style="font-size: 15px; line-height: 1.55; color: #3A3F43">Każdy z 34 pierścionków wykonamy w Twoim rozmiarze. Od [X] zł.</span>
+    </a>
+    <a href="Obraczki.dc.html" style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #22262A; padding-top: 16px; text-decoration: none">
+      <span style="font-family: Newsreader, Georgia, serif; font-size: 24px; line-height: 1.15">Po obrączki ślubne</span>
+      <span style="font-size: 15px; line-height: 1.55; color: #3A3F43">Z naszych wzorów albo zaprojektowane dla Was dwojga. Od [X] zł za parę.</span>
+    </a>
+    <a href="Naprawy.dc.html" style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #22262A; padding-top: 16px; text-decoration: none">
+      <span style="font-family: Newsreader, Georgia, serif; font-size: 24px; line-height: 1.15">Z biżuterią do naprawy</span>
+      <span style="font-size: 15px; line-height: 1.55; color: #3A3F43">Rozmiar, czyszczenie, oprawa kamieni, przeróbki rodzinnego złota.</span>
+    </a>
+  </section>
+
+  <section style="padding: 0 20px 56px; display: flex; flex-direction: column; gap: 22px">
+    <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 34px; line-height: 1.05">Pierścionki z pracowni</h2>
+    <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+      <sc-for list="{{rings}}" as="r" hint-placeholder-count="4">
+        <li>
+          <a href="Pierscionek.dc.html" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none">
+            <img src="{{r.img}}" alt="{{r.alt}}" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover">
+            <span style="font-family: Newsreader, Georgia, serif; font-size: 19px; line-height: 1.1">{{r.name}}</span>
+            <span style="font-size: 13px; line-height: 1.4; color: #575C5F">{{r.stone}}</span>
+          </a>
+        </li>
+      </sc-for>
+    </ul>
+    <a class="btn btn-line" href="Katalog.dc.html">Wszystkie pierścionki (34)</a>
+  </section>
+
+  <section style="background: #1D3832; color: #EEF0EA; padding: 52px 20px; display: flex; flex-direction: column; gap: 26px">
+    <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 34px; line-height: 1.05; color: #F6F5EF">Jak powstaje pierścionek na zamówienie</h2>
+    <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 22px">
+      <li style="display: grid; grid-template-columns: 28px 1fr; gap: 4px 12px; border-top: 1px solid #3E6159; padding-top: 14px"><span style="font-family: Newsreader, serif; font-size: 20px; color: #C8A15A">1</span><span style="font-size: 16px; font-weight: 600">Rozmowa</span><span></span><span style="font-size: 14.5px; line-height: 1.55; color: #C9D1CB">W pracowni albo przez telefon. Okazja, styl i budżet.</span></li>
+      <li style="display: grid; grid-template-columns: 28px 1fr; gap: 4px 12px; border-top: 1px solid #3E6159; padding-top: 14px"><span style="font-family: Newsreader, serif; font-size: 20px; color: #C8A15A">2</span><span style="font-size: 16px; font-weight: 600">Projekt i wycena</span><span></span><span style="font-size: 14.5px; line-height: 1.55; color: #C9D1CB">Szkic, model 3D, dobór kamienia i złota.</span></li>
+      <li style="display: grid; grid-template-columns: 28px 1fr; gap: 4px 12px; border-top: 1px solid #3E6159; padding-top: 14px"><span style="font-family: Newsreader, serif; font-size: 20px; color: #C8A15A">3</span><span style="font-size: 16px; font-weight: 600">Wykonanie</span><span></span><span style="font-size: 14.5px; line-height: 1.55; color: #C9D1CB">Ręczna oprawa kamieni i wykończenie w pracowni.</span></li>
+      <li style="display: grid; grid-template-columns: 28px 1fr; gap: 4px 12px; border-top: 1px solid #3E6159; padding-top: 14px"><span style="font-family: Newsreader, serif; font-size: 20px; color: #C8A15A">4</span><span style="font-size: 16px; font-weight: 600">Odbiór i opieka</span><span></span><span style="font-size: 14.5px; line-height: 1.55; color: #C9D1CB">Przymiarka, odbiór, później czyszczenie i przegląd.</span></li>
+    </ol>
+    <a class="btn btn-light" href="Kontakt.dc.html">Umów rozmowę o projekcie</a>
+  </section>
+
+  <section style="padding: 52px 20px; display: flex; flex-direction: column; gap: 18px">
+    <img src="/_blob/30a56676ef7ff118362e481dbe48ea14" alt="Mieczysław Nowak przy stole złotniczym w latach 80." style="width: 100%; aspect-ratio: 3 / 2; object-fit: cover">
+    <h2 style="margin: 6px 0 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 34px; line-height: 1.05">Biżuteria z historią wraca do pracowni</h2>
+    <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #3A3F43">Oczyścimy, wzmocnimy oprawę, dopasujemy rozmiar albo przerobimy rodzinne złoto na nowy projekt.</p>
+    <a class="tl" href="Naprawy.dc.html" style="align-self: flex-start; padding: 6px 0">Naprawy i przeróbki</a>
+  </section>
+
+  <section style="margin: 0 20px 48px; background: #FBFBF8; padding: 28px 24px; display: flex; flex-direction: column; gap: 16px">
+    <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 26px; line-height: 1.1">Pracownia w Busku-Zdroju</h2>
+    <address style="font-style: normal; font-size: 16px; line-height: 1.55">Kilińskiego 12<br>28-100 Busko-Zdrój</address>
+    <span style="font-size: 14.5px; line-height: 1.55; color: #3A3F43">Pon.–pt. 8:00–16:00<br>Sobota 10:00–16:00</span>
+    <a href="https://maps.google.com/?q=Kili%C5%84skiego+12+Busko-Zdr%C3%B3j" class="tl" style="align-self: flex-start; padding: 6px 0">Prowadź do pracowni</a>
+  </section>
+
+  <footer style="background: #22262A; color: #AEB3AE; padding: 40px 20px 120px; display: flex; flex-direction: column; gap: 14px; font-size: 14px; line-height: 1.55">
+    <img src="/_blob/80fbd8ae27f6887ea4723494333c3e7e" alt="Michał Nowak" style="display: block; width: 120px; height: auto; filter: invert(1)">
+    <a href="mailto:kontakt@pznowak.pl" style="color: #EEF0EA">kontakt@pznowak.pl</a>
+    <span style="display: flex; gap: 20px"><a href="https://www.instagram.com/nowak_pracownia_zlotnicza/" style="color: #EEF0EA">Instagram</a><a href="https://www.facebook.com/profile.php?id=61568506251939" style="color: #EEF0EA">Facebook</a></span>
+    <span>© 2026 Pracownia Złotnicza Michał Nowak</span>
+  </footer>
+</main>
+
+<div style="position: sticky; bottom: 0; z-index: 6; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 16px 16px; background: #E7E8E3; border-top: 1px solid #C9CBC4">
+  <a class="btn btn-line" href="tel:+48501321347" style="padding: 0 12px">Zadzwoń</a>
+  <a class="btn" href="Kontakt.dc.html" style="padding: 0 12px">Umów wizytę</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":4300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { open: false };
+  }
+  renderVals() {
+    const open = this.state.open;
+    return {
+      open,
+      closed: !open,
+      menuExpanded: open ? 'true' : 'false',
+      menuLabel: open ? 'Zamknij menu' : 'Otwórz menu',
+      toggle: () => this.setState({ open: !open }),
+      family: [
+        { year: '1890', name: 'Wiktor Nowak', text: 'Kowal z Szańca, pierwsze projekty biżuterii.', img: '/_blob/e6b4da5609ee2a3e84b508afb27471fa', alt: 'Wiktor Nowak z rodziną', pos: '50% 20%' },
+        { year: '1955', name: 'Stanisław Nowak', text: 'Złotnik, rozwinął warsztat.', img: '/_blob/8ebb1e0f612a56ca00b1cdb9997e9e09', alt: 'Stanisław Nowak', pos: '50% 25%' },
+        { year: '1985', name: 'Mieczysław Nowak', text: 'Jego projekty wracają dziś na renowację.', img: '/_blob/30a56676ef7ff118362e481dbe48ea14', alt: 'Mieczysław Nowak przy stole złotniczym', pos: '62% 40%' },
+        { year: 'Dziś', name: 'Michał Nowak', text: 'Projekty z kamieniami szlachetnymi.', img: '/_blob/0f3f5b05aefcb6039076598e82c5b0e3', alt: 'Michał Nowak w pracowni', pos: '40% 30%' }
+      ],
+      rings: [
+        { name: 'Harmonia', stone: 'Morganit, diamenty', img: '/_blob/102a47826fc177e57a27694d06d4649f', alt: 'Pierścionek Harmonia z morganitem' },
+        { name: 'Athena', stone: 'Szmaragd, diamenty', img: '/_blob/1078ba165636691e0dbada998ae275a9', alt: 'Pierścionek Athena ze szmaragdem' },
+        { name: 'Nyx', stone: 'Topaz London Blue', img: '/_blob/fdc5a55f138061aa14496e617fcccdb5', alt: 'Pierścionek Nyx z topazem' },
+        { name: 'Pyrrha', stone: 'Rubin, diamenty', img: '/_blob/9768fe8b7cee00bbb95c4f00e79aaf4c', alt: 'Pierścionek Pyrrha z rubinem' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
