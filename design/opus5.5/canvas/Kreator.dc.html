@@ -339,6 +339,8 @@ class Component extends DCLogic {
         if (acc >= spacing) { out.push(p); acc = 0; }
         prev = p;
       }
+      var first = out[0], last = out[out.length - 1];
+      if (out.length > 2 && Math.hypot((last[0] - first[0]) * scale, (last[1] - first[1]) * scale) < spacing * 0.75) out.pop();
       return out;
     }
     function circles(list, r) {
@@ -377,13 +379,13 @@ class Component extends DCLogic {
       var haloScale = stoneScale * 1.36;
       var haloDots = setting === 'halo' ? evenly(pts, 13, haloScale).map(function (p) { return [CX + p[0] * haloScale, SY + p[1] * haloScale]; }) : [];
       var trio = setting === 'trylogia';
-      var side = [[CX - 70, 136], [CX + 70, 136]];
+      var side = [[CX - 66, 143], [CX + 66, 143]];
       var round = ell(1, 1), sideS = 23;
       var pave = [];
       if (st.pave === 'tak') {
         var pr = R - th / 2;
-        for (var deg = 184; deg <= 356; deg += 7) {
-          if (deg > 232 && deg < 308) continue;
+        for (var deg = 198; deg <= 342; deg += 5.5) {
+          if (deg > 236 && deg < 304) continue;
           var ar = deg * Math.PI / 180;
           pave.push([CX + Math.cos(ar) * pr, CY + Math.sin(ar) * pr]);
         }
@@ -413,7 +415,7 @@ class Component extends DCLogic {
         sideLines: trio ? side.map(function (c) { return facetLines(round, 'radial', sideS, c[0], c[1]); }).join(' ') : 'M0 0',
         sideProngs: trio ? circles([].concat.apply([], side.map(function (c) { return [45, 135, 225, 315].map(function (d) { var a = d * Math.PI / 180; return [c[0] + Math.cos(a) * sideS, c[1] + Math.sin(a) * sideS]; }); })), 3.8) : 'M0 0',
         trioDisplay: trio ? 'inline' : 'none',
-        pavePath: pave.length ? circles(pave, Math.max(2.6, th * 0.27)) : 'M0 0',
+        pavePath: pave.length ? circles(pave, Math.max(2.4, th * 0.2)) : 'M0 0',
         paveDisplay: pave.length ? 'inline' : 'none'
       };
     };
@@ -511,7 +513,7 @@ class Component extends DCLogic {
       isStep1: s.step === 0, isStep2: s.step === 1, isStep3: s.step === 2, isStep4: s.step === 3, isStep5: s.step === 4, isStep6: s.step === 5,
       hasPrev: s.step > 0 && !s.sent,
       hasNext: s.step < 5,
-      nextLabel: s.step === 4 ? 'Przejdź do podsumowania' : 'Dalej: ' + STEP_LABELS[s.step + 1].toLowerCase(),
+      nextLabel: s.step >= 4 ? 'Przejdź do podsumowania' : 'Dalej: ' + STEP_LABELS[s.step + 1].toLowerCase(),
       stepCount: 'Krok ' + (s.step + 1) + ' z 6',
       prev: () => this.setState({ step: Math.max(0, s.step - 1) }),
       next: () => this.setState({ step: Math.min(5, s.step + 1) }),

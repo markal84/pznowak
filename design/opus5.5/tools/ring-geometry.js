@@ -68,6 +68,8 @@ var RING = (function () {
       if (acc >= spacing) { out.push(p); acc = 0; }
       prev = p;
     }
+    var first = out[0], last = out[out.length - 1];
+    if (out.length > 2 && Math.hypot((last[0] - first[0]) * scale, (last[1] - first[1]) * scale) < spacing * 0.75) out.pop();
     return out;
   }
   function circles(list, r) {
@@ -103,19 +105,19 @@ var RING = (function () {
     var setting = st.setting;
     var stoneScale = setting === 'trylogia' ? S * 0.86 : S;
     var prongAngles = setting === 'lapki-6' ? [30, 90, 150, 210, 270, 330] : cut.p4;
-    var showProngs = setting === 'lapki-4' || setting === 'lapki-6' || setting === 'trylogia' || setting === 'halo';
+    var showProngs = setting !== 'kaszta';
     var prongs = showProngs ? prongAngles.map(function (d) { var p = atAngle(pts, d); return [CX + p[0] * stoneScale * 1.02, SY + p[1] * stoneScale * 1.02]; }) : [];
     var haloScale = stoneScale * 1.36;
     var haloDots = setting === 'halo' ? evenly(pts, 13, haloScale).map(function (p) { return [CX + p[0] * haloScale, SY + p[1] * haloScale]; }) : [];
     var trio = setting === 'trylogia';
-    var side = [[CX - 70, 136], [CX + 70, 136]];
+    var side = [[CX - 66, 143], [CX + 66, 143]];
     var round = ell(1, 1);
     var sideS = 23;
     var pave = [];
     if (st.pave === 'tak') {
       var pr = R - th / 2;
-      for (var deg = 184; deg <= 356; deg += 7) {
-        if (deg > 232 && deg < 308) continue;
+      for (var deg = 198; deg <= 342; deg += 5.5) {
+        if (deg > 236 && deg < 304) continue;
         var ar = deg * Math.PI / 180;
         pave.push([CX + Math.cos(ar) * pr, CY + Math.sin(ar) * pr]);
       }
@@ -145,7 +147,7 @@ var RING = (function () {
       sideLines: trio ? side.map(function (c) { return facetLines(round, 'radial', sideS, c[0], c[1]); }).join(' ') : '',
       sideProngs: trio ? circles([].concat.apply([], side.map(function (c) { return [45, 135, 225, 315].map(function (d) { var a = d * Math.PI / 180; return [c[0] + Math.cos(a) * sideS, c[1] + Math.sin(a) * sideS]; }); })), 3.8) : '',
       trioDisplay: trio ? 'inline' : 'none',
-      pavePath: circles(pave, Math.max(2.6, th * 0.27)),
+      pavePath: circles(pave, Math.max(2.4, th * 0.2)),
       paveDisplay: pave.length ? 'inline' : 'none',
       gemStroke: gem.c[2]
     };
