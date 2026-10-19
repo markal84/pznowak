@@ -58,7 +58,7 @@
       "x": 0,
       "y": 6300,
       "w": 1440,
-      "h": 4100,
+      "h": 4350,
       "title": "Na zamówienie",
       "expand": "fill",
       "is_interactive": true
@@ -119,6 +119,30 @@
       "w": 1440,
       "h": 500,
       "title": "Komponent: stopka"
+    },
+    "Kreator.dc.html": {
+      "x": 6550,
+      "y": 0,
+      "w": 1440,
+      "h": 1900,
+      "title": "Kreator: zaprojektuj pierścionek",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Grafiki.dc.html": {
+      "x": 3040,
+      "y": 11200,
+      "w": 1440,
+      "h": 2600,
+      "title": "Grafiki SVG: ikony, szlify, oprawy, etapy"
+    },
+    "Motion.dc.html": {
+      "x": 4560,
+      "y": 11200,
+      "w": 1440,
+      "h": 1640,
+      "title": "Ruch na stronie",
+      "is_interactive": true
     }
   },
   "order": [
@@ -134,15 +158,18 @@
     "Pracownia.dc.html",
     "Kontakt.dc.html",
     "Realizacje.dc.html",
-    "System.dc.html"
+    "System.dc.html",
+    "Kreator.dc.html",
+    "Grafiki.dc.html",
+    "Motion.dc.html"
   ],
   "notes": {
     "row1": {
       "x": 0,
       "y": -300,
-      "text": "Wejście: strona główna, pierścionki, telefon, obrączki",
+      "text": "Wejście: strona główna, pierścionki, telefon, obrączki, kreator",
       "kind": "title1",
-      "maxW": 6470
+      "maxW": 7990
     },
     "row2": {
       "x": 0,
@@ -154,9 +181,9 @@
     "row3": {
       "x": 0,
       "y": 10900,
-      "text": "System wizualny i wspólne komponenty",
+      "text": "System wizualny, komponenty, grafiki SVG i ruch",
       "kind": "title1",
-      "maxW": 2960
+      "maxW": 6000
     }
   },
   "designSystems": []

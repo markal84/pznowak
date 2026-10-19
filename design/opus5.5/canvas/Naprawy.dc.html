@@ -60,7 +60,8 @@ img{display:block;max-width:100%}
   <ul style="list-style: none; margin: 0; padding: 0; border-top: 1px solid #22262A">
     <sc-for list="{{services}}" as="s" hint-placeholder-count="8">
       <li style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 40px; padding: 22px 0; border-bottom: 1px solid #C9CBC4">
-        <h3 style="margin: 0; flex: 1 1 260px; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 23px; line-height: 1.2">{{s.name}}</h3>
+        <img src="{{s.icon}}" alt="" style="width: 32px; height: 32px; flex: 0 0 auto; align-self: center">
+        <h3 style="margin: 0; flex: 1 1 240px; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 23px; line-height: 1.2">{{s.name}}</h3>
         <p style="margin: 0; flex: 2 1 340px; font-size: 16px; line-height: 1.55; color: #3A3F43">{{s.text}}</p>
         <dl style="margin: 0; flex: 0 0 220px; display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; font-size: 15px; line-height: 1.5">
           <dt style="color: #575C5F">Czas</dt><dd style="margin: 0; text-align: right">{{s.time}}</dd>
@@ -141,7 +142,7 @@ class Component extends DCLogic {
         { name: 'Naprawa łańcuszka lub bransoletki', text: 'Lutowanie ogniw, wymiana zapięcia, skrócenie.', time: '[czas]', price: '[cena] zł' },
         { name: 'Grawer', text: 'Daty, inicjały i krótkie napisy po wewnętrznej stronie obrączki.', time: '[czas]', price: '[cena] zł' },
         { name: 'Renowacja biżuterii z historią', text: 'Ostrożna naprawa starych wyrobów, z zachowaniem ich charakteru i śladów czasu.', time: 'indywidualnie', price: 'po wycenie' }
-      ]
+      ].map((s, i) => ({ ...s, icon: '/_blob/' + ['eff4737ee2145a3e956586f9153826f8', 'e860fec750b6c46ea71319a1c538cdaa', 'bbeb0a8503d2104f3dec9a7eb75d8b93', 'e2310537cc2d8be7d6db1238faf5484e', '2e52020ea3079e85869b94362c07de29', 'f71af115b3676db59d2fffbf1f794566', 'a6c8d6f1644c020c78b684e5a21baa98', '94dd6afb023aad2d24742c8d290016a2'][i] }))
     };
   }
 }

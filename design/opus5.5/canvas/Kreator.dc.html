@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Zaprojektuj pierścionek</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3;color:#22262A;font-family:'Schibsted Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#22262A}a:hover{color:#1D3832}
+img{display:block;max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;border-radius:999px;background:#1D3832;color:#F3F4EF;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;font-family:inherit;transition:background-color .15s}
+.btn:hover{background:#2C5148;color:#fff}
+.btn-line{background:transparent;color:#22262A;box-shadow:inset 0 0 0 1px #22262A}.btn-line:hover{background:#22262A;color:#F3F4EF}
+.tl{color:#22262A;font-size:15px;font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.navl{text-decoration:none;color:#3A3F43}.navl:hover{color:#1D3832;text-decoration:underline;text-underline-offset:7px;text-decoration-thickness:1px}
+.opt{font-family:inherit;cursor:pointer;text-align:left;transition:box-shadow .15s,background-color .15s}
+.opt:hover{background:#FFFFFF}
+.stepbtn{font-family:inherit;cursor:pointer;background:none;border:0}
+.linkbtn{font-family:inherit;background:none;border:0;padding:10px 0;cursor:pointer;color:#22262A;font-size:15px;font-weight:500;text-decoration:underline;text-underline-offset:6px}
+.fld{width:100%;box-sizing:border-box;min-height:50px;padding:12px 14px;border:1px solid #A9AAA3;border-radius:2px;background:#FFFFFF;color:#22262A;font:inherit;font-size:16px}
+.fld:focus{outline:none;border-color:#1D3832;box-shadow:0 0 0 1px #1D3832}
+.preview svg path,.preview svg stop{transition:fill .3s ease,stop-color .3s ease}
+:focus-visible{outline:2px solid #A9782A;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:720px){.pad{padding-left:20px!important;padding-right:20px!important}}
+</style>
+</helmet>
+
+<div style="background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif">
+<dc-import name="Header" active="zamowienie" hint-size="100%,100px"></dc-import>
+
+<main>
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 48px 40px 28px; display: flex; flex-wrap: wrap; gap: 16px 72px; align-items: flex-end; justify-content: space-between">
+  <h1 style="margin: 0; flex: 1 1 460px; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(42px, 5vw, 72px); line-height: 1; letter-spacing: -0.025em">Zaprojektuj pierścionek</h1>
+  <p style="margin: 0; flex: 1 1 380px; max-width: 32em; font-size: 16.5px; line-height: 1.6; color: #3A3F43">Sześć kroków, kilka minut. To szkic do rozmowy, a nie zamówienie: na spotkaniu dopracujemy proporcje, pokażemy kamienie na żywo i podamy cenę.</p>
+</section>
+
+<nav class="pad" aria-label="Kroki kreatora" style="max-width: 1320px; margin: 0 auto; padding: 0 40px 28px">
+  <ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border-top: 1px solid #A9AAA3">
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="6">
+      <li>
+        <button type="button" class="stepbtn" aria-current="{{s.current}}" onClick="{{s.go}}" style="{{s.style}}">
+          <span style="{{s.numStyle}}">{{s.mark}}</span>
+          <span>{{s.label}}</span>
+        </button>
+      </li>
+    </sc-for>
+  </ol>
+</nav>
+
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 0 40px 104px; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+
+  <div style="flex: 1 1 540px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+    <div class="preview" aria-live="polite">
+      <svg viewBox="0 0 400 400" role="img" aria-label="{{previewLabel}}" style="display: block; width: 100%; height: auto">
+        <defs>
+          <radialGradient id="k-bg" cx="50%" cy="38%" r="72%"><stop offset="0" stop-color="#2F5249"></stop><stop offset="1" stop-color="#142B25"></stop></radialGradient>
+          <linearGradient id="k-au" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6E5018"></stop><stop offset="0.3" stop-color="#E6C97E"></stop><stop offset="0.55" stop-color="#B38B3E"></stop><stop offset="0.78" stop-color="#F5E4B0"></stop><stop offset="1" stop-color="#86621F"></stop></linearGradient>
+          <linearGradient id="k-ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#74787C"></stop><stop offset="0.3" stop-color="#F1F1EE"></stop><stop offset="0.55" stop-color="#AEB1B4"></stop><stop offset="0.78" stop-color="#FBFBF9"></stop><stop offset="1" stop-color="#83878B"></stop></linearGradient>
+          <radialGradient id="k-gem" cx="38%" cy="30%" r="82%"><stop offset="0" stop-color="{{g1}}"></stop><stop offset="0.55" stop-color="{{g2}}"></stop><stop offset="1" stop-color="{{g3}}"></stop></radialGradient>
+          <radialGradient id="k-side" cx="38%" cy="30%" r="82%"><stop offset="0" stop-color="#FFFFFF"></stop><stop offset="0.55" stop-color="#D9E2EA"></stop><stop offset="1" stop-color="#8D9DAC"></stop></radialGradient>
+          <clipPath id="k-clip"><path d="{{gemPath}}"></path></clipPath>
+          <clipPath id="k-sclip"><path d="{{sidePath}}"></path></clipPath>
+        </defs>
+        <rect width="400" height="400" fill="url(#k-bg)"></rect>
+        <ellipse cx="200" cy="374" rx="110" ry="8" fill="#000000" opacity="0.22"></ellipse>
+        <path d="{{bandPath}}" fill="{{bandFill}}" fill-rule="evenodd" stroke="#2B2414" stroke-opacity="0.35" stroke-width="1"></path>
+        <path d="{{innerRing}}" fill="none" stroke="#000000" stroke-opacity="0.22" stroke-width="3"></path>
+        <path d="{{highlight}}" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="2.5" stroke-linecap="round"></path>
+        <g display="{{paveDisplay}}"><path d="{{pavePath}}" fill="#F4F6F8" stroke="#7F8C98" stroke-width="0.8"></path></g>
+        <g display="{{trioDisplay}}">
+          <path d="{{sidePath}}" fill="url(#k-side)" stroke="#8D9DAC" stroke-width="1"></path>
+          <path d="{{sideLines}}" clip-path="url(#k-sclip)" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="0.8"></path>
+          <path d="{{sideTable}}" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="0.8"></path>
+          <path d="{{sideProngs}}" fill="{{headFill}}" stroke="#2B2414" stroke-opacity="0.4" stroke-width="0.8"></path>
+        </g>
+        <g display="{{haloDisplay}}">
+          <path d="{{haloMetal}}" fill="none" stroke="{{headFill}}" stroke-width="15" stroke-linejoin="round"></path>
+          <path d="{{haloDots}}" fill="#F4F6F8" stroke="#7F8C98" stroke-width="0.8"></path>
+        </g>
+        <g display="{{bezelDisplay}}"><path d="{{bezelPath}}" fill="{{headFill}}" stroke="#2B2414" stroke-opacity="0.45" stroke-width="1"></path></g>
+        <path d="{{gemPath}}" fill="url(#k-gem)" stroke="{{gemStroke}}" stroke-width="1.2"></path>
+        <path d="{{gemLines}}" clip-path="url(#k-clip)" fill="none" stroke="#FFFFFF" stroke-opacity="0.42" stroke-width="1"></path>
+        <path d="{{gemTable}}" fill="#FFFFFF" fill-opacity="0.1" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="1"></path>
+        <path d="{{glint}}" fill="#FFFFFF" opacity="0.85"></path>
+        <g display="{{prongDisplay}}"><path d="{{prongPath}}" fill="{{headFill}}" stroke="#2B2414" stroke-opacity="0.45" stroke-width="0.9"></path></g>
+      </svg>
+    </div>
+
+    <div style="position: relative; background: #FBFBF8; padding: 26px 30px 24px 60px; clip-path: polygon(24px 0, 100% 0, 100% 100%, 24px 100%, 0 calc(100% - 24px), 0 24px)">
+      <span aria-hidden="true" style="position: absolute; left: 20px; top: 50%; width: 13px; height: 13px; margin-top: -7px; border-radius: 50%; background: #E7E8E3; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px; border-bottom: 1px solid #22262A; padding-bottom: 12px; margin-bottom: 8px">
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 24px">Karta projektu</span>
+        <span style="font-size: 13px; color: #575C5F">uzupełnia się na bieżąco</span>
+      </div>
+      <dl style="margin: 0; display: grid; grid-template-columns: minmax(96px, auto) 1fr; font-size: 15px; line-height: 1.4">
+        <sc-for list="{{summary}}" as="r" hint-placeholder-count="6">
+          <dt style="color: #575C5F; padding: 7px 0; border-bottom: 1px dashed #C9CBC4">{{r.k}}</dt>
+          <dd style="margin: 0; padding: 7px 0; border-bottom: 1px dashed #C9CBC4; font-family: Newsreader, Georgia, serif; font-size: 17px">{{r.v}}</dd>
+        </sc-for>
+      </dl>
+    </div>
+  </div>
+
+  <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 24px; background: #FBFBF8; padding: 36px">
+
+    <sc-if value="{{isStep1}}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1.1">Na jaką okazję?</h2>
+        <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3A3F43">Od tego zależą proporcje i to, o co zapytamy na spotkaniu.</p>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <sc-for list="{{occasions}}" as="o" hint-placeholder-count="4">
+            <button type="button" class="opt" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="{{o.style}}">
+              <img src="{{o.icon}}" alt="" style="width: 28px; height: 28px">
+              <span style="font-size: 16px; font-weight: 600">{{o.label}}</span>
+              <span style="font-size: 13.5px; color: #575C5F">{{o.hint}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="kr-data" style="font-size: 15px; font-weight: 500">Na kiedy <span style="font-weight: 400; color: #575C5F">(opcjonalnie)</span></label>
+          <input id="kr-data" class="fld" type="text" placeholder="np. zaręczyny w czerwcu">
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isStep2}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1.1">Wybierz kamień</h2>
+        <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3A3F43">Kolory na ekranie są orientacyjne. Prawdziwe kamienie pokażemy w pracowni.</p>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <sc-for list="{{gems}}" as="o" hint-placeholder-count="8">
+            <button type="button" class="opt" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="{{o.style}}">
+              <span aria-hidden="true" style="{{o.swatch}}"></span>
+              <span style="font-size: 16px; font-weight: 600">{{o.label}}</span>
+              <span style="font-size: 13.5px; color: #575C5F">{{o.hint}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isStep3}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1.1">Kształt kamienia</h2>
+        <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3A3F43">Szlif decyduje o tym, jak kamień łapie światło i jak wygląda na dłoni.</p>
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+          <sc-for list="{{cuts}}" as="o" hint-placeholder-count="8">
+            <button type="button" class="opt" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="{{o.style}}">
+              <img src="{{o.icon}}" alt="" style="width: 56px; height: 56px; align-self: center">
+              <span style="font-size: 14px; font-weight: 600; text-align: center">{{o.label}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isStep4}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1.1">Jak osadzić kamień?</h2>
+        <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3A3F43">Oprawa wpływa na wygląd, ale też na to, jak pierścionek znosi codzienne noszenie.</p>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <sc-for list="{{settings}}" as="o" hint-placeholder-count="5">
+            <button type="button" class="opt" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="{{o.rowStyle}}">
+              <img src="{{o.icon}}" alt="" style="width: 56px; height: 56px; flex: 0 0 auto">
+              <span style="display: flex; flex-direction: column; gap: 3px">
+                <span style="font-size: 16px; font-weight: 600">{{o.label}}</span>
+                <span style="font-size: 13.5px; line-height: 1.45; color: #575C5F">{{o.hint}}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isStep5}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 22px">
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1.1">Złoto i obrączka</h2>
+        <div role="group" aria-labelledby="kr-zl" style="display: flex; flex-direction: column; gap: 10px">
+          <span id="kr-zl" style="font-size: 14px; color: #575C5F">Kolor złota</span>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+            <sc-for list="{{metals}}" as="o" hint-placeholder-count="3">
+              <button type="button" class="opt" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="{{o.style}}">
+                <span aria-hidden="true" style="{{o.swatch}}"></span>
+                <span style="font-size: 15px; font-weight: 600">{{o.label}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div role="group" aria-labelledby="kr-sz" style="display: flex; flex-direction: column; gap: 10px">
+          <span id="kr-sz" style="font-size: 14px; color: #575C5F">Obrączka</span>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+            <sc-for list="{{widths}}" as="o" hint-placeholder-count="3">
+              <button type="button" class="opt" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="{{o.style}}">
+                <span style="font-size: 15px; font-weight: 600">{{o.label}}</span>
+                <span style="font-size: 13px; color: #575C5F">{{o.hint}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div role="group" aria-labelledby="kr-pv" style="display: flex; flex-direction: column; gap: 10px">
+          <span id="kr-pv" style="font-size: 14px; color: #575C5F">Ramiona obrączki</span>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+            <sc-for list="{{paves}}" as="o" hint-placeholder-count="2">
+              <button type="button" class="opt" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="{{o.style}}">
+                <span style="font-size: 15px; font-weight: 600">{{o.label}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="kr-grawer" style="font-size: 15px; font-weight: 500">Grawer w środku <span style="font-weight: 400; color: #575C5F">(opcjonalnie, do 24 znaków)</span></label>
+          <input id="kr-grawer" class="fld" type="text" maxlength="24" value="{{engraving}}" onInput="{{setEngraving}}" placeholder="np. A &amp; M 14.06.2027">
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isStep6}}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{notSent}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 20px">
+          <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1.1">Twój szkic jest gotowy</h2>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3A3F43">Wyślij go do pracowni. Oddzwonimy, umówimy spotkanie i na podstawie karty przygotujemy szkic i wycenę. Pierścionki na zamówienie kosztują zwykle [X–Y] zł.</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px">
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <label for="kr-imie" style="font-size: 15px; font-weight: 500">Imię</label>
+              <input id="kr-imie" class="fld" type="text" autocomplete="given-name">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <label for="kr-tel" style="font-size: 15px; font-weight: 500">Telefon</label>
+              <input id="kr-tel" class="fld" type="tel" autocomplete="tel">
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <label for="kr-uwagi" style="font-size: 15px; font-weight: 500">Coś jeszcze? <span style="font-weight: 400; color: #575C5F">(opcjonalnie)</span></label>
+            <textarea id="kr-uwagi" class="fld" rows="3" placeholder="np. mam zdjęcie inspiracji, rozmiar do sprawdzenia" style="resize: vertical; line-height: 1.5"></textarea>
+          </div>
+          <label style="display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.5; color: #3A3F43; cursor: pointer">
+            <input type="checkbox" style="width: 20px; height: 20px; margin: 1px 0 0; accent-color: #1D3832; flex: 0 0 auto">
+            <span>Zgadzam się na kontakt w sprawie projektu. <a href="#">Polityka prywatności</a></span>
+          </label>
+          <button type="button" class="btn" onClick="{{send}}" style="align-self: flex-start">Wyślij projekt do pracowni</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{sent}}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="display: flex; flex-direction: column; gap: 18px">
+          <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 40px; line-height: 1.05">Projekt wysłany</h2>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #3A3F43">Dziękujemy. Karta projektu jest już w pracowni.</p>
+          <ol style="margin: 0; padding: 0 0 0 20px; display: flex; flex-direction: column; gap: 8px; font-size: 15.5px; line-height: 1.55; color: #3A3F43">
+            <li>Oddzwonimy w godzinach pracy pracowni.</li>
+            <li>Umówimy spotkanie i pokażemy kamienie na żywo.</li>
+            <li>Dostaniesz szkic, model 3D i wycenę, zanim cokolwiek zamówisz.</li>
+          </ol>
+          <button type="button" class="linkbtn" onClick="{{restart}}" style="align-self: flex-start">Zacznij nowy projekt</button>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid #C9CBC4; padding-top: 22px">
+      <sc-if value="{{hasPrev}}" hint-placeholder-val="{{ false }}">
+        <button type="button" class="btn btn-line" onClick="{{prev}}">Wstecz</button>
+      </sc-if>
+      <span style="font-size: 14px; color: #575C5F; margin: 0 auto 0 0; padding-left: 8px">{{stepCount}}</span>
+      <sc-if value="{{hasNext}}" hint-placeholder-val="{{ true }}">
+        <button type="button" class="btn" onClick="{{next}}">{{nextLabel}}</button>
+      </sc-if>
+    </div>
+  </div>
+</section>
+</main>
+
+<dc-import name="Footer" hint-size="100%,480px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 0, occasion: 'zareczyny', gem: 'szafir', cut: 'owal', setting: 'halo', metal: 'au', width: 'klasyczna', pave: 'nie', engraving: '', sent: false };
+    this.ring = this.buildRing();
+  }
+  buildRing() {
+    var K = 0.5523;
+    function ell(rx, ry) {
+      return [['M', [[-rx, 0]]], ['C', [[-rx, -ry * K], [-rx * K, -ry], [0, -ry]]], ['C', [[rx * K, -ry], [rx, -ry * K], [rx, 0]]],
+        ['C', [[rx, ry * K], [rx * K, ry], [0, ry]]], ['C', [[-rx * K, ry], [-rx, ry * K], [-rx, 0]]], ['Z', []]];
+    }
+    function poly(p) { return [['M', [p[0]]]].concat(p.slice(1).map(function (q) { return ['L', [q]]; })).concat([['Z', []]]); }
+    var CUTS = {
+      okragly: { cmds: ell(1, 1), kind: 'radial', p4: [45, 135, 225, 315] },
+      owal: { cmds: ell(0.74, 1), kind: 'radial', p4: [50, 130, 230, 310] },
+      markiza: { cmds: [['M', [[0, -1]]], ['C', [[0.56, -0.55], [0.56, 0.55], [0, 1]]], ['C', [[-0.56, 0.55], [-0.56, -0.55], [0, -1]]], ['Z', []]], kind: 'radial', p4: [90, 270, 0, 180] },
+      gruszka: { cmds: [['M', [[0, -1]]], ['C', [[0.35, -0.6], [0.76, -0.12], [0.76, 0.32]]], ['C', [[0.76, 0.74], [0.42, 1], [0, 1]]], ['C', [[-0.42, 1], [-0.76, 0.74], [-0.76, 0.32]]], ['C', [[-0.76, -0.12], [-0.35, -0.6], [0, -1]]], ['Z', []]], kind: 'radial', p4: [270, 20, 160, 90] },
+      szmaragdowy: { cmds: poly([[-0.5, -1], [0.5, -1], [0.72, -0.78], [0.72, 0.78], [0.5, 1], [-0.5, 1], [-0.72, 0.78], [-0.72, -0.78]]), kind: 'step', p4: [55, 125, 235, 305] },
+      poduszka: { cmds: [['M', [[-0.5, -0.9]]], ['C', [[-0.17, -0.95], [0.17, -0.95], [0.5, -0.9]]], ['C', [[0.82, -0.86], [0.86, -0.82], [0.9, -0.5]]], ['C', [[0.95, -0.17], [0.95, 0.17], [0.9, 0.5]]], ['C', [[0.86, 0.82], [0.82, 0.86], [0.5, 0.9]]], ['C', [[0.17, 0.95], [-0.17, 0.95], [-0.5, 0.9]]], ['C', [[-0.82, 0.86], [-0.86, 0.82], [-0.9, 0.5]]], ['C', [[-0.95, 0.17], [-0.95, -0.17], [-0.9, -0.5]]], ['C', [[-0.86, -0.82], [-0.82, -0.86], [-0.5, -0.9]]], ['Z', []]], kind: 'radial', p4: [45, 135, 225, 315] },
+      princessa: { cmds: poly([[-0.86, -0.86], [0.86, -0.86], [0.86, 0.86], [-0.86, 0.86]]), kind: 'princess', p4: [45, 135, 225, 315] },
+      serce: { cmds: [['M', [[0, 0.92]]], ['C', [[-0.38, 0.62], [-0.98, 0.22], [-0.98, -0.3]]], ['C', [[-0.98, -0.74], [-0.5, -0.98], [0, -0.56]]], ['C', [[0.5, -0.98], [0.98, -0.74], [0.98, -0.3]]], ['C', [[0.98, 0.22], [0.38, 0.62], [0, 0.92]]], ['Z', []]], kind: 'radial', p4: [90, 270, 200, 340] }
+    };
+    var CX = 200, CY = 242, R = 116, SY = 100, S = 46;
+    function f(n) { return Math.round(n * 10) / 10; }
+    function abs(cmds, s, cx, cy) {
+      return cmds.map(function (c) { return c[0] + c[1].map(function (p) { return f(cx + p[0] * s) + ' ' + f(cy + p[1] * s); }).join(' '); }).join(' ');
+    }
+    function sample(cmds) {
+      var pts = [], cur = null;
+      cmds.forEach(function (c) {
+        var t = c[0], p = c[1];
+        if (t === 'M') { cur = p[0]; pts.push(cur); }
+        else if (t === 'L') { for (var i = 1; i <= 16; i++) { var u = i / 16; pts.push([cur[0] + (p[0][0] - cur[0]) * u, cur[1] + (p[0][1] - cur[1]) * u]); } cur = p[0]; }
+        else if (t === 'C') {
+          for (var j = 1; j <= 24; j++) {
+            var v = j / 24, a = Math.pow(1 - v, 3), b = 3 * Math.pow(1 - v, 2) * v, d = 3 * (1 - v) * v * v, e = v * v * v;
+            pts.push([a * cur[0] + b * p[0][0] + d * p[1][0] + e * p[2][0], a * cur[1] + b * p[0][1] + d * p[1][1] + e * p[2][1]]);
+          }
+          cur = p[2];
+        }
+      });
+      return pts;
+    }
+    function atAngle(pts, deg) {
+      var target = deg * Math.PI / 180, best = pts[0], bd = 9;
+      pts.forEach(function (p) {
+        var a = Math.atan2(p[1], p[0]), d = Math.abs(Math.atan2(Math.sin(a - target), Math.cos(a - target)));
+        if (d < bd) { bd = d; best = p; }
+      });
+      return best;
+    }
+    function evenly(pts, spacing, scale) {
+      var out = [pts[0]], acc = 0, prev = pts[0];
+      for (var i = 1; i < pts.length; i++) {
+        var p = pts[i], dx = (p[0] - prev[0]) * scale, dy = (p[1] - prev[1]) * scale;
+        acc += Math.sqrt(dx * dx + dy * dy);
+        if (acc >= spacing) { out.push(p); acc = 0; }
+        prev = p;
+      }
+      return out;
+    }
+    function circles(list, r) {
+      return list.map(function (p) { return 'M' + f(p[0] - r) + ' ' + f(p[1]) + ' a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0'; }).join(' ');
+    }
+    function facetLines(cmds, kind, s, cx, cy) {
+      if (kind === 'radial') {
+        var l = [];
+        for (var i = 0; i < 8; i++) {
+          var a = Math.PI / 8 + i * Math.PI / 4;
+          l.push('M' + f(cx + Math.cos(a) * s * 0.35) + ' ' + f(cy + Math.sin(a) * s * 0.35) + ' L' + f(cx + Math.cos(a) * s * 1.6) + ' ' + f(cy + Math.sin(a) * s * 1.6));
+        }
+        return l.join(' ');
+      }
+      var vs = cmds.filter(function (c) { return c[1].length; }).map(function (c) { return c[1][c[1].length - 1]; });
+      var out = vs.map(function (p) { return 'M' + f(cx + p[0] * s) + ' ' + f(cy + p[1] * s) + ' L' + f(cx + p[0] * s * 0.5) + ' ' + f(cy + p[1] * s * 0.5); }).join(' ');
+      out += ' ' + abs(cmds, s * 0.75, cx, cy);
+      if (kind === 'princess') {
+        var q = s * 0.43;
+        out += ' M' + f(cx - q) + ' ' + f(cy - q) + ' L' + f(cx + q) + ' ' + f(cy + q) + ' M' + f(cx + q) + ' ' + f(cy - q) + ' L' + f(cx - q) + ' ' + f(cy + q);
+      }
+      return out;
+    }
+    return function (st, gemColors) {
+      var cut = CUTS[st.cut];
+      var th = { cienka: 10, klasyczna: 14, szeroka: 19 }[st.width];
+      var r = R - th;
+      var bandPath = 'M' + (CX - R) + ' ' + CY + ' a' + R + ' ' + R + ' 0 1 0 ' + 2 * R + ' 0 a' + R + ' ' + R + ' 0 1 0 ' + -2 * R + ' 0 Z M' + (CX - r) + ' ' + CY + ' a' + r + ' ' + r + ' 0 1 1 ' + 2 * r + ' 0 a' + r + ' ' + r + ' 0 1 1 ' + -2 * r + ' 0 Z';
+      var hlR = R - th * 0.35, a1 = 205 * Math.PI / 180, a2 = 245 * Math.PI / 180;
+      var pts = sample(cut.cmds);
+      var setting = st.setting;
+      var stoneScale = setting === 'trylogia' ? S * 0.86 : S;
+      var prongAngles = setting === 'lapki-6' ? [30, 90, 150, 210, 270, 330] : cut.p4;
+      var showProngs = setting !== 'kaszta';
+      var prongs = showProngs ? prongAngles.map(function (d) { var p = atAngle(pts, d); return [CX + p[0] * stoneScale * 1.02, SY + p[1] * stoneScale * 1.02]; }) : [];
+      var haloScale = stoneScale * 1.36;
+      var haloDots = setting === 'halo' ? evenly(pts, 13, haloScale).map(function (p) { return [CX + p[0] * haloScale, SY + p[1] * haloScale]; }) : [];
+      var trio = setting === 'trylogia';
+      var side = [[CX - 70, 136], [CX + 70, 136]];
+      var round = ell(1, 1), sideS = 23;
+      var pave = [];
+      if (st.pave === 'tak') {
+        var pr = R - th / 2;
+        for (var deg = 184; deg <= 356; deg += 7) {
+          if (deg > 232 && deg < 308) continue;
+          var ar = deg * Math.PI / 180;
+          pave.push([CX + Math.cos(ar) * pr, CY + Math.sin(ar) * pr]);
+        }
+      }
+      var band = st.metal === 'ag' ? 'ag' : 'au';
+      var head = st.metal === 'au' ? 'au' : 'ag';
+      return {
+        bandPath: bandPath,
+        innerRing: 'M' + (CX - r) + ' ' + CY + ' a' + r + ' ' + r + ' 0 1 0 ' + 2 * r + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + -2 * r + ' 0',
+        highlight: 'M' + f(CX + Math.cos(a1) * hlR) + ' ' + f(CY + Math.sin(a1) * hlR) + ' A' + hlR + ' ' + hlR + ' 0 0 1 ' + f(CX + Math.cos(a2) * hlR) + ' ' + f(CY + Math.sin(a2) * hlR),
+        bandFill: 'url(#k-' + band + ')',
+        headFill: 'url(#k-' + head + ')',
+        gemPath: abs(cut.cmds, stoneScale, CX, SY),
+        gemTable: abs(cut.cmds, stoneScale * 0.5, CX, SY),
+        gemLines: facetLines(cut.cmds, cut.kind, stoneScale, CX, SY),
+        glint: 'M' + f(CX - stoneScale * 0.42) + ' ' + f(SY - stoneScale * 0.3) + ' l' + f(stoneScale * 0.16) + ' ' + f(-stoneScale * 0.16) + ' l' + f(stoneScale * 0.07) + ' ' + f(stoneScale * 0.07) + ' Z',
+        g1: gemColors[0], g2: gemColors[1], g3: gemColors[2], gemStroke: gemColors[2],
+        prongPath: circles(prongs, setting === 'lapki-6' ? 5.2 : 6),
+        prongDisplay: showProngs ? 'inline' : 'none',
+        bezelPath: abs(cut.cmds, stoneScale * 1.17, CX, SY),
+        bezelDisplay: setting === 'kaszta' ? 'inline' : 'none',
+        haloMetal: abs(cut.cmds, haloScale, CX, SY),
+        haloDots: circles(haloDots, 4.6),
+        haloDisplay: setting === 'halo' ? 'inline' : 'none',
+        sidePath: trio ? side.map(function (c) { return abs(round, sideS, c[0], c[1]); }).join(' ') : 'M0 0',
+        sideTable: trio ? side.map(function (c) { return abs(round, sideS * 0.5, c[0], c[1]); }).join(' ') : 'M0 0',
+        sideLines: trio ? side.map(function (c) { return facetLines(round, 'radial', sideS, c[0], c[1]); }).join(' ') : 'M0 0',
+        sideProngs: trio ? circles([].concat.apply([], side.map(function (c) { return [45, 135, 225, 315].map(function (d) { var a = d * Math.PI / 180; return [c[0] + Math.cos(a) * sideS, c[1] + Math.sin(a) * sideS]; }); })), 3.8) : 'M0 0',
+        trioDisplay: trio ? 'inline' : 'none',
+        pavePath: pave.length ? circles(pave, Math.max(2.6, th * 0.27)) : 'M0 0',
+        paveDisplay: pave.length ? 'inline' : 'none'
+      };
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const b = (id) => '/_blob/' + id;
+    const optStyle = (on) => 'display: flex; flex-direction: column; gap: 6px; min-height: 44px; padding: 14px 16px; border: 0; border-radius: 2px; color: #22262A; background: ' + (on ? '#FFFFFF' : '#F1F2EE') + '; box-shadow: inset 0 0 0 ' + (on ? '2px #1D3832' : '1px #D3D5CE');
+    const rowStyle = (on) => 'display: flex; align-items: center; gap: 16px; min-height: 44px; padding: 12px 16px; border: 0; border-radius: 2px; color: #22262A; background: ' + (on ? '#FFFFFF' : '#F1F2EE') + '; box-shadow: inset 0 0 0 ' + (on ? '2px #1D3832' : '1px #D3D5CE');
+    const set = (k, v) => () => this.setState({ [k]: v });
+    const OCC = [
+      { id: 'zareczyny', label: 'Zaręczyny', hint: 'Pierścionek zaręczynowy', icon: b('6509687082d44f99fafbfd7b610c2313') },
+      { id: 'rocznica', label: 'Rocznica', hint: 'Na ważną datę', icon: b('d287b794b734b4be8964fc727b7343d4') },
+      { id: 'prezent', label: 'Prezent', hint: 'Dla bliskiej osoby', icon: b('fc975f820a5ea8313699468b679a7e90') },
+      { id: 'dla-siebie', label: 'Dla siebie', hint: 'Bo tak', icon: b('250ac612e9b8798e80427456062716fe') }
+    ];
+    const GEMS = [
+      { id: 'diament', label: 'Diament', hint: 'Bezbarwny, ponadczasowy', c: ['#FFFFFF', '#D9E2EA', '#8D9DAC'] },
+      { id: 'szafir', label: 'Szafir', hint: 'Głęboki niebieski', c: ['#7F9CEB', '#26449E', '#0E1C52'] },
+      { id: 'szmaragd', label: 'Szmaragd', hint: 'Soczysta zieleń', c: ['#86D8AC', '#1E7A4E', '#0A3A24'] },
+      { id: 'rubin', label: 'Rubin', hint: 'Intensywna czerwień', c: ['#F58A9C', '#B3173C', '#550616'] },
+      { id: 'tanzanit', label: 'Tanzanit', hint: 'Fiolet wpadający w błękit', c: ['#B0A2F2', '#5B47B8', '#2A1C6A'] },
+      { id: 'morganit', label: 'Morganit', hint: 'Delikatny róż brzoskwini', c: ['#FCE3DC', '#E7A9A2', '#B06D6B'] },
+      { id: 'topaz', label: 'Topaz niebieski', hint: 'Jasny, chłodny błękit', c: ['#B4E7F5', '#3C9CC4', '#195674'] },
+      { id: 'wlasny', label: 'Mój kamień', hint: 'Przyniesiesz własny', c: ['#E9E7E1', '#A9A69E', '#5E5B55'] }
+    ];
+    const CUTS = [
+      { id: 'okragly', label: 'Okrągły', icon: b('dfd9113171b4c123c682e450854db09d') },
+      { id: 'owal', label: 'Owal', icon: b('93a2db861827bc969e13478b57b94632') },
+      { id: 'markiza', label: 'Markiza', icon: b('ae8810bda31f50778056910565545e3a') },
+      { id: 'gruszka', label: 'Gruszka', icon: b('279496ade9aa034d696bcaf813afab82') },
+      { id: 'szmaragdowy', label: 'Szmaragdowy', icon: b('f048a86a6efc7dc99f95aa422f4ffdc8') },
+      { id: 'poduszka', label: 'Poduszka', icon: b('c353b66e276c623093afb00e98bb5a14') },
+      { id: 'princessa', label: 'Princessa', icon: b('b29bbd00380788453910be6ad7c72ff6') },
+      { id: 'serce', label: 'Serce', icon: b('a25b637a56a5753efeb4a42adb32e315') }
+    ];
+    const SETS = [
+      { id: 'lapki-4', label: 'Cztery łapki', hint: 'Klasyka. Do kamienia wpada najwięcej światła.', icon: b('92d6e8862feb6277e755b02099dc684c') },
+      { id: 'lapki-6', label: 'Sześć łapek', hint: 'Kamień trzymany pewniej, kształt bardziej okrągły.', icon: b('73292f43bf957547ca7206b9e430e539') },
+      { id: 'kaszta', label: 'Kaszta', hint: 'Kamień w metalowej obwódce. Wygodny na co dzień, nie zahacza.', icon: b('6d9d8a9ff44ad408ca153a3f95dbcb93') },
+      { id: 'halo', label: 'Halo', hint: 'Wianek drobnych diamentów. Kamień wydaje się większy.', icon: b('2e033542da1a09ffa0a8ce3d2413deed') },
+      { id: 'trylogia', label: 'Trylogia', hint: 'Trzy kamienie: przeszłość, teraźniejszość i przyszłość.', icon: b('194b8ff2979d1ba70469bb98c10abe0e') }
+    ];
+    const METALS = [
+      { id: 'au', label: 'Żółte', g: 'linear-gradient(135deg, #8A6A28, #EBD08A 45%, #B38B3E)' },
+      { id: 'ag', label: 'Białe', g: 'linear-gradient(135deg, #85898D, #F4F4F1 45%, #AEB1B4)' },
+      { id: 'dwa', label: 'Dwukolorowe', g: 'linear-gradient(135deg, #B38B3E 0 50%, #D9DADB 50% 100%)' }
+    ];
+    const WIDTHS = [
+      { id: 'cienka', label: 'Delikatna', hint: 'Lekka, dyskretna' },
+      { id: 'klasyczna', label: 'Klasyczna', hint: 'Najczęstszy wybór' },
+      { id: 'szeroka', label: 'Wyraźna', hint: 'Mocniejszy akcent' }
+    ];
+    const PAVES = [{ id: 'nie', label: 'Gładkie' }, { id: 'tak', label: 'Z drobnymi diamentami' }];
+    const STEP_LABELS = ['Okazja', 'Kamień', 'Szlif', 'Oprawa', 'Złoto', 'Podsumowanie'];
+
+    const gem = GEMS.find((g) => g.id === s.gem);
+    const cut = CUTS.find((c) => c.id === s.cut);
+    const setting = SETS.find((x) => x.id === s.setting);
+    const metal = METALS.find((m) => m.id === s.metal);
+    const width = WIDTHS.find((w) => w.id === s.width);
+    const occ = OCC.find((o) => o.id === s.occasion);
+    const geo = this.ring(s, gem.c);
+    const metalName = { au: 'żółte złoto', ag: 'białe złoto', dwa: 'żółte i białe złoto' }[s.metal];
+
+    return {
+      ...geo,
+      previewLabel: 'Podgląd pierścionka: ' + gem.label.toLowerCase() + ', szlif ' + cut.label.toLowerCase() + ', oprawa ' + setting.label.toLowerCase() + ', ' + metalName,
+      steps: STEP_LABELS.map((label, i) => ({
+        label,
+        mark: i < s.step ? '✓' : String(i + 1),
+        current: i === s.step ? 'step' : undefined,
+        go: () => this.setState({ step: i, sent: false }),
+        style: 'width: 100%; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 12px 4px 10px 0; font-size: 15px; color: ' + (i === s.step ? '#22262A' : '#575C5F') + '; font-weight: ' + (i === s.step ? '600' : '400') + '; box-shadow: inset 0 ' + (i === s.step ? '3px 0 #1D3832' : '0 0 transparent'),
+        numStyle: 'display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; font-family: Newsreader, Georgia, serif; font-size: 15px; ' + (i < s.step ? 'background: #1D3832; color: #F3F4EF' : i === s.step ? 'box-shadow: inset 0 0 0 1.5px #1D3832; color: #1D3832' : 'box-shadow: inset 0 0 0 1px #A9AAA3; color: #575C5F')
+      })),
+      occasions: OCC.map((o) => ({ ...o, pressed: o.id === s.occasion ? 'true' : 'false', style: optStyle(o.id === s.occasion), pick: set('occasion', o.id) })),
+      gems: GEMS.map((g) => ({ ...g, pressed: g.id === s.gem ? 'true' : 'false', style: optStyle(g.id === s.gem), pick: set('gem', g.id), swatch: 'width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, ' + g.c[0] + ', ' + g.c[1] + ' 55%, ' + g.c[2] + '); box-shadow: inset 0 0 0 1px rgba(0,0,0,.15)' })),
+      cuts: CUTS.map((c) => ({ ...c, pressed: c.id === s.cut ? 'true' : 'false', style: optStyle(c.id === s.cut) + '; align-items: center', pick: set('cut', c.id) })),
+      settings: SETS.map((x) => ({ ...x, pressed: x.id === s.setting ? 'true' : 'false', rowStyle: rowStyle(x.id === s.setting), pick: set('setting', x.id) })),
+      metals: METALS.map((m) => ({ ...m, pressed: m.id === s.metal ? 'true' : 'false', style: optStyle(m.id === s.metal), pick: set('metal', m.id), swatch: 'width: 28px; height: 28px; border-radius: 50%; background: ' + m.g })),
+      widths: WIDTHS.map((w) => ({ ...w, pressed: w.id === s.width ? 'true' : 'false', style: optStyle(w.id === s.width), pick: set('width', w.id) })),
+      paves: PAVES.map((p) => ({ ...p, pressed: p.id === s.pave ? 'true' : 'false', style: optStyle(p.id === s.pave), pick: set('pave', p.id) })),
+      engraving: s.engraving,
+      setEngraving: (e) => this.setState({ engraving: String(e.target.value).slice(0, 24) }),
+      summary: [
+        { k: 'Okazja', v: occ.label },
+        { k: 'Kamień', v: gem.label },
+        { k: 'Szlif', v: cut.label },
+        { k: 'Oprawa', v: setting.label },
+        { k: 'Złoto', v: metal.label },
+        { k: 'Obrączka', v: width.label + (s.pave === 'tak' ? ', z diamentami' : ', gładka') },
+        { k: 'Grawer', v: s.engraving ? '„' + s.engraving + '”' : 'bez graweru' }
+      ],
+      isStep1: s.step === 0, isStep2: s.step === 1, isStep3: s.step === 2, isStep4: s.step === 3, isStep5: s.step === 4, isStep6: s.step === 5,
+      hasPrev: s.step > 0 && !s.sent,
+      hasNext: s.step < 5,
+      nextLabel: s.step === 4 ? 'Przejdź do podsumowania' : 'Dalej: ' + STEP_LABELS[s.step + 1].toLowerCase(),
+      stepCount: 'Krok ' + (s.step + 1) + ' z 6',
+      prev: () => this.setState({ step: Math.max(0, s.step - 1) }),
+      next: () => this.setState({ step: Math.min(5, s.step + 1) }),
+      sent: s.sent,
+      notSent: !s.sent,
+      send: () => this.setState({ sent: true }),
+      restart: () => this.setState({ step: 0, sent: false, engraving: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>

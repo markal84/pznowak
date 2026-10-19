@@ -41,7 +41,7 @@ summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:n
     <p style="margin: 0; font-size: 16px; font-weight: 500">Pierścionki na zamówienie kosztują zwykle [X–Y] zł</p>
     <div style="display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center">
       <a class="btn" href="Kontakt.dc.html">Umów rozmowę o projekcie</a>
-      <a class="tl" href="#proces">Zobacz, jak pracujemy</a>
+      <a class="tl" href="Kreator.dc.html">Zaprojektuj wstępnie online</a>
     </div>
   </div>
   <figure style="flex: 1 1 420px; min-width: 0; margin: 0; display: flex; flex-direction: column; gap: 12px">
@@ -91,6 +91,8 @@ summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:n
           <span style="font-size: 13.5px; color: #575C5F">Po tym etapie masz</span>
           <span style="font-size: 16px; line-height: 1.5; font-weight: 500">{{s.result}}</span>
         </div>
+        <img src="{{s.ill}}" alt="" style="width: 100%; max-width: 220px; height: auto; justify-self: end">
+
       </li>
     </sc-for>
   </ol>
@@ -150,7 +152,7 @@ summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:n
 <dc-import name="Footer" hint-size="100%,460px"></dc-import>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4100}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4350}}'>
 class Component extends DCLogic {
   renderVals() {
     return {
@@ -159,7 +161,7 @@ class Component extends DCLogic {
         { n: '2', title: 'Projekt', text: 'Rysujemy szkic i przygotowujemy model 3D. Dobieramy kamień, kolor złota i proporcje. Poprawiamy, dopóki nie powiesz, że to jest to.', result: 'Model 3D i wycenę do akceptacji' },
         { n: '3', title: 'Wykonanie', text: 'Pierścionek powstaje w naszej pracowni. Kamienie oprawiamy ręcznie, potem szlifujemy i polerujemy każdą powierzchnię.', result: 'Gotowy pierścionek do przymiarki' },
         { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz, a my poprawiamy drobiazgi. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek i opiekę pracowni na kolejne lata' }
-      ]
+      ].map((s, i) => ({ ...s, ill: '/_blob/' + ['099ddb1f54bf1cd9b94e6cb6233fed96', 'df5dcc11bdad3af1fcd26656d7236de4', '25d62ef321d0483ecf0815c0a86423e4', 'd9aa6e4f44a3f5bdd034c9ec946c269e'][i] }))
     };
   }
 }

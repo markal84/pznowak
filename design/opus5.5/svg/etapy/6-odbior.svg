@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120" viewBox="0 0 160 120" fill="none" stroke="#22262A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-labelledby="t"><title id="t">Etap 6: odbiór</title><path d="M44 72 L54 26 H130 L120 72" fill="#FBFBF8"/><path d="M58 32 H124 L116 66" stroke-opacity=".4"/>
+<path d="M36 72 H124 V102 H36 Z" fill="#FBFBF8"/>
+<path d="M48 84 H112" stroke-opacity=".5"/>
+<circle cx="80" cy="74" r="12"/><circle cx="80" cy="74" r="9" stroke-opacity=".5"/>
+<path d="M75 60 L80 55 L85 60 L80 65 Z" stroke="#A9782A" fill="#FBFBF8"/>
+<path d="M36 84 H124" />
+<path d="M104 46 V54 M100 50 H108 M114 38 V42 M112 40 H116" stroke="#A9782A" stroke-width="1.2"/></svg>
