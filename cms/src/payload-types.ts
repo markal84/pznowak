@@ -70,6 +70,7 @@ export interface Config {
     products: Product;
     media: Media;
     'gallery-items': GalleryItem;
+    submissions: Submission;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -81,6 +82,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'gallery-items': GalleryItemsSelect<false> | GalleryItemsSelect<true>;
+    submissions: SubmissionsSelect<false> | SubmissionsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -223,6 +225,52 @@ export interface GalleryItem {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Zgłoszenia z kreatora i formularza kontaktowego. Każde zapisuje się jako szkic; do klienta nic nie wychodzi automatycznie. Wizualizację uruchamia pomocnik dopiero po zatwierdzeniu, w granicach dziennego limitu.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions".
+ */
+export interface Submission {
+  id: number;
+  name: string;
+  phone: string;
+  email?: string | null;
+  summary?: string | null;
+  message?: string | null;
+  /**
+   * Sprawdzone przez serwer wartości z kreatora lub formularza.
+   */
+  details?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  consentText: string;
+  consentAt: string;
+  meta?: {
+    ipHash?: string | null;
+    userAgent?: string | null;
+    fillSeconds?: number | null;
+    verifiedWithTestKeys?: boolean | null;
+  };
+  kind: 'creator' | 'contact';
+  topic?: ('nowy' | 'kolekcja' | 'obraczki' | 'naprawa' | 'inne') | null;
+  status: 'draft' | 'contacted' | 'closed' | 'spam';
+  /**
+   * Zatwierdź („Zatwierdzona – w kolejce”), żeby pomocnik mógł przygotować wizualizację. Dzienny limit uruchomień jest twardy; nadmiar czeka w kolejce.
+   */
+  visualizationStatus: 'not_applicable' | 'waiting' | 'approved' | 'in_progress' | 'done' | 'failed' | 'rejected';
+  visualizationStartedAt?: string | null;
+  visualizationFinishedAt?: string | null;
+  notification?: ('pending' | 'sent' | 'skipped' | 'failed') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -289,6 +337,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'gallery-items';
         value: number | GalleryItem;
+      } | null)
+    | ({
+        relationTo: 'submissions';
+        value: number | Submission;
       } | null)
     | ({
         relationTo: 'users';
@@ -407,6 +459,37 @@ export interface GalleryItemsSelect<T extends boolean = true> {
   createdAt?: T;
   deletedAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions_select".
+ */
+export interface SubmissionsSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  email?: T;
+  summary?: T;
+  message?: T;
+  details?: T;
+  consentText?: T;
+  consentAt?: T;
+  meta?:
+    | T
+    | {
+        ipHash?: T;
+        userAgent?: T;
+        fillSeconds?: T;
+        verifiedWithTestKeys?: T;
+      };
+  kind?: T;
+  topic?: T;
+  status?: T;
+  visualizationStatus?: T;
+  visualizationStartedAt?: T;
+  visualizationFinishedAt?: T;
+  notification?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

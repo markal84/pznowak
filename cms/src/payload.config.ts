@@ -11,6 +11,7 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Products } from './collections/Products'
 import { GalleryItems } from './collections/GalleryItems'
+import { Submissions } from './collections/Submissions'
 import { SiteContent } from './globals/SiteContent'
 import { resolveCmsEnvironment } from './lib/environment'
 
@@ -36,7 +37,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Products, Media, GalleryItems, Users],
+  collections: [Products, Media, GalleryItems, Submissions, Users],
   globals: [SiteContent],
   editor: lexicalEditor(),
   secret: environment.payloadSecret,
