@@ -1,6 +1,6 @@
 import type { SubmissionSettings } from './config'
 import { FORM_TIMING, checkFormToken, deriveKey, hashIp, issueFormToken } from './form-token'
-import { secondsToNextHour, submissionBuckets, type LimitBucket } from './limits'
+import { ipLimitIdentity, secondsToNextHour, submissionBuckets, type LimitBucket } from './limits'
 import { CONSENT_TEXT, type FormKind } from './options'
 import type { LimitOutcome, SubmissionDraft } from './store'
 import { describeContact, describeCreator, rowsToText } from './summary'
@@ -234,7 +234,10 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
 
     // 2. Walidacja pól (przed Turnstile, żeby nie zużyć tokenu przy literówce).
     const ip = clientIp(request.headers)
-    const ipHash = hashIp(ip ?? 'nieznany', deriveKey(settings.appSecret, 'ip-hash'))
+    const ipHash = hashIp(
+      ip ? ipLimitIdentity(ip) : 'nieznany',
+      deriveKey(settings.appSecret, 'ip-hash'),
+    )
     const built = buildDraft(form, body.data, {
       ipHash,
       userAgent: (request.headers.get('user-agent') ?? '').slice(0, 200),

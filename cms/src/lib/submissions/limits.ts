@@ -44,6 +44,32 @@ export function utcHour(date: Date): string {
   return date.toISOString().slice(0, 13)
 }
 
+/**
+ * Tożsamość do limitu IP. IPv6 liczymy po prefiksie /64: jedna sieć domowa lub serwer dostaje cały blok /64,
+ * więc zmiana adresu w jego obrębie nie może obchodzić limitu. IPv4 (także zapisany jako ::ffff:a.b.c.d) bez zmian.
+ */
+export function ipLimitIdentity(ip: string): string {
+  const address = ip
+    .trim()
+    .replace(/^\[|\]$/g, '')
+    .replace(/%.*$/, '')
+    .toLowerCase()
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/.exec(address)
+  if (mapped) return mapped[1]
+  if (!address.includes(':')) return address
+  const [head, tail] = address.split('::')
+  const left = head ? head.split(':') : []
+  const right = tail ? tail.split(':') : []
+  const groups =
+    tail === undefined
+      ? left
+      : [...left, ...Array(Math.max(0, 8 - left.length - right.length)).fill('0'), ...right]
+  return `${groups
+    .slice(0, 4)
+    .map((g) => g.padStart(4, '0'))
+    .join(':')}::/64`
+}
+
 export function submissionBuckets(
   namespace: string,
   ipHash: string,
