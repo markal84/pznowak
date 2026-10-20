@@ -15,7 +15,7 @@ export function publicationAffectsFrontend(
 
 function revalidateProductSlugs(...slugs: (null | string | undefined)[]) {
   for (const slug of new Set(slugs.filter((value): value is string => Boolean(value)))) {
-    revalidatePath(`/katalog/${slug}`)
+    revalidatePath(`/pierscionki/${slug}`)
   }
 }
 
@@ -27,19 +27,21 @@ export function revalidateFrontend(
   if (kind === 'product') {
     revalidateTag('products', { expire: 0 })
     revalidatePath('/')
-    revalidatePath('/katalog')
+    revalidatePath('/pierscionki')
+    revalidatePath('/na-zamowienie')
+    revalidatePath('/naprawy')
     revalidateProductSlugs(doc?.slug, previousDoc?.slug)
     return
   }
   if (kind === 'gallery') {
     revalidateTag('gallery', { expire: 0 })
-    revalidatePath('/galeria')
+    revalidatePath('/realizacje')
     return
   }
   revalidateTag('site-content', { expire: 0 })
   revalidatePath('/', 'layout')
   revalidatePath('/')
-  revalidatePath('/o-nas')
+  revalidatePath('/pracownia')
   revalidatePath('/kontakt')
 }
 

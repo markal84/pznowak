@@ -28,8 +28,9 @@ okresie obserwacji.
 ## Dynamiczny frontend
 
 Publiczne strony i panel Payload działają w jednej aplikacji `pznowak-cms`.
-Strony `/`, `/katalog`, `/katalog/[slug]`, `/galeria`, `/o-nas` i
-`/kontakt` czytają opublikowane dane przez Payload Local API po stronie serwera.
+Strony `/`, `/pierscionki`, `/pierscionki/[slug]`, `/obraczki`, `/kreator`,
+`/na-zamowienie`, `/naprawy`, `/pracownia`, `/realizacje` i `/kontakt` (nowy design Opus 5.5;
+stare adresy `/katalog`, `/galeria`, `/o-nas` przekierowują). Katalog i galeria czytają opublikowane dane przez Payload Local API po stronie serwera.
 Wyniki są buforowane pod tagami `products`, `gallery` i `site-content`.
 Hooki Payload odświeżają odpowiednie tagi i ścieżki po publikacji, wycofaniu
 lub usunięciu treści. Nie jest potrzebny eksport danych ani kolejny build.

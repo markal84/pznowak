@@ -1,40 +1,30 @@
 import type { Metadata } from 'next'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import NotFoundContent from '@/components/NotFoundContent'
-import type { PublicSiteContent } from '@/lib/public-products'
+import HydrationFlag from '@/components/site/HydrationFlag'
+import SiteHeader from '@/components/site/SiteHeader'
+import SiteFooter from '@/components/site/SiteFooter'
+import NotFoundContent from '@/components/site/NotFoundContent'
+import { fontClassName } from '@/lib/fonts'
 import './(frontend)/globals.css'
 
 export const metadata: Metadata = {
   title: '404 — nie znaleziono strony | Pracownia Złotnicza Michał Nowak',
-  description: 'Ten adres nie prowadzi do strony w katalogu Pracowni Złotniczej Michała Nowaka.',
-}
-
-const fallbackSiteContent: PublicSiteContent = {
-  aboutHeading: null,
-  aboutText: null,
-  address: null,
-  email: null,
-  homeHeading: null,
-  homeLead: null,
-  openingHours: null,
-  phone: null,
+  description: 'Ten adres nie prowadzi do strony Pracowni Złotniczej Michała Nowaka.',
+  robots: { index: false, follow: false },
 }
 
 export default function GlobalNotFound() {
   return (
-    <html lang="pl">
+    <html lang="pl" className={fontClassName}>
       <body>
-        <a href="#main" className="skip-link">
+        <a className="skip-link" href="#main">
           Przejdź do treści
         </a>
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <main id="main" className="flex-1">
-            <NotFoundContent />
-          </main>
-          <Footer siteContent={fallbackSiteContent} />
-        </div>
+        <SiteHeader />
+        <main id="main">
+          <NotFoundContent />
+        </main>
+        <SiteFooter />
+        <HydrationFlag />
       </body>
     </html>
   )

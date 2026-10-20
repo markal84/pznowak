@@ -24,7 +24,24 @@ const nextConfig: NextConfig = {
       {
         pathname: '/api/media/file/**',
       },
+      { pathname: '/*.png' },
+      { pathname: '/*.webp' },
+      { pathname: '/grafiki/**' },
     ],
+  },
+  // Adresy ze starego frontu przekierowują na nowy układ strony.
+  async redirects() {
+    return [
+      { source: '/katalog', destination: '/pierscionki', permanent: true },
+      { source: '/katalog/:slug', destination: '/pierscionki/:slug', permanent: true },
+      { source: '/galeria', destination: '/realizacje', permanent: true },
+      { source: '/o-nas', destination: '/pracownia', permanent: true },
+    ]
+  },
+  // Wersje podglądowe nie mogą być indeksowane (produkcja Vercela jest jedyną indeksowaną).
+  async headers() {
+    if (process.env.VERCEL_ENV === 'production') return []
+    return [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }]
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

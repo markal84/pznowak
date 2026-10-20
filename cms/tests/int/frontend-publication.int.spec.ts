@@ -27,23 +27,25 @@ describe('frontend publication', () => {
     expect(revalidateTag).toHaveBeenCalledWith('products', { expire: 0 })
     expect(vi.mocked(revalidatePath).mock.calls.map(([path]) => path)).toEqual([
       '/',
-      '/katalog',
-      '/katalog/new-slug',
-      '/katalog/old-slug',
+      '/pierscionki',
+      '/na-zamowienie',
+      '/naprawy',
+      '/pierscionki/new-slug',
+      '/pierscionki/old-slug',
     ])
   })
 
   it('targets gallery and shared site content separately', () => {
     revalidateFrontend('gallery')
     expect(revalidateTag).toHaveBeenCalledWith('gallery', { expire: 0 })
-    expect(revalidatePath).toHaveBeenCalledWith('/galeria')
+    expect(revalidatePath).toHaveBeenCalledWith('/realizacje')
     vi.clearAllMocks()
     revalidateFrontend('site-content')
     expect(revalidateTag).toHaveBeenCalledWith('site-content', { expire: 0 })
     expect(vi.mocked(revalidatePath).mock.calls).toEqual([
       ['/', 'layout'],
       ['/'],
-      ['/o-nas'],
+      ['/pracownia'],
       ['/kontakt'],
     ])
   })
