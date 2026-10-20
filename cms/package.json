@@ -23,8 +23,11 @@
     "staging:seed": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-staging.ts --apply",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
+    "test:e2e:cross": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts --project=webkit --project=firefox --project=iphone",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
-    "staging:mirror": "node --import=tsx/esm scripts/staging-mirror.ts"
+    "test:int:staging": "cross-env NODE_OPTIONS=--no-deprecation node --env-file=../backend/.env.staging.local ./node_modules/vitest/vitest.mjs run --config ./vitest.config.mts --testTimeout=60000 tests/int/submissions-staging.int.spec.ts",
+    "staging:mirror": "node --import=tsx/esm scripts/staging-mirror.ts",
+    "staging:cleanup-tests": "node --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-cleanup-submissions.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

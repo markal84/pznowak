@@ -11,9 +11,15 @@ import 'dotenv/config'
 const baseURL = process.env.E2E_BASE_URL
 // Domyślnie bundlowany Chromium; E2E_CHANNEL=chrome pozwala użyć zainstalowanego Google Chrome.
 const channel = process.env.E2E_CHANNEL ?? 'chromium'
+// Testy stron i wysyłki; testy panelu (admin.e2e) wymagają lokalnej bazy i działają tylko w projekcie chromium.
+const frontendSpecs = /(frontend|zgloszenia)\.e2e\.spec\.ts/
+// Edge (kanał msedge) jest dostępny na Windows (GitHub Actions); na Macu bez Edge projekt jest pomijany.
+const withEdge = process.platform === 'win32' || process.env.E2E_EDGE === '1'
 
 /**
- * See https://playwright.dev/docs/test-configuration.
+ * Przeglądarki: WebKit to silnik Safari w wersji Playwrighta, nie prawdziwy Safari; prawdziwy Mobile Safari
+ * sprawdza się osobno w symulatorze iOS (raport etapu 2).
+ * Lokalnie na Macu: `npm run test:e2e:cross` (webkit, firefox, iphone). Wszystkie: workflow .github/workflows/e2e.yml.
  */
 export default defineConfig({
   testDir: './tests/e2e',
@@ -37,9 +43,33 @@ export default defineConfig({
     },
     {
       name: 'telefon',
-      testMatch: /frontend\.e2e\.spec\.ts/,
+      testMatch: frontendSpecs,
       use: { ...devices['Pixel 7'], channel },
     },
+    {
+      name: 'webkit',
+      testMatch: frontendSpecs,
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'firefox',
+      testMatch: frontendSpecs,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'iphone',
+      testMatch: frontendSpecs,
+      use: { ...devices['iPhone 15'] },
+    },
+    ...(withEdge
+      ? [
+          {
+            name: 'msedge',
+            testMatch: frontendSpecs,
+            use: { ...devices['Desktop Edge'], channel: 'msedge' },
+          },
+        ]
+      : []),
   ],
   webServer: baseURL
     ? undefined

@@ -106,6 +106,36 @@ relacji oraz poprawnych odpowiedzi wszystkich nowych adresów:
 npm run migrate:videos -- --delete-legacy
 ```
 
+## Zgłoszenia z kreatora i formularza kontaktowego
+
+`POST /api/zgloszenia` (logika w `src/lib/submissions/`) przyjmuje oba formularze: honeypot, minimalny
+czas wypełnienia (podpisany token z `GET /api/zgloszenia?form=…`), walidacja serwerowa, Cloudflare Turnstile,
+limit IP na godzinę i dzienny sufit (liczniki w tabeli `cms_limit_counters`). Zgłoszenie zapisuje się jako
+szkic w kolekcji „Zgłoszenia”; wizualizację wydaje tylko `claimVisualization()` w granicach dziennego limitu.
+
+- Zmienne: `cms/.env.example` (klucze Turnstile tylko w env; bez klucza witryny formularze nie wysyłają).
+  Lokalnie i na Preview klucze testowe Cloudflare; Production: klucze widżetu pznowak.pl.
+- Schemat: migracja `20261020_173112_etap2_zgloszenia` (`npx payload migrate` ze zmiennymi docelowej bazy).
+- Testy na bazie stagingowej (prawdziwy Postgres i siteverify z kluczami testowymi):
+
+```bash
+npm run test:int:staging
+npm run staging:cleanup-tests            # liczy zgłoszenia i liczniki testowe
+npm run staging:cleanup-tests -- --apply # usuwa je
+```
+
+- E2E w wielu przeglądarkach na gotowym serwerze (WebKit to silnik Safari w wersji Playwrighta,
+  nie prawdziwy Safari; Edge na Windows w workflow `.github/workflows/e2e.yml`, uruchamianym ręcznie):
+
+```bash
+E2E_BASE_URL=<adres> npm run test:e2e:cross
+E2E_BASE_URL=<adres> E2E_CHANNEL=chrome npx playwright test --project=chromium --project=telefon
+```
+
+Uwaga: `getPayload` poza produkcją sam regeneruje `src/payload-types.ts`; bez `BLOB_READ_WRITE_TOKEN`
+znikają pola wtyczki Blob (`prefix`, `_objectKey`) i build na Vercelu pada. Przed commitem sprawdź
+`git diff src/payload-types.ts`.
+
 ## Kontrola jakości
 
 ```bash

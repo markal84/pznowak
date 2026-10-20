@@ -1,6 +1,19 @@
 import { expect, test, type Page } from '@playwright/test'
 
 const NOTICE = /Wersja podglądowa: wysyłka jest jeszcze wyłączona/
+// Środowisko bez kluczy Turnstile (wysyłka wyłączona): E2E_SUBMISSIONS=off.
+const SUBMISSIONS_OFF = process.env.E2E_SUBMISSIONS === 'off'
+
+/** Żądania zapisujące wysłane do naszego serwera (Turnstile rozmawia z Cloudflare w swoim iframie, to się nie liczy). */
+function captureWrites(page: Page) {
+  const writes: string[] = []
+  page.on('request', (r) => {
+    // OPTIONS wysyła m.in. pasek narzędzi Vercela na wdrożeniach preview; nie zapisuje danych.
+    if (['GET', 'HEAD', 'OPTIONS'].includes(r.method())) return
+    if (new URL(r.url()).origin === new URL(page.url()).origin) writes.push(`${r.method()} ${r.url()}`)
+  })
+  return writes
+}
 
 /** Czeka na hydrację Reacta (znacznik z HydrationFlag), żeby klik nie trafił w stronę sprzed hydracji. */
 async function visit(page: Page, path: string) {
@@ -124,7 +137,7 @@ test.describe('Katalog i karta pierścionka', () => {
 })
 
 test.describe('Kreator pierścionka', () => {
-  test('przechodzi wszystkie sześć kroków, podgląd zmienia się na żywo, wysyłka jest zablokowana', async ({ page }) => {
+  test('przechodzi wszystkie sześć kroków, podgląd zmienia się na żywo, bez zgody nic nie wysyła', async ({ page }) => {
     await visit(page, '/kreator')
     const preview = page.locator('.preview svg')
     await expect(page.getByText('Krok 1 z 6')).toBeVisible()
@@ -170,15 +183,20 @@ test.describe('Kreator pierścionka', () => {
     await expect(card).toContainText('Klasyczna, z diamentami')
     await expect(card).toContainText('„A & M 14.06.2027 to jest”')
 
-    // wysyłka na preview jest wyłączona: komunikat i zero żądań zapisujących dane
-    const writes: string[] = []
-    page.on('request', (r) => {
-      if (r.method() !== 'GET' && r.method() !== 'HEAD') writes.push(`${r.method()} ${r.url()}`)
-    })
+    // Bez zgody i z błędnym telefonem: komunikaty przy polach i zero żądań zapisujących dane.
+    // Przy wyłączonej wysyłce (E2E_SUBMISSIONS=off): komunikat wersji podglądowej i też zero żądań.
+    const writes = captureWrites(page)
     await page.getByLabel('Imię').fill('Anna')
-    await page.getByLabel('Telefon').fill('501 321 347')
+    await page.getByLabel('Telefon').fill(SUBMISSIONS_OFF ? '501 321 347' : '12 34')
     await page.getByRole('button', { name: 'Wyślij projekt do pracowni' }).click()
-    await expect(page.getByRole('status').filter({ hasText: NOTICE })).toBeVisible()
+    if (SUBMISSIONS_OFF) {
+      await expect(page.getByRole('status').filter({ hasText: NOTICE })).toBeVisible()
+    } else {
+      await expect(page.getByText('Podaj polski numer telefonu, np. 501 321 347.')).toBeVisible()
+      await expect(page.getByText('Zaznacz zgodę na kontakt, żebyśmy mogli oddzwonić.')).toBeVisible()
+      await expect(page.getByLabel('Telefon')).toHaveAttribute('aria-invalid', 'true')
+      await expect(page.getByRole('alert').filter({ hasText: 'Sprawdź zaznaczone pola.' })).toBeVisible()
+    }
     expect(writes).toEqual([])
 
     // krok wstecz i skok przez wskaźnik kroków
@@ -202,21 +220,26 @@ test.describe('Obrączki i formularz kontaktowy', () => {
     await expect(page.getByLabel(/Wstępny wybór/)).toHaveValue('płaska, 7 mm, matowe, białe złoto')
   })
 
-  test('formularz zmienia pola zależnie od tematu i nie wysyła danych na preview', async ({ page }) => {
+  test('formularz zmienia pola zależnie od tematu i bez zgody nic nie wysyła', async ({ page }) => {
     await visit(page, '/kontakt')
     await expect(page.getByLabel('Okazja')).toBeVisible()
     await page.locator('label.topic', { hasText: 'Naprawa lub przeróbka' }).click()
     await expect(page.getByText(/Z naprawą możesz przyjść w godzinach otwarcia/)).toBeVisible()
     await expect(page.getByLabel('Co trzeba zrobić?')).toBeVisible()
+    // wybrany temat jest wyróżniony także bez obsługi :has() (klasa is-checked)
+    await expect(page.locator('label.topic', { hasText: 'Naprawa lub przeróbka' })).toHaveClass(/is-checked/)
 
-    const writes: string[] = []
-    page.on('request', (r) => {
-      if (r.method() !== 'GET' && r.method() !== 'HEAD') writes.push(`${r.method()} ${r.url()}`)
-    })
+    const writes = captureWrites(page)
     await page.getByLabel('Imię').fill('Marek')
     await page.getByLabel('Telefon').fill('600 100 200')
     await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
-    await expect(page.getByRole('status').filter({ hasText: NOTICE })).toBeVisible()
+    if (SUBMISSIONS_OFF) {
+      await expect(page.getByRole('status').filter({ hasText: NOTICE })).toBeVisible()
+    } else {
+      await expect(page.getByText('Napisz, w czym możemy pomóc.')).toBeVisible()
+      await expect(page.getByText('Zaznacz zgodę na kontakt, żebyśmy mogli oddzwonić.')).toBeVisible()
+      await expect(page.getByLabel('Co trzeba zrobić?')).toHaveAttribute('aria-invalid', 'true')
+    }
     expect(writes).toEqual([])
   })
 })
