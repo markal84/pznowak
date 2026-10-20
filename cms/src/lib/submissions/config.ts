@@ -69,6 +69,9 @@ export function submissionSettingsFromEnv(env: Env = process.env): SubmissionSet
       perIpHour: positiveInt(env.SUBMISSIONS_LIMIT_PER_IP_HOUR, DEFAULT_LIMITS.perIpHour),
       perDay: positiveInt(env.SUBMISSIONS_LIMIT_PER_DAY, DEFAULT_LIMITS.perDay),
       visualizationsPerDay: visualizations.limit,
+      // Limity kwarantanny są stałe (nie z env): to bezpiecznik na czas awarii, a nie ustawienie do strojenia.
+      quarantinePerIpHour: DEFAULT_LIMITS.quarantinePerIpHour,
+      quarantinePerDay: DEFAULT_LIMITS.quarantinePerDay,
     },
     visualizations,
     notifyTo: clean(env.SUBMISSIONS_NOTIFY_TO),

@@ -11,6 +11,8 @@ import type { TurnstileHandle } from './Turnstile'
  * Wysyłka kreatora i formularza kontaktowego do /api/zgloszenia.
  * Pobiera podpisany token otwarcia formularza, czeka na token Turnstile i na minimalny czas wypełnienia
  * (człowiek tego nie zauważy), a po odpowiedzi serwera pokazuje komunikat lub błędy pól.
+ * Gdy Turnstile nie da tokenu, zgłoszenie i tak idzie z flagą `turnstileUnavailable`: serwer sprawdza,
+ * czy Cloudflare naprawdę nie działa (wtedy kwarantanna), a jeśli działa, odpowiada `verification_failed`.
  */
 
 export type Notice = { text: string; tone: 'error' | 'info'; contact: boolean }
@@ -23,8 +25,6 @@ const TURNSTILE_WAIT_AFTER_ERROR_MS = 4_000
 const REFRESH_MARGIN_MS = 10 * 60 * 1000
 
 const CLIENT_MESSAGES = {
-  turnstile:
-    'Nie udało się potwierdzić, że wysyła człowiek. Spróbuj ponownie za chwilę albo zadzwoń lub napisz:',
   network:
     'Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie albo zadzwoń lub napisz:',
   unknown: 'Coś poszło nie tak po naszej stronie. Zadzwoń lub napisz:',
@@ -119,11 +119,6 @@ export function useSubmission(form: FormKind, enabled: boolean) {
         token = await fetchFormToken()
 
       const turnstileValue = await waitForTurnstile()
-      if (!turnstileValue) {
-        turnstile.current?.reset()
-        setNotice({ text: CLIENT_MESSAGES.turnstile, tone: 'error', contact: true })
-        return false
-      }
       const wait = token.minMs + 300 - (Date.now() - token.receivedAt)
       if (wait > 0) await sleep(wait)
 
@@ -133,7 +128,8 @@ export function useSubmission(form: FormKind, enabled: boolean) {
         body: JSON.stringify({
           form,
           formToken: token.token,
-          turnstileToken: turnstileValue,
+          turnstileToken: turnstileValue ?? '',
+          ...(turnstileValue ? {} : { turnstileUnavailable: true }),
           honeypot,
           data,
         }),

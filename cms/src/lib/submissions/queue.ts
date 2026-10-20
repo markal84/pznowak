@@ -51,6 +51,8 @@ export async function claimVisualization(
             statuses.map((s) => sql`${s}`),
             sql`, `,
           )})
+          -- kwarantanna (bez weryfikacji Turnstile) tylko po ręcznym zatwierdzeniu, nigdy automatycznie
+          AND ("visualization_status" = 'approved' OR "verification" = 'verified')
           ${onlyIds}
         ORDER BY ("visualization_status" = 'approved') DESC, "created_at" ASC, "id" ASC
         LIMIT 1

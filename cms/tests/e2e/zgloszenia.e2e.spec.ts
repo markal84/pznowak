@@ -134,7 +134,42 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
     await expect(page.getByRole('textbox', { name: 'Zostaw to pole puste' })).toHaveCount(0)
   })
 
-  test('gdy serwer nie może potwierdzić wysyłki, człowiek dostaje telefon i e-mail (atrapa 503)', async ({
+  test('Cloudflare zablokowany tylko w przeglądarce: zgłoszenie idzie z flagą, serwer widzi działający Cloudflare i odmawia bez kwarantanny', async ({
+    page,
+  }) => {
+    // np. bloker reklam: skrypt Turnstile się nie ładuje, ale serwer dalej rozmawia z Cloudflare
+    await page.route('https://challenges.cloudflare.com/**', (route) => route.abort())
+    await visit(page, '/kontakt')
+    const writes = captureWrites(page)
+    await page.locator('label.topic', { hasText: 'Inne pytanie' }).click()
+    await page
+      .getByLabel('Twoja wiadomość')
+      .fill('Zgłoszenie testowe Playwright, proszę zignorować.')
+    await page.getByLabel('Imię').fill(E2E_NAME)
+    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByLabel(/Zgadzam się na kontakt/).check()
+
+    const response = submissionResponse(page)
+    await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
+    const sent = await response
+    expect(sent.request().postDataJSON()).toMatchObject({
+      form: 'kontakt',
+      turnstileToken: '',
+      turnstileUnavailable: true,
+    })
+    expect(sent.status()).toBe(403)
+    expect(await sent.json()).toMatchObject({ ok: false, code: 'verification_failed' })
+
+    const alert = page
+      .getByRole('alert')
+      .filter({ hasText: 'Nie udało się potwierdzić, że wysyła człowiek' })
+    await expect(alert).toBeVisible()
+    await expect(alert.getByRole('link', { name: '+48 501 321 347' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Wyślij wiadomość' })).toBeEnabled()
+    expect(writes).toEqual(['POST /api/zgloszenia'])
+  })
+
+  test('gdy serwer nie może potwierdzić wysyłki (np. wyczerpana kwarantanna), człowiek dostaje telefon i e-mail (atrapa 503)', async ({
     page,
   }) => {
     await page.route('**/api/zgloszenia', async (route) => {

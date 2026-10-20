@@ -1,6 +1,12 @@
 import type { SubmissionSettings } from './config'
 import { FORM_TIMING, checkFormToken, deriveKey, hashIp, issueFormToken } from './form-token'
-import { ipLimitIdentity, secondsToNextHour, submissionBuckets, type LimitBucket } from './limits'
+import {
+  ipLimitIdentity,
+  quarantineBuckets,
+  secondsToNextHour,
+  submissionBuckets,
+  type LimitBucket,
+} from './limits'
 import { CONSENT_TEXT, type FormKind } from './options'
 import type { LimitOutcome, SubmissionDraft } from './store'
 import { describeContact, describeCreator, rowsToText } from './summary'
@@ -11,9 +17,11 @@ import { validateContact, validateCreator, type FieldErrors } from './validation
  * Endpoint zgłoszeń (`/api/zgloszenia`). Kolejność kontroli jest celowa:
  * 1. honeypot i czas wypełnienia (tanie, bez sieci i bazy),
  * 2. walidacja pól (błąd 400 nie zużywa tokenu Turnstile, więc człowiek poprawia pole i wysyła ponownie),
- * 3. Turnstile (siteverify),
- * 4. limity: IP na godzinę i dzienny sufit, liczone dopiero po pozytywnym Turnstile, żeby śmieciowe
- *    żądania nie wyczerpały sufitu prawdziwym klientom,
+ * 3. Turnstile (siteverify). Gdy Cloudflare jest niedostępny dla serwera, zgłoszenie trafia do kwarantanny
+ *    (szkic oznaczony „bez weryfikacji”, ostrzejsze limity, bez automatycznej wizualizacji); każdy inny błąd
+ *    weryfikacji (brak lub zły token, inny host, inna akcja) odrzuca zgłoszenie,
+ * 4. limity: IP na godzinę i dzienny sufit, liczone dopiero po pozytywnym Turnstile albo przy kwarantannie,
+ *    żeby śmieciowe żądania nie wyczerpały sufitu prawdziwym klientom,
  * 5. zapis szkicu; powiadomienie pracowni po wysłaniu odpowiedzi.
  */
 
@@ -25,6 +33,7 @@ export type ResponseCode =
   | 'expired'
   | 'rate_limited'
   | 'daily_limit'
+  | 'verification_failed'
   | 'verification_unavailable'
   | 'disabled'
   | 'error'
@@ -47,6 +56,8 @@ export const RESPONSE_MESSAGES: Record<ResponseCode, string> = {
     'Z tego połączenia wysłano już kilka zgłoszeń w ciągu godziny. Spróbuj później albo zadzwoń lub napisz:',
   daily_limit:
     'Dziś przyjęliśmy przez stronę wyjątkowo dużo zgłoszeń. Zadzwoń lub napisz, a odpowiemy:',
+  verification_failed:
+    'Nie udało się potwierdzić, że wysyła człowiek. Odśwież stronę i spróbuj ponownie albo zadzwoń lub napisz:',
   verification_unavailable: 'Nie możemy teraz potwierdzić wysyłki. Zadzwoń lub napisz:',
   disabled: 'Wysyłka przez stronę jest chwilowo wyłączona. Zadzwoń lub napisz:',
   error: 'Coś poszło nie tak po naszej stronie. Zadzwoń lub napisz:',
@@ -65,6 +76,8 @@ export type SubmissionDeps = {
     expectedAction: FormKind
     expectedHostname: string
   }) => Promise<TurnstileResult>
+  /** Czy siteverify odpowiada serwerowi (przy zgłoszeniu bez tokenu, gdy widżet w przeglądarce zawiódł). */
+  siteverifyReachable: () => Promise<boolean>
   consumeLimits: (buckets: LimitBucket[]) => Promise<LimitOutcome>
   insertDraft: (draft: SubmissionDraft) => Promise<{ id: number }>
   /** Powiadomienie pracowni i sprzątanie liczników; uruchamiane po odpowiedzi (`after`). */
@@ -138,6 +151,7 @@ function buildDraft(
     consentText: CONSENT_TEXT[form],
     consentAt: meta.now.toISOString(),
     notification: 'pending' as const,
+    verification: 'verified' as 'verified' | 'quarantine',
     meta: {
       ipHash: meta.ipHash,
       userAgent: meta.userAgent,
@@ -247,32 +261,52 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
     })
     if ('errors' in built) return reply(400, 'invalid', { fields: built.errors })
 
-    // 3. Turnstile.
-    const turnstile = await deps.verifyTurnstile({
-      token: body.turnstileToken,
-      remoteip: ip ?? undefined,
-      expectedAction: form,
-      expectedHostname: requestHostname(request),
-    })
-    if (!turnstile.ok) {
-      log(`odrzucone: turnstile (${turnstile.reason})`, { form, codes: turnstile.codes })
-      if (turnstile.reason === 'unavailable') return reply(503, 'verification_unavailable')
-      if (
-        turnstile.reason === 'not_configured' ||
-        turnstile.reason === 'testing_key_in_production'
-      ) {
-        return reply(503, 'disabled')
+    // 3. Turnstile; przy awarii Cloudflare kwarantanna zamiast odrzucenia.
+    let quarantine = false
+    const token = body.turnstileToken
+    if ((typeof token !== 'string' || !token.trim()) && body.turnstileUnavailable === true) {
+      // Przeglądarka nie dostała tokenu (widżet lub skrypt Cloudflare zawiódł). Kwarantanna tylko wtedy,
+      // gdy Cloudflare nie odpowiada także serwerowi; przy blokadzie po stronie przeglądarki odrzucenie.
+      if (await deps.siteverifyReachable()) {
+        log('odrzucone: brak tokenu Turnstile, Cloudflare działa', { form })
+        return reply(403, 'verification_failed')
       }
-      return reply(403, 'rejected')
+      quarantine = true
+    } else {
+      const turnstile = await deps.verifyTurnstile({
+        token,
+        remoteip: ip ?? undefined,
+        expectedAction: form,
+        expectedHostname: requestHostname(request),
+      })
+      if (turnstile.ok) {
+        built.draft.meta = { ...built.draft.meta, verifiedWithTestKeys: turnstile.testing }
+      } else if (turnstile.reason === 'unavailable') {
+        quarantine = true
+      } else {
+        log(`odrzucone: turnstile (${turnstile.reason})`, { form, codes: turnstile.codes })
+        if (
+          turnstile.reason === 'not_configured' ||
+          turnstile.reason === 'testing_key_in_production'
+        ) {
+          return reply(503, 'disabled')
+        }
+        return reply(403, 'rejected')
+      }
     }
-    built.draft.meta = { ...built.draft.meta, verifiedWithTestKeys: turnstile.testing }
+    if (quarantine) built.draft.verification = 'quarantine'
 
-    // 4. Limity (atomowo, oba naraz).
-    const limits = await deps.consumeLimits(
-      submissionBuckets(settings.namespace, ipHash, new Date(now), settings.limits),
-    )
+    // 4. Limity (atomowo, wszystkie naraz); kwarantanna ma dodatkowe, ostrzejsze liczniki.
+    const limits = await deps.consumeLimits([
+      ...submissionBuckets(settings.namespace, ipHash, new Date(now), settings.limits),
+      ...(quarantine
+        ? quarantineBuckets(settings.namespace, ipHash, new Date(now), settings.limits)
+        : []),
+    ])
     if (!limits.ok) {
       log(`odrzucone: limit (${limits.bucket.scope})`, { form })
+      // Wyczerpana kwarantanna: dalej działa jak fail-closed (telefon i e-mail).
+      if (limits.bucket.scope === 'quarantine') return reply(503, 'verification_unavailable')
       if (limits.bucket.scope === 'ip') {
         return reply(
           429,
@@ -286,6 +320,7 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
 
     // 5. Szkic w bazie; wizualizacja nie startuje (kolejka: queue.ts).
     const { id } = await deps.insertDraft(built.draft)
+    if (quarantine) log('przyjęte do kwarantanny: Cloudflare Turnstile niedostępny', { form, id })
     const accepted: AcceptedSubmission = {
       ...built.draft,
       id,

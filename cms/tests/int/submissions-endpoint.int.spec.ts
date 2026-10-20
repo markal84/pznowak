@@ -10,12 +10,13 @@ import {
 import type { LimitBucket } from '@/lib/submissions/limits'
 import { CONSENT_TEXT } from '@/lib/submissions/options'
 import type { SubmissionDraft } from '@/lib/submissions/store'
-import { verifyTurnstile } from '@/lib/submissions/turnstile'
+import { siteverifyReachable, verifyTurnstile } from '@/lib/submissions/turnstile'
 import {
   APP_SECRET,
   DUMMY_TOKEN,
   formTokenAged,
   submissionRequest,
+  testLimits,
   testSettings,
   validContactData,
   validCreatorData,
@@ -44,10 +45,12 @@ function setup(overrides: Partial<SubmissionDeps> = {}) {
     ok: true as const,
     testing: true,
   }))
+  const reachable = vi.fn(async () => true)
   const deps: SubmissionDeps = {
     settings: testSettings(),
     now: () => NOW,
     verifyTurnstile: turnstile,
+    siteverifyReachable: reachable,
     consumeLimits: limits.consume,
     insertDraft: vi.fn(async (draft: SubmissionDraft) => {
       inserted.push(draft)
@@ -62,7 +65,26 @@ function setup(overrides: Partial<SubmissionDeps> = {}) {
     log: () => undefined,
     ...overrides,
   }
-  return { deps, limits, inserted, accepted, deferred, turnstile }
+  return { deps, limits, inserted, accepted, deferred, turnstile, reachable }
+}
+
+/** Cloudflare nie odpowiada serwerowi (atrapa sieci) – prawdziwe funkcje weryfikacji. */
+function cloudflareDown() {
+  const network = vi.fn(async () => {
+    throw new TypeError('fetch failed')
+  })
+  const options = {
+    secret: 'sekret',
+    fetchImpl: network as unknown as typeof fetch,
+    timeoutMs: 50,
+    retryDelayMs: 1,
+  }
+  return {
+    network,
+    verifyTurnstile: (args: Parameters<SubmissionDeps['verifyTurnstile']>[0]) =>
+      verifyTurnstile({ ...args, ...options, allowTestingKeys: false }),
+    siteverifyReachable: () => siteverifyReachable(options),
+  }
 }
 
 const creatorBody = (overrides: Record<string, unknown> = {}) => ({
@@ -260,6 +282,8 @@ describe('POST /api/zgloszenia: odrzucenia', () => {
     const missing = await send(t.deps, creatorBody({ turnstileToken: undefined }))
     expect(missing.status).toBe(403)
     expect(siteverify).not.toHaveBeenCalled()
+    // bez flagi z przeglądarki brak tokenu nie sprawdza Cloudflare i nie daje kwarantanny
+    expect(t.reachable).not.toHaveBeenCalled()
     const bad = await send(t.deps, creatorBody({ turnstileToken: 'podrobiony' }))
     expect(bad.status).toBe(403)
     expect(bad.body.code).toBe('rejected')
@@ -268,14 +292,7 @@ describe('POST /api/zgloszenia: odrzucenia', () => {
     expect(t.inserted).toHaveLength(0)
   })
 
-  it('Turnstile nieosiągalny: 503 z prośbą o telefon (fail-closed); klucz testowy na produkcji: 503', async () => {
-    const down = setup({ verifyTurnstile: async () => ({ ok: false, reason: 'unavailable' }) })
-    const result = await send(down.deps, creatorBody())
-    expect(result.status).toBe(503)
-    expect(result.body.code).toBe('verification_unavailable')
-    expect(result.body.message).toMatch(/Zadzwoń lub napisz/)
-    expect(down.inserted).toHaveLength(0)
-
+  it('klucz testowy Turnstile na produkcji: 503, nic się nie zapisuje', async () => {
     const testingKey = setup({
       verifyTurnstile: async () => ({ ok: false, reason: 'testing_key_in_production' }),
     })
@@ -283,10 +300,32 @@ describe('POST /api/zgloszenia: odrzucenia', () => {
     expect(testingKey.inserted).toHaveLength(0)
   })
 
+  it('brak tokenu z flagą „Turnstile niedostępny”, ale Cloudflare działa: 403 verification_failed, nic nie zużyte', async () => {
+    const t = setup()
+    const result = await send(
+      t.deps,
+      creatorBody({ turnstileToken: '', turnstileUnavailable: true }),
+    )
+    expect(result.status).toBe(403)
+    expect(result.body.code).toBe('verification_failed')
+    expect(result.body.message).toMatch(/zadzwoń lub napisz/)
+    expect(t.reachable).toHaveBeenCalledTimes(1)
+    expect(t.turnstile).not.toHaveBeenCalled()
+    expect(t.limits.consume).not.toHaveBeenCalled()
+    expect(t.inserted).toHaveLength(0)
+  })
+
+  it('flaga „Turnstile niedostępny” przy obecnym tokenie nic nie zmienia: zwykła weryfikacja', async () => {
+    const t = setup({ verifyTurnstile: async () => ({ ok: false, reason: 'invalid' }) })
+    const result = await send(t.deps, creatorBody({ turnstileUnavailable: true }))
+    expect(result.status).toBe(403)
+    expect(result.body.code).toBe('rejected')
+    expect(t.reachable).not.toHaveBeenCalled()
+    expect(t.inserted).toHaveLength(0)
+  })
+
   it('przekroczony limit IP: 429 z Retry-After, inne IP dalej przechodzi', async () => {
-    const t = setup({
-      settings: testSettings({ limits: { perIpHour: 2, perDay: 40, visualizationsPerDay: 10 } }),
-    })
+    const t = setup({ settings: testSettings({ limits: testLimits({ perIpHour: 2 }) }) })
     expect((await send(t.deps, creatorBody(), { ip: '198.51.100.1' })).status).toBe(201)
     expect((await send(t.deps, contactBody(), { ip: '198.51.100.1' })).status).toBe(201)
     const third = await send(t.deps, creatorBody(), { ip: '198.51.100.1' })
@@ -298,9 +337,7 @@ describe('POST /api/zgloszenia: odrzucenia', () => {
   })
 
   it('przekroczony sufit dzienny: 429 daily_limit niezależnie od IP', async () => {
-    const t = setup({
-      settings: testSettings({ limits: { perIpHour: 5, perDay: 3, visualizationsPerDay: 10 } }),
-    })
+    const t = setup({ settings: testSettings({ limits: testLimits({ perDay: 3 }) }) })
     for (const ip of ['198.51.100.11', '198.51.100.12', '198.51.100.13']) {
       expect((await send(t.deps, creatorBody(), { ip })).status).toBe(201)
     }
@@ -312,11 +349,95 @@ describe('POST /api/zgloszenia: odrzucenia', () => {
 
   it('nieudany Turnstile nie zużywa limitów (śmieci nie blokują klientów)', async () => {
     const t = setup({
-      settings: testSettings({ limits: { perIpHour: 1, perDay: 1, visualizationsPerDay: 10 } }),
+      settings: testSettings({ limits: testLimits({ perIpHour: 1, perDay: 1 }) }),
       verifyTurnstile: async () => ({ ok: false, reason: 'invalid' }),
     })
     for (let i = 0; i < 5; i++) expect((await send(t.deps, creatorBody())).status).toBe(403)
     expect(t.limits.consume).not.toHaveBeenCalled()
+  })
+})
+
+describe('POST /api/zgloszenia: kwarantanna przy awarii Cloudflare', () => {
+  it('siteverify nie odpowiada: 201, szkic oznaczony „kwarantanna”, dodatkowe liczniki, mail z oznaczeniem', async () => {
+    const down = cloudflareDown()
+    const t = setup(down)
+    const result = await send(t.deps, creatorBody(), { ip: '198.51.100.21' })
+    expect(result.status).toBe(201)
+    expect(result.body).toMatchObject({ ok: true, code: 'accepted' })
+    // dwie próby siteverify, potem kwarantanna
+    expect(down.network).toHaveBeenCalledTimes(2)
+
+    expect(t.inserted).toHaveLength(1)
+    expect(t.inserted[0]).toMatchObject({
+      verification: 'quarantine',
+      visualizationStatus: 'waiting',
+      status: 'draft',
+    })
+    expect(t.inserted[0].meta?.verifiedWithTestKeys).toBe(false)
+
+    const [buckets] = t.limits.consume.mock.calls[0]
+    expect(buckets.map((b) => b.scope)).toEqual(['ip', 'day', 'quarantine', 'quarantine'])
+
+    await Promise.all(t.deferred)
+    expect(t.accepted[0].submission.verification).toBe('quarantine')
+  })
+
+  it('przeglądarka bez tokenu i Cloudflare nie odpowiada także serwerowi: kwarantanna', async () => {
+    const down = cloudflareDown()
+    const t = setup(down)
+    const result = await send(
+      t.deps,
+      contactBody({ turnstileToken: '', turnstileUnavailable: true }),
+      { ip: '198.51.100.22' },
+    )
+    expect(result.status).toBe(201)
+    expect(t.inserted[0]).toMatchObject({ kind: 'contact', verification: 'quarantine' })
+  })
+
+  it('limit kwarantanny: 1 na godzinę z IP, potem 503 z telefonem; inne IP dalej przechodzi', async () => {
+    const t = setup(cloudflareDown())
+    expect((await send(t.deps, creatorBody(), { ip: '198.51.100.23' })).status).toBe(201)
+    const second = await send(t.deps, contactBody(), { ip: '198.51.100.23' })
+    expect(second.status).toBe(503)
+    expect(second.body.code).toBe('verification_unavailable')
+    expect(second.body.message).toMatch(/Zadzwoń lub napisz/)
+    expect((await send(t.deps, creatorBody(), { ip: '198.51.100.24' })).status).toBe(201)
+    expect(t.inserted).toHaveLength(2)
+    // odrzucenie przez licznik kwarantanny nie zużyło zwykłego limitu IP (wszystko albo nic)
+    expect([...t.limits.hits.entries()].filter(([key]) => key.startsWith('ip:'))).toEqual([
+      [expect.any(String), 1],
+      [expect.any(String), 1],
+    ])
+  })
+
+  it('dobowy sufit kwarantanny chroni zwykły sufit: po jego wyczerpaniu zweryfikowane zgłoszenia dalej wchodzą', async () => {
+    const limits = testLimits({ quarantinePerDay: 2 })
+    const down = cloudflareDown()
+    const t = setup({ ...down, settings: testSettings({ limits }) })
+    for (const ip of ['198.51.100.31', '198.51.100.32'])
+      expect((await send(t.deps, creatorBody(), { ip })).status).toBe(201)
+    const third = await send(t.deps, creatorBody(), { ip: '198.51.100.33' })
+    expect(third.status).toBe(503)
+    expect(third.body.code).toBe('verification_unavailable')
+
+    // Cloudflare wraca: te same liczniki, zwykłe zgłoszenie przechodzi i nie jest w kwarantannie
+    t.deps.verifyTurnstile = async () => ({ ok: true, testing: false })
+    expect((await send(t.deps, creatorBody(), { ip: '198.51.100.33' })).status).toBe(201)
+    expect(t.inserted.map((d) => d.verification)).toEqual(['quarantine', 'quarantine', 'verified'])
+  })
+
+  it('zwykły limit IP wyczerpany: przy awarii nadal 429 rate_limited', async () => {
+    const t = setup({
+      ...cloudflareDown(),
+      settings: testSettings({ limits: testLimits({ perIpHour: 1 }) }),
+    })
+    t.deps.verifyTurnstile = async () => ({ ok: true, testing: false })
+    expect((await send(t.deps, creatorBody(), { ip: '198.51.100.41' })).status).toBe(201)
+    t.deps.verifyTurnstile = cloudflareDown().verifyTurnstile
+    const result = await send(t.deps, creatorBody(), { ip: '198.51.100.41' })
+    expect(result.status).toBe(429)
+    expect(result.body.code).toBe('rate_limited')
+    expect(t.inserted).toHaveLength(1)
   })
 })
 
@@ -342,6 +463,7 @@ describe('POST /api/zgloszenia: przyjęcie', () => {
     expect(draft).toMatchObject({
       kind: 'creator',
       status: 'draft',
+      verification: 'verified',
       visualizationStatus: 'waiting',
       notification: 'pending',
       name: 'Test Automatyczny',

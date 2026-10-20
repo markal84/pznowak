@@ -4,7 +4,7 @@ import type { SubmissionSettings } from './config'
 import type { SubmissionDeps } from './handler'
 import { notifyStudio, payloadMailTransport } from './notify'
 import { cleanupExpiredCounters, consumeLimits, insertDraft, setNotificationStatus } from './store'
-import { verifyTurnstile } from './turnstile'
+import { siteverifyReachable, verifyTurnstile } from './turnstile'
 
 /** Zależności endpointu na prawdziwej bazie i prawdziwym siteverify; testy podmieniają wybrane pola. */
 export function submissionDeps(
@@ -21,6 +21,7 @@ export function submissionDeps(
         secret: settings.turnstileSecret,
         allowTestingKeys: settings.allowTestingKeys,
       }),
+    siteverifyReachable: () => siteverifyReachable({ secret: settings.turnstileSecret }),
     consumeLimits: async (buckets) => consumeLimits(await getPayloadInstance(), buckets),
     insertDraft: async (draft) => insertDraft(await getPayloadInstance(), draft),
     afterAccepted: async (submission, { origin }) => {

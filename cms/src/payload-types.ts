@@ -261,6 +261,10 @@ export interface Submission {
   topic?: ('nowy' | 'kolekcja' | 'obraczki' | 'naprawa' | 'inne') | null;
   status: 'draft' | 'contacted' | 'closed' | 'spam';
   /**
+   * Kwarantanna: zgłoszenie przyszło, gdy Cloudflare Turnstile był niedostępny. Sprawdź, czy to nie spam; wizualizacja tylko po ręcznym zatwierdzeniu.
+   */
+  verification: 'verified' | 'quarantine';
+  /**
    * Zatwierdź („Zatwierdzona – w kolejce”), żeby pomocnik mógł przygotować wizualizację. Dzienny limit uruchomień jest twardy; nadmiar czeka w kolejce.
    */
   visualizationStatus: 'not_applicable' | 'waiting' | 'approved' | 'in_progress' | 'done' | 'failed' | 'rejected';
@@ -484,6 +488,7 @@ export interface SubmissionsSelect<T extends boolean = true> {
   kind?: T;
   topic?: T;
   status?: T;
+  verification?: T;
   visualizationStatus?: T;
   visualizationStartedAt?: T;
   visualizationFinishedAt?: T;

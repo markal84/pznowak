@@ -56,6 +56,22 @@ describe('powiadomienie pracowni', () => {
     expect(mail.text).toContain('20 października 2026')
   })
 
+  it('kwarantanna: oznaczenie w temacie i ostrzeżenie w treści', () => {
+    const mail = buildStudioMail(
+      { ...submission, verification: 'quarantine' },
+      { to: 'pracownia@example.pl', adminUrl: 'https://pznowak.pl/admin' },
+    )
+    expect(mail.subject).toBe('Nowe zgłoszenie z kreatora pierścionka (nr 17) – kwarantanna')
+    expect(mail.text).toContain('UWAGA: KWARANTANNA')
+    expect(mail.text).toContain('Wizualizacja ruszy tylko po ręcznym zatwierdzeniu')
+    const verified = buildStudioMail(
+      { ...submission, verification: 'verified' },
+      { to: 'pracownia@example.pl', adminUrl: 'https://pznowak.pl/admin' },
+    )
+    expect(verified.subject).not.toContain('kwarantanna')
+    expect(verified.text).not.toContain('KWARANTANNA')
+  })
+
   it('bez adresu pracowni albo bez dostawcy poczty: pomija, nic nie wysyła i nie loguje danych klienta', async () => {
     const logs: string[] = []
     const transport = fakeTransport()

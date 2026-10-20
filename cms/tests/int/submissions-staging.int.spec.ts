@@ -13,18 +13,22 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import type { SubmissionSettings } from '@/lib/submissions/config'
 import { deriveKey, hashIp } from '@/lib/submissions/form-token'
-import { handleSubmission } from '@/lib/submissions/handler'
+import { handleSubmission, type SubmissionDeps } from '@/lib/submissions/handler'
+import { utcHour } from '@/lib/submissions/limits'
 import { claimVisualization } from '@/lib/submissions/queue'
 import { submissionDeps } from '@/lib/submissions/server'
 import { consumeLimits, drizzleOf, insertDraft } from '@/lib/submissions/store'
+import { siteverifyReachable, verifyTurnstile } from '@/lib/submissions/turnstile'
 import type { Submission } from '@/payload-types'
 import {
   APP_SECRET,
   DUMMY_TOKEN,
   TEST_SECRET_FAIL,
+  TEST_SECRET_PASS,
   formTokenAged,
   stagingDatabaseOrSkipReason,
   submissionRequest,
+  testLimits,
   testSettings,
   validContactData,
   validCreatorData,
@@ -40,13 +44,16 @@ const createdIds = new Set<number>()
 const ns = (name: string) => `${RUN}:${name}:`
 const ipHashOf = (ip: string) => hashIp(ip, deriveKey(APP_SECRET, 'ip-hash'))
 
-function deps(settings: SubmissionSettings) {
+function deps(settings: SubmissionSettings, overrides: Partial<SubmissionDeps> = {}) {
   const pending: Promise<void>[] = []
-  const d = submissionDeps(
-    async () => payload,
-    settings,
-    (task) => void pending.push(task()),
-  )
+  const d = {
+    ...submissionDeps(
+      async () => payload,
+      settings,
+      (task) => void pending.push(task()),
+    ),
+    ...overrides,
+  }
   const afterAccepted = d.afterAccepted
   d.afterAccepted = async (submission, context) => {
     createdIds.add(submission.id)
@@ -56,11 +63,32 @@ function deps(settings: SubmissionSettings) {
   return { deps: d, settle: () => Promise.all(pending) }
 }
 
-async function post(settings: SubmissionSettings, body: Record<string, unknown>, ip: string) {
-  const { deps: d, settle } = deps(settings)
+async function post(
+  settings: SubmissionSettings,
+  body: Record<string, unknown>,
+  ip: string,
+  overrides: Partial<SubmissionDeps> = {},
+) {
+  const { deps: d, settle } = deps(settings, overrides)
   const response = await handleSubmission(submissionRequest(body, { ip }), d)
   await settle()
   return { status: response.status, body: await response.json() }
+}
+
+/** Awaria Cloudflare: prawdziwe funkcje weryfikacji, ale sieć do siteverify nie odpowiada. */
+const cloudflareDown = (): Partial<SubmissionDeps> => {
+  const options = {
+    secret: TEST_SECRET_PASS,
+    fetchImpl: (async () => {
+      throw new TypeError('fetch failed')
+    }) as typeof fetch,
+    timeoutMs: 50,
+    retryDelayMs: 1,
+  }
+  return {
+    verifyTurnstile: (args) => verifyTurnstile({ ...args, ...options, allowTestingKeys: true }),
+    siteverifyReachable: () => siteverifyReachable(options),
+  }
 }
 
 const creatorBody = (overrides: Record<string, unknown> = {}) => ({
@@ -102,10 +130,11 @@ async function counter(key: string): Promise<number | null> {
 }
 
 /** Zgłoszenie z kreatora zapisane wprost (jak robi to endpoint po wszystkich kontrolach). */
-async function creatorDraft(label: string) {
+async function creatorDraft(label: string, verification: Submission['verification'] = 'verified') {
   const { id } = await insertDraft(payload, {
     kind: 'creator',
     status: 'draft',
+    verification,
     name: 'Test Automatyczny',
     phone: '+48 501 321 347',
     summary: label,
@@ -159,6 +188,18 @@ describe.skipIf(skipReason)('zgłoszenia na bazie stagingowej', () => {
         ip,
       )
       expect(result.status).toBe(403)
+      expect(await rowsForIp(ip)).toHaveLength(0)
+    })
+
+    it('brak tokenu z flagą „Turnstile niedostępny”, gdy Cloudflare działa (prawdziwe siteverify): 403, bez kwarantanny', async () => {
+      const ip = '198.51.100.107'
+      const result = await post(
+        testSettings({ namespace: ns('flaga-bez-awarii') }),
+        creatorBody({ turnstileToken: '', turnstileUnavailable: true }),
+        ip,
+      )
+      expect(result.status).toBe(403)
+      expect(result.body.code).toBe('verification_failed')
       expect(await rowsForIp(ip)).toHaveLength(0)
     })
 
@@ -219,7 +260,7 @@ describe.skipIf(skipReason)('zgłoszenia na bazie stagingowej', () => {
       const ip = '198.51.100.106'
       const settings = testSettings({
         namespace: ns('limit-ip'),
-        limits: { perIpHour: 2, perDay: 40, visualizationsPerDay: 10 },
+        limits: testLimits({ perIpHour: 2 }),
       })
       expect((await post(settings, creatorBody(), ip)).status).toBe(201)
       expect((await post(settings, contactBody(), ip)).status).toBe(201)
@@ -232,7 +273,7 @@ describe.skipIf(skipReason)('zgłoszenia na bazie stagingowej', () => {
     it('przekroczony sufit dzienny: czwarte zgłoszenie z innego IP odrzucone', async () => {
       const settings = testSettings({
         namespace: ns('sufit'),
-        limits: { perIpHour: 5, perDay: 3, visualizationsPerDay: 10 },
+        limits: testLimits({ perDay: 3 }),
       })
       const ips = ['198.51.100.111', '198.51.100.112', '198.51.100.113', '198.51.100.114']
       for (const ip of ips.slice(0, 3))
@@ -259,6 +300,7 @@ describe.skipIf(skipReason)('zgłoszenia na bazie stagingowej', () => {
       phone: '+48 501 321 347',
     })
     expect(row.consentText).toMatch(/Zgadzam się na kontakt/)
+    expect(row.verification).toBe('verified')
     expect(row.meta?.verifiedWithTestKeys).toBe(true)
     expect(JSON.stringify(row)).not.toContain(ip)
 
@@ -274,6 +316,45 @@ describe.skipIf(skipReason)('zgłoszenia na bazie stagingowej', () => {
       status: 'draft',
       visualizationStatus: 'not_applicable',
     })
+  })
+
+  it('kwarantanna: awaria Cloudflare zapisuje szkic oznaczony „kwarantanna”, drugie z tego IP w godzinie odrzucone', async () => {
+    const namespace = ns('kwarantanna')
+    const settings = testSettings({ namespace })
+    const ip = '198.51.100.150'
+    const first = await post(settings, creatorBody(), ip, cloudflareDown())
+    expect(first.status).toBe(201)
+    const [row] = await rowsForIp(ip)
+    expect(row).toMatchObject({
+      kind: 'creator',
+      status: 'draft',
+      verification: 'quarantine',
+      visualizationStatus: 'waiting',
+      visualizationStartedAt: null,
+      notification: 'skipped',
+    })
+    expect(row.meta?.verifiedWithTestKeys).toBe(false)
+
+    const second = await post(settings, contactBody(), ip, cloudflareDown())
+    expect(second.status).toBe(503)
+    expect(second.body.code).toBe('verification_unavailable')
+    expect(await rowsForIp(ip)).toHaveLength(1)
+
+    const hour = utcHour(new Date())
+    expect(await counter(`${namespace}kwarantanna-ip:${ipHashOf(ip)}:${hour}`)).toBe(1)
+    // odrzucone drugie zgłoszenie nie zużyło zwykłego limitu IP (wszystko albo nic)
+    expect(await counter(`${namespace}ip:${ipHashOf(ip)}:${hour}`)).toBe(1)
+
+    // przeglądarka bez tokenu + Cloudflare nie odpowiada serwerowi: też kwarantanna
+    const noToken = await post(
+      settings,
+      contactBody({ turnstileToken: '', turnstileUnavailable: true }),
+      '198.51.100.151',
+      cloudflareDown(),
+    )
+    expect(noToken.status).toBe(201)
+    const [contactRow] = await rowsForIp('198.51.100.151')
+    expect(contactRow).toMatchObject({ kind: 'contact', verification: 'quarantine' })
   })
 
   it('liczniki: 20 równoległych prób przy limicie 5 przepuszcza dokładnie 5', async () => {
@@ -428,6 +509,36 @@ describe.skipIf(skipReason)('zgłoszenia na bazie stagingowej', () => {
       ).rejects.toThrow(/nie ma wizualizacji/)
     })
 
+    it('kwarantanna: tryb automatyczny jej nie bierze, po ręcznym zatwierdzeniu już tak', async () => {
+      const namespace = ns('auto-kwarantanna')
+      const quarantined = await creatorDraft('kw-1', 'quarantine')
+      const verified = await creatorDraft('kw-2')
+      const auto = { limit: 5, mode: 'auto' as const, namespace }
+      const ids = [quarantined, verified]
+
+      // starsze zgłoszenie z kwarantanny jest pomijane, bierze się zweryfikowane
+      expect(await claimVisualization(payload, auto, { ids })).toEqual({
+        claimed: true,
+        id: verified,
+      })
+      expect(await claimVisualization(payload, auto, { ids })).toEqual({
+        claimed: false,
+        reason: 'empty',
+      })
+      expect((await statusOf(quarantined)).visualizationStatus).toBe('waiting')
+
+      await payload.update({
+        collection: 'submissions',
+        id: quarantined,
+        data: { visualizationStatus: 'approved' },
+        overrideAccess: true,
+      })
+      expect(await claimVisualization(payload, auto, { ids })).toEqual({
+        claimed: true,
+        id: quarantined,
+      })
+    })
+
     it('równoległe pobieranie przez kilku pomocników: dokładnie limit, bez dubli', async () => {
       const namespace = ns('rownolegla-kolejka')
       const ids: number[] = []
@@ -458,6 +569,7 @@ describe.skipIf(skipReason)('zgłoszenia na bazie stagingowej', () => {
         insertDraft(payload, {
           kind: 'creator',
           status: 'draft',
+          verification: 'verified',
           name: 'Test Automatyczny',
           phone: '+48 501 321 347',
           consentText: 'test',

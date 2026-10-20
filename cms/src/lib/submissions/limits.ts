@@ -3,7 +3,7 @@
  * więc stary licznik nigdy nie jest używany ponownie, a sprzątanie usuwa wiersze po `expires_at`.
  */
 
-export type LimitScope = 'ip' | 'day' | 'visualizations'
+export type LimitScope = 'ip' | 'day' | 'quarantine' | 'visualizations'
 
 export type LimitBucket = {
   key: string
@@ -19,12 +19,21 @@ export type LimitSettings = {
   perDay: number
   /** Twardy dzienny limit uruchomionych wizualizacji (czas polski). */
   visualizationsPerDay: number
+  /**
+   * Kwarantanna (Turnstile niedostępny): najwyżej tyle zgłoszeń bez weryfikacji z jednego IP na godzinę
+   * i łącznie na dobę. Liczone dodatkowo do zwykłych limitów, żeby awaria Cloudflare nie pozwoliła botom
+   * wyczerpać dziennego sufitu prawdziwym klientom.
+   */
+  quarantinePerIpHour: number
+  quarantinePerDay: number
 }
 
 export const DEFAULT_LIMITS: LimitSettings = {
   perIpHour: 5,
   perDay: 40,
   visualizationsPerDay: 10,
+  quarantinePerIpHour: 1,
+  quarantinePerDay: 10,
 }
 
 const warsawDate = new Intl.DateTimeFormat('en-CA', {
@@ -88,6 +97,29 @@ export function submissionBuckets(
       limit: limits.perDay,
       ttlSeconds: 3 * 86400,
       scope: 'day',
+    },
+  ]
+}
+
+/** Dodatkowe liczniki dla zgłoszeń przyjętych bez weryfikacji (kwarantanna). */
+export function quarantineBuckets(
+  namespace: string,
+  ipHash: string,
+  now: Date,
+  limits: LimitSettings,
+): LimitBucket[] {
+  return [
+    {
+      key: `${namespace}kwarantanna-ip:${ipHash}:${utcHour(now)}`,
+      limit: limits.quarantinePerIpHour,
+      ttlSeconds: 2 * 3600,
+      scope: 'quarantine',
+    },
+    {
+      key: `${namespace}kwarantanna-dzien:${warsawDay(now)}`,
+      limit: limits.quarantinePerDay,
+      ttlSeconds: 3 * 86400,
+      scope: 'quarantine',
     },
   ]
 }

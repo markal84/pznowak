@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  DEFAULT_LIMITS,
   ipLimitIdentity,
+  quarantineBuckets,
   secondsToNextHour,
   submissionBuckets,
   utcHour,
@@ -27,17 +29,32 @@ describe('okna limitów', () => {
 
   it('klucze liczników zawierają okno i przedrostek', () => {
     const now = new Date('2026-10-20T17:20:00Z')
-    const [ip, day] = submissionBuckets('test:', 'abc', now, {
-      perIpHour: 5,
-      perDay: 40,
-      visualizationsPerDay: 10,
-    })
+    const [ip, day] = submissionBuckets('test:', 'abc', now, DEFAULT_LIMITS)
     expect(ip).toMatchObject({ key: 'test:ip:abc:2026-10-20T17', limit: 5, scope: 'ip' })
     expect(day).toMatchObject({ key: 'test:dzien:2026-10-20', limit: 40, scope: 'day' })
     expect(visualizationBucket('', now, 10)).toMatchObject({
       key: 'wizualizacje:2026-10-20',
       limit: 10,
     })
+  })
+
+  it('kwarantanna: osobne, ostrzejsze liczniki (1 na godzinę z IP, 10 na dobę)', () => {
+    const now = new Date('2026-10-20T17:20:00Z')
+    const [ip, day] = quarantineBuckets('test:', 'abc', now, DEFAULT_LIMITS)
+    expect(ip).toMatchObject({
+      key: 'test:kwarantanna-ip:abc:2026-10-20T17',
+      limit: 1,
+      scope: 'quarantine',
+    })
+    expect(day).toMatchObject({
+      key: 'test:kwarantanna-dzien:2026-10-20',
+      limit: 10,
+      scope: 'quarantine',
+    })
+    // klucze nie nachodzą na zwykłe liczniki
+    const regular = submissionBuckets('test:', 'abc', now, DEFAULT_LIMITS).map((b) => b.key)
+    expect(regular).not.toContain(ip.key)
+    expect(regular).not.toContain(day.key)
   })
 })
 

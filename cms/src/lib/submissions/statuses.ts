@@ -34,6 +34,12 @@ export const NOTIFICATION_STATUSES = [
   { label: 'Błąd wysyłki', value: 'failed' },
 ] as const
 
+/** Kwarantanna: Cloudflare Turnstile był niedostępny, więc zgłoszenia nie dało się zweryfikować. */
+export const VERIFICATION_STATUSES = [
+  { label: 'Zweryfikowane (Turnstile)', value: 'verified' },
+  { label: 'Kwarantanna – bez weryfikacji', value: 'quarantine' },
+] as const
+
 export type SubmissionKind = (typeof SUBMISSION_KINDS)[number]['value']
 export type VisualizationStatus = (typeof VISUALIZATION_STATUSES)[number]['value']
 export type NotificationStatus = (typeof NOTIFICATION_STATUSES)[number]['value']

@@ -28,6 +28,8 @@ export type NotifiedSubmission = {
   email?: string | null
   summary?: string | null
   message?: string | null
+  /** `quarantine`: przyszło, gdy Cloudflare Turnstile był niedostępny (bez weryfikacji). */
+  verification?: 'verified' | 'quarantine' | null
   createdAt: string
 }
 
@@ -56,8 +58,16 @@ export function buildStudioMail(
   submission: NotifiedSubmission,
   options: { to: string; adminUrl: string },
 ): StudioMail {
+  const quarantine = submission.verification === 'quarantine'
   const lines = [
     `Nowe zgłoszenie ${KIND_LABEL[submission.kind]} (nr ${submission.id}), ${warsawTime.format(new Date(submission.createdAt))}.`,
+    ...(quarantine
+      ? [
+          '',
+          'UWAGA: KWARANTANNA. Zgłoszenie przyszło, gdy weryfikacja Cloudflare Turnstile była niedostępna,',
+          'więc nie wiadomo, czy wysłał je człowiek. Sprawdź, czy to nie spam. Wizualizacja ruszy tylko po ręcznym zatwierdzeniu.',
+        ]
+      : []),
     '',
     `Imię: ${submission.name}`,
     `Telefon: ${submission.phone}`,
@@ -71,7 +81,7 @@ export function buildStudioMail(
   ]
   return {
     to: options.to,
-    subject: `Nowe zgłoszenie ${KIND_LABEL[submission.kind]} (nr ${submission.id})`,
+    subject: `Nowe zgłoszenie ${KIND_LABEL[submission.kind]} (nr ${submission.id})${quarantine ? ' – kwarantanna' : ''}`,
     text: lines.join('\n'),
   }
 }

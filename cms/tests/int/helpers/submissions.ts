@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 import type { SubmissionSettings } from '@/lib/submissions/config'
 import { deriveKey, issueFormToken } from '@/lib/submissions/form-token'
+import { DEFAULT_LIMITS, type LimitSettings } from '@/lib/submissions/limits'
 import type { FormKind } from '@/lib/submissions/options'
 
 // Oficjalne klucze testowe Cloudflare (publiczne): 1x… zawsze przechodzi, 2x… zawsze odrzuca, 3x… „token zużyty”.
@@ -14,12 +15,18 @@ export const DUMMY_TOKEN = 'XXXX.DUMMY.TOKEN.XXXX'
 
 export const APP_SECRET = 'sekret-testowy-zgloszen'
 
+/** Domyślne limity (5/h z IP, 40/dzień, kwarantanna 1/h z IP i 10/dzień) z wybranymi zmianami. */
+export const testLimits = (overrides: Partial<LimitSettings> = {}): LimitSettings => ({
+  ...DEFAULT_LIMITS,
+  ...overrides,
+})
+
 export function testSettings(overrides: Partial<SubmissionSettings> = {}): SubmissionSettings {
   return {
     turnstileSecret: TEST_SECRET_PASS,
     allowTestingKeys: true,
     appSecret: APP_SECRET,
-    limits: { perIpHour: 5, perDay: 40, visualizationsPerDay: 10 },
+    limits: testLimits(),
     visualizations: { limit: 10, mode: 'manual', namespace: '' },
     notifyTo: undefined,
     namespace: '',

@@ -8,6 +8,7 @@ import {
   NOTIFICATION_STATUSES,
   SUBMISSION_KINDS,
   SUBMISSION_STATUSES,
+  VERIFICATION_STATUSES,
   VISUALIZATION_STATUSES,
   type SubmissionKind,
   type VisualizationStatus,
@@ -24,7 +25,15 @@ export const Submissions: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'kind', 'phone', 'status', 'visualizationStatus', 'createdAt'],
+    defaultColumns: [
+      'name',
+      'kind',
+      'phone',
+      'status',
+      'verification',
+      'visualizationStatus',
+      'createdAt',
+    ],
     group: 'Zgłoszenia',
     listSearchableFields: ['name', 'phone', 'email'],
     description:
@@ -176,6 +185,21 @@ export const Submissions: CollectionConfig = {
       index: true,
       options: [...SUBMISSION_STATUSES],
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'verification',
+      type: 'select',
+      label: 'Weryfikacja',
+      required: true,
+      defaultValue: 'verified',
+      index: true,
+      options: [...VERIFICATION_STATUSES],
+      admin: {
+        ...readOnly,
+        position: 'sidebar',
+        description:
+          'Kwarantanna: zgłoszenie przyszło, gdy Cloudflare Turnstile był niedostępny. Sprawdź, czy to nie spam; wizualizacja tylko po ręcznym zatwierdzeniu.',
+      },
     },
     {
       name: 'visualizationStatus',

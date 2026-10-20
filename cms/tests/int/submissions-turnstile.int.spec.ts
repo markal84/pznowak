@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { SITEVERIFY_URL, verifyTurnstile, type TurnstileOptions } from '@/lib/submissions/turnstile'
+import {
+  SITEVERIFY_URL,
+  siteverifyReachable,
+  verifyTurnstile,
+  type TurnstileOptions,
+} from '@/lib/submissions/turnstile'
 import {
   DUMMY_TOKEN,
   TEST_SECRET_FAIL,
@@ -139,7 +144,25 @@ describe('weryfikacja Turnstile (atrapa siteverify)', () => {
     })
   })
 
-  it('siteverify nieosiągalny lub milczy: fail-closed po dwóch próbach, w granicach kilku sekund', async () => {
+  it('zły sekret (HTTP 400 z JSON-em od Cloudflare) to odpowiedź, nie awaria: odrzucenie bez kwarantanny', async () => {
+    const badSecret = vi.fn(async () =>
+      json({ success: false, 'error-codes': ['invalid-input-secret'] }, 400),
+    )
+    await expect(verifyTurnstile(base(badSecret))).resolves.toEqual({
+      ok: false,
+      reason: 'invalid',
+      codes: ['invalid-input-secret'],
+    })
+    expect(badSecret).toHaveBeenCalledTimes(1)
+  })
+
+  it('siteverify przeciążony (429) dwa razy: wynik unavailable', async () => {
+    const busy = vi.fn(async () => json({}, 429))
+    await expect(verifyTurnstile(base(busy))).resolves.toEqual({ ok: false, reason: 'unavailable' })
+    expect(busy).toHaveBeenCalledTimes(2)
+  })
+
+  it('siteverify nieosiągalny lub milczy: wynik unavailable (kwarantanna) po dwóch próbach, w granicach kilku sekund', async () => {
     const down = vi.fn(async () => {
       throw new TypeError('fetch failed')
     })
@@ -171,6 +194,54 @@ describe('weryfikacja Turnstile (atrapa siteverify)', () => {
   })
 })
 
+describe('czy Cloudflare odpowiada serwerowi (zgłoszenie bez tokenu)', () => {
+  const network = { timeoutMs: 200, retryDelayMs: 10 }
+
+  it('pusty token z odpowiedzią Cloudflare (także 400 przy złym sekrecie): osiągalny, więc bez kwarantanny', async () => {
+    const working = vi.fn(async () =>
+      json({ success: false, 'error-codes': ['missing-input-response'] }),
+    )
+    await expect(
+      siteverifyReachable({ ...network, secret: 'sekret', fetchImpl: working }),
+    ).resolves.toBe(true)
+    const [, init] = working.mock.calls[0] as unknown as [string, RequestInit]
+    expect(JSON.parse(String(init.body))).toMatchObject({ secret: 'sekret', response: '' })
+
+    const badSecret = vi.fn(async () =>
+      json({ success: false, 'error-codes': ['invalid-input-secret'] }, 400),
+    )
+    await expect(
+      siteverifyReachable({ ...network, secret: 'zly', fetchImpl: badSecret }),
+    ).resolves.toBe(true)
+  })
+
+  it('bez sekretu: osiągalny bez pytania sieci (brak konfiguracji nigdy nie daje kwarantanny)', async () => {
+    const fetchImpl = vi.fn()
+    await expect(
+      siteverifyReachable({
+        ...network,
+        secret: undefined,
+        fetchImpl: fetchImpl as unknown as typeof fetch,
+      }),
+    ).resolves.toBe(true)
+    expect(fetchImpl).not.toHaveBeenCalled()
+  })
+
+  it('sieć, 5xx albo cisza po dwóch próbach: nieosiągalny', async () => {
+    const down = vi.fn(async () => {
+      throw new TypeError('fetch failed')
+    })
+    await expect(siteverifyReachable({ ...network, secret: 's', fetchImpl: down })).resolves.toBe(
+      false,
+    )
+    expect(down).toHaveBeenCalledTimes(2)
+    const serverError = vi.fn(async () => json({}, 503))
+    await expect(
+      siteverifyReachable({ ...network, secret: 's', fetchImpl: serverError }),
+    ).resolves.toBe(false)
+  })
+})
+
 describe('weryfikacja Turnstile na żywo (klucze testowe Cloudflare)', () => {
   const live = {
     remoteip: '203.0.113.7',
@@ -193,6 +264,10 @@ describe('weryfikacja Turnstile na żywo (klucze testowe Cloudflare)', () => {
   it('klucz „token zużyty” zwraca timeout-or-duplicate', async () => {
     const result = await verifyTurnstile({ ...live, token: DUMMY_TOKEN, secret: TEST_SECRET_SPENT })
     expect(result).toEqual({ ok: false, reason: 'invalid', codes: ['timeout-or-duplicate'] })
+  })
+
+  it('Cloudflare odpowiada na pusty token: osiągalny (zgłoszenie bez tokenu nie trafi do kwarantanny)', async () => {
+    await expect(siteverifyReachable({ secret: TEST_SECRET_PASS })).resolves.toBe(true)
   })
 
   it('token testowy z kluczem produkcyjnym środowiska (allowTestingKeys=false) jest odrzucany', async () => {
