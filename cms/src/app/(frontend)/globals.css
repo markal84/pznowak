@@ -17,6 +17,8 @@
   --on-velvet-2: #c9d1cb;
   --on-velvet-3: #a9b6af;
   --velvet-line: #3e6159;
+  --error: #9b2c22;
+  --error-bg: #f8eeeb;
   --serif: var(--font-newsreader), Georgia, serif;
   --sans: var(--font-schibsted), system-ui, sans-serif;
 }
@@ -1065,6 +1067,37 @@ summary::-webkit-details-marker {
   border-left: 3px solid var(--focus);
   background: var(--paper);
 }
+.notice-error {
+  border-left: 3px solid var(--error);
+  background: var(--error-bg);
+}
+.fld[aria-invalid='true'] {
+  border-color: var(--error);
+}
+.fld[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 1px var(--error);
+}
+.check input[aria-invalid='true'] {
+  outline: 2px solid var(--error);
+  outline-offset: 2px;
+}
+.field-error {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--error);
+}
+/* Pole-pułapka dla botów: poza ekranem, nie display:none (część botów pomija ukryte pola). */
+.hp-field {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.turnstile:empty {
+  display: none;
+}
 
 .kontakt-layout {
   padding-top: 24px;
@@ -1097,6 +1130,7 @@ summary::-webkit-details-marker {
   inset: 0;
   cursor: pointer;
 }
+.topic.is-checked,
 .topic:has(input:checked) {
   background: var(--velvet);
   color: #f3f4ef;

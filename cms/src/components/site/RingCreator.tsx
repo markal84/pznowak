@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   CUTS,
   GEMS,
@@ -14,48 +14,28 @@ import {
   type SettingId,
   type WidthId,
 } from '@/lib/ring-geometry'
-import { PREVIEW_NOTICE, SITE, SUBMISSIONS_ENABLED } from '@/lib/site'
-
-const OCCASIONS = [
-  { id: 'zareczyny', label: 'Zaręczyny', hint: 'Pierścionek zaręczynowy', icon: 'okazja' },
-  { id: 'rocznica', label: 'Rocznica', hint: 'Na ważną datę', icon: 'kalendarz' },
-  { id: 'prezent', label: 'Prezent', hint: 'Dla bliskiej osoby', icon: 'prezent' },
-  { id: 'dla-siebie', label: 'Dla siebie', hint: 'Bo tak', icon: 'pierscionek' },
-] as const
-
-const SETTINGS: { id: SettingId; label: string; hint: string }[] = [
-  { id: 'lapki-4', label: 'Cztery łapki', hint: 'Klasyka. Do kamienia wpada najwięcej światła.' },
-  { id: 'lapki-6', label: 'Sześć łapek', hint: 'Kamień trzymany pewniej, kształt bardziej okrągły.' },
-  { id: 'kaszta', label: 'Kaszta', hint: 'Kamień w metalowej obwódce. Wygodny na co dzień, nie zahacza.' },
-  { id: 'halo', label: 'Halo', hint: 'Wianek drobnych diamentów. Kamień wydaje się większy.' },
-  { id: 'trylogia', label: 'Trylogia', hint: 'Trzy kamienie: przeszłość, teraźniejszość i przyszłość.' },
-]
-
-const METALS: { id: MetalId; label: string; gradient: string; name: string }[] = [
-  { id: 'au', label: 'Żółte', name: 'żółte złoto', gradient: 'linear-gradient(135deg, #8A6A28, #EBD08A 45%, #B38B3E)' },
-  { id: 'ag', label: 'Białe', name: 'białe złoto', gradient: 'linear-gradient(135deg, #85898D, #F4F4F1 45%, #AEB1B4)' },
-  { id: 'dwa', label: 'Dwukolorowe', name: 'żółte i białe złoto', gradient: 'linear-gradient(135deg, #B38B3E 0 50%, #D9DADB 50% 100%)' },
-]
-
-const WIDTHS: { id: WidthId; label: string; hint: string }[] = [
-  { id: 'cienka', label: 'Delikatna', hint: 'Lekka, dyskretna' },
-  { id: 'klasyczna', label: 'Klasyczna', hint: 'Najczęstszy wybór' },
-  { id: 'szeroka', label: 'Wyraźna', hint: 'Mocniejszy akcent' },
-]
-
-const PAVES: { id: PaveId; label: string }[] = [
-  { id: 'nie', label: 'Gładkie' },
-  { id: 'tak', label: 'Z drobnymi diamentami' },
-]
+import { PREVIEW_NOTICE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
+import { CONSENT_TEXT, LIMITS, METALS, OCCASIONS, PAVES, SETTINGS, WIDTHS, type OccasionId } from '@/lib/submissions/options'
+import { describeCreator } from '@/lib/submissions/summary'
+import { validateCreator } from '@/lib/submissions/validation'
+import { FieldError, FormNotice, Honeypot, invalidProps } from './FormParts'
+import Turnstile from './Turnstile'
+import { useSubmission } from './useSubmission'
 
 const STEP_LABELS = ['Okazja', 'Kamień', 'Szlif', 'Oprawa', 'Złoto', 'Podsumowanie'] as const
 const LAST = STEP_LABELS.length - 1
+
+// Pola z wcześniejszych kroków, które serwer może zakwestionować: dokąd wrócić, żeby je poprawić.
+const EARLIER_FIELDS = [
+  { key: 'when', step: 0, label: 'Na kiedy' },
+  { key: 'engraving', step: 4, label: 'Grawer' },
+] as const
 
 export default function RingCreator() {
   const [step, setStep] = useState(0)
   const [moved, setMoved] = useState(false)
   const [direction, setDirection] = useState<'forward' | 'back'>('forward')
-  const [occasion, setOccasion] = useState<(typeof OCCASIONS)[number]['id']>('zareczyny')
+  const [occasion, setOccasion] = useState<OccasionId>('zareczyny')
   const [when, setWhen] = useState('')
   const [gem, setGem] = useState<GemId>('szafir')
   const [cut, setCut] = useState<CutId>('owal')
@@ -69,42 +49,52 @@ export default function RingCreator() {
   const [notes, setNotes] = useState('')
   const [consent, setConsent] = useState(false)
   const [sweep, setSweep] = useState(0)
-  const [message, setMessage] = useState<string | null>(null)
+  const honeypot = useRef<HTMLInputElement>(null)
+  const { sending, sent, notice, setNotice, fieldErrors, setFieldErrors, showErrors, submit, reset, turnstileProps } =
+    useSubmission('kreator', SUBMISSIONS_ENABLED)
 
   const geo = useMemo(() => computeRing({ gem, cut, setting, metal, width, pave }), [gem, cut, setting, metal, width, pave])
   const gemInfo = GEMS[gem]
   const cutInfo = CUTS[cut]
   const settingInfo = SETTINGS.find((s) => s.id === setting)!
   const metalInfo = METALS.find((m) => m.id === metal)!
-  const widthInfo = WIDTHS.find((w) => w.id === width)!
-  const occasionInfo = OCCASIONS.find((o) => o.id === occasion)!
 
   const goTo = (next: number) => {
     setDirection(next >= step ? 'forward' : 'back')
     setMoved(true)
     setStep(next)
-    setMessage(null)
+    setNotice(null)
   }
 
-  const summary: [string, string][] = [
-    ['Okazja', occasionInfo.label],
-    ...(when.trim() ? ([['Na kiedy', when.trim()]] as [string, string][]) : []),
-    ['Kamień', gemInfo.label],
-    ['Szlif', cutInfo.label],
-    ['Oprawa', settingInfo.label],
-    ['Złoto', metalInfo.label],
-    ['Obrączka', widthInfo.label + (pave === 'tak' ? ', z diamentami' : ', gładka')],
-    ['Grawer', engraving ? `„${engraving}”` : 'bez graweru'],
-  ]
+  /** Zmiana pola usuwa jego komunikat o błędzie. */
+  const edit = (key: string, apply: () => void) => {
+    apply()
+    if (fieldErrors[key]) {
+      const { [key]: _removed, ...rest } = fieldErrors
+      setFieldErrors(rest)
+    }
+  }
+
+  const summary = describeCreator({ occasion, when, gem, cut, setting, metal, width, pave, engraving })
 
   const previewLabel = `Podgląd pierścionka: ${gemInfo.label.toLowerCase()}, szlif ${cutInfo.label.toLowerCase()}, oprawa ${settingInfo.label.toLowerCase()}, ${metalInfo.name}`
 
-  const onSend = () => {
+  const onSend = async () => {
     if (!SUBMISSIONS_ENABLED) {
-      setMessage(PREVIEW_NOTICE)
+      setNotice({ text: PREVIEW_NOTICE, tone: 'info', contact: true })
       return
     }
+    const data = { occasion, when, gem, cut, setting, metal, width, pave, engraving, name, phone, notes, consent }
+    const checked = validateCreator(data)
+    if (!checked.ok) {
+      showErrors(checked.errors)
+      setNotice({ text: 'Sprawdź zaznaczone pola.', tone: 'error', contact: false })
+      return
+    }
+    await submit(data, honeypot.current?.value ?? '')
   }
+
+  const earlierErrors = EARLIER_FIELDS.filter((f) => fieldErrors[f.key])
 
   const bodyClass = `wiz-body${moved ? (direction === 'back' ? ' stepBack' : ' stepIn') : ''}`
 
@@ -209,7 +199,17 @@ export default function RingCreator() {
                 <label htmlFor="kr-data">
                   Na kiedy <span className="opt-note">(opcjonalnie)</span>
                 </label>
-                <input className="fld" id="kr-data" maxLength={60} onChange={(e) => setWhen(e.target.value)} placeholder="np. zaręczyny w czerwcu" type="text" value={when} />
+                <input
+                  className="fld"
+                  id="kr-data"
+                  maxLength={LIMITS.when}
+                  onChange={(e) => edit('when', () => setWhen(e.target.value))}
+                  placeholder="np. zaręczyny w czerwcu"
+                  type="text"
+                  value={when}
+                  {...invalidProps('kr-data-err', fieldErrors.when)}
+                />
+                <FieldError id="kr-data-err" message={fieldErrors.when} />
               </div>
             </div>
           ) : null}
@@ -318,17 +318,34 @@ export default function RingCreator() {
                 <input
                   className="fld"
                   id="kr-grawer"
-                  maxLength={24}
-                  onChange={(e) => setEngraving(e.target.value.slice(0, 24))}
+                  maxLength={LIMITS.engraving}
+                  onChange={(e) => edit('engraving', () => setEngraving(e.target.value.slice(0, LIMITS.engraving)))}
                   placeholder="np. A & M 14.06.2027"
                   type="text"
                   value={engraving}
+                  {...invalidProps('kr-grawer-err', fieldErrors.engraving)}
                 />
+                <FieldError id="kr-grawer-err" message={fieldErrors.engraving} />
               </div>
             </div>
           ) : null}
 
-          {step === 5 ? (
+          {step === 5 && sent ? (
+            <div className={bodyClass} key="s5-sent">
+              <div className="sent-card" role="status">
+                <span aria-hidden="true" className="hole" />
+                <h2 className="h2" style={{ fontSize: 40, lineHeight: 1.05 }}>Projekt wysłany</h2>
+                <p className="text" style={{ maxWidth: '30em' }}>
+                  Dziękujemy. Karta projektu trafiła do pracowni. Oddzwonimy w godzinach pracy, żeby umówić spotkanie.
+                </p>
+                <button className="linkbtn" onClick={reset} style={{ alignSelf: 'flex-start' }} type="button">
+                  Wyślij kolejny projekt
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {step === 5 && !sent ? (
             <div className={bodyClass} key="s5">
               <h2 className="wiz-h">Twój szkic jest gotowy</h2>
               <p className="wiz-p" style={{ lineHeight: 1.6 }}>
@@ -338,11 +355,31 @@ export default function RingCreator() {
               <div className="form-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
                 <div className="field">
                   <label htmlFor="kr-imie">Imię</label>
-                  <input autoComplete="given-name" className="fld" id="kr-imie" onChange={(e) => setName(e.target.value)} type="text" value={name} />
+                  <input
+                    autoComplete="given-name"
+                    className="fld"
+                    id="kr-imie"
+                    maxLength={LIMITS.name}
+                    onChange={(e) => edit('name', () => setName(e.target.value))}
+                    type="text"
+                    value={name}
+                    {...invalidProps('kr-imie-err', fieldErrors.name)}
+                  />
+                  <FieldError id="kr-imie-err" message={fieldErrors.name} />
                 </div>
                 <div className="field">
                   <label htmlFor="kr-tel">Telefon</label>
-                  <input autoComplete="tel" className="fld" id="kr-tel" onChange={(e) => setPhone(e.target.value)} type="tel" value={phone} />
+                  <input
+                    autoComplete="tel"
+                    className="fld"
+                    id="kr-tel"
+                    maxLength={LIMITS.phone}
+                    onChange={(e) => edit('phone', () => setPhone(e.target.value))}
+                    type="tel"
+                    value={phone}
+                    {...invalidProps('kr-tel-err', fieldErrors.phone)}
+                  />
+                  <FieldError id="kr-tel-err" message={fieldErrors.phone} />
                 </div>
               </div>
               <div className="field">
@@ -352,25 +389,47 @@ export default function RingCreator() {
                 <textarea
                   className="fld"
                   id="kr-uwagi"
-                  onChange={(e) => setNotes(e.target.value)}
+                  maxLength={LIMITS.notes}
+                  onChange={(e) => edit('notes', () => setNotes(e.target.value))}
                   placeholder="np. mam zdjęcie inspiracji, rozmiar do sprawdzenia"
                   rows={3}
                   style={{ resize: 'vertical', lineHeight: 1.5 }}
                   value={notes}
+                  {...invalidProps('kr-uwagi-err', fieldErrors.notes)}
                 />
+                <FieldError id="kr-uwagi-err" message={fieldErrors.notes} />
               </div>
-              <label className="check">
-                <input checked={consent} onChange={(e) => setConsent(e.target.checked)} type="checkbox" />
-                <span>Zgadzam się na kontakt w sprawie projektu. Polityka prywatności [wkrótce]</span>
-              </label>
-              <button className="btn" onClick={onSend} style={{ alignSelf: 'flex-start' }} type="button">
-                Wyślij projekt do pracowni
-              </button>
-              {message ? (
-                <p className="notice notice-preview" role="status">
-                  {message} <a href={SITE.phoneHref}>{SITE.phone}</a> · <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
-                </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <label className="check">
+                  <input
+                    checked={consent}
+                    onChange={(e) => edit('consent', () => setConsent(e.target.checked))}
+                    type="checkbox"
+                    {...invalidProps('kr-zgoda-err', fieldErrors.consent)}
+                  />
+                  <span>{CONSENT_TEXT.kreator}</span>
+                </label>
+                <FieldError id="kr-zgoda-err" message={fieldErrors.consent} />
+                {/* Widżet pojawia się tu tylko wtedy, gdy Cloudflare poprosi człowieka o interakcję. */}
+                {SUBMISSIONS_ENABLED ? <Turnstile siteKey={TURNSTILE_SITE_KEY} {...turnstileProps} /> : null}
+              </div>
+              {earlierErrors.length ? (
+                <div className="notice notice-error" role="alert">
+                  {earlierErrors.map((f) => (
+                    <p key={f.key} style={{ margin: 0 }}>
+                      {f.label}: {fieldErrors[f.key]}{' '}
+                      <button className="linkbtn" onClick={() => goTo(f.step)} style={{ padding: 0 }} type="button">
+                        Popraw w kroku „{STEP_LABELS[f.step]}”
+                      </button>
+                    </p>
+                  ))}
+                </div>
               ) : null}
+              <Honeypot id="kr-kontrolne" inputRef={honeypot} />
+              <button className="btn" disabled={sending} onClick={onSend} style={{ alignSelf: 'flex-start' }} type="button">
+                {sending ? 'Wysyłanie…' : 'Wyślij projekt do pracowni'}
+              </button>
+              <FormNotice notice={notice} />
             </div>
           ) : null}
 

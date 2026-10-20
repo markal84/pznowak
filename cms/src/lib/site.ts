@@ -29,10 +29,13 @@ export const NAV = [
 export type NavId = (typeof NAV)[number]['id'] | 'home' | 'kontakt' | 'kreator'
 
 /**
- * Wysyłka z kreatora i formularzy jest wyłączona do czasu wdrożenia zabezpieczeń
- * (zlecenie: etap 2). Włączenie = zmiana tej jednej stałej plus podpięcie endpointu.
+ * Klucz witryny Cloudflare Turnstile (publiczny, wstawiany przy budowaniu). Wysyłka z kreatora i formularza
+ * kontaktowego działa tylko z kluczem; bez niego formularze pokazują PREVIEW_NOTICE i niczego nie wysyłają.
+ * Sekret i limity: `src/lib/submissions/config.ts`.
  */
-export const SUBMISSIONS_ENABLED = false
+export const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? ''
+
+export const SUBMISSIONS_ENABLED = TURNSTILE_SITE_KEY !== ''
 
 export const PREVIEW_NOTICE =
   'Wersja podglądowa: wysyłka jest jeszcze wyłączona. Zadzwoń lub napisz, a odpowiemy w godzinach pracy pracowni.'
