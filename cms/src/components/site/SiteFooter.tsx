@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import CookieSettingsButton from '@/components/site/CookieSettingsButton'
 import { SITE } from '@/lib/site'
 
 export default function SiteFooter() {
@@ -55,6 +56,7 @@ export default function SiteFooter() {
             {/* [do uzupełnienia] treść polityki prywatności i regulaminu dostarcza pracownia */}
             <span>Polityka prywatności [wkrótce]</span>
             <span>Regulamin [wkrótce]</span>
+            <CookieSettingsButton />
           </span>
         </div>
       </div>

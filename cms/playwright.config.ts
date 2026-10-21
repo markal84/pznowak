@@ -12,7 +12,7 @@ const baseURL = process.env.E2E_BASE_URL
 // Domyślnie bundlowany Chromium; E2E_CHANNEL=chrome pozwala użyć zainstalowanego Google Chrome.
 const channel = process.env.E2E_CHANNEL ?? 'chromium'
 // Testy stron i wysyłki; testy panelu (admin.e2e) wymagają lokalnej bazy i działają tylko w projekcie chromium.
-const frontendSpecs = /(frontend|zgloszenia)\.e2e\.spec\.ts/
+const frontendSpecs = /(frontend|zgloszenia|cookies)\.e2e\.spec\.ts/
 // Edge (kanał msedge) jest dostępny na Windows (GitHub Actions); na Macu bez Edge projekt jest pomijany.
 const withEdge = process.platform === 'win32' || process.env.E2E_EDGE === '1'
 

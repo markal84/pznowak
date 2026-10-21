@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { presetConsent } from '../helpers/consent'
 
 /**
  * Ścieżka człowieka przez kreator i formularz kontaktowy z prawdziwą wysyłką do /api/zgloszenia.
@@ -47,6 +48,10 @@ const submissionResponse = (page: Page) =>
     (r) => new URL(r.url()).pathname === '/api/zgloszenia' && r.request().method() === 'POST',
     { timeout: 45_000 },
   )
+
+test.beforeEach(async ({ context, baseURL }) => {
+  await presetConsent(context, baseURL)
+})
 
 test.describe('Wysyłka zgłoszeń z Turnstile', () => {
   test('kreator: człowiek przechodzi kroki i wysyła projekt do pracowni', async ({ page }) => {

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import CookieBanner from '@/components/site/CookieBanner'
 import HydrationFlag from '@/components/site/HydrationFlag'
 import SiteHeader from '@/components/site/SiteHeader'
 import SiteFooter from '@/components/site/SiteFooter'
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <SiteHeader />
         <main id="main">{children}</main>
         <SiteFooter />
+        <CookieBanner />
         <HydrationFlag />
       </body>
     </html>

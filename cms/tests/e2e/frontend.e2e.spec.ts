@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { presetConsent } from '../helpers/consent'
 
 const NOTICE = /Wersja podglądowa: wysyłka jest jeszcze wyłączona/
 // Środowisko bez kluczy Turnstile (wysyłka wyłączona): E2E_SUBMISSIONS=off.
@@ -26,6 +27,10 @@ async function noHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
   expect(overflow).toBeLessThanOrEqual(1)
 }
+
+test.beforeEach(async ({ context, baseURL }) => {
+  await presetConsent(context, baseURL)
+})
 
 test.describe('Nowy design: strony i nawigacja', () => {
   test('strona główna pokazuje hero, liczbę pierścionków i przywieszkę', async ({ page }) => {
