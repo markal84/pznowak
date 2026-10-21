@@ -244,6 +244,51 @@ test.describe('Obrączki i formularz kontaktowy', () => {
   })
 })
 
+test.describe('Nagłówek: kreator pierścionka', () => {
+  // Układ nagłówka zależy od szerokości okna, więc testy ustawiają własne; na emulacji telefonu pomijamy.
+  test.skip(({ isMobile }) => isMobile, 'szerokości desktopowe sprawdza projekt desktopowy')
+
+  test('z nagłówka na komputerze da się wejść do kreatora, „Umów wizytę” zostaje głównym przyciskiem', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await visit(page, '/')
+    const actions = page.locator('.header-actions')
+    const creator = actions.getByRole('link', { name: 'Zaprojektuj pierścionek' })
+    const bookCta = actions.getByRole('link', { name: 'Umów wizytę' })
+    await expect(creator).toBeVisible()
+    await expect(bookCta).toBeVisible()
+    // Kolejność: kreator (drugorzędny, z obrysem) przed „Umów wizytę” (wypełniony).
+    const [a, b] = [await creator.boundingBox(), await bookCta.boundingBox()]
+    expect(a!.x).toBeLessThan(b!.x)
+    expect(await creator.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)')
+    expect(await bookCta.evaluate((el) => getComputedStyle(el).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)')
+    await expect(creator).not.toHaveAttribute('aria-current', 'page')
+
+    await creator.click()
+    await expect(page).toHaveURL(/\/kreator$/)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Zaprojektuj pierścionek')
+    await expect(creator).toHaveAttribute('aria-current', 'page')
+    await expect(bookCta).not.toHaveAttribute('aria-current', 'page')
+  })
+
+  test('nagłówek nie łamie się w szerokościach 960–1440 px', async ({ page }) => {
+    await visit(page, '/kontakt')
+    for (const width of [960, 1024, 1139, 1140, 1200, 1280, 1319, 1320, 1440]) {
+      await page.setViewportSize({ width, height: 800 })
+      const header = await page.locator('.site-header').boundingBox()
+      // Jeden rząd: poniżej 1140 px menu rozwijane, od 1140 px pełna nawigacja z dwoma przyciskami.
+      expect(header!.height, `wysokość nagłówka przy ${width} px`).toBeLessThan(120)
+      await noHorizontalScroll(page)
+      const desktop = width >= 1140
+      await expect(page.locator('.main-nav'), `menu poziome przy ${width} px`).toBeVisible({ visible: desktop })
+      await expect(page.locator('.menu-btn'), `przycisk menu przy ${width} px`).toBeVisible({ visible: !desktop })
+      if (desktop) {
+        const right = (await page.locator('.header-actions').boundingBox())!
+        expect(right.x + right.width).toBeLessThanOrEqual(width)
+      }
+    }
+  })
+})
+
 test.describe('Nawigacja na telefonie', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 
@@ -255,5 +300,20 @@ test.describe('Nawigacja na telefonie', () => {
     await page.locator('#mobile-menu').getByRole('link', { name: 'Obrączki' }).click()
     await expect(page).toHaveURL(/\/obraczki$/)
     await expect(page.locator('#mobile-menu')).toBeHidden()
+  })
+
+  test('w menu jest osobna pozycja kreatora, prowadzi do /kreator i jest oznaczona jako bieżąca', async ({ page }) => {
+    await visit(page, '/')
+    await page.getByRole('button', { name: 'Otwórz menu' }).click()
+    const menu = page.locator('#mobile-menu')
+    const creator = menu.getByRole('link', { name: 'Zaprojektuj pierścionek' })
+    await expect(creator).toBeVisible()
+    await expect(creator).not.toHaveAttribute('aria-current', 'page')
+    await creator.click()
+    await expect(page).toHaveURL(/\/kreator$/)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Zaprojektuj pierścionek')
+    await expect(menu).toBeHidden()
+    await page.getByRole('button', { name: 'Otwórz menu' }).click()
+    await expect(menu.getByRole('link', { name: 'Zaprojektuj pierścionek' })).toHaveAttribute('aria-current', 'page')
   })
 })

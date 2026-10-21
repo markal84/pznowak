@@ -351,9 +351,19 @@ summary::-webkit-details-marker {
   color: var(--graphite);
   cursor: pointer;
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .header-cta {
   min-height: 46px;
   padding: 0 24px;
+  white-space: nowrap;
+}
+.header-cta-creator[aria-current='page'] {
+  background: var(--graphite);
+  color: #f3f4ef;
 }
 .mobile-nav {
   display: none;
@@ -1748,10 +1758,34 @@ fieldset.plain legend {
   }
 }
 
-/* ---------- telefon ---------- */
-@media (max-width: 960px) {
-  .main-nav,
+/* ---------- nagłówek: dwa przyciski obok menu, więc ciaśniej; poniżej 1140 px menu rozwijane ---------- */
+@media (min-width: 1140px) {
+  .site-header-in {
+    padding-left: 28px;
+    padding-right: 28px;
+    gap: 14px 24px;
+  }
+  .main-nav {
+    gap: 6px 18px;
+  }
+  .header-actions {
+    gap: 8px;
+  }
   .header-cta {
+    padding: 0 18px;
+  }
+}
+@media (min-width: 1140px) and (max-width: 1319px) {
+  .brand-rule,
+  .brand-text {
+    display: none;
+  }
+}
+
+/* ---------- telefon ---------- */
+@media (max-width: 1139px) {
+  .main-nav,
+  .header-actions {
     display: none;
   }
   .menu-btn {
@@ -1793,6 +1827,12 @@ fieldset.plain legend {
     font-family: var(--serif);
     font-size: 28px;
     text-decoration: none;
+  }
+  .mobile-nav a.m-creator {
+    color: var(--velvet);
+  }
+  .mobile-nav a.m[aria-current='page'] {
+    font-weight: 600;
   }
   .mobile-nav .m-info {
     display: flex;

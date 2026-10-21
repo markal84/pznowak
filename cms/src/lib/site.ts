@@ -26,6 +26,9 @@ export const NAV = [
   { id: 'pracownia', label: 'Pracownia', href: '/pracownia' },
 ] as const
 
+/** Wyróżniona pozycja nagłówka (drugorzędny przycisk obok „Umów wizytę”, osobna pozycja w menu na telefonie). */
+export const CREATOR_LINK = { id: 'kreator', label: 'Zaprojektuj pierścionek', href: '/kreator' } as const
+
 export type NavId = (typeof NAV)[number]['id'] | 'home' | 'kontakt' | 'kreator'
 
 /**

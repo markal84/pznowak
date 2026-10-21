@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { NAV, SITE } from '@/lib/site'
+import { CREATOR_LINK, NAV, SITE } from '@/lib/site'
 
 function isCurrent(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + '/')
@@ -15,6 +15,7 @@ export default function SiteHeader() {
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
   const kontaktCurrent = pathname === '/kontakt'
+  const kreatorCurrent = isCurrent(pathname, CREATOR_LINK.href)
 
   return (
     <header className="site-header">
@@ -44,9 +45,18 @@ export default function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <Link aria-current={kontaktCurrent ? 'page' : undefined} className="btn header-cta" href="/kontakt">
-          Umów wizytę
-        </Link>
+        <div className="header-actions">
+          <Link
+            aria-current={kreatorCurrent ? 'page' : undefined}
+            className="btn btn-line header-cta header-cta-creator"
+            href={CREATOR_LINK.href}
+          >
+            {CREATOR_LINK.label}
+          </Link>
+          <Link aria-current={kontaktCurrent ? 'page' : undefined} className="btn header-cta" href="/kontakt">
+            Umów wizytę
+          </Link>
+        </div>
         <button
           aria-controls="mobile-menu"
           aria-expanded={open}
@@ -76,7 +86,15 @@ export default function SiteHeader() {
             {item.label}
           </Link>
         ))}
-        <Link className="m" href="/kontakt" onClick={close}>
+        <Link
+          aria-current={kreatorCurrent ? 'page' : undefined}
+          className="m m-creator"
+          href={CREATOR_LINK.href}
+          onClick={close}
+        >
+          {CREATOR_LINK.label}
+        </Link>
+        <Link aria-current={kontaktCurrent ? 'page' : undefined} className="m" href="/kontakt" onClick={close}>
           Umów wizytę
         </Link>
         <div className="m-info">
