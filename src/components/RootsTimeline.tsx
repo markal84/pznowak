@@ -1,5 +1,3 @@
-'use client'
-
 import Image, { StaticImageData } from 'next/image'
 
 // === Statyczne importy obrazów (ścieżka względna do folderu public) ===
@@ -54,59 +52,30 @@ const history: HistoryEvent[] = [
 
 export function RootsTimeline() {
   return (
-    <section id="korzenie" className="w-full py-[var(--space-section-md)]">
-      <h2 className="mb-12 text-center font-serif text-4xl sm:text-5xl font-light">
-        Nasze korzenie
-      </h2>
-
-      {/* Mobile: pionowa oś czasu */}
-      <ul role="list" className="relative space-y-12 md:hidden timeline-axis">
-        {history.map((event) => (
-          <li key={event.id} className="relative pl-8">
-            <span className="absolute -left-[3px] top-0 h-3 w-3 rounded-full bg-amber-400" />
-            <h3 className="text-lg font-semibold text-amber-600">{event.year}</h3>
-            <p className="mt-1 font-medium">{event.title}</p>
-            <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-              {event.description}
-            </p>
-          </li>
-        ))}
-      </ul>
-
-      {/* Desktop: 3‑kolumnowe karty */}
-      <ul role="list" className="hidden gap-8 md:grid md:grid-cols-3">
-        {history.map((event) => (
-          <li
-            key={event.id}
-            className="group relative overflow-hidden rounded-lg shadow-sm bg-[--color-surface]"
-          >
-            {/*
-              Zmiana: object-contain, aby całe zdjęcie było widoczne.
-              Stały aspekt + neutralne tło ogranicza CLS i zapewnia estetyczne „pasy”.
-            */}
-            <div className="relative w-full bg-[--color-surface-muted] aspect-[4/5] lg:aspect-[3/4]">
-              <Image
-                src={event.image}
-                alt={event.alt}
-                placeholder="blur"
-                fill
-                sizes="(min-width:1024px) 33vw, (min-width:768px) 50vw, 100vw"
-                className="object-contain object-center p-2 transition-transform duration-200 group-hover:scale-[1.02] motion-reduce:transform-none"
-              />
-            </div>
-            {/* Caption under image (no overlay) */}
-            <div className="p-4">
-              <span className="font-serif text-xl text-brand-gold block text-center">{event.year}</span>
-              <h3 className="mt-1 text-base font-medium text-gray-900 dark:text-white text-center">
-                {event.title}
-              </h3>
-              <p className="mt-2 text-center text-sm text-gray-700 dark:text-gray-300">
-                {event.description}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <section id="korzenie" className="section roots-section" aria-labelledby="roots-heading">
+      <div className="wrap">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">Rodzinna historia rzemiosła</span>
+            <h2 id="roots-heading">Nasze <em>korzenie.</em></h2>
+          </div>
+          <p className="roots-intro">Od warsztatu Wiktora po dzisiejszą pracownię Michała. Poznaj ludzi, którzy tworzyli tę historię.</p>
+        </div>
+        <ol className="roots-timeline">
+          {history.map((event) => (
+            <li key={event.id} className="roots-entry">
+              <div className="roots-date">{event.year}</div>
+              <div className="roots-portrait">
+                <Image src={event.image} alt={event.alt} sizes="(max-width: 600px) 160px, (max-width: 900px) 40vw, 22vw" />
+              </div>
+              <div className="roots-copy">
+                <h3>{event.title}</h3>
+                <p>{event.description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
     </section>
   )
 }

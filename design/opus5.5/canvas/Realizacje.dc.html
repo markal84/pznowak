@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Realizacje pracowni</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3;color:#22262A;font-family:'Schibsted Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#22262A}a:hover{color:#1D3832}
+img{display:block;max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;border-radius:999px;background:#1D3832;color:#F3F4EF;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;font-family:inherit;transition:background-color .15s}
+.btn:hover{background:#2C5148;color:#fff}
+.btn-light{background:#F3F4EF;color:#1D3832}.btn-light:hover{background:#fff;color:#1D3832}
+.tl{color:#22262A;font-size:15px;font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.tl:hover{color:#1D3832;text-decoration-thickness:2px}
+.tl-light{color:#E9E3D3}.tl-light:hover{color:#fff}
+.navl{text-decoration:none;color:#3A3F43}.navl:hover{color:#1D3832;text-decoration:underline;text-underline-offset:7px;text-decoration-thickness:1px}
+.chip{font-family:inherit;cursor:pointer;transition:background-color .15s,color .15s}
+.chip:hover{box-shadow:inset 0 0 0 1px #22262A}
+:focus-visible{outline:2px solid #A9782A;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:720px){.pad{padding-left:20px!important;padding-right:20px!important}}
+</style>
+</helmet>
+
+<div style="background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif">
+<dc-import name="Header" active="realizacje" hint-size="100%,100px"></dc-import>
+
+<main>
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 64px 40px 48px; display: flex; flex-wrap: wrap; gap: 24px 72px; align-items: flex-end; justify-content: space-between">
+  <h1 style="margin: 0; flex: 1 1 460px; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(46px, 5.8vw, 84px); line-height: 1; letter-spacing: -0.025em">Realizacje</h1>
+  <p style="margin: 0; flex: 1 1 380px; max-width: 32em; font-size: 18px; line-height: 1.62; color: #3A3F43">Biżuteria zrobiona dla konkretnych osób i rzeczy, które wróciły do życia po naprawie. Przy każdej piszemy krótko, co było zadaniem.</p>
+</section>
+
+<!-- WYRÓŻNIONA HISTORIA -->
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 0 40px 96px">
+  <article style="display: flex; flex-wrap: wrap; background: #FBFBF8">
+    <div style="flex: 1 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+      <img src="/_blob/37e5cc90b92dc9686847cde1c9e5d8bb" alt="Owalny pierścionek w stylu art déco z szafirem i diamentami, widok z przodu" style="width: 100%; aspect-ratio: 3 / 2; object-fit: cover">
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px">
+        <img src="/_blob/954998553814f31f0abf63417c901148" alt="Ten sam pierścionek od spodu, ażurowa podstawa oprawy" style="width: 100%; aspect-ratio: 3 / 2; object-fit: cover">
+        <span style="display: flex; align-items: flex-end; padding: 16px 20px; background: #DDDFD8; font-size: 14px; line-height: 1.5; color: #3A3F43">Od spodu widać ażurową podstawę, która przepuszcza światło do kamienia.</span>
+      </div>
+    </div>
+    <div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 22px; padding: 44px">
+      <span style="font-size: 14px; color: #575C5F">Na zamówienie, [rok]</span>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(32px, 3.2vw, 46px); line-height: 1.06">Owal w stylu art déco z szafirem</h2>
+      <dl style="margin: 0; display: flex; flex-direction: column; gap: 16px; font-size: 16px; line-height: 1.6">
+        <div style="display: flex; flex-direction: column; gap: 4px"><dt style="font-size: 14px; color: #575C5F">Zadanie</dt><dd style="margin: 0; color: #3A3F43">[Dla kogo i z jaką prośbą przyszedł klient, 1–2 zdania]</dd></div>
+        <div style="display: flex; flex-direction: column; gap: 4px"><dt style="font-size: 14px; color: #575C5F">Co zrobiliśmy</dt><dd style="margin: 0; color: #3A3F43">[Kamień, oprawa, technika, na co zwróciliśmy uwagę]</dd></div>
+        <div style="display: flex; flex-direction: column; gap: 4px"><dt style="font-size: 14px; color: #575C5F">Czas</dt><dd style="margin: 0; color: #3A3F43">[np. 5 tygodni od pierwszej rozmowy]</dd></div>
+      </dl>
+      <a class="btn" href="Kontakt.dc.html" style="align-self: flex-start; margin-top: auto">Chcę podobny pierścionek</a>
+    </div>
+  </article>
+</section>
+
+<!-- SIATKA REALIZACJI -->
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 0 40px 104px; display: flex; flex-direction: column; gap: 28px">
+  <div role="group" aria-label="Rodzaj realizacji" style="display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid #A9AAA3; padding-top: 24px">
+    <sc-for list="{{chips}}" as="c" hint-placeholder-count="3">
+      <button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+    </sc-for>
+  </div>
+  <sc-if value="{{hasItems}}" hint-placeholder-val="{{ true }}">
+    <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 40px 24px">
+      <sc-for list="{{items}}" as="r" hint-placeholder-count="5">
+        <li style="display: flex; flex-direction: column; gap: 14px">
+          <span style="position: relative; display: block">
+            <img src="{{r.img}}" alt="{{r.alt}}" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover">
+            <span style="position: absolute; left: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 2px; background: #FBFBF8; padding: 10px 16px 10px 30px; clip-path: polygon(13px 0, 100% 0, 100% 100%, 13px 100%, 0 calc(100% - 13px), 0 13px)">
+              <span aria-hidden="true" style="position: absolute; left: 10px; top: 50%; width: 7px; height: 7px; margin-top: -4px; border-radius: 50%; background: #2E2A24; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+              <span style="font-size: 12.5px; color: #575C5F">{{r.kind}}</span>
+            </span>
+          </span>
+          <h3 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 23px; line-height: 1.2">{{r.title}}</h3>
+          <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #575C5F">{{r.text}}</p>
+        </li>
+      </sc-for>
+    </ul>
+  </sc-if>
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; padding: 40px; background: #DDDFD8">
+      <p style="margin: 0; max-width: 34em; font-size: 16px; line-height: 1.6">Zdjęcia napraw „przed i po” dopiero zbieramy. Do tego czasu zobacz, jak pracujemy z biżuterią z historią.</p>
+      <a class="btn" href="Naprawy.dc.html">Naprawy i przeróbki</a>
+    </div>
+  </sc-if>
+</section>
+
+<!-- PRZED I PO -->
+<section style="background: #DDDFD8; border-top: 1px solid #C9CBC4; border-bottom: 1px solid #C9CBC4">
+  <div class="pad" style="max-width: 1320px; margin: 0 auto; padding: 88px 40px; display: flex; flex-direction: column; gap: 36px">
+    <div style="display: flex; flex-wrap: wrap; gap: 20px 64px; align-items: flex-end; justify-content: space-between">
+      <h2 style="margin: 0; flex: 1 1 420px; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(36px, 4vw, 56px); line-height: 1.04; letter-spacing: -0.015em">Przed i po naprawie</h2>
+      <p style="margin: 0; flex: 1 1 340px; max-width: 30em; font-size: 16px; line-height: 1.6; color: #3A3F43">Ten sam kadr przed przyjęciem i po odbiorze. Wystarczy zdjęcie telefonem na tym samym tle.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px">
+      <figure style="margin: 0; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px">
+          <div role="img" aria-label="Miejsce na zdjęcie przed naprawą" style="aspect-ratio: 1 / 1; display: flex; align-items: flex-end; padding: 14px; background: #E7E8E3; box-shadow: inset 0 0 0 1px #C9CBC4; font-size: 14px; color: #575C5F">[przed]</div>
+          <div role="img" aria-label="Miejsce na zdjęcie po naprawie" style="aspect-ratio: 1 / 1; display: flex; align-items: flex-end; padding: 14px; background: #FBFBF8; box-shadow: inset 0 0 0 1px #C9CBC4; font-size: 14px; color: #575C5F">[po]</div>
+        </div>
+        <figcaption style="font-size: 15px; line-height: 1.5">[np. Pierścionek po babci: nowe łapki, zmiana rozmiaru, polerowanie]</figcaption>
+      </figure>
+      <figure style="margin: 0; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px">
+          <div role="img" aria-label="Miejsce na zdjęcie przed przeróbką" style="aspect-ratio: 1 / 1; display: flex; align-items: flex-end; padding: 14px; background: #E7E8E3; box-shadow: inset 0 0 0 1px #C9CBC4; font-size: 14px; color: #575C5F">[przed]</div>
+          <div role="img" aria-label="Miejsce na zdjęcie po przeróbce" style="aspect-ratio: 1 / 1; display: flex; align-items: flex-end; padding: 14px; background: #FBFBF8; box-shadow: inset 0 0 0 1px #C9CBC4; font-size: 14px; color: #575C5F">[po]</div>
+        </div>
+        <figcaption style="font-size: 15px; line-height: 1.5">[np. Dwie stare obrączki przetopione na nowy pierścionek]</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- OPINIE -->
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 104px 40px 120px; display: flex; flex-direction: column; gap: 40px">
+  <div style="display: flex; flex-wrap: wrap; gap: 16px 48px; align-items: flex-end; justify-content: space-between">
+    <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(36px, 4vw, 56px); line-height: 1.04; letter-spacing: -0.015em">Opinie klientów</h2>
+    <a class="tl" href="#">Wszystkie opinie w Google</a>
+  </div>
+  <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px">
+    <li style="display: flex; flex-direction: column; gap: 18px; border-top: 1px solid #22262A; padding-top: 22px">
+      <p style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 22px; line-height: 1.4">[Prawdziwa opinia klienta z Google, skrócona do 2–3 zdań]</p>
+      <span style="font-size: 14px; color: #575C5F">[Imię, miesiąc i rok]</span>
+    </li>
+    <li style="display: flex; flex-direction: column; gap: 18px; border-top: 1px solid #22262A; padding-top: 22px">
+      <p style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 22px; line-height: 1.4">[Opinia o naprawie lub przeróbce]</p>
+      <span style="font-size: 14px; color: #575C5F">[Imię, miesiąc i rok]</span>
+    </li>
+    <li style="display: flex; flex-direction: column; gap: 18px; border-top: 1px solid #22262A; padding-top: 22px">
+      <p style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 22px; line-height: 1.4">[Opinia o obrączkach lub pierścionku zaręczynowym]</p>
+      <span style="font-size: 14px; color: #575C5F">[Imię, miesiąc i rok]</span>
+    </li>
+  </ul>
+</section>
+
+<section style="background: #1D3832; color: #EEF0EA">
+  <div class="pad" style="max-width: 1320px; margin: 0 auto; padding: 80px 40px; display: flex; flex-wrap: wrap; gap: 24px 64px; align-items: center; justify-content: space-between">
+    <h2 style="margin: 0; flex: 1 1 480px; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(32px, 3.4vw, 48px); line-height: 1.06; color: #F6F5EF">Twoja biżuteria może być następna na tej stronie</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center">
+      <a class="btn btn-light" href="Kontakt.dc.html">Umów wizytę</a>
+      <a class="tl tl-light" href="NaZamowienie.dc.html">Jak pracujemy na zamówienie</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<dc-import name="Footer" hint-size="100%,480px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { kind: 'all' };
+  }
+  renderVals() {
+    const works = [
+      { k: 'zamowienie', kind: 'Na zamówienie', title: 'Markiza ze szmaragdem', text: '[Krótko: dla kogo i co było zadaniem]', img: '/_blob/12fe9d05f3bf615749db61fdac1c67b0', alt: 'Wydłużony pierścionek w kształcie markizy ze szmaragdem i diamentami' },
+      { k: 'zamowienie', kind: 'Na zamówienie', title: 'Filigranowa oprawa z szafirem', text: '[Krótko: dla kogo i co było zadaniem]', img: '/_blob/49b78907b27874a53913605a7ab78d38', alt: 'Pierścionek z filigranową oprawą i szafirem na kamieniu' },
+      { k: 'zamowienie', kind: 'Na zamówienie', title: 'Szafir w ażurowej koronie', text: '[Krótko: dla kogo i co było zadaniem]', img: '/_blob/36da5a95780cde73c12c298c4ad615df', alt: 'Pierścionek z szafirem w ażurowej oprawie z diamentami' },
+      { k: 'zamowienie', kind: 'Na zamówienie', title: 'Trzy pierścionki z brylantem', text: '[Krótko: dla kogo i co było zadaniem]', img: '/_blob/e0235894365189b23d83677315e0bfb6', alt: 'Trzy złote pierścionki z pojedynczym brylantem na drewnianym stole' },
+      { k: 'zamowienie', kind: 'Z pracowni', title: 'Diament przed oprawą', text: '[Krótko: do jakiego pierścionka trafił ten kamień]', img: '/_blob/f1e47da45bec6fe1117da3f1f98b9403', alt: 'Diament w szlifie szmaragdowym leżący na karcie z parametrami kamienia' }
+    ];
+    const kinds = [
+      { id: 'all', label: 'Wszystkie' },
+      { id: 'zamowienie', label: 'Na zamówienie' },
+      { id: 'naprawa', label: 'Naprawy i przeróbki' }
+    ];
+    const k = this.state.kind;
+    const items = works.filter((w) => k === 'all' || w.k === k);
+    return {
+      chips: kinds.map((c) => ({
+        label: c.label,
+        pressed: c.id === k ? 'true' : 'false',
+        style: c.id === k
+          ? 'min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #1D3832; color: #F3F4EF; font-size: 14.5px; font-weight: 500'
+          : 'min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #FBFBF8; color: #22262A; font-size: 14.5px',
+        pick: () => this.setState({ kind: c.id })
+      })),
+      items,
+      hasItems: items.length > 0,
+      isEmpty: items.length === 0
+    };
+  }
+}
+</script>
+</body>
+</html>

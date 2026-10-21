@@ -16,6 +16,7 @@ wp_ring_importer.py
 
 # testing
 /coverage
+/output/
 
 # next.js
 /.next/
@@ -44,3 +45,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# tracked backend documentation and safe environment template
+!backend/README.md
+!backend/.env.example
+!cms/README.md
+!cms/.env.example
+
+!cms/docs/
+!cms/docs/**/*.md
+!data/legacy/README.md
+/.playwright-cli/

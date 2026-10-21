@@ -1,0 +1,5 @@
+.vercel
+.neon
+node_modules
+.env*
+!.env.example

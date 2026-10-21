@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Grafiki SVG pracowni</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3}
+img{display:block}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 2600px; box-sizing: border-box; padding: 72px 80px 96px; background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif; display: flex; flex-direction: column; gap: 64px">
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; border-bottom: 1px solid #22262A; padding-bottom: 20px">
+    <h1 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 64px; line-height: 1; letter-spacing: -0.02em">Grafiki SVG</h1>
+    <span style="max-width: 46em; font-size: 15px; line-height: 1.5; color: #575C5F; text-align: right">62 pliki w design/opus5.5/svg. Ikony na siatce 24 px, kreska 1,5 px, kolor z currentColor. Szlify i oprawy na wspólnej geometrii, tej samej co w kreatorze.</span>
+  </div>
+
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: baseline; gap: 16px"><h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px">Ikony</h2><span style="font-size: 14px; color: #575C5F">ikony/*.svg, 36 sztuk, pokazane w 48 px</span></div>
+    <div style="display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{icons}}" as="i" hint-placeholder-count="36">
+        <figure style="margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 8px 12px; background: #FBFBF8">
+          <img src="{{i.src}}" alt="" style="width: 48px; height: 48px">
+          <figcaption style="font-size: 12.5px; color: #3A3F43; text-align: center">{{i.name}}</figcaption>
+        </figure>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: baseline; gap: 16px"><h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px">Szlify kamieni</h2><span style="font-size: 14px; color: #575C5F">szlify/*.svg, widok z góry z fasetami</span></div>
+    <div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{cuts}}" as="i" hint-placeholder-count="8">
+        <figure style="margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 22px 8px 14px; background: #FBFBF8">
+          <img src="{{i.src}}" alt="" style="width: 96px; height: 96px">
+          <figcaption style="font-size: 13px; color: #3A3F43">{{i.name}}</figcaption>
+        </figure>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: 3fr 2fr; gap: 48px">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; align-items: baseline; gap: 16px"><h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px">Oprawy</h2><span style="font-size: 14px; color: #575C5F">oprawy/*.svg</span></div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{settings}}" as="i" hint-placeholder-count="6">
+          <figure style="margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 8px 14px; background: #FBFBF8">
+            <img src="{{i.src}}" alt="" style="width: 120px; height: 120px">
+            <figcaption style="font-size: 13px; color: #3A3F43">{{i.name}}</figcaption>
+          </figure>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; align-items: baseline; gap: 16px"><h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px">Profile obrączek</h2><span style="font-size: 14px; color: #575C5F">profile/*.svg</span></div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{profiles}}" as="i" hint-placeholder-count="4">
+          <figure style="margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 8px 14px; background: #FBFBF8">
+            <img src="{{i.src}}" alt="" style="width: 160px; height: 96px">
+            <figcaption style="font-size: 13px; color: #3A3F43">{{i.name}}</figcaption>
+          </figure>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: baseline; gap: 16px"><h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px">Etapy pracy</h2><span style="font-size: 14px; color: #575C5F">etapy/*.svg, do strony „Na zamówienie” i kreatora</span></div>
+    <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{steps}}" as="i" hint-placeholder-count="6">
+        <figure style="margin: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px 16px 18px; background: #FBFBF8">
+          <img src="{{i.src}}" alt="" style="width: 100%; height: auto; aspect-ratio: 4 / 3">
+          <figcaption style="display: flex; gap: 10px; align-items: baseline"><span style="font-family: Newsreader, Georgia, serif; font-size: 20px; color: #7C5B1E">{{i.n}}</span><span style="font-size: 14px">{{i.name}}</span></figcaption>
+        </figure>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; align-items: baseline; gap: 16px"><h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px">Przywieszka</h2><span style="font-size: 14px; color: #575C5F">marka/przywieszka.svg</span></div>
+      <div style="display: flex; align-items: center; justify-content: center; padding: 40px; background: #1D3832"><img src="/_blob/bf0c8a80dd57ae8a5fe265934985ca0f" alt="Przywieszka pracowni" style="width: 360px; height: auto"></div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3A3F43">Do opakowań, wizytówek, kart gwarancyjnych i grafik na Instagram. Na stronie przywieszka jest budowana w CSS, żeby tekst dało się edytować.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; align-items: baseline; gap: 16px"><h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 32px">Miarka do druku</h2><span style="font-size: 14px; color: #575C5F">druk/miarka-rozmiaru-a4.svg</span></div>
+      <div style="display: flex; gap: 28px; align-items: flex-start">
+        <img src="/_blob/7f7e22507675b658d541a531c0612994" alt="Miarka rozmiaru pierścionka w formacie A4" style="width: 260px; height: auto; box-shadow: 0 0 0 1px #C9CBC4">
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3A3F43">Arkusz A4 w milimetrach: kółka dla rozmiarów 8–25 według polskiej skali (obwód w mm minus 40) i odcinek kontrolny 50 mm. Odpowiedź na pytanie „jak sprawdzić rozmiar po cichu”. Skalę musi potwierdzić Michał przed publikacją.</p>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const b = (id) => '/_blob/' + id;
+    return {
+      icons: [
+        ['pierscionek', '250ac612e9b8798e80427456062716fe'], ['obraczki', 'ce9feb986bdbb446606051ea3aec7225'], ['kamien', '2e52020ea3079e85869b94362c07de29'], ['oprawa', 'e2310537cc2d8be7d6db1238faf5484e'], ['rozmiar', 'eff4737ee2145a3e956586f9153826f8'], ['czyszczenie', 'e860fec750b6c46ea71319a1c538cdaa'], ['polerowanie', '264e9545c76a027250c5b3688c6c6bcc'], ['grawer', 'a6c8d6f1644c020c78b684e5a21baa98'], ['lancuszek', 'f71af115b3676db59d2fffbf1f794566'],
+        ['renowacja', '94dd6afb023aad2d24742c8d290016a2'], ['przetopienie', 'a37bd6fcc0326d79154e52d3d1b1e526'], ['lupa', 'bbeb0a8503d2104f3dec9a7eb75d8b93'], ['szkic', 'b01fbfb24226546f9ea46ead164500b8'], ['model-3d', 'e5eff48b495170464bb11624e8aa456b'], ['rozmowa', 'f26e88b9c29d8f3c79df43747d6cc04b'], ['okazja', '6509687082d44f99fafbfd7b610c2313'], ['prezent', 'fc975f820a5ea8313699468b679a7e90'], ['sklep', 'f1663e21bd4093489cafe072b1ae0b32'],
+        ['gwarancja', '2e302f94c26bfe94a935f008c3a9968f'], ['certyfikat', '4b9fbf34d2105e63f38209fe9b784507'], ['proba-zlota', 'f25372691f861fdc944355b85572270f'], ['telefon', '13cf2b196ebe38d2ef61493a12f1f200'], ['mail', '069f37856744f9deb1c4a2c0e3c1fd62'], ['lokalizacja', 'febe8ff0e285882178051beafb4d2797'], ['zegar', '22fa7bab31bb2aa0cbabd0945707b256'], ['kalendarz', 'd287b794b734b4be8964fc727b7343d4'], ['odtworz', 'eb43f1f17f1aba9953a8dbb95784abdd'],
+        ['menu', '5e3e520f13cd56a5a9c6b2c7f1b6ae03'], ['zamknij', '5d61c005df0bb6fd0d6cd965b6408942'], ['plus', '753b7b7be7f8c6f4217f0a7612ca28a4'], ['minus', '59d75f1136be91392712c70c52827332'], ['chevron-dol', '9aee85a65c5468748c40744717d2fbf0'], ['chevron-lewo', '667cee06b9d05fbd575eedd0223707ff'], ['chevron-prawo', 'f6ca33ebc27539b76f57d22ddbe456fe'], ['gotowe', 'd770d11e22c97da254861be7b39bd8a1'], ['informacja', '3d7bdc813afdfe1747d32b20672039c7']
+      ].map(([name, id]) => ({ name, src: b(id) })),
+      cuts: [
+        ['Okrągły', 'dfd9113171b4c123c682e450854db09d'], ['Owal', '93a2db861827bc969e13478b57b94632'], ['Markiza', 'ae8810bda31f50778056910565545e3a'], ['Gruszka', '279496ade9aa034d696bcaf813afab82'],
+        ['Szmaragdowy', 'f048a86a6efc7dc99f95aa422f4ffdc8'], ['Poduszka', 'c353b66e276c623093afb00e98bb5a14'], ['Princessa', 'b29bbd00380788453910be6ad7c72ff6'], ['Serce', 'a25b637a56a5753efeb4a42adb32e315']
+      ].map(([name, id]) => ({ name, src: b(id) })),
+      settings: [
+        ['Cztery łapki', '92d6e8862feb6277e755b02099dc684c'], ['Sześć łapek', '73292f43bf957547ca7206b9e430e539'], ['Kaszta', '6d9d8a9ff44ad408ca153a3f95dbcb93'],
+        ['Halo', '2e033542da1a09ffa0a8ce3d2413deed'], ['Trylogia', '194b8ff2979d1ba70469bb98c10abe0e'], ['Pavé', '0ae8de9236f075c20462ae8d62f77d9e']
+      ].map(([name, id]) => ({ name, src: b(id) })),
+      profiles: [
+        ['Płaska', '1e0ab5b14c7ce2da47b112fc4b2f8f47'], ['Półokrągła', 'aee7f6df4ab48ad501fc98f67335536e'], ['Komfort', 'c7afef08496caeea831297ee3325200e'], ['Fazowana', 'f230f9aa1f94486f6ef5651423fa8c24']
+      ].map(([name, id]) => ({ name, src: b(id) })),
+      steps: [
+        ['1', 'Rozmowa', '099ddb1f54bf1cd9b94e6cb6233fed96'], ['2', 'Szkic', 'dd655cd41d7097142eb60a9eb1df0586'], ['3', 'Model 3D', 'df5dcc11bdad3af1fcd26656d7236de4'],
+        ['4', 'Wykonanie', '79c993fc035b1e0ee00b60cf4dd76283'], ['5', 'Oprawa', '25d62ef321d0483ecf0815c0a86423e4'], ['6', 'Odbiór', 'd9aa6e4f44a3f5bdd034c9ec946c269e']
+      ].map(([n, name, id]) => ({ n, name, src: b(id) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

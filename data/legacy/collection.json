@@ -1,0 +1,643 @@
+{
+  "products": [
+    {
+      "id": 529,
+      "slug": "merope-2",
+      "name": "Merope",
+      "description": "",
+      "lead": "Elegancki pierścionek Merope",
+      "images": [
+        "/jewelry/1-57-1024x683.jpg",
+        "/jewelry/2-58-1024x683.jpg",
+        "/jewelry/3-54-1024x683.jpg"
+      ],
+      "video": "",
+      "metal": "Złoto",
+      "stone": "",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 517,
+      "slug": "electra-2",
+      "name": "Electra",
+      "description": "",
+      "lead": "Topaz mystic o cudownej tęczowej barwie z diamentami",
+      "images": [
+        "/jewelry/1-54-1024x683.jpg",
+        "/jewelry/2-55-1024x683.jpg",
+        "/jewelry/3-51-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2026/02/vid-37.mp4",
+      "metal": "Złoto",
+      "stone": "Topaz i diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 503,
+      "slug": "prometheus-2",
+      "name": "Prometheus",
+      "description": "Pierścionek z 3 naturalnymi szafirami w unikatowych barwach: różowej, fioletowej i czerwonej oraz szmaragdem. Subtelna złota oprawa podkreśla ich blask – biżuteria, która przyciąga spojrzenia i emanuje energią kolorów.",
+      "lead": "Elegancki pierścionek Prometheus",
+      "images": [
+        "/jewelry/1-51-1024x683.jpg",
+        "/jewelry/2-52-1024x683.jpg",
+        "/jewelry/3-48-683x1024.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2026/02/vid-35.mp4",
+      "metal": "Złoto",
+      "stone": "",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 498,
+      "slug": "euterpe-2",
+      "name": "Euterpe",
+      "description": "Cudowny szmaragd w kolorze blue green z diamentami zamknięty w rozetowej oprawie . Ciężko oderwać wzrok od tej pięknej morskiej zieleni odbijającej promienie słońca",
+      "lead": "Elegancki pierścionek Euterpe",
+      "images": [
+        "/jewelry/1-50-1024x683.jpg",
+        "/jewelry/2-51-683x1024.jpg",
+        "/jewelry/3-47-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2026/02/vid-34.mp4",
+      "metal": "Złoto",
+      "stone": "Szmaragd i diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 458,
+      "slug": "leto-2",
+      "name": "Leto",
+      "description": "",
+      "lead": "Elegancki pierścionek Leto",
+      "images": [
+        "/jewelry/1-41-683x1024.jpg",
+        "/jewelry/2-42-1024x683.jpg",
+        "/jewelry/3-39-683x1024.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2026/02/vid-29.mp4",
+      "metal": "Złoto",
+      "stone": "",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 398,
+      "slug": "celaeno",
+      "name": "Celaeno",
+      "description": "Efektowny, złoty, ażurowy pierścionek w formie liścia z diamentami. Konstrukcja z wielu cienkich, wygiętych żeber tworzy dekoracyjny rysunek, a obwód oraz przekątne są gęsto wysadzane drobnymi diamentami, które podkreślają kształt i nadają mu świetlistości. Model bogato zdobiony",
+      "lead": "Elegancki pierścionek Celaeno",
+      "images": [
+        "/jewelry/1-28-1024x683.jpg",
+        "/jewelry/2-29-1024x683.jpg",
+        "/jewelry/3-27-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2026/02/vid-19.mp4",
+      "metal": "Złoto",
+      "stone": "",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 393,
+      "slug": "taygete",
+      "name": "Taygete",
+      "description": "",
+      "lead": "Elegancki pierścionek Taygete",
+      "images": [
+        "/jewelry/1-27-683x1024.jpg",
+        "/jewelry/2-28-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2026/02/vid-18.mp4",
+      "metal": "Złoto",
+      "stone": "",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 385,
+      "slug": "maia",
+      "name": "Maia",
+      "description": "",
+      "lead": "Elegancki pierścionek Maia",
+      "images": [
+        "/jewelry/1-25-1024x683.jpg",
+        "/jewelry/2-26-1024x683.jpg",
+        "/jewelry/3-25-1024x683.jpg"
+      ],
+      "video": "",
+      "metal": "Złoto",
+      "stone": "",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 372,
+      "slug": "cassiopeia",
+      "name": "Cassiopeia",
+      "description": "",
+      "lead": "Elegancki pierścionek Cassiopeia",
+      "images": [
+        "/jewelry/1-22-1024x682.jpg",
+        "/jewelry/2-23-1024x682.jpg",
+        "/jewelry/3-22-1024x682.jpg"
+      ],
+      "video": "",
+      "metal": "Złoto",
+      "stone": "",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 344,
+      "slug": "thalia",
+      "name": "Thalia",
+      "description": "Głęboki błękit topazu London Blue, oprawiony w ciepły blask złota i otulony subtelnym światłem diamentów — ten pierścionek to esencja wyrafinowanego piękna.Jego ponadczasowy design, elegancka linia i precyzyjne wykonanie sprawiają, że staje się czymś więcej niż biżuterią — to symbol emocji, które zostają na zawsze.Stworzony z myślą o kobietach, które kochają piękno z charakterem.",
+      "lead": "Elegancki pierścionek Thalia",
+      "images": [
+        "/jewelry/1-16-1024x683.jpg",
+        "/jewelry/2-17-683x1024.jpg",
+        "/jewelry/3-16-1024x683.jpg"
+      ],
+      "video": "",
+      "metal": "Złoto",
+      "stone": "",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 332,
+      "slug": "terpsichore",
+      "name": "Terpsichore",
+      "description": "Jesień otula złotem, a w jej słońcu budzi się wąż – symbol mocy i odrodzenia.",
+      "lead": "Elegancki pierścionek Terpsichore",
+      "images": [
+        "/jewelry/1-13-682x1024.jpg",
+        "/jewelry/2-14-682x1024.jpg",
+        "/jewelry/3-13-1024x682.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2026/02/vid-12.mp4",
+      "metal": "Złoto",
+      "stone": "",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 227,
+      "slug": "pierscionek-22",
+      "name": "Daphne",
+      "description": "Turmalin oliwkowy 0,93 ct (octagon) w złocie 585; romantyczny motyw liści nadaje biżuterii miękkości.",
+      "lead": "Oliwkowy turmalin w szlifie oktagon i roślinny detal — poetycka kompozycja.",
+      "images": [
+        "/jewelry/559537858_122158713122616875_2181757851967116382_n-1024x683.jpg",
+        "/jewelry/558301413_122158713110616875_3728876808884052658_n-683x1024.jpg",
+        "/jewelry/558890012_122158713068616875_4562075833488016299_n-683x1024.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQPWQbq4BM-VTTfVox1l4icQ2bt1qouTDJaHJLRmdzmrxWP-fUr-RRidMH8nnEwqhLBvecONFnRMD9BmtThpoxNqPmCFLlzkRBKfdP2ZWgBsFA.mp4",
+      "metal": "Żółty",
+      "stone": "Turmalin oliwkowy",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 222,
+      "slug": "pierscionek-21",
+      "name": "Pyrrha",
+      "description": "Rubin 0,5 ct i 10 brylantów łącznie 0,15 ct w złocie 585; ręczna oprawa każdego kamienia.",
+      "lead": "Rubin i brylanty — klasyka, która płonie czerwienią.",
+      "images": [
+        "/jewelry/556567240_122158670450616875_36706868027100241_n-1024x683.jpg",
+        "/jewelry/556954558_122158670414616875_5977421602371462442_n-1024x683.jpg",
+        "/jewelry/558668606_122158670426616875_1019329995988915388_n-683x1024.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQMQhnpM1Ue_2QdLA2bP6n8ZvSKQfijyE-_e6VOE8nSPbRGAvc-n-l2VMZWDcVjlKU_AgzovLQ49k626JDm_WxEn4eCSQBhLrz9O-lSS5Jb_oA.mp4",
+      "metal": "Żółty",
+      "stone": "Rubin, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 217,
+      "slug": "pierscionek-20",
+      "name": "Thalassa",
+      "description": "7 brylantów 0,15 ct i 6 diamentów niebieskich 0,12 ct; złoto próby 586, waga ok. 1,94 g.",
+      "lead": "",
+      "images": [
+        "/jewelry/556772636_122158649318616875_8953921458265689142_n-683x1024.jpg",
+        "/jewelry/557606952_122158649282616875_2842363272141127862_n-683x1024.jpg",
+        "/jewelry/557410367_122158649270616875_7314498391072868585_n-683x1024.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQNezCmD54GT89BioMlYyaNxB52xifpXRGh1pRPr15cZY5E25DOZ3R3mrg5254dXEWj4aIHlOsraRu0skDVyEolZcRaBfsO7OThOIpoeBhc0jw.mp4",
+      "metal": "Żółty",
+      "stone": "Rubin, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 212,
+      "slug": "pierscionek-19",
+      "name": "Urania",
+      "description": "Błękitny topaz w złotej oprawie, rozświetlony drobnymi diamentami; lekki i bardzo świetlisty charakter. Pierścionek stworzony, by zatrzymywać spojrzenia i serca.",
+      "lead": "Błękit nieba i iskrzące akcenty — topaz z diamentami.",
+      "images": [
+        "/jewelry/557903524_122158637246616875_2692591890710495238_n-1024x683.jpg",
+        "/jewelry/557930792_122158637264616875_6448592044616193409_n-1024x683.jpg",
+        "/jewelry/558350543_122158637234616875_7041141831291256652_n-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQPvcPa0Uz_JoZheMM_gR2zW7Yx8Ze7OnXNxjR6CfJXMzRjJbUhRpbA04zaqrLjJF0MI5F15ePFdHD1I7Byf2cySAER0n1xP5boLh-E_pYxiRw.mp4",
+      "metal": "Żółty",
+      "stone": "Topaz błękitny, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 207,
+      "slug": "pierscionek-18",
+      "name": "Nyx",
+      "description": "Topaz London Blue otulony ciepłem złota i subtelnym światłem diamentów; klasyka w nowoczesnym wydaniu. Jego ponadczasowy design, elegancka linia i precyzyjne wykonanie sprawiają, że staje się czymś więcej niż biżuterią — to symbol emocji, które zostają na zawsze. Stworzony z myślą o kobietach, które kochają piękno z charakterem.",
+      "lead": "Głęboki London Blue — nocny odcień topazu w towarzystwie diamentów.",
+      "images": [
+        "/jewelry/517395163_122146668320616875_1130408888123729720_n-683x1024.jpg",
+        "/jewelry/516746856_122146668344616875_8750395572297232691_n-1024x683.jpg",
+        "/jewelry/518290785_122146668314616875_2593321308739517344_n-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQOz3oMjcYkQze4rx6_Jot-r5rc_qtBX-wZvNrJu9bmvEvfiOPgpd4E7kj8YA8SqNDosMlFzAcr6Tia9yc7tEVBVbv9rSk0ZafU.mp4",
+      "metal": "Żółty",
+      "stone": "Topaz London Blue, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 202,
+      "slug": "pierscionek-17",
+      "name": "Eirene",
+      "description": "Różowy turmalin podkreślony chłodnym blaskiem diamentów; delikatny, ale wyrazisty akcent kolorystyczny.\n\n\n\nTurmalin – kamień szlachetny znany ze swojej wyjątkowej energii i niezwykle rzadkiej barwy. Jego głęboki, malinowy odcień doskonale kontrastuje z chłodnym połyskiem diamentów, podkreślając jego naturalne piękno.\n\n\n\nDiamenty – symbol czystości i wieczności. Dwa drobne, ale pełne blasku kamienie dodają elegancji i lekkości całej kompozycji",
+      "lead": "Malinowy turmalin i dwa diamenty — subtelna równowaga i spokój.",
+      "images": [
+        "/jewelry/516442242_122146508510616875_8243059437227859306_n-683x1024.jpg",
+        "/jewelry/516559406_122146508456616875_2527500148135308151_n-683x1024.jpg",
+        "/jewelry/516740104_122146508468616875_6907663116206423818_n-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQM36LwsUyjMh8vYxkKxzWsVoRj8vubDESYWr2DWX7H7zPITjN2vrqaqLsUi_wxYfgeUMk3CdmzC_nxApMfIk7iNW7AkcVYyRxN2VBxIo9zYvQ.mp4",
+      "metal": "Żółty",
+      "stone": "Turmalin różowy, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 196,
+      "slug": "pierscionek-16",
+      "name": "Harmonia",
+      "description": "Morganit z diamentami w układzie trzech kamieni; miękki odcień różu, ręczna oprawa i smukła linia.",
+      "lead": "Trilogy z morganitem — przeszłość, teraźniejszość i przyszłość w jednej kompozycji.",
+      "images": [
+        "/jewelry/516380962_122146377212616875_435414767702872138_n-683x1024.jpg",
+        "/jewelry/516756978_122146377206616875_2113159612379438429_n-683x1024.jpg",
+        "/jewelry/516733855_122146377230616875_7968800775722555118_n-1024x683.jpg",
+        "/jewelry/516451290_122146377164616875_1761828763167790714_n-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQNmwEaAX5LkAB-y55ckr2f4wAs3xTf0Poxr2jchGIEJ5eKMuvZ4b0JrOvqKJSEF8ciJKnrnI9cHRzyzv1jD_C3oPL2uov59evg.mp4",
+      "metal": "Żółty",
+      "stone": "Morganit, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 190,
+      "slug": "pierscionek-15",
+      "name": "Cyane",
+      "description": "Diament niebieski 0,16 ct i 16 diamentów 0,25 ct; spektakularny efekt światła i kontrastu.W centrum kompozycji znajduje się hipnotyzujący niebieski diament, którego głęboka barwa symbolizuje lojalność, zaufanie i siłę emocji. Kamień ten otoczony jest jasnymi diamentami , które potęgują jego blask, tworząc spektakularny efekt świetlny.",
+      "lead": "Niebieski diament w halo — głębia barwy otoczona świetlistą aureolą.",
+      "images": [
+        "/jewelry/516963860_122146302710616875_5069761323671397972_n-1024x683.jpg",
+        "/jewelry/516720575_122146302680616875_3682765357402159369_n-683x1024.jpg",
+        "/jewelry/516066180_122146302740616875_8768136860432387588_n-1024x683.jpg",
+        "/jewelry/515501763_122146302668616875_2931523350292918468_n-683x1024.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQMBPzjx_PrB-LKywBkOQdJHhGSQwJlMZQ7fN2_7xcjtot1RY2MsVPOCdbtz_iS9RqMruo1OcgNmuCBnkgrrdZ_gC6jt-V1TIS9CvuP3s8LcsQ.mp4",
+      "metal": "Żółty",
+      "stone": "Diament niebieski, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 185,
+      "slug": "pierscionek-14",
+      "name": "Hestia",
+      "description": "Model w żółtym złocie z diamentem; forma „six-prong” uwydatnia brylancję kamienia.\n\n\n\nProsty i elegancki design. Pierścionki w sześciu łapach są często wybierane ze względu na swoją ponadczasową i elegancką formę, która pięknie uwydatnia kamień centralny",
+      "lead": "Klasyka, która broni się sama — sześć łap trzyma diament w czystym, eleganckim kształcie.",
+      "images": [
+        "/jewelry/504831419_122142162182616875_9143894248516053307_n-1024x682.jpg",
+        "/jewelry/504892945_122142162176616875_1741039862173246845_n-1024x682.jpg",
+        "/jewelry/505009212_122142162194616875_3596809515517989234_n-1024x682.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQNFMFb4I2eps2Wld7Jh8UdRB-izLFnKV0NqNf7GbQ88XynfOe31lO09iHrOmuwLy00qXhIDzvljLH1UVH5QdydT9KsU5h3hnfSVcodVr9AqZw.mp4",
+      "metal": "Żółty",
+      "stone": "Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 180,
+      "slug": "pierscionek-13",
+      "name": "Dione",
+      "description": "Klasyczny, elegancki pierścionek zaręczynowy typu solitaire z diamentem w koronie sześciopazurkowej\n\n\n\nDiament 0,23 ct; żółta, zwężana szyna i biały koszyk pięknie eksponują kamień.",
+      "lead": "Ponadczasowy solitaire w dwukolorowej koronie na sześciu łapkach.",
+      "images": [
+        "/jewelry/504469026_122141883776616875_6457796563475997899_n-1024x682.jpg",
+        "/jewelry/504831749_122141883848616875_4855309592971258723_n-682x1024.jpg",
+        "/jewelry/504486165_122141883836616875_2952552262563745716_n-1024x682.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQPWdM5Bxr-RmdVwmnjNZq-dTOxHYDh7SWfrtBR4ZzZlmT7fx5Chtfy_68mhhQWmYtfkIzL5W1ST9iLM_-VUPc3XbWaf6gJl-jHShnpKWw3-9Q.mp4",
+      "metal": "Żółty i biały",
+      "stone": "Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 173,
+      "slug": "pierscionek-12",
+      "name": "Athena",
+      "description": "Szmaragd 0,90 ct (Zambia) i diamenty 0,50 ct; dwukolorowe złoto 585, waga ok. 5,05 g.\n\n\n\nTa 2,5 cm piękność to arcydzieło sztuki jubilerskiej, połączenie złota żółtego i białego w próbie złota 585, solidna szyna i ciekawa oprawa, której uwaga skupia się na przepięknym jasnozielonym szmaragdzie, ale też nie ustępuje blasku diamentom \n\n\n\nWaga pierścionka to 5,05 grama, certyfikat autentyczności kamieni .\n\n\n\nSzmaragd według wierzeń, to kamień łączony z czystością, wiernością i zamożnością. Sprzyja przyciąganiu dobrej energii i ułatwia relacje z innymi. Doskonale wpływa na pozytywne myślenie i wzmacnia empatię, a także uchodzi za kamień miłości.",
+      "lead": "Art déco w zielonej odsłonie — geometryczna elegancja i bogactwo szmaragdu.",
+      "images": [
+        "/jewelry/470198967_122111882990616875_4420467916375926706_n-1024x683.jpg",
+        "/jewelry/470215298_122111883002616875_3986850744892988808_n-1024x683.jpg",
+        "/jewelry/470148657_122111882972616875_6829378411535137418_n-683x1024.jpg",
+        "/jewelry/470229787_122111883020616875_7646471427213237694_n-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQPLCq4nsziWT9DqbTX8HllHW2_HPstd_6ZPqJXQNXM6ivgCQE4diRdKOabRIW8H9XT7xgd9V9DSV9EPBwyTZ-jx.mp4",
+      "metal": "Żółty i biały",
+      "stone": "Szmaragd, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 167,
+      "slug": "pierscionek-11",
+      "name": "Chryse",
+      "description": "Cytryn 0,39 ct z diamentami 0,18 ct; ręczna oprawa podkreśla klarowność i połysk kamieni.\n\n\n\nKażdy z kamieni oprawiany ręcznie z dbałością o najmniejszy szczegół, który gwarantuje długowieczność pierścionka \n\n\n\nCytryn – odmiana kwarcu który należy do minerałów rzadkich. Najbardziej czyste i największe kryształy pochodzą z Campo Belo, Sete Lagoas, Minas Gerais w Brazylii. Oprócz tego na Uralu – Rosja i Madagaskarze.",
+      "lead": "Słoneczny cytryn i świetlista oprawa — ciepło w szlachetnej formie.",
+      "images": [
+        "/jewelry/470156784_122111516504616875_843400416062377607_n-1024x683.jpg",
+        "/jewelry/470227744_122111516516616875_4183876251770932540_n-1024x683.jpg",
+        "/jewelry/470173989_122111516546616875_8074996220392041955_n-683x1024.jpg",
+        "/jewelry/470018528_122111516534616875_6933319461359757067_n-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQPO3flDr8SHcLxqTB0esGNUpJeGbsZBmEA-vm3_em73z1fmdWl0nORtW23nWH67Ji0jdZWu0WWXuxX-D3rILivfJlnuUHEkrPg.mp4",
+      "metal": "Żółty",
+      "stone": "Cytryn, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 161,
+      "slug": "pierscionek-10",
+      "name": "Phoebe",
+      "description": "Tanzanit 1,33 ct i 10 diamentów 0,30 ct w złocie próby 585; efektowna gra barw od fioletu po głęboki błękit.\n\n\n\nZobaczcie  jak tanzanit pięknie przechodzi od barwy fioletowej w niebieską w zależności od padającego światła \n\n\n\nWaga pierścionka to 5,16 g",
+      "lead": "Wiktoriański charakter i fioletowo-niebieski ogień tanzanitu, otulony koroną diamentów.",
+      "images": [
+        "/jewelry/470051606_122111366966616875_6671083676677230809_n-1024x683.jpg",
+        "/jewelry/470221135_122111366882616875_2857160378326643557_n-1024x683.jpg",
+        "/jewelry/470208869_122111366924616875_8204794614318499830_n-1024x683.jpg",
+        "/jewelry/470064514_122111366852616875_139020724074164631_n-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/AQMnR912qAbvDx1PWl1yYBBznKDJT4TISCRvwqNy-IYB3qd2NOJoDRlzaxB01GhRQRvNc8bQhoZuP7jwYg5bhUEhRHkGwXioIOjAB0D0EyF_NQ.mp4",
+      "metal": "Żółty",
+      "stone": "Tanzanit, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 148,
+      "slug": "aria",
+      "name": "Aria",
+      "description": "Ametyst 0,43 ct w oprawie pave z diamentami 0,16 ct; każdy kamień oprawiany ręcznie dla trwałości i komfortu noszenia.\n\n\n\nTen piękny minerał jest odmianą kwarcu o zabarwieniu fioletowym, purpurowym lub purpurowo fioletowym do przezroczystego . Barwę zawdzięcza centrom barwnym utworzonym przez jony żelaza i wzbudzeniu ich promieniowaniem wysokoenergetycznym. Kamień występuje w Brazylii, Urugwaju, USA, Iranie, Rosji, Niemczech, a także na Sri Lance i Madagaskarze\n\n\n\nAmetyst-nazywany kamieniem harmonii i relaksu, według wierzeń pomaga radzić sobie w stresujących sytuacjach, przywraca równowagę oraz zapewnia spokojny sen. Jest również symbolem szczęścia.",
+      "lead": "Delikatny fiolet ametystu i migot diamentów — lekki jak oddech, wyrazisty jak emocje.",
+      "images": [
+        "/jewelry/2_1-1024x683.jpg",
+        "/jewelry/2_2-683x1024.jpg",
+        "/jewelry/2-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/10/2_3.mp4",
+      "metal": "Żołty",
+      "stone": "Ametyst, Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 98,
+      "slug": "pierscionek-9",
+      "name": "Helios",
+      "description": "Przedstawiamy Państwu topaz o masie 0,78 ct w otoczeniu 24 sztuk diamentów o łącznej masie 0.30 ct w złocie próby 585.\n\n\n\nTopazy to jedne z największych kryształów, dochodzące do wagi 300 kilogramów ,największy poddany obróbce topaz Księżniczka Brazylii odnaleziony w Rio De Janeiro waży 21327 karatów i ma szlif tabliczkowy. Kryształy topazu przyczepione są zazwyczaj jednym końcem do skały i odłamują się zostawiając równą powierzchnię . Cecha charakterystyczna to doskonała łupliwość ,wymaga on niezwykłej ostrożności podczas cięcia i szlifowania. Topazy były szczególnie cenione przez starożytnych Greków i Rzymian . Minerał ten jest uważany za przynoszący szczęście i ochronę.",
+      "lead": "Ręcznie wykonany pierścionek, dopracowany w każdym detalu. Klasyczna elegancja spotyka nowoczesne wykończenie, by dyskretnie podkreślić najważniejsze momenty.",
+      "images": [
+        "/jewelry/Michalnowak.com_.pl-25-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-20-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-21-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/05/topaz.mp4",
+      "metal": "Żółty i biały",
+      "stone": "Topaz i Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 97,
+      "slug": "pierscionek-8",
+      "name": "Pelagia",
+      "description": "Zapowiedź pięknego szafiru 0,44 ct z 12 sztukami diamentów 0,32 ct w próbie złota 585 .Możliwość zamówienia w dowolnym rozmiarze i ze zmianą kamienia środkowego.\n\n\n\nSzafir – korund, to kamień szlachetny charakteryzujący się drugą zaraz po diamencie twardością wśród kamieni szlachetnych. Jest wydobywany zwłaszcza w Azji, w Indiach i na Sri Lance, ale także w Australii i Afryce.\n\n\n\nSzafir symbolizuje uczciwość, lojalność i wierność, co czyni go popularnym wyborem na pierścionki zaręczynowe.",
+      "lead": "Pierścionek z pracowni rzemieślniczej, tworzony z precyzją. Łączy szlachetną prostotę ze współczesnym charakterem, delikatnie akcentując wyjątkowe chwile.",
+      "images": [
+        "/jewelry/Michalnowak.com_.pl-26-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-27-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-18-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-19-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/05/pierscionek_8.mp4",
+      "metal": "Żółty i biały",
+      "stone": "Szafir i Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 96,
+      "slug": "iris",
+      "name": "Iris",
+      "description": "Zapowiedź nowego pięknego fasonu z tanzanitem 0.28 ct w otoczeniu diamentów, próba złota 585. Możliwość zamówienia w dowolnym rozmiarze oraz zmiana kamienia centralnego na inny. Każdy z kamieni oprawiany ręcznie z największą precyzją . Zapraszamy\n\n\n\nCzy wiecie że nazwę tego pięknego kamienia wprowadziła firma jubilerska Tiffany z Nowego Jorku? Tanzanit jest jednym z najmłodszych kamieni szlachetnych, został odkryty dopiero w XX wieku, i wprowadzony do gemmologii w 1967r. Jego odkrywcą był Manuel de Souza, który przypadkiem odnalazł wyjątkowy niebieski kamień. Tanzanit szybko zyskał na popularności i stał się jednym z najpopularniejszych kamieni szlachetnych zaraz po diamentach, rubinach, szmaragdach i szafirach. Kamień stał się popularny dzięki Elizabeth Taylor",
+      "lead": "Rękodzieło o ponadczasowej formie. Ten pierścionek łączy klasykę i nowoczesność, a jego subtelny blask dodaje znaczenia najpiękniejszym okazjom.",
+      "images": [
+        "/jewelry/Michalnowak.com_.pl-24-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-22-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-4-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-5-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/05/pierscionek_7.mp4",
+      "metal": "Żółty i biały",
+      "stone": "Tanzanit i Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 92,
+      "slug": "ione",
+      "name": "Ione",
+      "description": "Zachwycający model pierścionka w stylu art deco z tanzanitem naturalnym w roli głównej o masie 0,35 ct, w barwie fioletowo niebieskiej, w otoczeniu diamentów o łącznej masie 0,20 ct barwie H i czystości SI. Pierścionek w żółtym i białym złocie w próbie 585, każdy z kamieni oprawiany ręcznie. Możliwość zamówienia fasonu w dowolnym rozmiarze oraz z innym kamieniem szlachetnym.",
+      "lead": "Każdy detal dopracowany ręcznie. Pierścionek o klasycznej linii i współczesnym wykończeniu, zaprojektowany, by elegancko towarzyszyć ważnym chwilom.",
+      "images": [
+        "/jewelry/467481960_122106045326616875_260965368173001066_n-1024x683.jpg",
+        "/jewelry/467501627_122106045338616875_8084844742246764250_n-1024x683.jpg",
+        "/jewelry/467591989_122106045380616875_8386013410365295809_n-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/05/pierscionek_6.mp4",
+      "metal": "Żółty i biały",
+      "stone": "Tanzanit i Diament",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 88,
+      "slug": "gaia",
+      "name": "Gaia",
+      "description": "Przedstawiamy Państwu oszałamiający model w stylu art deco z diamentami 0,38 ct (barwa H czystość SI) z centralnie usytuowanym pięknym szmaragdem naturalnym 0.11 ct o barwie niebieskawo -zielonej, w próbie złota 585 -żółte i białe . Każdy z kamieni oprawiony ręcznie z najwyższą starannością",
+      "lead": "Rzemieślniczy pierścionek, powstający w duchu tradycji i precyzji. Minimalistyczny i wyrafinowany — stworzony, by podkreślać chwile, które mają znaczenie.",
+      "images": [
+        "/jewelry/Michalnowak.com_.pl-15-683x1024.jpg",
+        "/jewelry/Michalnowak.com_.pl-3-683x1024.jpg",
+        "/jewelry/Michalnowak.com_.pl-1-1024x683.jpg"
+      ],
+      "video": "",
+      "metal": "Żółty i biały",
+      "stone": "Szmaragd i Diamenty",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 87,
+      "slug": "adamas",
+      "name": "Adamas",
+      "description": "Ponadczasowy i elegancki model w stylu art deco : 13 diamentów ; centralny o masie 0,13 ct, boczne o łącznej masie 0,18 ct (czystość SI barwa H) Połączenie żółtego i białego złota próby 585, które wydobywa blask kamieni .",
+      "lead": "Starannie ręcznie wykonany pierścionek. Harmonijnie łączy elegancję z nowoczesną formą, subtelnie wydobywając wyjątkowość każdej chwil",
+      "images": [
+        "/jewelry/Michalnowak.com_.pl-9-683x1024.jpg",
+        "/jewelry/Michalnowak.com_.pl-10-1024x683.jpg"
+      ],
+      "video": "",
+      "metal": "Żółty i biały",
+      "stone": "Diamenty",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 84,
+      "slug": "asteria",
+      "name": "Asteria",
+      "description": "Kolejny elegancki, bogato zdobiony model pierścionka z szafirem naturalnym o masie 0,41 ct w otoczeniu 21 sztuk diamentów o łącznej masie ok 0.40 ct w złocie próby 585.\n\n\n\nSzafiry prezentują szeroką gamę barw. Kolor szafiru jest tworzony przez różne ilości żelaza i tytanu w kamieniu, ich połączenie daje różne barwy. Mogą występować w kolorze niebieskim, czarnym, zielonym, żółtym, pomarańczowym, fioletowym, a nawet bezbarwnym. Jednak najbardziej znany i ceniony jest niebieski kamień.\n\n\n\nCzy wiedzieliście, że jest jednym z najtwardszych minerałów występujących na Ziemii ? Zarysować można go jedynie diamentem, który jest od niego twardszy.",
+      "lead": "Pierścionek formowany ręcznie z dbałością o detale. Klasyczna elegancja i świeże wykończenie tworzą dyskretny akcent na najważniejsze momenty.",
+      "images": [
+        "/jewelry/Michalnowak.com_.pl-16-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-17-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/05/pierscionek_3.mp4",
+      "metal": "Złoty",
+      "stone": "Szafir i Diamenty",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 81,
+      "slug": "pierscionek-2",
+      "name": "Delos",
+      "description": "Elegancja i klasyka w jednym. Ponadczasowy fason w stylu art deco z szafirem naturalnym o masie 0,28 ct w otoczeniu 12 diamentów o łącznej masie 0,18 ct (barwa H czystość SI ) Próba złota 585 – żółte i białe . Kamienie oprawiane ręcznie co sprawia, że długie lata będzie cieszył nas swoim pięknem.",
+      "lead": "Ręczna praca i precyzja w każdym milimetrze. Pierścionek łączy tradycję ze współczesną estetyką, by delikatnie podkreślić to, co dla Ciebie najcenniejsze.",
+      "images": [
+        "/jewelry/Michalnowak.com_.pl-13-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-11-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-12-1024x683.jpg"
+      ],
+      "video": "https://serwer1542079.home.pl/autoinstalator/pznowak/wp-content/uploads/2025/05/pierscionek_2.mp4",
+      "metal": "Żółty i biały",
+      "stone": "Szafir i Diamenty",
+      "carats": "",
+      "clarity": ""
+    },
+    {
+      "id": 54,
+      "slug": "pierscionek-1",
+      "name": "Egea",
+      "description": "Dzisiejsza elegancka propozycja: niebieski szafir naturalny o masie 0,13 ct w otoczeniu 12 sztuk diamentów naturalnych o łącznej masie 0,18 ct ( barwa H czystość SI ) Połączenie żółtego i białego złota w próbie 585. Każdy z kamieni oprawiany ręcznie z dbałością o najmniejszy szczegół . Możliwość zamówienia z innym kamieniem środkowym w dowolnym rozmiarze .",
+      "lead": "Autorski pierścionek dopracowany ręcznie. Klasyka spotyka nowoczesność w spójnym detalu, który subtelnie dopełnia wyjątkowe okazje.",
+      "images": [
+        "/jewelry/Michalnowak.com_.pl-7-683x1024.jpg",
+        "/jewelry/Michalnowak.com_.pl-6-1024x683.jpg",
+        "/jewelry/Michalnowak.com_.pl-8-683x1024.jpg"
+      ],
+      "video": "",
+      "metal": "Biały",
+      "stone": "Szafir",
+      "carats": "",
+      "clarity": ""
+    }
+  ],
+  "gallery": [
+    {
+      "id": 122,
+      "name": "pierscionek 101",
+      "image": "/jewelry/467481960_122106045326616875_260965368173001066_n-1024x683.jpg"
+    },
+    {
+      "id": 121,
+      "name": "piersionek 100",
+      "image": "/jewelry/Michalnowak.com_.pl-15-683x1024.jpg"
+    },
+    {
+      "id": 120,
+      "name": "pierscionek 99",
+      "image": "/jewelry/Michalnowak.com_.pl-6-1024x683.jpg"
+    },
+    {
+      "id": 119,
+      "name": "pierscionek 88",
+      "image": "/jewelry/Michalnowak.com_.pl-10-1024x683.jpg"
+    },
+    {
+      "id": 118,
+      "name": "Pierscionek 77",
+      "image": "/jewelry/467591989_122106045380616875_8386013410365295809_n-1024x683.jpg"
+    },
+    {
+      "id": 45,
+      "name": "pierscionek 6",
+      "image": "/jewelry/481080835_122122470788616875_3273290503356697905_n-576x1024.jpg"
+    },
+    {
+      "id": 44,
+      "name": "zdjecie 5",
+      "image": "/jewelry/469160996_122110064756616875_1316499679151240077_n-1024x683.jpg"
+    },
+    {
+      "id": 43,
+      "name": "zdjecie 4",
+      "image": "/jewelry/Michalnowak.com_.pl-24-1024x683.jpg"
+    },
+    {
+      "id": 42,
+      "name": "galeria 3",
+      "image": "/jewelry/468765424_122108858840616875_7209599280390993259_n-1024x683.jpg"
+    },
+    {
+      "id": 32,
+      "name": "zdjecie 2",
+      "image": "/jewelry/469823430_122111261432616875_4711176867772209216_n-1024x683.jpg"
+    },
+    {
+      "id": 25,
+      "name": "Przykładowe zdjęcie",
+      "image": "/jewelry/470051606_122111366966616875_6671083676677230809_n-1024x683.jpg"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Pracownia i historia rodziny Nowaków</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3;color:#22262A;font-family:'Schibsted Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#22262A}a:hover{color:#1D3832}
+img{display:block;max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;border-radius:999px;background:#1D3832;color:#F3F4EF;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;font-family:inherit;transition:background-color .15s}
+.btn:hover{background:#2C5148;color:#fff}
+.btn-light{background:#F3F4EF;color:#1D3832}.btn-light:hover{background:#fff;color:#1D3832}
+.tl{color:#22262A;font-size:15px;font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.tl:hover{color:#1D3832;text-decoration-thickness:2px}
+.tl-light{color:#E9E3D3}.tl-light:hover{color:#fff}
+.navl{text-decoration:none;color:#3A3F43}.navl:hover{color:#1D3832;text-decoration:underline;text-underline-offset:7px;text-decoration-thickness:1px}
+:focus-visible{outline:2px solid #A9782A;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:720px){.pad{padding-left:20px!important;padding-right:20px!important}}
+</style>
+</helmet>
+
+<div style="background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif">
+<dc-import name="Header" active="pracownia" hint-size="100%,96px"></dc-import>
+
+<main>
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 72px 40px 80px; display: flex; flex-direction: column; gap: 28px">
+  <h1 style="margin: 0; max-width: 13em; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(46px, 6vw, 92px); line-height: 0.98; letter-spacing: -0.025em">Od kuźni w Szańcu do stołu złotniczego w Busku</h1>
+  <p style="margin: 0; max-width: 36em; font-size: 18px; line-height: 1.62; color: #3A3F43">Jesteśmy rodzinną pracownią z Buska-Zdroju. Rzemiosło przechodzi u nas z ojca na syna od 1890 roku. Łączymy klasyczny warsztat z nowoczesnym projektowaniem i każdą rzecz robimy dla konkretnej osoby.</p>
+</section>
+
+<section class="pad" aria-label="Historia rodziny" style="max-width: 1320px; margin: 0 auto; padding: 0 40px 96px">
+  <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+    <sc-for list="{{family}}" as="f" hint-placeholder-count="4">
+      <li style="{{f.rowStyle}}">
+        <figure style="flex: 1 1 320px; min-width: 0; max-width: 420px; margin: 0">
+          <img src="{{f.img}}" alt="{{f.alt}}" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: {{f.pos}}">
+        </figure>
+        <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+          <span style="font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(64px, 8vw, 128px); line-height: 0.9; letter-spacing: -0.03em; color: #7C5B1E">{{f.year}}</span>
+          <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 38px; line-height: 1.1">{{f.name}}</h2>
+          <span style="font-size: 15px; color: #575C5F">{{f.role}}</span>
+          <p style="margin: 0; max-width: 30em; font-size: 17px; line-height: 1.65; color: #3A3F43">{{f.text}}</p>
+        </div>
+      </li>
+    </sc-for>
+  </ol>
+</section>
+
+<section style="background: #DDDFD8; border-top: 1px solid #C9CBC4">
+  <div class="pad" style="max-width: 1320px; margin: 0 auto; padding: 96px 40px; display: flex; flex-wrap: wrap; gap: 48px 80px; align-items: center">
+    <div role="img" aria-label="Miejsce na krótki film z pracowni" style="flex: 1 1 520px; min-width: 0; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; gap: 14px; background: #22262A; color: #EEF0EA; font-size: 15px">
+      <svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20.5" fill="none" stroke="#EEF0EA" stroke-width="1.4"></circle><path d="M18 14 L30 22 L18 30 Z" fill="#EEF0EA"></path></svg>
+      [Film z pracowni, 60–90 s: Michał przy pracy]
+    </div>
+    <div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(36px, 4vw, 56px); line-height: 1.04; letter-spacing: -0.015em">Od Michała</h2>
+      <p style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 23px; line-height: 1.45; color: #22262A">[Kilka zdań od Michała, jego słowami: co lubi w tej pracy, czego nauczył się od ojca, na co patrzy, kiedy oprawia kamień]</p>
+      <span style="font-size: 15px; color: #575C5F">Michał Nowak, złotnik</span>
+    </div>
+  </div>
+</section>
+
+<section style="background: #1D3832; color: #EEF0EA">
+  <div class="pad" style="max-width: 1320px; margin: 0 auto; padding: 104px 40px; display: flex; flex-direction: column; gap: 48px">
+    <div style="display: flex; flex-wrap: wrap; gap: 20px 64px; align-items: flex-end; justify-content: space-between">
+      <h2 style="margin: 0; flex: 1 1 420px; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(36px, 4vw, 56px); line-height: 1.04; letter-spacing: -0.015em; color: #F6F5EF">Na czym nam zależy</h2>
+      <p style="margin: 0; flex: 1 1 340px; max-width: 30em; font-size: 17px; line-height: 1.6; color: #C9D1CB">Pierścionek nosi się codziennie przez lata. Dlatego wygląd to dla nas tylko połowa pracy.</p>
+    </div>
+    <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 36px 48px">
+      <li style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #3E6159; padding-top: 20px">
+        <h3 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 26px; line-height: 1.15; color: #F6F5EF">Jasne informacje</h3>
+        <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #C9D1CB">Parametry kamieni i próby złota opisujemy wprost. Dobór materiałów jest częścią rozmowy o projekcie.</p>
+      </li>
+      <li style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #3E6159; padding-top: 20px">
+        <h3 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 26px; line-height: 1.15; color: #F6F5EF">Wygoda i trwałość</h3>
+        <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #C9D1CB">Sprawdzamy, czy pierścionek nie zahacza o ubrania, czy kamień siedzi pewnie i czy obrączka dobrze leży na palcu.</p>
+      </li>
+      <li style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #3E6159; padding-top: 20px">
+        <h3 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 26px; line-height: 1.15; color: #F6F5EF">Opieka po latach</h3>
+        <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #C9D1CB">Czyścimy, sprawdzamy oprawę i odświeżamy biżuterię, którą u nas zrobiono. Także tę sprzed kilkudziesięciu lat.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 104px 40px 120px; display: flex; flex-wrap: wrap; gap: 48px 80px; align-items: center">
+  <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 22px">
+    <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(36px, 4vw, 56px); line-height: 1.04; letter-spacing: -0.015em">Odwiedź pracownię</h2>
+    <p style="margin: 0; max-width: 30em; font-size: 17px; line-height: 1.62; color: #3A3F43">Pracownia mieści się przy ulicy Kilińskiego 12 w Busku-Zdroju. Na rozmowę o projekcie umów się wcześniej, wtedy mamy dla Ciebie czas i kamienie do obejrzenia.</p>
+    <p style="margin: 0; max-width: 30em; font-size: 17px; line-height: 1.62; color: #3A3F43">Przy pracowni działa sklep z gotową biżuterią: kolczykami, wisiorkami i innymi [asortyment do potwierdzenia].</p>
+    <dl style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 20px; font-size: 16px; line-height: 1.5">
+      <dt style="color: #575C5F">Pon.–pt.</dt><dd style="margin: 0">8:00–16:00</dd>
+      <dt style="color: #575C5F">Sobota</dt><dd style="margin: 0">10:00–16:00</dd>
+      <dt style="color: #575C5F">Telefon</dt><dd style="margin: 0"><a href="tel:+48501321347" style="text-decoration: none">+48 501 321 347</a></dd>
+    </dl>
+    <div style="display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center">
+      <a class="btn" href="Kontakt.dc.html">Umów wizytę</a>
+      <a class="tl" href="https://maps.google.com/?q=Kili%C5%84skiego+12+Busko-Zdr%C3%B3j">Prowadź do pracowni</a>
+    </div>
+  </div>
+  <div role="img" aria-label="Miejsce na mapę dojazdu do pracowni przy Kilińskiego 12" style="flex: 1 1 520px; min-width: 0; aspect-ratio: 16 / 10; display: flex; align-items: center; justify-content: center; background: #DDDFD8; box-shadow: inset 0 0 0 1px #C9CBC4; color: #575C5F; font-size: 15px">[Mapa Google: Kilińskiego 12, Busko-Zdrój]</div>
+</section>
+</main>
+
+<dc-import name="Footer" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4450}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const people = [
+      { year: '1890', name: 'Wiktor Nowak', role: 'Kowal z Szańca', text: 'Sprowadzał narzędzia z Francji i to on zrobił w rodzinie pierwsze projekty biżuterii.', img: '/_blob/e6b4da5609ee2a3e84b508afb27471fa', alt: 'Wiktor Nowak z żoną i dzieckiem, fotografia z przełomu wieków', pos: '50% 20%' },
+      { year: '1955', name: 'Stanisław Nowak', role: 'Złotnik', text: 'Mistrz złotnictwa lat 50. Rozwinął warsztat i szkolił się u najlepszych w regionie.', img: '/_blob/8ebb1e0f612a56ca00b1cdb9997e9e09', alt: 'Stanisław Nowak, portret z lat pięćdziesiątych', pos: '50% 25%' },
+      { year: '1985', name: 'Mieczysław Nowak', role: 'Złotnik i projektant', text: 'Tytan pracy. Jego projekty z lat 80. były cenione w regionie i do dziś wracają do pracowni na renowację.', img: '/_blob/30a56676ef7ff118362e481dbe48ea14', alt: 'Mieczysław Nowak pochylony nad stołem złotniczym, lata osiemdziesiąte', pos: '62% 40%' },
+      { year: 'Dziś', name: 'Michał Nowak', role: 'Złotnik, czwarte pokolenie', text: 'Kontynuuje rodzinne rzemiosło. Projektuje pierścionki z kamieniami szlachetnymi, sam oprawia kamienie i pilnuje każdego detalu.', img: '/_blob/0f3f5b05aefcb6039076598e82c5b0e3', alt: 'Michał Nowak przy mikroskopie w pracowni', pos: '40% 30%' }
+    ];
+    return {
+      family: people.map((p, i) => ({
+        ...p,
+        rowStyle: 'display: flex; flex-wrap: wrap; align-items: center; gap: 40px 88px; padding: 56px 0; border-top: 1px solid #A9AAA3; flex-direction: ' + (i % 2 ? 'row-reverse' : 'row') + '; justify-content: ' + (i % 2 ? 'flex-end' : 'flex-start')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

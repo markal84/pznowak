@@ -1,0 +1,190 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-19T07:58:30Z"
+  },
+  "title": "Pracownia Nowak — nowy design",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 6000,
+      "title": "Strona główna",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Katalog.dc.html": {
+      "x": 1520,
+      "y": 0,
+      "w": 1440,
+      "h": 2700,
+      "title": "Pierścionki — katalog z filtrami",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Pierscionek.dc.html": {
+      "x": 3040,
+      "y": 0,
+      "w": 1440,
+      "h": 3000,
+      "title": "Karta pierścionka",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Mobile.dc.html": {
+      "x": 4560,
+      "y": 0,
+      "w": 390,
+      "h": 4300,
+      "title": "Strona główna — telefon",
+      "is_interactive": true
+    },
+    "Obraczki.dc.html": {
+      "x": 5030,
+      "y": 0,
+      "w": 1440,
+      "h": 3400,
+      "title": "Obrączki ślubne — konfigurator profilu",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "NaZamowienie.dc.html": {
+      "x": 0,
+      "y": 6300,
+      "w": 1440,
+      "h": 4350,
+      "title": "Na zamówienie",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Naprawy.dc.html": {
+      "x": 1520,
+      "y": 6300,
+      "w": 1440,
+      "h": 3700,
+      "title": "Naprawy i przeróbki",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Pracownia.dc.html": {
+      "x": 3040,
+      "y": 6300,
+      "w": 1440,
+      "h": 4450,
+      "title": "Pracownia i historia rodziny",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Kontakt.dc.html": {
+      "x": 4560,
+      "y": 6300,
+      "w": 1440,
+      "h": 2800,
+      "title": "Umów wizytę — kontakt",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Realizacje.dc.html": {
+      "x": 6080,
+      "y": 6300,
+      "w": 1440,
+      "h": 4200,
+      "title": "Realizacje, przed i po, opinie",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "System.dc.html": {
+      "x": 0,
+      "y": 11200,
+      "w": 1440,
+      "h": 1500,
+      "title": "System wizualny"
+    },
+    "Header.dc.html": {
+      "x": 1520,
+      "y": 11200,
+      "w": 1440,
+      "h": 100,
+      "title": "Komponent: nagłówek"
+    },
+    "Footer.dc.html": {
+      "x": 1520,
+      "y": 11420,
+      "w": 1440,
+      "h": 500,
+      "title": "Komponent: stopka"
+    },
+    "Kreator.dc.html": {
+      "x": 6550,
+      "y": 0,
+      "w": 1440,
+      "h": 1900,
+      "title": "Kreator: zaprojektuj pierścionek",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Grafiki.dc.html": {
+      "x": 3040,
+      "y": 11200,
+      "w": 1440,
+      "h": 2600,
+      "title": "Grafiki SVG: ikony, szlify, oprawy, etapy"
+    },
+    "Motion.dc.html": {
+      "x": 4560,
+      "y": 11200,
+      "w": 1440,
+      "h": 1640,
+      "title": "Ruch na stronie",
+      "is_interactive": true
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Header.dc.html",
+    "Footer.dc.html",
+    "Katalog.dc.html",
+    "Pierscionek.dc.html",
+    "Mobile.dc.html",
+    "Obraczki.dc.html",
+    "NaZamowienie.dc.html",
+    "Naprawy.dc.html",
+    "Pracownia.dc.html",
+    "Kontakt.dc.html",
+    "Realizacje.dc.html",
+    "System.dc.html",
+    "Kreator.dc.html",
+    "Grafiki.dc.html",
+    "Motion.dc.html"
+  ],
+  "notes": {
+    "row1": {
+      "x": 0,
+      "y": -300,
+      "text": "Wejście: strona główna, pierścionki, telefon, obrączki, kreator",
+      "kind": "title1",
+      "maxW": 7990
+    },
+    "row2": {
+      "x": 0,
+      "y": 6000,
+      "text": "Usługi, historia rodziny, wizyta i realizacje",
+      "kind": "title1",
+      "maxW": 7520
+    },
+    "row3": {
+      "x": 0,
+      "y": 10900,
+      "text": "System wizualny, komponenty, grafiki SVG i ruch",
+      "kind": "title1",
+      "maxW": 6000
+    }
+  },
+  "designSystems": []
+}

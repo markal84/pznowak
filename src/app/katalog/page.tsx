@@ -1,34 +1,5 @@
-import React from 'react'
-import { getProducts } from '@/lib/wordpress'
-import ProductsGrid from '@/components/ProductsGrid'
-import Container from '@/components/ui/Container'
-
-export const revalidate = 60
-
-export default async function CatalogPage() {
-  const products = await getProducts()
-
-  return (
-    <>
-      {/* Hero */}
-      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)] bg-[--color-surface]">
-        <Container max="7xl" className="text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display text-gray-900 dark:text-white tracking-normal md:tracking-wide">
-            Katalog
-          </h1>
-        </Container>
-        {/* Subtelny divider dopasowany do szerokości grida */}
-        <Container max="7xl">
-          <div className="mt-4 border-b" style={{ borderColor: 'var(--color-divider)' }} />
-        </Container>
-      </section>
-
-      {/* Grid produktów */}
-      <section className="py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
-        <Container max="7xl">
-          <ProductsGrid products={products} />
-        </Container>
-      </section>
-    </>
-  )
-}
+import {products} from '@/lib/collection';
+import JewelCard from '@/components/JewelCard';
+import ContactBand from '@/components/ContactBand';
+export const metadata={title:'Pierścionki — projekty pracowni'};
+export default function Catalog(){return <><section className="page-intro"><div className="wrap"><span className="eyebrow">Pierścionki pracowni</span><h1>Znajdź swoją <em>inspirację.</em></h1><p className="lead">Każdy projekt to inna opowieść. Obejrzyj detale, wybierz bliski Ci styl i porozmawiajmy o pierścionku dla Ciebie.</p></div></section><section className="wrap" style={{paddingBottom:80}}><div className="catalog-top"><p>{products.length} projekty</p><p>Wycena indywidualna</p></div><ul className="product-grid">{products.map(p=><JewelCard key={p.id} product={p}/>)}</ul></section><ContactBand/></>}

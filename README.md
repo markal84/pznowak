@@ -1,4 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PZ Nowak
+
+## Lokalizacja pracy
+
+Główny katalog roboczy tego projektu to
+`/Volumes/crucial/projects/pznowak-cms`. Zmiany w kodzie i dokumentacji oraz
+polecenia projektu wykonujemy właśnie tam. Sąsiedni katalog
+`/Volumes/crucial/projects/pznowak` jest osobnym checkoutem i nie jest miejscem
+pracy nad tą kopią CMS.
+
+Jeśli narzędzie Codexa wymaga chwilowo pracy w jego własnym katalogu, gotowe
+pliki projektu przenosimy z powrotem tutaj. Gdy nie da się ich bezpiecznie
+przenieść automatycznie, trzeba wskazać Marcinowi dokładną ścieżkę źródłową i
+docelową.
+
+Publiczna aplikacja i Payload CMS znajdują się w `cms/`; historyczny backend API
+pozostaje w `backend/`.
 
 ## Getting Started
 

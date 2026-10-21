@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Ruch na stronie</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3}
+.replay{font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:0;background:#22262A;color:#F3F4EF;font-size:14px;font-weight:500}
+.replay:hover{background:#1D3832}
+.replay:focus-visible{outline:2px solid #A9782A;outline-offset:3px}
+@keyframes hang{0%{transform:translateY(-26px) rotate(-16deg);opacity:0}35%{transform:translateY(0) rotate(6deg);opacity:1}60%{transform:rotate(-3deg)}80%{transform:rotate(1.2deg)}100%{transform:rotate(0)}}
+.hang{transform-origin:16px 50%;animation:hang 1100ms cubic-bezier(.2,.8,.2,1) both}
+@keyframes sweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(520%) skewX(-18deg)}}
+.sweep{animation:sweep 900ms cubic-bezier(.45,0,.2,1) both}
+@keyframes gemIn{0%{transform:scale(.92);opacity:.4}100%{transform:scale(1);opacity:1}}
+.gemIn{animation:gemIn 280ms cubic-bezier(.2,.8,.2,1) both}
+@keyframes stepIn{0%{transform:translateX(14px);opacity:0}100%{transform:translateX(0);opacity:1}}
+.stepIn{animation:stepIn 220ms cubic-bezier(.2,.8,.2,1) both}
+.bar{transition:transform 260ms cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion:reduce){.hang,.sweep,.gemIn,.stepIn{animation:none}.bar{transition:none}}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 1640px; box-sizing: border-box; padding: 72px 80px 96px; background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif; display: flex; flex-direction: column; gap: 48px">
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; border-bottom: 1px solid #22262A; padding-bottom: 20px">
+    <h1 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 64px; line-height: 1; letter-spacing: -0.02em">Ruch na stronie</h1>
+    <span style="max-width: 40em; font-size: 15px; line-height: 1.5; color: #575C5F; text-align: right">Ruch odpowiada na to, co robi klient. Jeden moment przy wejściu na stronę, poza tym spokój. Przy ustawieniu „ogranicz ruch” wszystko pokazuje się od razu w stanie końcowym.</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px">
+
+    <section style="display: flex; flex-direction: column; gap: 18px; background: #FBFBF8; padding: 32px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px">
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 28px">1. Przywieszka zawisa</h2>
+        <button type="button" class="replay" onClick="{{play1}}">Odtwórz</button>
+      </div>
+      <div style="height: 220px; display: flex; align-items: center; justify-content: center; background: #1D3832; overflow: hidden">
+        <sc-if value="{{a1}}" hint-placeholder-val="{{ true }}">
+          <div class="hang" style="position: relative; display: flex; flex-direction: column; gap: 4px; background: #FBFBF8; padding: 14px 24px 14px 38px; clip-path: polygon(16px 0, 100% 0, 100% 100%, 16px 100%, 0 calc(100% - 16px), 0 16px)">
+            <span aria-hidden="true" style="position: absolute; left: 12px; top: 50%; width: 9px; height: 9px; margin-top: -5px; border-radius: 50%; background: #1D3832; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+            <span style="font-family: Newsreader, Georgia, serif; font-size: 24px; line-height: 1.1">Phoebe</span>
+            <span style="font-size: 13px; color: #575C5F">Tanzanit, diamenty, żółte złoto</span>
+          </div>
+        </sc-if>
+      </div>
+      <dl style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; font-size: 14.5px; line-height: 1.5">
+        <dt style="color: #575C5F">Gdzie</dt><dd style="margin: 0">Przywieszka na zdjęciu w hero strony głównej, raz po załadowaniu</dd>
+        <dt style="color: #575C5F">Czas</dt><dd style="margin: 0">1100 ms, start 300 ms po pojawieniu się zdjęcia</dd>
+        <dt style="color: #575C5F">Krzywa</dt><dd style="margin: 0">cubic-bezier(.2, .8, .2, 1), wahnięcie wokół otworu: −16°, 6°, −3°, 1°, 0°</dd>
+        <dt style="color: #575C5F">Dlaczego</dt><dd style="margin: 0">Jedyny moment „wow”. Mówi „to przedmiot z pracowni”, a nie kolejny baner.</dd>
+      </dl>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 18px; background: #FBFBF8; padding: 32px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px">
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 28px">2. Blask na złocie</h2>
+        <button type="button" class="replay" onClick="{{play2}}">Odtwórz</button>
+      </div>
+      <div style="height: 220px; display: flex; align-items: center; justify-content: center; background: #1D3832">
+        <div style="position: relative; width: 300px; height: 64px; border-radius: 32px; overflow: hidden; background: linear-gradient(180deg, #F5E4B0 0%, #E6C97E 22%, #B38B3E 60%, #86621F 100%); box-shadow: inset 0 -6px 10px rgba(0,0,0,.25)">
+          <sc-if value="{{a2}}" hint-placeholder-val="{{ true }}">
+            <span class="sweep" aria-hidden="true" style="position: absolute; top: -10px; bottom: -10px; left: 0; width: 70px; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.75), rgba(255,255,255,0))"></span>
+          </sc-if>
+        </div>
+      </div>
+      <dl style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; font-size: 14.5px; line-height: 1.5">
+        <dt style="color: #575C5F">Gdzie</dt><dd style="margin: 0">Kreator i konfigurator obrączek, po zmianie koloru złota albo wykończenia</dd>
+        <dt style="color: #575C5F">Czas</dt><dd style="margin: 0">900 ms, jeden przebieg, nigdy w pętli</dd>
+        <dt style="color: #575C5F">Krzywa</dt><dd style="margin: 0">cubic-bezier(.45, 0, .2, 1)</dd>
+        <dt style="color: #575C5F">Dlaczego</dt><dd style="margin: 0">Potwierdza wybór i pokazuje różnicę między polerem a matem lepiej niż sam kolor.</dd>
+      </dl>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 18px; background: #FBFBF8; padding: 32px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px">
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 28px">3. Zmiana kamienia</h2>
+        <button type="button" class="replay" onClick="{{play3}}">Następny kamień</button>
+      </div>
+      <div style="height: 220px; display: flex; align-items: center; justify-content: center; gap: 28px; background: #1D3832">
+        <sc-if value="{{a3}}" hint-placeholder-val="{{ true }}">
+          <span class="gemIn" aria-hidden="true" style="{{gemStyle}}"></span>
+        </sc-if>
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 26px; color: #F6F5EF; min-width: 150px">{{gemName}}</span>
+      </div>
+      <dl style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; font-size: 14.5px; line-height: 1.5">
+        <dt style="color: #575C5F">Gdzie</dt><dd style="margin: 0">Podgląd w kreatorze: kamień, szlif, oprawa</dd>
+        <dt style="color: #575C5F">Czas</dt><dd style="margin: 0">280 ms: kolor przechodzi płynnie, kamień lekko „osiada” ze skali 0,92</dd>
+        <dt style="color: #575C5F">Krzywa</dt><dd style="margin: 0">cubic-bezier(.2, .8, .2, 1)</dd>
+        <dt style="color: #575C5F">Dlaczego</dt><dd style="margin: 0">Oko łapie, co się zmieniło, bez przeładowania całego rysunku.</dd>
+      </dl>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 18px; background: #FBFBF8; padding: 32px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px">
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 28px">4. Krok kreatora</h2>
+        <button type="button" class="replay" onClick="{{play4}}">Następny krok</button>
+      </div>
+      <div style="height: 220px; display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: 0 32px; background: #E7E8E3">
+        <div style="position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border-top: 1px solid #A9AAA3; font-size: 13px; color: #575C5F">
+          <span class="bar" aria-hidden="true" style="{{barStyle}}"></span>
+          <span style="padding-top: 10px">Okazja</span><span style="padding-top: 10px">Kamień</span><span style="padding-top: 10px">Szlif</span><span style="padding-top: 10px">Oprawa</span><span style="padding-top: 10px">Złoto</span><span style="padding-top: 10px">Podsum.</span>
+        </div>
+        <sc-if value="{{a4}}" hint-placeholder-val="{{ true }}">
+          <div class="stepIn" style="font-family: Newsreader, Georgia, serif; font-size: 30px">{{stepTitle}}</div>
+        </sc-if>
+      </div>
+      <dl style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; font-size: 14.5px; line-height: 1.5">
+        <dt style="color: #575C5F">Gdzie</dt><dd style="margin: 0">Przejście między krokami kreatora, wskaźnik kroków</dd>
+        <dt style="color: #575C5F">Czas</dt><dd style="margin: 0">220 ms treść, 260 ms pasek</dd>
+        <dt style="color: #575C5F">Krzywa</dt><dd style="margin: 0">cubic-bezier(.2, .8, .2, 1), wejście z 14 px w prawo</dd>
+        <dt style="color: #575C5F">Dlaczego</dt><dd style="margin: 0">Kierunek ruchu mówi „idziesz dalej”. Wstecz animuje się w lewo.</dd>
+      </dl>
+    </section>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px">
+    <section style="display: flex; flex-direction: column; gap: 14px; border-top: 1px solid #22262A; padding-top: 20px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 28px">Czego nie animujemy</h2>
+      <ul style="margin: 0; padding: 0 0 0 20px; display: flex; flex-direction: column; gap: 8px; font-size: 15.5px; line-height: 1.55; color: #3A3F43">
+        <li>Wjeżdżania każdej sekcji przy przewijaniu. Treść ma być od razu na miejscu.</li>
+        <li>Paralaksy na zdjęciach. Zdjęcia biżuterii mają stać nieruchomo i ostro.</li>
+        <li>Powiększania zdjęć produktów po najechaniu. Od detalu jest galeria na karcie pierścionka.</li>
+        <li>Karuzel, które przewijają się same, i własnego kursora.</li>
+        <li>Animacji ładowania dłuższych niż 300 ms.</li>
+      </ul>
+    </section>
+    <section style="display: flex; flex-direction: column; gap: 14px; border-top: 1px solid #22262A; padding-top: 20px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 28px">Film zamiast animacji</h2>
+      <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #3A3F43">27 pierścionków w katalogu ma już filmy. Na karcie pierścionka film startuje dopiero po kliknięciu, bez dźwięku. Na stronie „Pracownia” proponuję 60–90 s z dłońmi Michała przy oprawie kamienia. Prawdziwy ruch z pracowni robi więcej niż jakakolwiek animacja w kodzie.</p>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1640}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { a1: true, a2: true, a3: true, a4: true, gemIdx: 0, stepIdx: 0 };
+  }
+  replay(key, extra) {
+    this.setState({ [key]: false, ...(extra || {}) });
+    setTimeout(() => this.setState({ [key]: true }), 40);
+  }
+  renderVals() {
+    const gems = [
+      ['Szafir', ['#7F9CEB', '#26449E', '#0E1C52']],
+      ['Szmaragd', ['#86D8AC', '#1E7A4E', '#0A3A24']],
+      ['Rubin', ['#F58A9C', '#B3173C', '#550616']],
+      ['Tanzanit', ['#B0A2F2', '#5B47B8', '#2A1C6A']],
+      ['Morganit', ['#FCE3DC', '#E7A9A2', '#B06D6B']],
+      ['Diament', ['#FFFFFF', '#D9E2EA', '#8D9DAC']]
+    ];
+    const titles = ['Na jaką okazję?', 'Wybierz kamień', 'Kształt kamienia', 'Jak osadzić kamień?', 'Złoto i obrączka', 'Twój szkic jest gotowy'];
+    const s = this.state;
+    const g = gems[s.gemIdx % gems.length];
+    return {
+      a1: s.a1, a2: s.a2, a3: s.a3, a4: s.a4,
+      play1: () => this.replay('a1'),
+      play2: () => this.replay('a2'),
+      play3: () => this.replay('a3', { gemIdx: s.gemIdx + 1 }),
+      play4: () => this.replay('a4', { stepIdx: (s.stepIdx + 1) % 6 }),
+      gemName: g[0],
+      gemStyle: 'width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle at 36% 30%, ' + g[1][0] + ', ' + g[1][1] + ' 55%, ' + g[1][2] + '); box-shadow: 0 0 0 7px #C8A15A, 0 0 0 8px rgba(0,0,0,.25)',
+      stepTitle: titles[s.stepIdx],
+      barStyle: 'position: absolute; top: -2px; left: 0; width: calc(100% / 6); height: 3px; background: #1D3832; transform: translateX(' + (s.stepIdx * 100) + '%)'
+    };
+  }
+}
+</script>
+</body>
+</html>

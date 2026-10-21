@@ -1,0 +1,85 @@
+# Testy e2e (Playwright) na wdrożonym podglądzie w wielu przeglądarkach.
+# Uruchamiany wyłącznie ręcznie (Actions → „E2E na preview” → Run workflow). Niczego nie wdraża i nie pushuje;
+# testuje adres podany w polu `base_url` albo w sekrecie repozytorium E2E_BASE_URL.
+# Podgląd musi mieć klucze testowe Cloudflare Turnstile: testy wysyłają zgłoszenia „Test Playwright”
+# do bazy stagingowej (sprzątanie: `npm run staging:cleanup-tests -- --apply` w katalogu cms).
+name: E2E na preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Adres podglądu (np. https://pznowak-xxxx.vercel.app); puste = sekret E2E_BASE_URL'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-preview
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows (Edge, Firefox)
+            os: windows-latest
+            install: firefox
+            projects: --project=msedge --project=firefox
+          - name: macOS (Safari/WebKit, iPhone)
+            os: macos-latest
+            install: webkit
+            projects: --project=webkit --project=iphone
+          - name: Ubuntu (Chromium, Android)
+            os: ubuntu-latest
+            install: chromium
+            projects: --project=chromium --project=telefon
+    defaults:
+      run:
+        working-directory: cms
+    env:
+      E2E_BASE_URL: ${{ inputs.base_url || secrets.E2E_BASE_URL }}
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cms/package-lock.json
+
+      - name: Sprawdź adres podglądu
+        shell: bash
+        run: |
+          if [ -z "$E2E_BASE_URL" ]; then
+            echo "Podaj base_url albo ustaw sekret E2E_BASE_URL." >&2
+            exit 1
+          fi
+          case "$E2E_BASE_URL" in
+            *pznowak.pl*) echo "To workflow testuje tylko podgląd, nie produkcję." >&2; exit 1 ;;
+          esac
+
+      - run: npm ci
+
+      # Edge jest preinstalowany na windows-latest (kanał msedge); doinstalowujemy tylko silniki Playwrighta.
+      - name: Przeglądarki Playwright
+        run: npx playwright install --with-deps ${{ matrix.install }}
+
+      - name: Testy e2e
+        run: npx playwright test tests/e2e/frontend.e2e.spec.ts tests/e2e/zgloszenia.e2e.spec.ts ${{ matrix.projects }}
+
+      - name: Raport Playwright
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.os }}
+          path: cms/playwright-report
+          retention-days: 14

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Pierścionki z pracowni</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&amp;family=Schibsted+Grotesk:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:#E7E8E3;color:#22262A;font-family:'Schibsted Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#22262A}a:hover{color:#1D3832}
+img{display:block;max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;border-radius:999px;background:#1D3832;color:#F3F4EF;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;font-family:inherit;transition:background-color .15s}
+.btn:hover{background:#2C5148;color:#fff}
+.btn-light{background:#F3F4EF;color:#1D3832}.btn-light:hover{background:#fff;color:#1D3832}
+.tl{color:#22262A;font-size:15px;font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.tl:hover{color:#1D3832;text-decoration-thickness:2px}
+.tl-light{color:#E9E3D3}.tl-light:hover{color:#fff}
+.navl{text-decoration:none;color:#3A3F43}.navl:hover{color:#1D3832;text-decoration:underline;text-underline-offset:7px;text-decoration-thickness:1px}
+.card{text-decoration:none;color:#22262A}.card:hover .nm{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.chip{font-family:inherit;cursor:pointer;transition:background-color .15s,color .15s}
+.chip:hover{box-shadow:inset 0 0 0 1px #22262A}
+.linkbtn{font-family:inherit;background:none;border:0;padding:10px 0;cursor:pointer;color:#22262A;font-size:15px;font-weight:500;text-decoration:underline;text-underline-offset:6px}
+:focus-visible{outline:2px solid #A9782A;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:720px){.pad{padding-left:20px!important;padding-right:20px!important}}
+</style>
+</helmet>
+
+<div style="background: #E7E8E3; color: #22262A; font-family: 'Schibsted Grotesk', system-ui, sans-serif">
+<dc-import name="Header" active="katalog" hint-size="100%,96px"></dc-import>
+
+<main>
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 64px 40px 40px; display: flex; flex-wrap: wrap; gap: 24px 72px; align-items: flex-end; justify-content: space-between">
+  <h1 style="margin: 0; flex: 1 1 480px; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: clamp(46px, 5.6vw, 80px); line-height: 1; letter-spacing: -0.025em">Pierścionki z pracowni</h1>
+  <p style="margin: 0; flex: 1 1 360px; max-width: 30em; font-size: 17px; line-height: 1.6; color: #3A3F43">Każdy projekt wykonamy w Twoim rozmiarze. Kamień i kolor złota możemy zmienić. Ceny zaczynają się od [X] zł. Ostateczna zależy od wybranego kamienia i złota.</p>
+</section>
+
+<section class="pad" aria-label="Filtry" style="max-width: 1320px; margin: 0 auto; padding: 0 40px; display: flex; flex-direction: column; gap: 18px">
+  <div style="display: flex; flex-wrap: wrap; gap: 20px 48px; border-top: 1px solid #A9AAA3; border-bottom: 1px solid #A9AAA3; padding: 22px 0">
+    <div role="group" aria-labelledby="f-kamien" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+      <span id="f-kamien" style="font-size: 14px; color: #575C5F; margin-right: 6px">Kolor kamienia</span>
+      <sc-for list="{{stoneChips}}" as="c" hint-placeholder-count="7">
+        <button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}">
+          <sc-if value="{{c.dot}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="{{c.dotStyle}}"></span></sc-if>
+          {{c.label}}
+        </button>
+      </sc-for>
+    </div>
+    <div role="group" aria-labelledby="f-zloto" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+      <span id="f-zloto" style="font-size: 14px; color: #575C5F; margin-right: 6px">Kolor złota</span>
+      <sc-for list="{{goldChips}}" as="c" hint-placeholder-count="4">
+        <button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px">
+    <p aria-live="polite" style="margin: 0; font-size: 15px; color: #3A3F43">{{countLabel}}</p>
+    <sc-if value="{{filtered}}" hint-placeholder-val="{{ false }}">
+      <button type="button" class="linkbtn" onClick="{{clear}}">Wyczyść filtry</button>
+    </sc-if>
+  </div>
+</section>
+
+<section class="pad" style="max-width: 1320px; margin: 0 auto; padding: 28px 40px 104px">
+  <sc-if value="{{hasItems}}" hint-placeholder-val="{{ true }}">
+    <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 44px 28px">
+      <sc-for list="{{items}}" as="r" hint-placeholder-count="12">
+        <li>
+          <a class="card" href="Pierscionek.dc.html" style="display: flex; flex-direction: column; gap: 14px">
+            <span style="position: relative; display: block">
+              <img src="{{r.img}}" alt="{{r.alt}}" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover">
+              <span style="position: absolute; left: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 2px; background: #FBFBF8; padding: 10px 16px 10px 30px; clip-path: polygon(13px 0, 100% 0, 100% 100%, 13px 100%, 0 calc(100% - 13px), 0 13px)">
+                <span aria-hidden="true" style="position: absolute; left: 10px; top: 50%; width: 7px; height: 7px; margin-top: -4px; border-radius: 50%; background: #2E2A24; box-shadow: inset 0 0 0 1.5px #B9B3A5"></span>
+                <span class="nm" style="font-family: Newsreader, Georgia, serif; font-size: 21px; line-height: 1.15">{{r.name}}</span>
+              </span>
+            </span>
+            <span style="display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 15px; line-height: 1.45">{{r.stone}}</span>
+              <span style="font-size: 14px; line-height: 1.45; color: #575C5F">{{r.metal}}</span>
+              <span style="font-size: 14px; line-height: 1.45; font-weight: 500">od [cena] zł</span>
+            </span>
+          </a>
+        </li>
+      </sc-for>
+      <li style="display: flex; flex-direction: column; justify-content: space-between; gap: 24px; background: #1D3832; color: #EEF0EA; padding: 32px; min-height: 320px">
+        <span style="font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 32px; line-height: 1.1; color: #F6F5EF">Nie ma tu Twojego pierścionka?</span>
+        <span style="font-size: 15.5px; line-height: 1.6; color: #C9D1CB">Zaprojektujemy go od podstaw. Zacznij od kilku zdań o tym, dla kogo ma powstać.</span>
+        <a class="btn btn-light" href="NaZamowienie.dc.html" style="align-self: flex-start">Pierścionek na zamówienie</a>
+      </li>
+    </ul>
+  </sc-if>
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 18px; padding: 56px 0 24px; max-width: 36em">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 300; font-size: 36px; line-height: 1.1">Nie mamy jeszcze takiego połączenia w kolekcji</h2>
+      <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #3A3F43">Każdy projekt możemy wykonać w innym kolorze złota albo z innym kamieniem. Wyczyść filtry albo napisz, czego szukasz.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center">
+        <button type="button" class="btn" onClick="{{clear}}">Pokaż wszystkie pierścionki</button>
+        <a class="tl" href="Kontakt.dc.html">Zapytaj o projekt</a>
+      </div>
+    </div>
+  </sc-if>
+</section>
+
+<section style="background: #DDDFD8; border-top: 1px solid #C9CBC4">
+  <div class="pad" style="max-width: 1320px; margin: 0 auto; padding: 72px 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 32px 48px">
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 24px; line-height: 1.2">Twój rozmiar</h2>
+      <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #3A3F43">Rozmiar zmierzymy w pracowni. Jeśli to niespodzianka, podpowiemy, jak go sprawdzić po cichu.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 24px; line-height: 1.2">Inny kamień, inne złoto</h2>
+      <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #3A3F43">Szafir zamiast tanzanitu albo białe złoto zamiast żółtego. Pokażemy kamienie na żywo.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 24px; line-height: 1.2">Cena przed zamówieniem</h2>
+      <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #3A3F43">Wycenę dostajesz po ustaleniu szczegółów. Nic nie wykonujemy bez Twojej akceptacji.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<dc-import name="Footer" hint-size="100%,460px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { stone: 'all', gold: 'all' };
+  }
+  plural(n) {
+    const d = n % 10, h = n % 100;
+    if (n === 1) return 'pierścionek';
+    if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return 'pierścionki';
+    return 'pierścionków';
+  }
+  renderVals() {
+    const rings = [
+      { name: 'Phoebe', stone: 'Tanzanit, diamenty', metal: 'Żółte złoto', g: 'niebieskie', au: 'zolte', img: '/_blob/4fa66d805ee6b389ece50804db03b3fe' },
+      { name: 'Harmonia', stone: 'Morganit, diamenty', metal: 'Żółte złoto', g: 'rozowe', au: 'zolte', img: '/_blob/102a47826fc177e57a27694d06d4649f' },
+      { name: 'Athena', stone: 'Szmaragd, diamenty', metal: 'Żółte i białe złoto', g: 'zielone', au: 'dwa', img: '/_blob/1078ba165636691e0dbada998ae275a9' },
+      { name: 'Nyx', stone: 'Topaz London Blue, diamenty', metal: 'Żółte złoto', g: 'niebieskie', au: 'zolte', img: '/_blob/fdc5a55f138061aa14496e617fcccdb5' },
+      { name: 'Pyrrha', stone: 'Rubin, diamenty', metal: 'Żółte złoto', g: 'rozowe', au: 'zolte', img: '/_blob/9768fe8b7cee00bbb95c4f00e79aaf4c' },
+      { name: 'Cyane', stone: 'Niebieski diament, diamenty', metal: 'Żółte złoto', g: 'niebieskie', au: 'zolte', img: '/_blob/c303422391878ca75789f551b3814dcb' },
+      { name: 'Eirene', stone: 'Turmalin różowy, diamenty', metal: 'Żółte złoto', g: 'rozowe', au: 'zolte', img: '/_blob/cf7a4578792f81c91e1893d0aa384716' },
+      { name: 'Daphne', stone: 'Turmalin oliwkowy', metal: 'Żółte złoto', g: 'zielone', au: 'zolte', img: '/_blob/07f867cca417658c7f28b634bf5ec026' },
+      { name: 'Aria', stone: 'Ametyst, diamenty', metal: 'Żółte złoto', g: 'fioletowe', au: 'zolte', img: '/_blob/d1b2c8aeb320bf1ff09df114b44c9b5a' },
+      { name: 'Chryse', stone: 'Cytryn, diamenty', metal: 'Żółte złoto', g: 'zolte', au: 'zolte', img: '/_blob/3aff8d2df70262cebeb1c031a5d6453e' },
+      { name: 'Pelagia', stone: 'Szafir, diamenty', metal: 'Żółte i białe złoto', g: 'niebieskie', au: 'dwa', img: '/_blob/340193eea7eba57901aa631d4cfcec07' },
+      { name: 'Dione', stone: 'Diament', metal: 'Żółte i białe złoto', g: 'bezbarwne', au: 'dwa', img: '/_blob/75340e465ccb643d8dd9a7a86131482c' }
+    ];
+    const stones = [
+      { id: 'all', label: 'Wszystkie' },
+      { id: 'niebieskie', label: 'Niebieskie', c: '#2F4F8F' },
+      { id: 'zielone', label: 'Zielone', c: '#2F6B4F' },
+      { id: 'rozowe', label: 'Czerwone i różowe', c: '#B24A5C' },
+      { id: 'fioletowe', label: 'Fioletowe', c: '#6B4B8C' },
+      { id: 'zolte', label: 'Żółte', c: '#D2A92E' },
+      { id: 'bezbarwne', label: 'Bezbarwne', c: '#FBFBF8' }
+    ];
+    const golds = [
+      { id: 'all', label: 'Każde' },
+      { id: 'zolte', label: 'Żółte' },
+      { id: 'dwa', label: 'Żółte z białym' },
+      { id: 'biale', label: 'Białe' }
+    ];
+    const { stone, gold } = this.state;
+    const chipStyle = (on) => on
+      ? 'display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #1D3832; color: #F3F4EF; font-size: 14.5px; font-weight: 500'
+      : 'display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #FBFBF8; color: #22262A; font-size: 14.5px; font-weight: 400';
+    const items = rings
+      .filter((r) => (stone === 'all' || r.g === stone) && (gold === 'all' || r.au === gold))
+      .map((r) => ({ ...r, alt: 'Pierścionek ' + r.name + ': ' + r.stone.toLowerCase() }));
+    const n = items.length;
+    return {
+      stoneChips: stones.map((s) => ({
+        label: s.label,
+        pressed: stone === s.id ? 'true' : 'false',
+        style: chipStyle(stone === s.id),
+        dot: !!s.c,
+        dotStyle: 'width: 11px; height: 11px; border-radius: 50%; background: ' + (s.c || 'transparent') + '; box-shadow: inset 0 0 0 1px rgba(34,38,42,.35)',
+        pick: () => this.setState({ stone: s.id })
+      })),
+      goldChips: golds.map((g) => ({
+        label: g.label,
+        pressed: gold === g.id ? 'true' : 'false',
+        style: chipStyle(gold === g.id),
+        pick: () => this.setState({ gold: g.id })
+      })),
+      items,
+      hasItems: n > 0,
+      isEmpty: n === 0,
+      filtered: stone !== 'all' || gold !== 'all',
+      countLabel: (stone === 'all' && gold === 'all')
+        ? n + ' ' + this.plural(n) + ' w kolekcji'
+        : 'Pasujące do filtrów: ' + n + ' ' + this.plural(n),
+      clear: () => this.setState({ stone: 'all', gold: 'all' })
+    };
+  }
+}
+</script>
+</body>
+</html>
