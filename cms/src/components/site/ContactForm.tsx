@@ -1,9 +1,10 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { PREVIEW_NOTICE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
+import { ATTACHMENTS_ENABLED, PREVIEW_NOTICE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
 import { BUDGETS, CONSENT_TEXT, CONTACT_TOPICS as TOPICS, LIMITS, type ContactTopicId as TopicId } from '@/lib/submissions/options'
 import { validateContact } from '@/lib/submissions/validation'
+import Attachments, { AttachmentsNote } from './Attachments'
 import { FieldError, FormNotice, Honeypot, invalidProps } from './FormParts'
 import Turnstile from './Turnstile'
 import { useSubmission } from './useSubmission'
@@ -36,7 +37,7 @@ export default function ContactForm({
 }) {
   const [topic, setTopic] = useState<TopicId>(isTopic(initialTopic) ? initialTopic : project ? 'kolekcja' : 'nowy')
   const honeypot = useRef<HTMLInputElement>(null)
-  const { sending, sent, notice, setNotice, fieldErrors, setFieldErrors, showErrors, submit, reset, turnstileProps } =
+  const { sending, sent, notice, setNotice, fieldErrors, setFieldErrors, showErrors, submit, reset, attachmentsRef, attachmentsResult, turnstileProps } =
     useSubmission('kontakt', SUBMISSIONS_ENABLED)
   const [label, hint] = MESSAGES[topic]
 
@@ -84,6 +85,8 @@ export default function ContactForm({
         <p className="text" style={{ maxWidth: '32em' }}>
           Dziękujemy. Oddzwonimy w godzinach pracy pracowni, żeby ustalić termin rozmowy.
         </p>
+        {/* ZLECENIE-B: wynik dołączania zdjęć (pusty, gdy klient ich nie dodawał). */}
+        <AttachmentsNote result={attachmentsResult} />
         <button className="linkbtn" onClick={reset} style={{ alignSelf: 'flex-start' }} type="button">
           Napisz kolejną wiadomość
         </button>
@@ -175,6 +178,12 @@ export default function ContactForm({
         <textarea className="fld" data-field="message" id="k-wiad" maxLength={LIMITS.message} name="wiadomosc" placeholder={hint} rows={6} style={{ resize: 'vertical', lineHeight: 1.55 }} {...err('message', 'k-wiad-err')} />
         <FieldError id="k-wiad-err" message={fieldErrors.message} />
       </div>
+
+      {/* ZLECENIE-B: zdjęcia i szkice od klienta (przełącznik ATTACHMENTS_ENABLED). Jedyne miejsce, w którym
+          formularz dotyka plików; obsługa wysyłki: useSubmission + components/site/Attachments.tsx. */}
+      {ATTACHMENTS_ENABLED ? (
+        <Attachments disabled={sending} error={fieldErrors.attachments} ref={attachmentsRef} />
+      ) : null}
 
       <div className="form-grid">
         <div className="field">

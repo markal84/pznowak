@@ -40,6 +40,14 @@ export const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.tr
 
 export const SUBMISSIONS_ENABLED = TURNSTILE_SITE_KEY !== ''
 
+/**
+ * Zdjęcia w formularzu kontaktowym (Zlecenie B). Przełącznik `ATTACHMENTS_ENABLED` (`1`/`true`) jest wstawiany
+ * przy budowaniu (`next.config.ts` → `env`); domyślnie wyłączony, wtedy formularz wygląda jak przed zmianą.
+ * Serwer czyta ten sam przełącznik w `src/lib/submissions/config.ts`.
+ */
+export const ATTACHMENTS_ENABLED =
+  SUBMISSIONS_ENABLED && ['1', 'true'].includes((process.env.ATTACHMENTS_ENABLED ?? '').trim().toLowerCase())
+
 export const PREVIEW_NOTICE =
   'Wersja podglądowa: wysyłka jest jeszcze wyłączona. Zadzwoń lub napisz, a odpowiemy w godzinach pracy pracowni.'
 
