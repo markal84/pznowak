@@ -3,13 +3,15 @@
  * więc stary licznik nigdy nie jest używany ponownie, a sprzątanie usuwa wiersze po `expires_at`.
  */
 
-export type LimitScope = 'ip' | 'day' | 'quarantine' | 'visualizations'
+export type LimitScope = 'ip' | 'day' | 'quarantine' | 'visualizations' | 'attachments'
 
 export type LimitBucket = {
   key: string
   limit: number
   ttlSeconds: number
   scope: LimitScope
+  /** O ile zwiększyć licznik (domyślnie 1); liczniki rozmiaru plików liczą kilobajty. */
+  amount?: number
 }
 
 export type LimitSettings = {
@@ -26,6 +28,14 @@ export type LimitSettings = {
    */
   quarantinePerIpHour: number
   quarantinePerDay: number
+  /**
+   * Załączniki (zdjęcia w formularzu kontaktowym), na dobę w czasie polskim: liczba plików i łączny rozmiar (MB)
+   * z jednego IP oraz łącznie. Liczone razem ze zgłoszeniem, w tej samej transakcji co limity zgłoszeń.
+   */
+  attachmentFilesPerIpDay: number
+  attachmentMbPerIpDay: number
+  attachmentFilesPerDay: number
+  attachmentMbPerDay: number
 }
 
 export const DEFAULT_LIMITS: LimitSettings = {
@@ -34,6 +44,11 @@ export const DEFAULT_LIMITS: LimitSettings = {
   visualizationsPerDay: 10,
   quarantinePerIpHour: 1,
   quarantinePerDay: 10,
+  // Trzy pełne zgłoszenia po 5 zdjęć z jednego połączenia; łącznie tyle, ile realnie przysyła pracownia w tydzień.
+  attachmentFilesPerIpDay: 15,
+  attachmentMbPerIpDay: 40,
+  attachmentFilesPerDay: 100,
+  attachmentMbPerDay: 300,
 }
 
 const warsawDate = new Intl.DateTimeFormat('en-CA', {
@@ -120,6 +135,53 @@ export function quarantineBuckets(
       limit: limits.quarantinePerDay,
       ttlSeconds: 3 * 86400,
       scope: 'quarantine',
+    },
+  ]
+}
+
+/**
+ * Liczniki załączników zgłoszenia: pliki i kilobajty (zapowiedziane rozmiary, a każdy bilet przyjmuje najwyżej
+ * zapowiedziany rozmiar), z jednego IP i łącznie na dobę.
+ */
+export function attachmentBuckets(
+  namespace: string,
+  ipHash: string,
+  now: Date,
+  limits: LimitSettings,
+  sizes: number[],
+): LimitBucket[] {
+  const day = warsawDay(now)
+  const files = sizes.length
+  const kib = sizes.reduce((sum, size) => sum + Math.ceil(size / 1024), 0)
+  const ttlSeconds = 3 * 86400
+  return [
+    {
+      key: `${namespace}zalaczniki-ip:${ipHash}:${day}`,
+      limit: limits.attachmentFilesPerIpDay,
+      amount: files,
+      ttlSeconds,
+      scope: 'attachments',
+    },
+    {
+      key: `${namespace}zalaczniki-ip-kb:${ipHash}:${day}`,
+      limit: limits.attachmentMbPerIpDay * 1024,
+      amount: kib,
+      ttlSeconds,
+      scope: 'attachments',
+    },
+    {
+      key: `${namespace}zalaczniki-dzien:${day}`,
+      limit: limits.attachmentFilesPerDay,
+      amount: files,
+      ttlSeconds,
+      scope: 'attachments',
+    },
+    {
+      key: `${namespace}zalaczniki-dzien-kb:${day}`,
+      limit: limits.attachmentMbPerDay * 1024,
+      amount: kib,
+      ttlSeconds,
+      scope: 'attachments',
     },
   ]
 }

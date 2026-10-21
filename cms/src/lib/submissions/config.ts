@@ -13,6 +13,10 @@ import { DEFAULT_LIMITS, type LimitSettings } from './limits'
  * - `SUBMISSIONS_NOTIFY_TO` – adres pracowni dla powiadomień; bez niego powiadomienia są pomijane.
  * - `LIMITS_NAMESPACE` – przedrostek kluczy liczników (domyślnie pusty); testy na wspólnej bazie
  *   stagingowej używają własnego, żeby nie ruszać liczników preview.
+ * - `ATTACHMENTS_ENABLED` – zdjęcia w formularzu kontaktowym (`1`/`true`; domyślnie wyłączone). Magazyn plików:
+ *   `src/lib/attachments/config.ts`. Limity plików na dobę: `ATTACHMENTS_LIMIT_FILES_PER_IP_DAY`,
+ *   `ATTACHMENTS_LIMIT_MB_PER_IP_DAY`, `ATTACHMENTS_LIMIT_FILES_PER_DAY`, `ATTACHMENTS_LIMIT_MB_PER_DAY`
+ *   (domyślnie 15 / 40 / 100 / 300).
  */
 
 export type VisualizationMode = 'manual' | 'auto'
@@ -34,6 +38,8 @@ export type SubmissionSettings = {
   visualizations: VisualizationSettings
   notifyTo: string | undefined
   namespace: string
+  /** Przełącznik zdjęć w formularzu kontaktowym; bez magazynu plików zgłoszenia idą bez zdjęć. */
+  attachmentsEnabled: boolean
 }
 
 type Env = Record<string, string | undefined>
@@ -45,6 +51,12 @@ function positiveInt(value: string | undefined, fallback: number): number {
 }
 
 const clean = (value: string | undefined) => value?.trim() || undefined
+
+/** `ATTACHMENTS_ENABLED`: tylko `1` albo `true` włącza; wszystko inne (także brak) to wyłączone. */
+export function attachmentsFlag(env: Env = process.env): boolean {
+  const value = env.ATTACHMENTS_ENABLED?.trim().toLowerCase()
+  return value === '1' || value === 'true'
+}
 
 export function visualizationSettingsFromEnv(env: Env = process.env): VisualizationSettings {
   return {
@@ -72,9 +84,26 @@ export function submissionSettingsFromEnv(env: Env = process.env): SubmissionSet
       // Limity kwarantanny są stałe (nie z env): to bezpiecznik na czas awarii, a nie ustawienie do strojenia.
       quarantinePerIpHour: DEFAULT_LIMITS.quarantinePerIpHour,
       quarantinePerDay: DEFAULT_LIMITS.quarantinePerDay,
+      attachmentFilesPerIpDay: positiveInt(
+        env.ATTACHMENTS_LIMIT_FILES_PER_IP_DAY,
+        DEFAULT_LIMITS.attachmentFilesPerIpDay,
+      ),
+      attachmentMbPerIpDay: positiveInt(
+        env.ATTACHMENTS_LIMIT_MB_PER_IP_DAY,
+        DEFAULT_LIMITS.attachmentMbPerIpDay,
+      ),
+      attachmentFilesPerDay: positiveInt(
+        env.ATTACHMENTS_LIMIT_FILES_PER_DAY,
+        DEFAULT_LIMITS.attachmentFilesPerDay,
+      ),
+      attachmentMbPerDay: positiveInt(
+        env.ATTACHMENTS_LIMIT_MB_PER_DAY,
+        DEFAULT_LIMITS.attachmentMbPerDay,
+      ),
     },
     visualizations,
     notifyTo: clean(env.SUBMISSIONS_NOTIFY_TO),
     namespace: visualizations.namespace,
+    attachmentsEnabled: attachmentsFlag(env),
   }
 }

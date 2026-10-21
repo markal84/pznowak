@@ -1,6 +1,10 @@
+import { ATTACHMENT_RULES, parseManifest } from '../attachments/rules'
+import type { SubmissionAttachmentsState } from '../attachments/store'
+import { issueUploadToken } from '../attachments/token'
 import type { SubmissionSettings } from './config'
 import { FORM_TIMING, checkFormToken, deriveKey, hashIp, issueFormToken } from './form-token'
 import {
+  attachmentBuckets,
   ipLimitIdentity,
   quarantineBuckets,
   secondsToNextHour,
@@ -23,6 +27,12 @@ import { validateContact, validateCreator, type FieldErrors } from './validation
  * 4. limity: IP na godzinę i dzienny sufit, liczone dopiero po pozytywnym Turnstile albo przy kwarantannie,
  *    żeby śmieciowe żądania nie wyczerpały sufitu prawdziwym klientom,
  * 5. zapis szkicu; powiadomienie pracowni po wysłaniu odpowiedzi.
+ *
+ * Zdjęcia (formularz kontaktowy, przełącznik `ATTACHMENTS_ENABLED`): zgłoszenie zapowiada pliki (`attachments:
+ * [{ size }]`), a odpowiedź 201 niesie jednorazowe bilety na każdy plik (`/api/zgloszenia/zalaczniki`). Bilety
+ * powstają dopiero po wszystkich kontrolach wyżej; limity plików liczą się w tej samej transakcji co limity
+ * zgłoszeń. Przy kwarantannie, wyczerpanym limicie plików albo bez magazynu zgłoszenie przechodzi bez zdjęć,
+ * a klient dostaje prośbę o przesłanie ich e-mailem. Powiadomienie pracowni czeka wtedy na ostatni plik.
  */
 
 export type ResponseCode =
@@ -38,11 +48,17 @@ export type ResponseCode =
   | 'disabled'
   | 'error'
 
+/** Co dalej ze zdjęciami: bilety na przesłanie albo informacja, że zgłoszenie przyszło bez nich. */
+export type AttachmentsReply =
+  | { status: 'upload'; uploads: Array<{ token: string }> }
+  | { status: 'refused_quarantine' | 'refused_limit' | 'refused_unavailable' }
+
 export type SubmissionResponse = {
   ok: boolean
   code: ResponseCode
   message: string
   fields?: FieldErrors
+  attachments?: AttachmentsReply
 }
 
 export const RESPONSE_MESSAGES: Record<ResponseCode, string> = {
@@ -82,6 +98,12 @@ export type SubmissionDeps = {
   insertDraft: (draft: SubmissionDraft) => Promise<{ id: number }>
   /** Powiadomienie pracowni i sprzątanie liczników; uruchamiane po odpowiedzi (`after`). */
   afterAccepted: (submission: AcceptedSubmission, context: { origin: string }) => Promise<void>
+  /** Miejsca na zdjęcia; brak = magazyn plików nieskonfigurowany (zgłoszenia idą bez zdjęć). */
+  attachments?: {
+    createSlots: (submissionId: number, sizes: number[]) => Promise<Array<{ id: string }>>
+    /** Gdy miejsc nie udało się utworzyć: zgłoszenie zostaje, zdjęcia nie. */
+    markUnavailable: (submissionId: number) => Promise<void>
+  }
   defer: (task: () => Promise<void>) => void
   log?: (event: string, details?: Record<string, unknown>) => void
 }
@@ -117,7 +139,7 @@ export function requestHostname(request: Request): string {
   return host.split(',')[0].trim().replace(/:\d+$/, '').toLowerCase()
 }
 
-function requestOrigin(request: Request): string {
+export function requestOrigin(request: Request): string {
   const proto =
     request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim() ||
     new URL(request.url).protocol.replace(':', '')
@@ -152,6 +174,9 @@ function buildDraft(
     consentAt: meta.now.toISOString(),
     notification: 'pending' as const,
     verification: 'verified' as 'verified' | 'quarantine',
+    attachmentsState: 'none' as SubmissionAttachmentsState,
+    attachmentsDeclared: 0,
+    attachmentsCount: 0,
     meta: {
       ipHash: meta.ipHash,
       userAgent: meta.userAgent,
@@ -261,6 +286,14 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
     })
     if ('errors' in built) return reply(400, 'invalid', { fields: built.errors })
 
+    // 2b. Zapowiedziane zdjęcia (tylko formularz kontaktowy z włączonym przełącznikiem; inaczej pole jest pomijane).
+    const manifest =
+      form === 'kontakt' && settings.attachmentsEnabled
+        ? parseManifest(body.attachments)
+        : { ok: true as const, sizes: [] as number[] }
+    if (!manifest.ok) return reply(400, 'invalid', { fields: { attachments: manifest.message } })
+    const sizes = manifest.sizes
+
     // 3. Turnstile; przy awarii Cloudflare kwarantanna zamiast odrzucenia.
     let quarantine = false
     const token = body.turnstileToken
@@ -296,13 +329,37 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
     }
     if (quarantine) built.draft.verification = 'quarantine'
 
+    // Zdjęcia tylko od zweryfikowanego człowieka i tylko z magazynem; przy kwarantannie zgłoszenie bez plików.
+    let attachmentsState: SubmissionAttachmentsState =
+      sizes.length === 0
+        ? 'none'
+        : quarantine
+          ? 'refused_quarantine'
+          : deps.attachments
+            ? 'uploading'
+            : 'refused_unavailable'
+
     // 4. Limity (atomowo, wszystkie naraz); kwarantanna ma dodatkowe, ostrzejsze liczniki.
-    const limits = await deps.consumeLimits([
+    const buckets = [
       ...submissionBuckets(settings.namespace, ipHash, new Date(now), settings.limits),
       ...(quarantine
         ? quarantineBuckets(settings.namespace, ipHash, new Date(now), settings.limits)
         : []),
-    ])
+    ]
+    let limits = await deps.consumeLimits(
+      attachmentsState === 'uploading'
+        ? [
+            ...buckets,
+            ...attachmentBuckets(settings.namespace, ipHash, new Date(now), settings.limits, sizes),
+          ]
+        : buckets,
+    )
+    if (!limits.ok && limits.bucket.scope === 'attachments') {
+      // Limit plików wyczerpany: zgłoszenie przechodzi (jeśli pozwalają jego limity), zdjęcia nie.
+      log('zdjęcia odrzucone: limit plików', { form })
+      attachmentsState = 'refused_limit'
+      limits = await deps.consumeLimits(buckets)
+    }
     if (!limits.ok) {
       log(`odrzucone: limit (${limits.bucket.scope})`, { form })
       // Wyczerpana kwarantanna: dalej działa jak fail-closed (telefon i e-mail).
@@ -319,10 +376,41 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
     }
 
     // 5. Szkic w bazie; wizualizacja nie startuje (kolejka: queue.ts).
+    built.draft.attachmentsState = attachmentsState
+    built.draft.attachmentsDeclared = sizes.length
     const { id } = await deps.insertDraft(built.draft)
     if (quarantine) log('przyjęte do kwarantanny: Cloudflare Turnstile niedostępny', { form, id })
+
+    // 5b. Bilety na zdjęcia (po jednym na plik, krótki termin, jednorazowe).
+    let attachments: AttachmentsReply | undefined
+    if (attachmentsState === 'uploading' && deps.attachments) {
+      try {
+        const slots = await deps.attachments.createSlots(id, sizes)
+        const key = deriveKey(settings.appSecret, 'upload-token')
+        const expiresAt = now + ATTACHMENT_RULES.uploadTokenTtlMs
+        attachments = {
+          status: 'upload',
+          uploads: slots.map((slot) => ({ token: issueUploadToken(slot.id, expiresAt, key) })),
+        }
+      } catch (error) {
+        log('zdjęcia odrzucone: błąd miejsc na pliki', {
+          id,
+          error: error instanceof Error ? error.message : String(error),
+        })
+        attachmentsState = 'refused_unavailable'
+        await deps.attachments.markUnavailable(id).catch(() => undefined)
+      }
+    }
+    if (
+      attachmentsState === 'refused_quarantine' ||
+      attachmentsState === 'refused_limit' ||
+      attachmentsState === 'refused_unavailable'
+    )
+      attachments = { status: attachmentsState }
+
     const accepted: AcceptedSubmission = {
       ...built.draft,
+      attachmentsState,
       id,
       createdAt: new Date(now).toISOString(),
     }
@@ -337,7 +425,7 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
         })
       }
     })
-    return reply(201, 'accepted')
+    return reply(201, 'accepted', attachments ? { attachments } : {})
   } catch (error) {
     log('błąd obsługi zgłoszenia', {
       error: error instanceof Error ? error.message : String(error),
