@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import CookieSettingsButton from '@/components/site/CookieSettingsButton'
 import { SITE } from '@/lib/site'
 import DoUzupelnienia from './DoUzupelnienia'
 
@@ -52,13 +53,16 @@ export default function SiteFooter() {
         </div>
         <div className="footer-base">
           <span>© 2026 Pracownia Złotnicza Michał Nowak</span>
-          {/* Treść polityki prywatności i regulaminu dostarcza pracownia; do tego czasu stopka pokazuje je tylko na podglądzie. */}
-          <DoUzupelnienia>
-            <span style={{ display: 'flex', gap: 24 }}>
-              <span>Polityka prywatności [wkrótce]</span>
-              <span>Regulamin [wkrótce]</span>
-            </span>
-          </DoUzupelnienia>
+          <span style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+            {/* Treść polityki prywatności i regulaminu dostarcza pracownia; do tego czasu stopka pokazuje je tylko na podglądzie. */}
+            <DoUzupelnienia>
+              <span style={{ display: 'flex', gap: 24 }}>
+                <span>Polityka prywatności [wkrótce]</span>
+                <span>Regulamin [wkrótce]</span>
+              </span>
+            </DoUzupelnienia>
+            <CookieSettingsButton />
+          </span>
         </div>
       </div>
     </footer>
