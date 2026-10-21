@@ -126,6 +126,10 @@ function requestOrigin(request: Request): string {
 
 const isForm = (value: unknown): value is FormKind => value === 'kreator' || value === 'kontakt'
 
+/** Ukryty kreator nie przyjmuje zgłoszeń: bez strony nie ma też otwartego endpointu (ani kolejki wizualizacji). */
+const isFormEnabled = (form: FormKind, settings: SubmissionSettings) =>
+  form !== 'kreator' || settings.creatorEnabled
+
 /** GET /api/zgloszenia?form=kreator – podpisany token otwarcia formularza. */
 export function handleFormTokenRequest(
   request: Request,
@@ -133,6 +137,7 @@ export function handleFormTokenRequest(
 ): Response {
   const form = new URL(request.url).searchParams.get('form')
   if (!isForm(form)) return reply(400, 'invalid')
+  if (!isFormEnabled(form, deps.settings)) return reply(404, 'disabled')
   if (!deps.settings.turnstileSecret) return reply(503, 'disabled')
   const token = issueFormToken(form, deriveKey(deps.settings.appSecret, 'form-token'), deps.now())
   return Response.json(
@@ -187,6 +192,9 @@ function buildDraft(
       phone,
       email,
       topic: details.topic,
+      engraving: details.engraving || null,
+      ringSizeKnown: details.ringSizeKnown || null,
+      ringSize: details.ringSize || null,
       summary: rowsToText(describeContact(details)),
       message,
       details,
@@ -224,6 +232,10 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
     }
     const form = body.form
     if (!isForm(form)) return reply(400, 'rejected')
+    if (!isFormEnabled(form, settings)) {
+      log('odrzucone: formularz wyłączony', { form })
+      return reply(404, 'disabled')
+    }
 
     // 1. Pole-pułapka: człowiek go nie widzi, więc każda wartość oznacza bota.
     if (body.honeypot !== undefined && body.honeypot !== '') {

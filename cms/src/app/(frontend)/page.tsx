@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
 import { pickByName, pluralRing, toCatalogRing } from '@/lib/catalog'
-import { FAMILY, SITE } from '@/lib/site'
+import { CUSTOM_ORDER_LINK, FAMILY, RING_CREATOR_ENABLED, SITE } from '@/lib/site'
 import Faq from '@/components/site/Faq'
 import Photo from '@/components/site/Photo'
 import RingCard from '@/components/site/RingCard'
@@ -103,7 +103,11 @@ export default async function HomePage() {
             <h3 className="h3-serif">Z pomysłem na nowy pierścionek</h3>
             <p>Wystarczy inspiracja, zdjęcie albo historia osoby, dla której ma powstać. Przygotujemy szkic, model 3D i wycenę, zanim zaczniemy pracę.</p>
             <p className="price" style={{ marginTop: 'auto' }}>Zwykle [X–Y] zł</p>
-            <Link className="tl" href="/kreator">Zaprojektuj wstępnie online</Link>
+            {RING_CREATOR_ENABLED ? (
+              <Link className="tl" href="/kreator">Zaprojektuj wstępnie online</Link>
+            ) : (
+              <Link className="tl" href={CUSTOM_ORDER_LINK.href}>{CUSTOM_ORDER_LINK.label}</Link>
+            )}
           </div>
           <div className="item-rule">
             <h3 className="h3-serif">Po projekt z naszej kolekcji</h3>

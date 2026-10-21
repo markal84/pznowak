@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
 import Faq from '@/components/site/Faq'
 import Photo from '@/components/site/Photo'
-import { FAMILY } from '@/lib/site'
+import { CUSTOM_ORDER_LINK, FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { title: 'Pierścionek na zamówienie' }
@@ -38,7 +38,11 @@ export default async function OnOrderPage() {
           <p className="price" style={{ fontSize: 16 }}>Pierścionki na zamówienie kosztują zwykle [X–Y] zł</p>
           <div className="row gap-14-28">
             <Link className="btn" href="/kontakt?temat=nowy">Umów rozmowę o projekcie</Link>
-            <Link className="tl" href="/kreator">Zaprojektuj wstępnie online</Link>
+            {RING_CREATOR_ENABLED ? (
+              <Link className="tl" href="/kreator">Zaprojektuj wstępnie online</Link>
+            ) : (
+              <Link className="tl" href={CUSTOM_ORDER_LINK.href}>{CUSTOM_ORDER_LINK.label}</Link>
+            )}
           </div>
         </div>
         <figure className="stack" style={{ flex: '1 1 420px', minWidth: 0, gap: 12 }}>

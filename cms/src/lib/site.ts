@@ -26,8 +26,20 @@ export const NAV = [
   { id: 'pracownia', label: 'Pracownia', href: '/pracownia' },
 ] as const
 
+/**
+ * Narzędzia do projektowania online. Wyłączone 21.10.2026 (pracownia woli katalog gotowych prac i zdjęcie lub
+ * opis od klienta przez formularz kontaktowy). Kod, testy i zabezpieczenia wysyłki zostają; `true` przywraca
+ * kreator w nagłówku, w treściach i pod `/kreator`, a konfigurator na stronie „Obrączki”.
+ * Przy wyłączonym kreatorze `/kreator` odpowiada 404, a endpoint zgłoszeń nie przyjmuje formularza kreatora.
+ */
+export const RING_CREATOR_ENABLED = false
+export const BAND_CONFIGURATOR_ENABLED = false
+
 /** Wyróżniona pozycja nagłówka (drugorzędny przycisk obok „Umów wizytę”, osobna pozycja w menu na telefonie). */
 export const CREATOR_LINK = { id: 'kreator', label: 'Zaprojektuj pierścionek', href: '/kreator' } as const
+
+/** Zamiast kreatora: zdjęcie lub opis przez formularz kontaktowy (temat „na zamówienie”). */
+export const CUSTOM_ORDER_LINK = { label: 'Wyślij zdjęcie lub opis', href: '/kontakt?temat=nowy' } as const
 
 export type NavId = (typeof NAV)[number]['id'] | 'home' | 'kontakt' | 'kreator'
 

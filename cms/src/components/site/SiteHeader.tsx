@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { CREATOR_LINK, NAV, SITE } from '@/lib/site'
+import { CREATOR_LINK, NAV, RING_CREATOR_ENABLED, SITE } from '@/lib/site'
 
 function isCurrent(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + '/')
@@ -17,8 +17,9 @@ export default function SiteHeader() {
   const kontaktCurrent = pathname === '/kontakt'
   const kreatorCurrent = isCurrent(pathname, CREATOR_LINK.href)
 
+  // has-creator: przy dwóch przyciskach w 1140–1319 px nie mieści się podpis przy logo (globals.css).
   return (
-    <header className="site-header">
+    <header className={RING_CREATOR_ENABLED ? 'site-header has-creator' : 'site-header'}>
       <div className="site-header-in">
         <Link
           aria-label={`${SITE.name}, pracownia złotnicza — strona główna`}
@@ -46,13 +47,15 @@ export default function SiteHeader() {
           ))}
         </nav>
         <div className="header-actions">
-          <Link
-            aria-current={kreatorCurrent ? 'page' : undefined}
-            className="btn btn-line header-cta header-cta-creator"
-            href={CREATOR_LINK.href}
-          >
-            {CREATOR_LINK.label}
-          </Link>
+          {RING_CREATOR_ENABLED ? (
+            <Link
+              aria-current={kreatorCurrent ? 'page' : undefined}
+              className="btn btn-line header-cta header-cta-creator"
+              href={CREATOR_LINK.href}
+            >
+              {CREATOR_LINK.label}
+            </Link>
+          ) : null}
           <Link aria-current={kontaktCurrent ? 'page' : undefined} className="btn header-cta" href="/kontakt">
             Umów wizytę
           </Link>
@@ -86,14 +89,16 @@ export default function SiteHeader() {
             {item.label}
           </Link>
         ))}
-        <Link
-          aria-current={kreatorCurrent ? 'page' : undefined}
-          className="m m-creator"
-          href={CREATOR_LINK.href}
-          onClick={close}
-        >
-          {CREATOR_LINK.label}
-        </Link>
+        {RING_CREATOR_ENABLED ? (
+          <Link
+            aria-current={kreatorCurrent ? 'page' : undefined}
+            className="m m-creator"
+            href={CREATOR_LINK.href}
+            onClick={close}
+          >
+            {CREATOR_LINK.label}
+          </Link>
+        ) : null}
         <Link aria-current={kontaktCurrent ? 'page' : undefined} className="m" href="/kontakt" onClick={close}>
           Umów wizytę
         </Link>

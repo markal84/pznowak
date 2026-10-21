@@ -8,10 +8,14 @@ import {
   METALS,
   OCCASIONS,
   PAVES,
+  RING_DETAIL_TOPICS,
+  RING_SIZES,
+  RING_SIZE_KNOWN,
   SETTINGS,
   WIDTHS,
   type ContactTopicId,
   type OccasionId,
+  type RingSizeKnownId,
 } from './options'
 
 /**
@@ -47,6 +51,11 @@ export type ContactSubmission = {
   project: string
   weddingDate: string
   bandChoice: string
+  /** Grawer i rozmiar tylko przy tematach z RING_DETAIL_TOPICS; przy innych puste. */
+  engraving: string
+  ringSizeKnown: RingSizeKnownId | ''
+  /** Polska skala (RING_SIZES); pusty, gdy klient nie zna rozmiaru. */
+  ringSize: string
   message: string
   name: string
   phone: string
@@ -80,6 +89,8 @@ export const MESSAGES = {
   engraving: "Grawer może mieć litery, cyfry, spacje i znaki: & . , - ' + ! ? : ( ) ♥ ∞",
   consent: 'Zaznacz zgodę na kontakt, żebyśmy mogli oddzwonić.',
   messageRequired: 'Napisz, w czym możemy pomóc.',
+  ringSizeRequired: 'Wybierz rozmiar albo zaznacz „Nie znam”.',
+  ringSize: `Wybierz rozmiar z listy (polska skala ${RING_SIZES[0]}–${RING_SIZES[RING_SIZES.length - 1]}).`,
 } as const
 
 const length = (value: string) => [...value].length
@@ -121,6 +132,15 @@ export function normalizePolishPhone(raw: string): string | null {
   if (!match) return null
   const d = match[1]
   return `+48 ${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`
+}
+
+/** Grawer: ta sama reguła w kreatorze i w formularzu kontaktowym (limit znaków, bez linków i HTML, dozwolone znaki). */
+function engravingField(raw: unknown, errors: FieldErrors): string {
+  const engraving = text(raw, { max: LIMITS.engraving })
+  if ('error' in engraving) errors.engraving = engraving.error
+  else if (!ENGRAVING.test(engraving.value)) errors.engraving = MESSAGES.engraving
+  else return engraving.value
+  return ''
 }
 
 function asRecord(input: unknown): Record<string, unknown> | null {
@@ -186,9 +206,7 @@ export function validateCreator(input: unknown): Validation<CreatorSubmission> {
   const when = text(data.when, { max: LIMITS.when })
   if ('error' in when) errors.when = when.error
 
-  const engraving = text(data.engraving, { max: LIMITS.engraving })
-  if ('error' in engraving) errors.engraving = engraving.error
-  else if (!ENGRAVING.test(engraving.value)) errors.engraving = MESSAGES.engraving
+  const engraving = engravingField(data.engraving, errors)
 
   const notes = text(data.notes, { max: LIMITS.notes, multiline: true, links: true })
   if ('error' in notes) errors.notes = notes.error
@@ -207,7 +225,7 @@ export function validateCreator(input: unknown): Validation<CreatorSubmission> {
       metal: metal!,
       width: width!,
       pave: pave!,
-      engraving: 'value' in engraving ? engraving.value : '',
+      engraving,
       name: person.name,
       phone: person.phone,
       notes: 'value' in notes ? notes.value : '',
@@ -242,6 +260,35 @@ export function validateContact(input: unknown): Validation<ContactSubmission> {
   const project = pick('project', topic === 'kolekcja', LIMITS.project)
   const weddingDate = pick('weddingDate', topic === 'obraczki', LIMITS.weddingDate)
   const bandChoice = pick('bandChoice', topic === 'obraczki', LIMITS.bandChoice)
+
+  // Grawer i rozmiar: tylko przy pierścionku lub obrączkach do wykonania. Brak odpowiedzi o rozmiar = „nie znam”.
+  const ringDetails = topic !== null && RING_DETAIL_TOPICS.includes(topic)
+  const engraving = ringDetails ? engravingField(data.engraving, errors) : ''
+  let ringSizeKnown: RingSizeKnownId | '' = ''
+  let ringSize = ''
+  if (ringDetails) {
+    const raw =
+      data.ringSizeKnown === undefined || data.ringSizeKnown === null || data.ringSizeKnown === ''
+        ? 'unknown'
+        : data.ringSizeKnown
+    const known = choice(
+      raw,
+      RING_SIZE_KNOWN.map((o) => o.id),
+    )
+    if (!known) errors.ringSizeKnown = MESSAGES.choice
+    else {
+      ringSizeKnown = known
+      if (known === 'known') {
+        const size = choice(data.ringSize, RING_SIZES)
+        if (size) ringSize = size
+        else
+          errors.ringSize =
+            data.ringSize === undefined || data.ringSize === null || data.ringSize === ''
+              ? MESSAGES.ringSizeRequired
+              : MESSAGES.ringSize
+      }
+    }
+  }
 
   let budget = ''
   if (topic === 'nowy') {
@@ -280,6 +327,9 @@ export function validateContact(input: unknown): Validation<ContactSubmission> {
       project,
       weddingDate,
       bandChoice,
+      engraving,
+      ringSizeKnown,
+      ringSize,
       message: messageValue,
       name: person.name,
       phone: person.phone,

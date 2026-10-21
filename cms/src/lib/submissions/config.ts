@@ -1,4 +1,5 @@
 import { resolveCmsEnvironment } from '../environment'
+import { RING_CREATOR_ENABLED } from '../site'
 import { DEFAULT_LIMITS, type LimitSettings } from './limits'
 
 /**
@@ -34,6 +35,8 @@ export type SubmissionSettings = {
   visualizations: VisualizationSettings
   notifyTo: string | undefined
   namespace: string
+  /** Czy endpoint przyjmuje formularz kreatora (RING_CREATOR_ENABLED w site.ts; ukryty kreator = 404). */
+  creatorEnabled: boolean
 }
 
 type Env = Record<string, string | undefined>
@@ -76,5 +79,6 @@ export function submissionSettingsFromEnv(env: Env = process.env): SubmissionSet
     visualizations,
     notifyTo: clean(env.SUBMISSIONS_NOTIFY_TO),
     namespace: visualizations.namespace,
+    creatorEnabled: RING_CREATOR_ENABLED,
   }
 }

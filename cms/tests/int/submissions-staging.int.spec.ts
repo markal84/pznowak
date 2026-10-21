@@ -318,6 +318,46 @@ describe.skipIf(skipReason)('zgłoszenia na bazie stagingowej', () => {
     })
   })
 
+  it('endpoint: zamówienie z grawerem i rozmiarem zapisuje nowe kolumny (migracja 20261021)', async () => {
+    const ip = '198.51.100.125'
+    const result = await post(
+      testSettings({ namespace: ns('zamowienie') }),
+      contactBody({
+        data: validContactData({
+          topic: 'nowy',
+          message: 'Jak na zdjęciu https://pinterest.com/pin/1',
+          engraving: 'Na zawsze ♥',
+          ringSizeKnown: 'known',
+          ringSize: '14',
+        }),
+      }),
+      ip,
+    )
+    expect(result.status).toBe(201)
+    const [row] = await rowsForIp(ip)
+    expect(row).toMatchObject({
+      kind: 'contact',
+      topic: 'nowy',
+      engraving: 'Na zawsze ♥',
+      ringSizeKnown: 'known',
+      ringSize: '14',
+    })
+    expect(row.summary).toContain('Rozmiar: 14 (polska skala)')
+
+    const unknownIp = '198.51.100.126'
+    expect(
+      (
+        await post(
+          testSettings({ namespace: ns('zamowienie-bez-rozmiaru') }),
+          contactBody({ data: validContactData({ topic: 'kolekcja', project: 'Phoebe' }) }),
+          unknownIp,
+        )
+      ).status,
+    ).toBe(201)
+    const [unknownRow] = await rowsForIp(unknownIp)
+    expect(unknownRow).toMatchObject({ engraving: null, ringSizeKnown: 'unknown', ringSize: null })
+  })
+
   it('kwarantanna: awaria Cloudflare zapisuje szkic oznaczony „kwarantanna”, drugie z tego IP w godzinie odrzucone', async () => {
     const namespace = ns('kwarantanna')
     const settings = testSettings({ namespace })
