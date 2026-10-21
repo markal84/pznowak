@@ -10,10 +10,13 @@ import sharp from 'sharp'
 const here = path.dirname(fileURLToPath(import.meta.url))
 
 /** HEIC z iPhone'a w miniaturze: 120×80, lewa połowa czerwonawa (200,160,90), prawa ciemniejsza. */
-export const heicFixture = () => readFileSync(path.resolve(here, '../../fixtures/zalaczniki/iphone.heic'))
+export const heicFixture = () =>
+  readFileSync(path.resolve(here, '../../fixtures/zalaczniki/iphone.heic'))
 
 export const jpeg = (width = 320, height = 240, background = '#c8813a') =>
-  sharp({ create: { width, height, channels: 3, background } }).jpeg({ quality: 90 }).toBuffer()
+  sharp({ create: { width, height, channels: 3, background } })
+    .jpeg({ quality: 90 })
+    .toBuffer()
 
 export const png = (width = 64, height = 48, alpha = false) =>
   sharp({
@@ -101,7 +104,10 @@ export function pngBomb(width = 30_000, height = 30_000): Buffer {
 
 /** Pliki, które nie są zdjęciami, choć mają nazwę .jpg. */
 export const disguised = {
-  exe: Buffer.concat([Buffer.from('MZ\x90\x00\x03\x00\x00\x00', 'latin1'), Buffer.alloc(200, 0x41)]),
+  exe: Buffer.concat([
+    Buffer.from('MZ\x90\x00\x03\x00\x00\x00', 'latin1'),
+    Buffer.alloc(200, 0x41),
+  ]),
   elf: Buffer.concat([Buffer.from('\x7fELF\x02\x01\x01\x00', 'latin1'), Buffer.alloc(200)]),
   html: Buffer.from(`<!doctype html>${HTML_PAYLOAD}`),
   svg: Buffer.from(
@@ -121,4 +127,6 @@ export const disguised = {
 
 /** Czy w EXIF są znaczniki GPS (wskaźnik GPS IFD, znacznik 0x8825, w obu kolejnościach bajtów). */
 export const hasGpsPointer = (exif: Buffer | undefined) =>
-  Boolean(exif && (exif.includes(Buffer.from([0x88, 0x25])) || exif.includes(Buffer.from([0x25, 0x88]))))
+  Boolean(
+    exif && (exif.includes(Buffer.from([0x88, 0x25])) || exif.includes(Buffer.from([0x25, 0x88]))),
+  )

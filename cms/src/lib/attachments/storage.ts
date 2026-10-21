@@ -1,11 +1,14 @@
 import { del, get, list, put } from '@vercel/blob'
+import { getVercelOidcToken } from '@vercel/oidc'
 import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 /**
  * Magazyn zdjęć od klientów. Na Vercelu: osobny, **prywatny** magazyn Vercel Blob (każdy odczyt wymaga
- * tokenu, pliki nie mają publicznego adresu). Zdjęcia w panelu pokazuje serwer po sprawdzeniu logowania
- * (`/api/zgloszenia/zalaczniki/[id]`). Publiczny magazyn katalogu (`BLOB_READ_WRITE_TOKEN`) nie jest używany.
+ * uwierzytelnienia, pliki nie mają publicznego adresu). Zdjęcia w panelu pokazuje serwer po sprawdzeniu logowania
+ * (`/api/zgloszenia/zalaczniki/[id]`). Publiczny magazyn katalogu (`BLOB_READ_WRITE_TOKEN`) nie jest używany:
+ * każde wywołanie dostaje jawnie token albo parę OIDC + identyfikator magazynu, więc SDK nigdy nie sięgnie
+ * po token katalogu z otoczenia.
  *
  * Lokalnie (bez tokenu) można włączyć katalog na dysku (`ATTACHMENTS_STORAGE=local`); na Vercelu ta opcja
  * jest zablokowana. Testy używają magazynu w pamięci.
@@ -22,13 +25,27 @@ export interface AttachmentStorage {
   list(prefix: string): AsyncIterable<StoredObject>
 }
 
-export function vercelPrivateStorage(token: string): AttachmentStorage {
+/**
+ * Dostęp do prywatnego magazynu: token odczytu i zapisu (`ATTACHMENTS_BLOB_READ_WRITE_TOKEN`) albo magazyn
+ * podłączony do projektu w panelu Vercela (`ATTACHMENTS_BLOB_STORE_ID`, uwierzytelnienie OIDC funkcji).
+ */
+export type BlobCredentials = { token: string } | { storeId: string }
+
+async function blobAuth(
+  credentials: BlobCredentials,
+): Promise<{ token: string } | { oidcToken: string; storeId: string }> {
+  if ('token' in credentials) return { token: credentials.token }
+  // Bez tokenu OIDC wyjątek (a nie cichy powrót SDK do BLOB_READ_WRITE_TOKEN publicznego magazynu katalogu).
+  return { oidcToken: await getVercelOidcToken(), storeId: credentials.storeId }
+}
+
+export function vercelPrivateStorage(credentials: BlobCredentials): AttachmentStorage {
   return {
     name: 'vercel-blob-private',
     async put(pathname, body, contentType) {
       await put(pathname, body, {
         access: 'private',
-        token,
+        ...(await blobAuth(credentials)),
         contentType,
         addRandomSuffix: false,
         allowOverwrite: false,
@@ -37,18 +54,23 @@ export function vercelPrivateStorage(token: string): AttachmentStorage {
       })
     },
     async get(pathname) {
-      const result = await get(pathname, { access: 'private', token, useCache: false })
+      const result = await get(pathname, {
+        access: 'private',
+        ...(await blobAuth(credentials)),
+        useCache: false,
+      })
       if (!result || result.statusCode !== 200) return null
       return { body: result.stream, size: result.blob.size }
     },
     async del(pathnames) {
-      if (pathnames.length) await del(pathnames, { token })
+      if (pathnames.length) await del(pathnames, await blobAuth(credentials))
     },
     async *list(prefix) {
       let cursor: string | undefined
       do {
-        const page = await list({ prefix, cursor, limit: 1000, token })
-        for (const blob of page.blobs) yield { pathname: blob.pathname, uploadedAt: blob.uploadedAt }
+        const page = await list({ prefix, cursor, limit: 1000, ...(await blobAuth(credentials)) })
+        for (const blob of page.blobs)
+          yield { pathname: blob.pathname, uploadedAt: blob.uploadedAt }
         cursor = page.hasMore ? page.cursor : undefined
       } while (cursor)
     },
@@ -60,7 +82,8 @@ export function localDiskStorage(root: string): AttachmentStorage {
   if (process.env.VERCEL) throw new Error('Magazyn na dysku jest tylko do pracy lokalnej.')
   const resolve = (pathname: string) => {
     const full = path.resolve(root, pathname)
-    if (!full.startsWith(path.resolve(root) + path.sep)) throw new Error('Nieprawidłowa ścieżka pliku.')
+    if (!full.startsWith(path.resolve(root) + path.sep))
+      throw new Error('Nieprawidłowa ścieżka pliku.')
     return full
   }
   return {

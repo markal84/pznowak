@@ -141,7 +141,8 @@ Formularz kontaktowy może przyjmować do 5 zdjęć (JPG, PNG, WebP, HEIC). Logi
   (`POST /api/zgloszenia/zalaczniki`, do 4 MB; przeglądarka wcześniej zmniejsza duże zdjęcia).
 - Serwer rozpoznaje typ po zawartości, sprawdza wymiary przed dekodowaniem i zapisuje wyłącznie obraz
   zakodowany od nowa jako JPEG (bez EXIF/GPS) w **prywatnym** magazynie Vercel Blob
-  (`ATTACHMENTS_BLOB_READ_WRITE_TOKEN`, osobny magazyn). Podgląd tylko w panelu
+  (osobny magazyn: `ATTACHMENTS_BLOB_STORE_ID` z panelu Vercela albo `ATTACHMENTS_BLOB_READ_WRITE_TOKEN`).
+  Podgląd tylko w panelu
   (`/api/zgloszenia/zalaczniki/[id]`, sesja administratora lub redaktora).
 - Kwarantanna, wyczerpany limit plików albo brak magazynu: zgłoszenie bez zdjęć, klient dostaje prośbę o e-mail.
 - Sprzątanie raz na dobę (`vercel.json` → `crons`, wymaga `CRON_SECRET`): porzucone przesyłania, retencja

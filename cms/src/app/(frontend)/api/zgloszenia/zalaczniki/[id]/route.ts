@@ -6,5 +6,9 @@ import { viewDeps } from '@/lib/attachments/server'
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  return handleView(request, id, viewDeps(() => getPayload({ config: payloadConfig })))
+  return handleView(
+    request,
+    id,
+    viewDeps(() => getPayload({ config: payloadConfig })),
+  )
 }

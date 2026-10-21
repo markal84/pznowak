@@ -129,7 +129,10 @@ export default function Attachments({
     pending.current = pending.current.then(async () => {
       let ready = 0
       for (const { file, item } of added) {
-        const result = await prepareFile(file).catch(() => ({ ok: false as const, error: 'unreadable' as const }))
+        const result = await prepareFile(file).catch(() => ({
+          ok: false as const,
+          error: 'unreadable' as const,
+        }))
         if (!itemsRef.current.some((i) => i.key === item.key)) {
           // Usunięty w trakcie przygotowania.
           if (result.ok && result.file.previewUrl) URL.revokeObjectURL(result.file.previewUrl)
@@ -145,9 +148,7 @@ export default function Attachments({
         }
       }
       if (ready)
-        setAnnouncement(
-          `Dodano ${photosLabel(ready)}. Razem ${itemsRef.current.length} z ${MAX}.`,
-        )
+        setAnnouncement(`Dodano ${photosLabel(ready)}. Razem ${itemsRef.current.length} z ${MAX}.`)
     })
   }
 
@@ -236,9 +237,9 @@ export default function Attachments({
         Zdjęcia lub szkic <span className="opt-note">(opcjonalnie)</span>
       </span>
       <span className="field-hint" id={hintId}>
-        Zdjęcie z internetu, Twoje zdjęcie albo szkic. Do {photosLabel(MAX)}: JPG, PNG, WebP lub HEIC
-        z iPhone’a. Zdjęcia służą tylko do wyceny; usuwamy je razem ze zgłoszeniem, najpóźniej po{' '}
-        {ATTACHMENTS_RETENTION_MONTHS} miesiącach.
+        Zdjęcie z internetu, Twoje zdjęcie albo szkic. Do {photosLabel(MAX)}: JPG, PNG, WebP lub
+        HEIC z iPhone’a. Zdjęcia służą tylko do wyceny; usuwamy je razem ze zgłoszeniem, najpóźniej
+        po {ATTACHMENTS_RETENTION_MONTHS} miesiącach.
       </span>
 
       {items.length ? (
@@ -322,8 +323,8 @@ export function AttachmentsNote({ result }: { result: AttachmentsResult | null }
   if (result.kind === 'refused')
     return (
       <p className="notice notice-preview">
-        Wiadomość dotarła, ale zdjęć nie mogliśmy teraz przyjąć. Wyślij je e-mailem na {mail} i podaj imię,
-        a dołączymy je do zgłoszenia.
+        Wiadomość dotarła, ale zdjęć nie mogliśmy teraz przyjąć. Wyślij je e-mailem na {mail} i
+        podaj imię, a dołączymy je do zgłoszenia.
       </p>
     )
   if (result.failed === 0)

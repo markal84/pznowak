@@ -66,7 +66,12 @@ const settingsFor = (name: string, limits: Parameters<typeof testLimits>[0] = {}
 
 async function submit(settings: SubmissionSettings, ip: string, sizes: number[], overrides = {}) {
   const pending: Promise<void>[] = []
-  const deps = submissionDeps(async () => payload, settings, (task) => void pending.push(task()), storage)
+  const deps = submissionDeps(
+    async () => payload,
+    settings,
+    (task) => void pending.push(task()),
+    storage,
+  )
   deps.log = () => undefined
   const response = await handleSubmission(
     submissionRequest(
@@ -75,7 +80,11 @@ async function submit(settings: SubmissionSettings, ip: string, sizes: number[],
         formToken: formTokenAged('kontakt', Date.now(), 30_000),
         turnstileToken: DUMMY_TOKEN,
         honeypot: '',
-        data: validContactData({ topic: 'nowy', occasionText: 'zaręczyny', message: `${RUN} zdjęcia` }),
+        data: validContactData({
+          topic: 'nowy',
+          occasionText: 'zaręczyny',
+          message: `${RUN} zdjęcia`,
+        }),
         ...(sizes.length ? { attachments: sizes.map((size) => ({ size })) } : {}),
         ...overrides,
       },
@@ -88,14 +97,20 @@ async function submit(settings: SubmissionSettings, ip: string, sizes: number[],
   return {
     status: response.status,
     body,
-    tokens: body.attachments?.status === 'upload' ? body.attachments.uploads.map((u) => u.token) : [],
+    tokens:
+      body.attachments?.status === 'upload' ? body.attachments.uploads.map((u) => u.token) : [],
   }
 }
 
 function deps(settings: SubmissionSettings) {
   const pending: Promise<void>[] = []
   const notified: number[] = []
-  const base = uploadDeps(async () => payload, settings, (task) => void pending.push(task()), storage)
+  const base = uploadDeps(
+    async () => payload,
+    settings,
+    (task) => void pending.push(task()),
+    storage,
+  )
   const d: UploadDeps = {
     ...base,
     prefix: PREFIX,
@@ -140,7 +155,12 @@ async function rowsForIp(ip: string): Promise<Submission[]> {
 }
 
 const submission = async (id: number) =>
-  (await payload.findByID({ collection: 'submissions', id, depth: 0, overrideAccess: true })) as Submission
+  (await payload.findByID({
+    collection: 'submissions',
+    id,
+    depth: 0,
+    overrideAccess: true,
+  })) as Submission
 
 const onDisk = (pathname: string) => existsSync(path.join(ROOT, pathname))
 
@@ -181,7 +201,11 @@ describe.skipIf(skipReason)('zdjęcia od klientów na bazie stagingowej', () => 
     expect(sent.status).toBe(201)
     expect(sent.tokens).toHaveLength(2)
     const [row] = await rowsForIp(ip)
-    expect(row).toMatchObject({ attachmentsState: 'uploading', attachmentsDeclared: 2, notification: 'pending' })
+    expect(row).toMatchObject({
+      attachmentsState: 'uploading',
+      attachmentsDeclared: 2,
+      notification: 'pending',
+    })
 
     const { deps: d, settle, notified } = deps(settings)
     expect((await upload(d, sent.tokens[0], gps, 'pierscionek.jpg')).status).toBe(201)
@@ -190,7 +214,11 @@ describe.skipIf(skipReason)('zdjęcia od klientów na bazie stagingowej', () => 
     await settle()
 
     const after = await submission(row.id)
-    expect(after).toMatchObject({ attachmentsState: 'complete', attachmentsCount: 2, notification: 'skipped' })
+    expect(after).toMatchObject({
+      attachmentsState: 'complete',
+      attachmentsCount: 2,
+      notification: 'skipped',
+    })
     expect(notified).toEqual([row.id])
     const files = await listAttachments(payload, row.id)
     expect(files.map((f) => [f.slot, f.state, f.detectedType, f.originalName])).toEqual([
@@ -214,7 +242,9 @@ describe.skipIf(skipReason)('zdjęcia od klientów na bazie stagingowej', () => 
     const bytes = await jpeg(400, 300)
     const sent = await submit(settings, ip, [bytes.length])
     const { deps: d, settle, notified } = deps(settings)
-    const results = await Promise.all(Array.from({ length: 6 }, () => upload(d, sent.tokens[0], bytes)))
+    const results = await Promise.all(
+      Array.from({ length: 6 }, () => upload(d, sent.tokens[0], bytes)),
+    )
     await settle()
     expect(results.filter((r) => r.status === 201)).toHaveLength(1)
     expect(results.filter((r) => r.status === 409)).toHaveLength(5)
@@ -229,7 +259,9 @@ describe.skipIf(skipReason)('zdjęcia od klientów na bazie stagingowej', () => 
   it('limit plików z IP na dobę przy równoległych zgłoszeniach: dokładnie tyle zgłoszeń ze zdjęciami, ile mieści limit', async () => {
     const ip = '198.51.100.203'
     const settings = settingsFor('limit-ip', { attachmentFilesPerIpDay: 4 })
-    const results = await Promise.all(Array.from({ length: 8 }, () => submit(settings, ip, [1000, 1000])))
+    const results = await Promise.all(
+      Array.from({ length: 8 }, () => submit(settings, ip, [1000, 1000])),
+    )
     expect(results.every((r) => r.status === 201)).toBe(true)
     expect(results.filter((r) => r.body.attachments?.status === 'upload')).toHaveLength(2)
     expect(results.filter((r) => r.body.attachments?.status === 'refused_limit')).toHaveLength(6)
@@ -246,7 +278,9 @@ describe.skipIf(skipReason)('zdjęcia od klientów na bazie stagingowej', () => 
     const ip = '198.51.100.204'
     const settings = settingsFor('limit-kb', { attachmentMbPerIpDay: 1 })
     expect((await submit(settings, ip, [600 * 1024])).body.attachments?.status).toBe('upload')
-    expect((await submit(settings, ip, [600 * 1024])).body.attachments?.status).toBe('refused_limit')
+    expect((await submit(settings, ip, [600 * 1024])).body.attachments?.status).toBe(
+      'refused_limit',
+    )
     await rowsForIp(ip)
   })
 
@@ -270,16 +304,27 @@ describe.skipIf(skipReason)('zdjęcia od klientów na bazie stagingowej', () => 
     expect((await submission(row.id)).notification).toBe('pending')
 
     // Świeże przesyłanie nie jest ruszane.
-    await finalizeStaleUploads(payload, { now: new Date(), settings, origin: 'http://localhost:3000' })
+    await finalizeStaleUploads(payload, {
+      now: new Date(),
+      settings,
+      origin: 'http://localhost:3000',
+    })
     expect((await submission(row.id)).attachmentsState).toBe('uploading')
     await shiftCreatedAt(row.id, '30 minutes')
-    await finalizeStaleUploads(payload, { now: new Date(), settings, origin: 'http://localhost:3000' })
+    await finalizeStaleUploads(payload, {
+      now: new Date(),
+      settings,
+      origin: 'http://localhost:3000',
+    })
     expect(await submission(row.id)).toMatchObject({
       attachmentsState: 'incomplete',
       attachmentsCount: 1,
       notification: 'skipped',
     })
-    expect((await listAttachments(payload, row.id)).map((f) => f.state)).toEqual(['stored', 'missing'])
+    expect((await listAttachments(payload, row.id)).map((f) => f.state)).toEqual([
+      'stored',
+      'missing',
+    ])
     // Bilet do brakującego pliku już nic nie zapisze.
     expect((await upload(d, sent.tokens[1], bytes)).status).toBe(409)
   })
@@ -309,8 +354,14 @@ describe.skipIf(skipReason)('zdjęcia od klientów na bazie stagingowej', () => 
 
     expect(await expireOldAttachments(payload, storage, new Date())).toBeGreaterThanOrEqual(1)
     expect(onDisk(expiringFile.path!) || onDisk(expiringFile.thumbPath!)).toBe(false)
-    expect(await submission(expiring)).toMatchObject({ attachmentsState: 'expired', attachmentsCount: 0 })
-    expect((await listAttachments(payload, expiring))[0]).toMatchObject({ state: 'expired', path: null })
+    expect(await submission(expiring)).toMatchObject({
+      attachmentsState: 'expired',
+      attachmentsCount: 0,
+    })
+    expect((await listAttachments(payload, expiring))[0]).toMatchObject({
+      state: 'expired',
+      path: null,
+    })
     expect(onDisk(keptFile.path!)).toBe(true)
     expect((await submission(kept)).attachmentsState).toBe('complete')
   })
@@ -329,7 +380,8 @@ describe.skipIf(skipReason)('zdjęcia od klientów na bazie stagingowej', () => 
     const oldOrphan = `${PREFIX}sierota/stary.jpg`
     const freshOrphan = `${PREFIX}sierota/swiezy.jpg`
     const otherPrefix = `zgloszenia-inne-${RUN}/stary.jpg`
-    for (const pathname of [oldOrphan, freshOrphan, otherPrefix]) await storage.put(pathname, bytes, 'image/jpeg')
+    for (const pathname of [oldOrphan, freshOrphan, otherPrefix])
+      await storage.put(pathname, bytes, 'image/jpeg')
     const twoHoursAgo = new Date(Date.now() - 2 * 3600_000)
     for (const pathname of [oldOrphan, otherPrefix, kept.path!])
       await utimes(path.join(ROOT, pathname), twoHoursAgo, twoHoursAgo)

@@ -51,7 +51,8 @@ const ascii = (bytes: Uint8Array, start: number, length: number) =>
  * Wszystko poza JPG, PNG, WebP i HEIC (także SVG, HTML, PDF, programy) daje `null`.
  */
 export function sniffImageType(bytes: Uint8Array): DetectedType | null {
-  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'jpeg'
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)
+    return 'jpeg'
   if (
     bytes.length >= 8 &&
     [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every((b, i) => bytes[i] === b)
@@ -89,9 +90,7 @@ export function photosLabel(count: number): string {
   return `${count} zdjęć`
 }
 
-export type ManifestCheck =
-  | { ok: true; sizes: number[] }
-  | { ok: false; message: string }
+export type ManifestCheck = { ok: true; sizes: number[] } | { ok: false; message: string }
 
 /**
  * Lista plików zapowiedzianych w zgłoszeniu (`attachments: [{ size }]`). Serwer wydaje bilet na każdy plik
@@ -101,7 +100,10 @@ export function parseManifest(raw: unknown): ManifestCheck {
   if (raw === undefined || raw === null) return { ok: true, sizes: [] }
   if (!Array.isArray(raw)) return { ok: false, message: 'Nie udało się odczytać listy zdjęć.' }
   if (raw.length > ATTACHMENT_RULES.maxFiles)
-    return { ok: false, message: `Można dołączyć najwyżej ${photosLabel(ATTACHMENT_RULES.maxFiles)}.` }
+    return {
+      ok: false,
+      message: `Można dołączyć najwyżej ${photosLabel(ATTACHMENT_RULES.maxFiles)}.`,
+    }
   const sizes: number[] = []
   for (const item of raw) {
     const size = (item as { size?: unknown } | null)?.size

@@ -86,7 +86,11 @@ const STATUS: Record<UploadCode, number> = {
 }
 
 function reply(code: UploadCode) {
-  const body: UploadResponse = { ok: code === 'stored' || code === 'skipped', code, message: UPLOAD_MESSAGES[code] }
+  const body: UploadResponse = {
+    ok: code === 'stored' || code === 'skipped',
+    code,
+    message: UPLOAD_MESSAGES[code],
+  }
   return Response.json(body, { status: STATUS[code], headers: { 'Cache-Control': 'no-store' } })
 }
 
@@ -177,7 +181,10 @@ export async function handleUpload(request: Request, deps: UploadDeps): Promise<
     }
 
     const originalName = cleanFileName(request.headers.get('x-file-name'))
-    const reject = async (reason: RejectReason | 'too_large', detectedType: string | null = null) => {
+    const reject = async (
+      reason: RejectReason | 'too_large',
+      detectedType: string | null = null,
+    ) => {
       log(`odrzucony plik (${reason})`, { id: slot.submissionId, slot: slot.slot })
       if (!(await deps.markRejected(slot.id, { reason, originalName, detectedType })))
         return reply('used_token')

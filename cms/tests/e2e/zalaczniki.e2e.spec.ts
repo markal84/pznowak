@@ -41,11 +41,20 @@ async function bigPhoto() {
   const height = 2000
   const noise = Buffer.alloc(width * height * 3)
   for (let i = 0; i < noise.length; i++) noise[i] = (i * 2654435761) >>> 24
-  return sharp(noise, { raw: { width, height, channels: 3 } }).jpeg({ quality: 95 }).toBuffer()
+  return sharp(noise, { raw: { width, height, channels: 3 } })
+    .jpeg({ quality: 95 })
+    .toBuffer()
 }
 
 const sketch = () =>
-  sharp({ create: { width: 600, height: 400, channels: 4, background: { r: 30, g: 60, b: 90, alpha: 0.6 } } })
+  sharp({
+    create: {
+      width: 600,
+      height: 400,
+      channels: 4,
+      background: { r: 30, g: 60, b: 90, alpha: 0.6 },
+    },
+  })
     .png()
     .toBuffer()
 
@@ -81,7 +90,9 @@ const uploadResponses = (page: Page, count: number) => {
 }
 
 test.describe('Zdjęcia w formularzu kontaktowym', () => {
-  test('przełącznik wyłączony: formularz bez pola na zdjęcia, jak przed zmianą', async ({ page }) => {
+  test('przełącznik wyłączony: formularz bez pola na zdjęcia, jak przed zmianą', async ({
+    page,
+  }) => {
     test.skip(ATTACHMENTS, 'w tym środowisku zdjęcia są włączone')
     await visit(page, '/kontakt')
     await expect(page.getByRole('button', { name: 'Wyślij wiadomość' })).toBeVisible()
@@ -90,9 +101,14 @@ test.describe('Zdjęcia w formularzu kontaktowym', () => {
   })
 
   test.describe('włączone', () => {
-    test.skip(!ATTACHMENTS, 'zdjęcia wyłączone w tym środowisku (E2E_ATTACHMENTS=on, by je sprawdzić)')
+    test.skip(
+      !ATTACHMENTS,
+      'zdjęcia wyłączone w tym środowisku (E2E_ATTACHMENTS=on, by je sprawdzić)',
+    )
 
-    test('człowiek dodaje 2 zdjęcia (duże z telefonu i szkic) i wysyła formularz', async ({ page }) => {
+    test('człowiek dodaje 2 zdjęcia (duże z telefonu i szkic) i wysyła formularz', async ({
+      page,
+    }) => {
       await visit(page, '/kontakt')
       const writes = captureWrites(page)
       await fillContact(page)
@@ -100,7 +116,10 @@ test.describe('Zdjęcia w formularzu kontaktowym', () => {
       expect(big.length).toBeGreaterThan(MAX_UPLOAD)
       await page
         .getByLabel('Dodaj zdjęcia')
-        .setInputFiles([file('IMG_2041.jpg', 'image/jpeg', big), file('szkic.png', 'image/png', await sketch())])
+        .setInputFiles([
+          file('IMG_2041.jpg', 'image/jpeg', big),
+          file('szkic.png', 'image/png', await sketch()),
+        ])
 
       const list = page.getByRole('list', { name: 'Dodane zdjęcia' })
       await expect(list.getByRole('listitem')).toHaveCount(2)
@@ -123,7 +142,8 @@ test.describe('Zdjęcia w formularzu kontaktowym', () => {
       const results = await uploads
       expect(results.map((r) => r.status)).toEqual([201, 201])
       // Odpowiedzi nie zdradzają, gdzie leży plik.
-      for (const r of results) expect(Object.keys(r.body as object).sort()).toEqual(['code', 'message', 'ok'])
+      for (const r of results)
+        expect(Object.keys(r.body as object).sort()).toEqual(['code', 'message', 'ok'])
 
       await expect(page.getByRole('heading', { name: 'Wiadomość wysłana' })).toBeVisible()
       await expect(page.getByText('Dołączone: 2 zdjęcia.')).toBeVisible()
@@ -134,10 +154,16 @@ test.describe('Zdjęcia w formularzu kontaktowym', () => {
       ])
     })
 
-    test('usunięcie pliku przed wysłaniem: idą tylko pozostałe, fokus zostaje w formularzu', async ({ page }) => {
+    test('usunięcie pliku przed wysłaniem: idą tylko pozostałe, fokus zostaje w formularzu', async ({
+      page,
+    }) => {
       await visit(page, '/kontakt')
       await fillContact(page)
-      const small = await sharp({ create: { width: 300, height: 200, channels: 3, background: '#a85' } }).jpeg().toBuffer()
+      const small = await sharp({
+        create: { width: 300, height: 200, channels: 3, background: '#a85' },
+      })
+        .jpeg()
+        .toBuffer()
       await page
         .getByLabel('Dodaj zdjęcia')
         .setInputFiles([
@@ -160,14 +186,20 @@ test.describe('Zdjęcia w formularzu kontaktowym', () => {
       await expect(page.getByText('Dołączone: 2 zdjęcia.')).toBeVisible()
     })
 
-    test('plik, który nie jest zdjęciem (HTML przemianowany na .jpg), nie trafia na listę', async ({ page }) => {
+    test('plik, który nie jest zdjęciem (HTML przemianowany na .jpg), nie trafia na listę', async ({
+      page,
+    }) => {
       await visit(page, '/kontakt')
       const writes = captureWrites(page)
       await fillContact(page)
       await page
         .getByLabel('Dodaj zdjęcia')
-        .setInputFiles([file('zdjecie.jpg', 'image/jpeg', Buffer.from('<html><script>alert(1)</script></html>'))])
-      await expect(page.getByRole('alert').filter({ hasText: '„zdjecie.jpg”: to nie jest zdjęcie' })).toBeVisible()
+        .setInputFiles([
+          file('zdjecie.jpg', 'image/jpeg', Buffer.from('<html><script>alert(1)</script></html>')),
+        ])
+      await expect(
+        page.getByRole('alert').filter({ hasText: '„zdjecie.jpg”: to nie jest zdjęcie' }),
+      ).toBeVisible()
       await expect(page.getByRole('list', { name: 'Dodane zdjęcia' })).toHaveCount(0)
 
       const response = submissionResponse(page)
@@ -179,32 +211,52 @@ test.describe('Zdjęcia w formularzu kontaktowym', () => {
       expect(writes).toEqual(['POST /api/zgloszenia'])
     })
 
-    test('najwyżej 5 zdjęć: szóste pominięte z komunikatem, przycisk dodawania znika', async ({ page }) => {
+    test('najwyżej 5 zdjęć: szóste pominięte z komunikatem, przycisk dodawania znika', async ({
+      page,
+    }) => {
       await visit(page, '/kontakt')
-      const small = await sharp({ create: { width: 120, height: 90, channels: 3, background: '#357' } }).jpeg().toBuffer()
+      const small = await sharp({
+        create: { width: 120, height: 90, channels: 3, background: '#357' },
+      })
+        .jpeg()
+        .toBuffer()
       await page
         .getByLabel('Dodaj zdjęcia')
-        .setInputFiles(Array.from({ length: 6 }, (_, i) => file(`z${i + 1}.jpg`, 'image/jpeg', small)))
-      await expect(page.getByRole('list', { name: 'Dodane zdjęcia' }).getByRole('listitem')).toHaveCount(5)
+        .setInputFiles(
+          Array.from({ length: 6 }, (_, i) => file(`z${i + 1}.jpg`, 'image/jpeg', small)),
+        )
+      await expect(
+        page.getByRole('list', { name: 'Dodane zdjęcia' }).getByRole('listitem'),
+      ).toHaveCount(5)
       await expect(page.getByRole('alert').filter({ hasText: 'pominięto 1' })).toBeVisible()
       await expect(page.getByText('Dodano 5 zdjęć, więcej się nie zmieści.')).toBeVisible()
       await expect(page.locator('input[type="file"]')).toHaveCount(0)
     })
 
-    test('HEIC z iPhone’a: wysłany i przyjęty (konwersja w Safari albo na serwerze)', async ({ page }) => {
+    test('HEIC z iPhone’a: wysłany i przyjęty (konwersja w Safari albo na serwerze)', async ({
+      page,
+    }) => {
       await visit(page, '/kontakt')
       await fillContact(page)
       const heic = readFileSync(path.resolve(here, '../fixtures/zalaczniki/iphone.heic'))
-      await page.getByLabel('Dodaj zdjęcia').setInputFiles([file('IMG_0007.HEIC', 'image/heic', heic)])
-      await expect(page.getByRole('list', { name: 'Dodane zdjęcia' }).getByRole('listitem')).toHaveCount(1)
+      await page
+        .getByLabel('Dodaj zdjęcia')
+        .setInputFiles([file('IMG_0007.HEIC', 'image/heic', heic)])
+      await expect(
+        page.getByRole('list', { name: 'Dodane zdjęcia' }).getByRole('listitem'),
+      ).toHaveCount(1)
       const uploads = uploadResponses(page, 1)
       await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
       expect((await uploads).map((r) => r.status)).toEqual([201])
       await expect(page.getByText('Dołączone: 1 zdjęcie.')).toBeVisible()
     })
 
-    test('brak publicznego dostępu: podgląd bez sesji panelu i bez biletu kończy się 404/403', async ({ request }) => {
-      const view = await request.get('/api/zgloszenia/zalaczniki/3f1c2a4e-9b7d-4c1e-8f2a-6d5e4c3b2a10')
+    test('brak publicznego dostępu: podgląd bez sesji panelu i bez biletu kończy się 404/403', async ({
+      request,
+    }) => {
+      const view = await request.get(
+        '/api/zgloszenia/zalaczniki/3f1c2a4e-9b7d-4c1e-8f2a-6d5e4c3b2a10',
+      )
       expect(view.status()).toBe(404)
       const thumb = await request.get(
         '/api/zgloszenia/zalaczniki/3f1c2a4e-9b7d-4c1e-8f2a-6d5e4c3b2a10?rozmiar=miniatura',

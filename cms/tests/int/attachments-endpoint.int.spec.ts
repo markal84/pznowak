@@ -68,7 +68,11 @@ const contactBody = (overrides: Record<string, unknown> = {}) => ({
   formToken: formTokenAged('kontakt', NOW, 30_000),
   turnstileToken: DUMMY_TOKEN,
   honeypot: '',
-  data: validContactData({ topic: 'nowy', occasionText: 'zaręczyny', message: 'Taki jak na zdjęciu.' }),
+  data: validContactData({
+    topic: 'nowy',
+    occasionText: 'zaręczyny',
+    message: 'Taki jak na zdjęciu.',
+  }),
   ...overrides,
 })
 
@@ -142,7 +146,10 @@ describe('zgłoszenie z zapowiedzią zdjęć', () => {
 
   it('dwa zdjęcia: 201, dwa bilety, szkic „przesyłanie”, liczniki plików i kilobajtów zużyte', async () => {
     const { deps, inserted, accepted, createSlots, limits } = submissionSetup()
-    const { status, body } = await submit(deps, contactBody({ attachments: files(500_000, 1_200_000) }))
+    const { status, body } = await submit(
+      deps,
+      contactBody({ attachments: files(500_000, 1_200_000) }),
+    )
     expect(status).toBe(201)
     expect(body.attachments).toMatchObject({ status: 'upload' })
     const uploads = body.attachments?.status === 'upload' ? body.attachments.uploads : []
@@ -220,10 +227,14 @@ describe('zgłoszenie z zapowiedzią zdjęć', () => {
   it('limit plików z IP na dobę: kolejne zgłoszenie przechodzi, ale bez zdjęć; limit zgłoszeń liczony raz', async () => {
     const { deps, inserted, limits } = submissionSetup(
       {},
-      testSettings({ attachmentsEnabled: true, limits: testLimits({ attachmentFilesPerIpDay: 3 }) }),
+      testSettings({
+        attachmentsEnabled: true,
+        limits: testLimits({ attachmentFilesPerIpDay: 3 }),
+      }),
     )
-    expect((await submit(deps, contactBody({ attachments: files(1000, 1000) }))).body.attachments)
-      .toMatchObject({ status: 'upload' })
+    expect(
+      (await submit(deps, contactBody({ attachments: files(1000, 1000) }))).body.attachments,
+    ).toMatchObject({ status: 'upload' })
     const second = await submit(deps, contactBody({ attachments: files(1000, 1000) }))
     expect(second.status).toBe(201)
     expect(second.body.attachments).toEqual({ status: 'refused_limit' })
@@ -241,10 +252,12 @@ describe('zgłoszenie z zapowiedzią zdjęć', () => {
       {},
       testSettings({ attachmentsEnabled: true, limits: testLimits({ attachmentMbPerIpDay: 1 }) }),
     )
-    expect((await submit(deps, contactBody({ attachments: files(600 * 1024) }))).body.attachments)
-      .toMatchObject({ status: 'upload' })
-    expect((await submit(deps, contactBody({ attachments: files(600 * 1024) }))).body.attachments)
-      .toEqual({ status: 'refused_limit' })
+    expect(
+      (await submit(deps, contactBody({ attachments: files(600 * 1024) }))).body.attachments,
+    ).toMatchObject({ status: 'upload' })
+    expect(
+      (await submit(deps, contactBody({ attachments: files(600 * 1024) }))).body.attachments,
+    ).toEqual({ status: 'refused_limit' })
   })
 
   it('wyczerpany limit zgłoszeń: 429 jak dotąd, mimo wolnego limitu plików', async () => {
@@ -303,8 +316,11 @@ function memoryUploads() {
     })
     return { submissionId, ids, tokens: ids.map((id) => token(id)) }
   }
-  const token = (id: string, expiresAt = NOW + ATTACHMENT_RULES.uploadTokenTtlMs, key = UPLOAD_KEY) =>
-    issueUploadToken(id, expiresAt, key)
+  const token = (
+    id: string,
+    expiresAt = NOW + ATTACHMENT_RULES.uploadTokenTtlMs,
+    key = UPLOAD_KEY,
+  ) => issueUploadToken(id, expiresAt, key)
 
   const settle = (id: string, state: AttachmentState, values: Partial<AttachmentRow> = {}) => {
     const slot = slots.get(id)
@@ -338,7 +354,9 @@ function uploadSetup(overrides: Partial<UploadDeps> = {}) {
       const own = [...db.slots.values()].filter((s) => s.submissionId === submissionId)
       if (submission.state !== 'uploading' || own.some((s) => s.state === 'pending')) return null
       const state: CompletionState =
-        own.filter((s) => s.state === 'stored').length >= submission.declared ? 'complete' : 'incomplete'
+        own.filter((s) => s.state === 'stored').length >= submission.declared
+          ? 'complete'
+          : 'incomplete'
       submission.state = state
       db.completions.push({ id: submissionId, state })
       return state
@@ -363,7 +381,12 @@ function uploadRequest(
   } as RequestInit)
 }
 
-async function upload(deps: UploadDeps, token: string | null, bytes: Buffer, name = 'IMG_0001.jpg') {
+async function upload(
+  deps: UploadDeps,
+  token: string | null,
+  bytes: Buffer,
+  name = 'IMG_0001.jpg',
+) {
   const response = await handleUpload(
     uploadRequest(bytes, {
       ...(token ? { 'x-upload-token': token } : {}),
@@ -413,7 +436,9 @@ describe('przesyłanie pliku z biletem', () => {
     const { deps, db, storage } = uploadSetup()
     const { tokens } = db.addSubmission([200_000])
     const bytes = await jpeg()
-    const results = await Promise.all(Array.from({ length: 5 }, () => upload(deps, tokens[0], bytes)))
+    const results = await Promise.all(
+      Array.from({ length: 5 }, () => upload(deps, tokens[0], bytes)),
+    )
     expect(results.filter((r) => r.status === 201)).toHaveLength(1)
     expect(results.filter((r) => r.status === 409)).toHaveLength(4)
     expect(storage.objects.size).toBe(2)
@@ -465,15 +490,21 @@ describe('przesyłanie pliku z biletem', () => {
     ['strona HTML', disguised.html],
     ['SVG ze skryptem', disguised.svg],
     ['PDF', disguised.pdf],
-  ])('%s przemianowany na .jpg: 415, miejsce „odrzucony”, nic w magazynie', async (_name, bytes) => {
-    const { deps, db, storage } = uploadSetup()
-    const { ids } = db.addSubmission([200_000])
-    const { status, body } = await upload(deps, db.token(ids[0]), bytes, 'zdjecie.jpg')
-    expect(status).toBe(415)
-    expect(body.code).toBe('unsupported_type')
-    expect(db.slots.get(ids[0])).toMatchObject({ state: 'rejected', rejectReason: 'unsupported_type' })
-    expect(storage.objects.size).toBe(0)
-  })
+  ])(
+    '%s przemianowany na .jpg: 415, miejsce „odrzucony”, nic w magazynie',
+    async (_name, bytes) => {
+      const { deps, db, storage } = uploadSetup()
+      const { ids } = db.addSubmission([200_000])
+      const { status, body } = await upload(deps, db.token(ids[0]), bytes, 'zdjecie.jpg')
+      expect(status).toBe(415)
+      expect(body.code).toBe('unsupported_type')
+      expect(db.slots.get(ids[0])).toMatchObject({
+        state: 'rejected',
+        rejectReason: 'unsupported_type',
+      })
+      expect(storage.objects.size).toBe(0)
+    },
+  )
 
   it('poliglota JPG+HTML: przyjęty jako zdjęcie, ale w magazynie nie ma HTML-a', async () => {
     const { deps, db, storage } = uploadSetup()
@@ -619,7 +650,9 @@ describe('podgląd w panelu (bez publicznego dostępu)', () => {
     expect(response.headers.get('content-security-policy')).toContain('sandbox')
     expect(response.headers.get('cache-control')).toBe('private, no-store')
     expect(response.headers.get('cross-origin-resource-policy')).toBe('same-origin')
-    expect(response.headers.get('content-disposition')).toBe('inline; filename="zgloszenie-1-1.jpg"')
+    expect(response.headers.get('content-disposition')).toBe(
+      'inline; filename="zgloszenie-1-1.jpg"',
+    )
     expect(sniffImageType(Buffer.from(await response.arrayBuffer()))).toBe('jpeg')
   })
 
@@ -686,7 +719,10 @@ describe('sprzątanie (zadanie cykliczne)', () => {
 
   it('poprawny nagłówek: uruchamia sprzątanie i zwraca podsumowanie', async () => {
     const run = vi.fn(async () => ({ finalized: 1, expired: 2, orphans: 3 }))
-    const response = await handleCleanup(cron('Bearer sekret-cron'), { cronSecret: 'sekret-cron', run })
+    const response = await handleCleanup(cron('Bearer sekret-cron'), {
+      cronSecret: 'sekret-cron',
+      run,
+    })
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({ ok: true, finalized: 1, expired: 2, orphans: 3 })
   })
@@ -703,10 +739,17 @@ describe('powiadomienie pracowni o zdjęciach', () => {
     createdAt: new Date(NOW).toISOString(),
   }
   const mail = (overrides: Partial<NotifiedSubmission>) =>
-    buildStudioMail({ ...base, ...overrides }, { to: 'pracownia@example.com', adminUrl: 'https://x/admin/collections/submissions/7' })
+    buildStudioMail(
+      { ...base, ...overrides },
+      { to: 'pracownia@example.com', adminUrl: 'https://x/admin/collections/submissions/7' },
+    )
 
   it('komplet: liczba zdjęć i link do panelu; bez plików, adresów magazynu i nazw plików', () => {
-    const { text, subject } = mail({ attachmentsState: 'complete', attachmentsDeclared: 2, attachmentsCount: 2 })
+    const { text, subject } = mail({
+      attachmentsState: 'complete',
+      attachmentsDeclared: 2,
+      attachmentsCount: 2,
+    })
     expect(text).toContain('Załączniki: 2 zdjęcia do obejrzenia w panelu')
     expect(text).toContain('https://x/admin/collections/submissions/7')
     expect(text).not.toMatch(/blob|zgloszenia\/|\.jpg/i)
@@ -714,20 +757,27 @@ describe('powiadomienie pracowni o zdjęciach', () => {
   })
 
   it('niepełne: ile dotarło', () => {
-    expect(mail({ attachmentsState: 'incomplete', attachmentsDeclared: 3, attachmentsCount: 1 }).text).toContain(
-      'dotarło 1 z 3',
-    )
+    expect(
+      mail({ attachmentsState: 'incomplete', attachmentsDeclared: 3, attachmentsCount: 1 }).text,
+    ).toContain('dotarło 1 z 3')
   })
 
   it.each([
     ['refused_quarantine', 'weryfikacja Cloudflare była niedostępna'],
     ['refused_limit', 'dzienny limit zdjęć'],
     ['refused_unavailable', 'chwilowo niedostępne'],
-  ] as const)('%s: zgłoszenie bez zdjęć i informacja, że klient dostał prośbę o e-mail', (state, reason) => {
-    const { text } = mail({ attachmentsState: state, attachmentsDeclared: 2, attachmentsCount: 0 })
-    expect(text).toContain(reason)
-    expect(text).toContain('e-mailem')
-  })
+  ] as const)(
+    '%s: zgłoszenie bez zdjęć i informacja, że klient dostał prośbę o e-mail',
+    (state, reason) => {
+      const { text } = mail({
+        attachmentsState: state,
+        attachmentsDeclared: 2,
+        attachmentsCount: 0,
+      })
+      expect(text).toContain(reason)
+      expect(text).toContain('e-mailem')
+    },
+  )
 
   it('bez zdjęć: mail jak przed zmianą', () => {
     expect(mail({ attachmentsState: 'none' }).text).not.toContain('Załączniki')

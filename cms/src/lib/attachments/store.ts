@@ -59,7 +59,8 @@ const toSlot = (row: Row): SlotRow => ({
   declaredBytes: Number(row.declared_bytes),
 })
 
-const numberOrNull = (value: unknown) => (value === null || value === undefined ? null : Number(value))
+const numberOrNull = (value: unknown) =>
+  value === null || value === undefined ? null : Number(value)
 
 const toAttachment = (row: Row): AttachmentRow => ({
   ...toSlot(row),

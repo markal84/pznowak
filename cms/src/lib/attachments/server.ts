@@ -130,7 +130,10 @@ export async function expireOldAttachments(
   storage: AttachmentStorage,
   now: Date,
 ): Promise<number> {
-  const due = await submissionsPastRetention(payload, monthsBefore(now, ATTACHMENTS_RETENTION_MONTHS))
+  const due = await submissionsPastRetention(
+    payload,
+    monthsBefore(now, ATTACHMENTS_RETENTION_MONTHS),
+  )
   for (const submissionId of due) {
     // Najpierw magazyn: gdy zawiedzie, wiersze zostają i następne sprzątanie spróbuje ponownie.
     await storage.del(await storedPaths(payload, submissionId))

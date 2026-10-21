@@ -67,7 +67,12 @@ export const AttachmentsGallery: UIFieldServerComponent = async ({ id, payload, 
           return (
             <li key={row.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {row.state === 'stored' ? (
-                <a href={url} rel="noopener noreferrer" target="_blank" title="Otwórz w pełnym rozmiarze">
+                <a
+                  href={url}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  title="Otwórz w pełnym rozmiarze"
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element -- obraz z chronionego endpointu, bez optymalizacji */}
                   <img
                     alt={`Zdjęcie ${row.slot} od klienta`}
@@ -108,8 +113,8 @@ export const AttachmentsGallery: UIFieldServerComponent = async ({ id, payload, 
         })}
       </ul>
       <p style={{ fontSize: 13, opacity: 0.75, marginTop: 8 }}>
-        Zdjęcia służą tylko do wyceny. Pliki zapisujemy od nowa (bez danych o miejscu i aparacie), oryginalna nazwa
-        to tylko podpis.
+        Zdjęcia służą tylko do wyceny. Pliki zapisujemy od nowa (bez danych o miejscu i aparacie),
+        oryginalna nazwa to tylko podpis.
       </p>
     </div>
   )

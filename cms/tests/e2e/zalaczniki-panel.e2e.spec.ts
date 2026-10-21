@@ -50,7 +50,10 @@ test.describe('Zdjęcia od klienta w panelu', () => {
     })
   })
 
-  test('redaktor widzi zdjęcia przy zgłoszeniu, a bez sesji ten sam adres daje 404', async ({ page, browser }) => {
+  test('redaktor widzi zdjęcia przy zgłoszeniu, a bez sesji ten sam adres daje 404', async ({
+    page,
+    browser,
+  }) => {
     // 1. Klient: formularz kontaktowy z dwoma zdjęciami.
     await page.goto('/kontakt')
     await page.waitForSelector('html[data-hydrated="true"]')
@@ -60,7 +63,9 @@ test.describe('Zdjęcia od klienta w panelu', () => {
     await page.getByLabel('Telefon').fill('600 100 200')
     await page.getByLabel(/Zgadzam się na kontakt/).check()
     const photo = (background: string) =>
-      sharp({ create: { width: 800, height: 600, channels: 3, background } }).jpeg().toBuffer()
+      sharp({ create: { width: 800, height: 600, channels: 3, background } })
+        .jpeg()
+        .toBuffer()
     await page.getByLabel('Dodaj zdjęcia').setInputFiles([
       { name: 'inspiracja.jpg', mimeType: 'image/jpeg', buffer: await photo('#b8893f') },
       { name: 'obraczka-babci.jpg', mimeType: 'image/jpeg', buffer: await photo('#2c5148') },
@@ -78,7 +83,16 @@ test.describe('Zdjęcia od klienta w panelu', () => {
     submissionId = found.docs[0]?.id
     expect(submissionId).toBeTruthy()
     await expect
-      .poll(async () => (await payload.findByID({ collection: 'submissions', id: submissionId!, overrideAccess: true })).attachmentsState)
+      .poll(
+        async () =>
+          (
+            await payload.findByID({
+              collection: 'submissions',
+              id: submissionId!,
+              overrideAccess: true,
+            })
+          ).attachmentsState,
+      )
       .toBe('complete')
 
     // 2. Redaktor w panelu.
@@ -93,7 +107,9 @@ test.describe('Zdjęcia od klienta w panelu', () => {
     await expect(images).toHaveCount(2)
     for (const image of await images.all()) {
       await image.scrollIntoViewIfNeeded()
-      await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth)).toBeGreaterThan(0)
+      await expect
+        .poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth))
+        .toBeGreaterThan(0)
     }
     await expect(page.getByText(/Plik 1 · „inspiracja\.jpg” · z JPG · 800×600/)).toBeVisible()
     await expect(page.getByText('Zachowaj zdjęcia (zamówienie)')).toBeVisible()
