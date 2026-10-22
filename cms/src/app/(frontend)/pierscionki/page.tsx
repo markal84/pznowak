@@ -1,10 +1,15 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import { getProducts } from '@/lib/collection'
 import { toCatalogRing } from '@/lib/catalog'
 import CatalogBrowser from '@/components/site/CatalogBrowser'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = { title: 'Pierścionki z pracowni' }
+export const metadata: Metadata = pageMetadata({
+  title: 'Pierścionki z kamieniami szlachetnymi w złocie',
+  description: 'Pierścionki z szafirem, rubinem, szmaragdem i diamentem z naszej pracowni. Zmienimy kamień, kolor złota lub rozmiar.',
+  path: '/pierscionki',
+})
 
 export default async function CatalogPage() {
   const rings = (await getProducts()).map(toCatalogRing)

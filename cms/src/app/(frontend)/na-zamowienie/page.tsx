@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
@@ -7,7 +8,11 @@ import Photo from '@/components/site/Photo'
 import { CUSTOM_ORDER_LINK, FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = { title: 'Pierścionek na zamówienie' }
+export const metadata: Metadata = pageMetadata({
+  title: 'Pierścionek zaręczynowy na zamówienie',
+  description: 'Rozmowa, szkic i model 3D, wycena przed rozpoczęciem pracy. Kamienie oprawiamy ręcznie w Busku-Zdroju.',
+  path: '/na-zamowienie',
+})
 
 const STEPS = [
   { n: '1', title: 'Rozmowa', text: 'W pracowni albo przez telefon. Opowiadasz o osobie, okazji i stylu. Mówisz, jaki masz budżet i na kiedy potrzebujesz pierścionka.', result: 'Wspólny kierunek i wstępne widełki cenowe', ill: '1-rozmowa' },

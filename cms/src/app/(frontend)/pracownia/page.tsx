@@ -1,9 +1,14 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { FAMILY, SITE } from '@/lib/site'
 import Photo from '@/components/site/Photo'
 
-export const metadata: Metadata = { title: 'Pracownia i historia rodziny' }
+export const metadata: Metadata = pageMetadata({
+  title: 'Pracownia i historia rodziny Nowaków od 1890',
+  description: 'Cztery pokolenia złotników: od kuźni w Szańcu do stołu złotniczego w Busku-Zdroju.',
+  path: '/pracownia',
+})
 
 export default function StudioPage() {
   return (

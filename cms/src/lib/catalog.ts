@@ -1,4 +1,4 @@
-import type { Jewel } from './collection'
+import type { PublicProduct as Jewel } from './public-products'
 
 export type StoneGroup = 'niebieskie' | 'zielone' | 'rozowe' | 'fioletowe' | 'zolte' | 'bezbarwne'
 export type GoldGroup = 'zolte' | 'dwa' | 'biale'

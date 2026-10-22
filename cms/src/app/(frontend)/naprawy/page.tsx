@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
@@ -6,7 +7,11 @@ import { SITE, FAMILY } from '@/lib/site'
 import Photo from '@/components/site/Photo'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = { title: 'Naprawy i przeróbki biżuterii' }
+export const metadata: Metadata = pageMetadata({
+  title: 'Naprawa biżuterii i zmiana rozmiaru pierścionka',
+  description: 'Zmiana rozmiaru, czyszczenie, nowe łapki, wymiana kamienia, łańcuszki, grawer. Wycena przy Tobie, Kilińskiego 12, Busko-Zdrój.',
+  path: '/naprawy',
+})
 
 const SERVICES = [
   { name: 'Zmiana rozmiaru pierścionka', text: 'Zmniejszenie lub powiększenie obrączki, z wyrównaniem i polerowaniem miejsca łączenia.', time: '[czas]', price: 'od [cena] zł', icon: 'rozmiar' },

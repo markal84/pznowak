@@ -1,13 +1,23 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
 import { pickByName, pluralRing, toCatalogRing } from '@/lib/catalog'
+import { pageMetadata } from '@/lib/seo'
 import { CUSTOM_ORDER_LINK, FAMILY, RING_CREATOR_ENABLED, SITE } from '@/lib/site'
+import { jewelryStoreJsonLd } from '@/lib/structured-data'
 import Faq from '@/components/site/Faq'
+import JsonLd from '@/components/site/JsonLd'
 import Photo from '@/components/site/Photo'
 import RingCard from '@/components/site/RingCard'
 import Tag from '@/components/site/Tag'
 
 export const dynamic = 'force-dynamic'
+export const metadata: Metadata = pageMetadata({
+  title: 'Złotnik w Busku-Zdroju – pracownia rodzinna od 1890',
+  description:
+    'Pracownia złotnicza przy Kilińskiego 12 w Busku-Zdroju. Pierścionki z kamieniami szlachetnymi, obrączki, naprawy biżuterii. Pon.–pt. 8–16, sob. 10–16.',
+  path: '/',
+})
 
 const HOME_RINGS = ['Phoebe', 'Harmonia', 'Athena', 'Nyx', 'Pyrrha', 'Cyane', 'Eirene', 'Daphne']
 
@@ -28,6 +38,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={jewelryStoreJsonLd()} />
       <section className="wrap hero">
         <div className="hero-copy">
           <h1 className="h1 h1-hero">Pierścionek zrobiony dla jednej osoby.</h1>

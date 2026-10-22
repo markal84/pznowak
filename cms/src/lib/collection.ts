@@ -4,14 +4,14 @@ import { getPayload } from 'payload'
 
 import {
   serializePublicGalleryItem,
-  serializePublicProduct,
   serializePublicSiteContent,
+  serializeSiteProduct,
   type PublicGalleryItem,
-  type PublicProduct,
   type PublicSiteContent,
+  type SiteProduct,
 } from './public-products'
 
-export type Jewel = PublicProduct
+export type Jewel = SiteProduct
 export type Gallery = PublicGalleryItem
 
 export const getProducts = unstable_cache(
@@ -30,7 +30,7 @@ export const getProducts = unstable_cache(
         ],
       },
     })
-    return result.docs.map(serializePublicProduct).filter(({ imagePath }) => Boolean(imagePath))
+    return result.docs.map(serializeSiteProduct).filter(({ imagePath }) => Boolean(imagePath))
   },
   ['published-products'],
   { tags: ['products'], revalidate: 3600 },

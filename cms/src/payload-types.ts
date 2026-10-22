@@ -170,6 +170,14 @@ export interface Product {
       | boolean
       | null;
   };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   /**
    * Archiwizacja automatycznie wycofuje produkt z publikacji.
    */
@@ -191,8 +199,6 @@ export interface Media {
    * Pole techniczne używane podczas importu starego katalogu.
    */
   legacySourceUrl?: string | null;
-  prefix?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -444,6 +450,13 @@ export interface ProductsSelect<T extends boolean = true> {
         wordpressId?: T;
         sourcePayload?: T;
       };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   archived?: T;
   sortOrder?: T;
   updatedAt?: T;
@@ -458,8 +471,6 @@ export interface ProductsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   legacySourceUrl?: T;
-  prefix?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

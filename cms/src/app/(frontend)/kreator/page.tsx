@@ -6,8 +6,11 @@ import { RING_CREATOR_ENABLED } from '@/lib/site'
 // Wyłączony kreator nie ma strony (404), a nie przekierowania: 308 zapamiętują przeglądarki, więc po ponownym
 // włączeniu kreatora część osób dalej trafiałaby na formularz kontaktowy.
 export function generateMetadata(): Metadata {
-  if (!RING_CREATOR_ENABLED) return {}
+  // Narzędzie schowane zleceniem A: nawet po ponownym włączeniu nie trafia do wyszukiwarki ani do mapy strony.
+  const robots = { index: false, follow: false }
+  if (!RING_CREATOR_ENABLED) return { robots }
   return {
+    robots,
     title: 'Zaprojektuj pierścionek',
     description: 'Sześć kroków i kilka minut: wybierz kamień, szlif, oprawę i złoto, a my przygotujemy szkic do rozmowy.',
   }

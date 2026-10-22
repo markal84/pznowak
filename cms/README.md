@@ -74,6 +74,19 @@ Dane historycznych importów znajdują się w `../data/legacy/`. Kopie w root
 `staging:seed` służy tylko inicjalizacji pustego stagingu; nie uruchamiać go
 na stagingu z pełnym katalogiem.
 
+## SEO i indeksowanie
+
+- **Indeksowanie** włącza wyłącznie `SITE_ENV=production` (zapasowo `VERCEL_ENV=production`). Poza produkcją
+  strony mają `noindex` (meta, nagłówek `X-Robots-Tag`, `robots.txt` z `Disallow: /`). Zmienna musi być ustawiona
+  już podczas `next build` (część stron i `robots.txt` powstaje przy budowaniu).
+- `SITE_URL` (domyślnie `https://pznowak.pl`) to adres w `rel=canonical`, `sitemap.xml` i Open Graph; podglądy też
+  wskazują na adres produkcyjny.
+- **Przekierowania** starych adresów: `src/lib/legacy-redirects.ts` (źródło prawdy), tabela i opis w
+  [`../docs/seo/przekierowania.md`](../docs/seo/przekierowania.md). Po zmianie: `npm run seo:redirects-doc`.
+- **Tytuły i opisy** podstron: `pageMetadata()` w `src/lib/seo.ts`, treść w plikach stron. Pierścionki: zakładka
+  „SEO” w panelu (wtyczka `@payloadcms/plugin-seo`); puste pola uzupełnia `src/lib/product-seo.ts`.
+- Dane strukturalne (JewelryStore) i mapa strony: `src/lib/structured-data.ts`, `src/app/sitemap.ts`.
+
 ## Uzupełnienie treści po migracji
 
 Skrypt sprawdza i uzupełnia galerię oraz globalną treść strony przez Payload
