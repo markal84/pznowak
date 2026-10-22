@@ -46,7 +46,7 @@ describe('metadane strony', () => {
       locale: 'pl_PL',
     })
     expect(meta.openGraph?.images).toEqual([
-      { url: DEFAULT_OG_IMAGE.url, width: 1024, height: 683, alt: DEFAULT_OG_IMAGE.alt },
+      { url: DEFAULT_OG_IMAGE.url, width: 1200, height: 630, alt: DEFAULT_OG_IMAGE.alt },
     ])
     expect(meta.twitter).toMatchObject({ card: 'summary_large_image', title: 'Obrączki — Michał Nowak' })
   })

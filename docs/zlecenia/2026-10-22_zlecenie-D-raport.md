@@ -66,10 +66,9 @@ Przykłady (z danych stagingu): `Phoebe — tanzanit, diamenty w żółtym złoc
 
 1. **Nazwa firmy w JSON-LD (D1 z planu).** Wpisałem „Michał Nowak Pracownia Złotnicza” (nazwa profilu na FB). Ma być identyczna
    z szyldem i wizytówką Google; zmiana to jedna stała `BUSINESS_NAME` w `cms/src/lib/structured-data.ts`.
-2. **Zdjęcie domyślne do udostępniania.** Użyłem `cms/public/about-us-details.png` (zbliżenie pierścienia z tanzanitem, 1024×683,
-   prawdziwe zdjęcie, nie AI). Nie jest dziś nigdzie wyświetlane na stronie, więc **potwierdź, że to wyrób pracowni**
-   (plan reklamy, rozdz. 4.6: nie publikować zdjęć odlewni). Zmiana: `DEFAULT_OG_IMAGE` w `cms/src/lib/seo.ts`.
-   Na stronach pierścionków w podglądzie jest ich własne zdjęcie.
+2. **Zdjęcie domyślne do udostępniania** (decyzja zmieniona 22.10.2026): `cms/public/og-pracownia.jpg`, 1200×630, kadr z
+   `about-us-son.png` (Michał przy mikroskopie). **TYMCZASOWE: kadr z about-us-son.png, podmienić na oryginał z pracowni.**
+   Zmiana: plik w `cms/public/` i `DEFAULT_OG_IMAGE` w `cms/src/lib/seo.ts`. Na stronach pierścionków w podglądzie jest ich własne zdjęcie.
 3. **Odstępstwa od brzmienia ze zlecenia w tekstach generowanych dla pierścionków.** Opis zastępczy to
    „Pierścionek Phoebe: tanzanit, diamenty, żółte złoto. Ręcznie wykonany w pracowni Michała Nowaka w Busku-Zdroju.”
    (zlecenie: „… z <kamień> w <złoto>”). Nazwy kamieni z katalogu są w mianowniku („Szafir i Diamenty”) i automat nie odmieni

@@ -5,12 +5,13 @@ import { SITE } from './site'
 /** Adres docelowy serwisu. Podglądy też wskazują na niego jako kanoniczny (mają noindex, więc niczego nie psują). */
 export const DEFAULT_SITE_URL = 'https://pznowak.pl'
 
-/** Domyślny obraz do udostępniania (Facebook, Messenger): zdjęcie pierścienia z tanzanitem z `public/`. */
+/** Domyślny obraz do udostępniania (Facebook, Messenger), 1200×630. */
+// TYMCZASOWE: kadr z about-us-son.png, podmienić na oryginał z pracowni.
 export const DEFAULT_OG_IMAGE = {
-  url: '/about-us-details.png',
-  width: 1024,
-  height: 683,
-  alt: 'Pierścionek z tanzanitem i diamentami wykonany w pracowni Michała Nowaka',
+  url: '/og-pracownia.jpg',
+  width: 1200,
+  height: 630,
+  alt: 'Michał Nowak przy mikroskopie w pracowni złotniczej w Busku-Zdroju',
 } as const
 
 export const SITE_TITLE_SUFFIX = ` — ${SITE.name}`
