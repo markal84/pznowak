@@ -195,7 +195,7 @@ test.describe('Kreator pierścionka', () => {
     if (SUBMISSIONS_OFF) {
       await expect(page.getByRole('status').filter({ hasText: NOTICE })).toBeVisible()
     } else {
-      await expect(page.getByText('Podaj polski numer telefonu, np. 501 321 347.')).toBeVisible()
+      await expect(page.getByText(/^Sprawdź numer telefonu, np\. 501 321 347\. Zagraniczny/)).toBeVisible()
       await expect(page.getByText('Zaznacz zgodę na kontakt, żebyśmy mogli oddzwonić.')).toBeVisible()
       await expect(page.getByLabel('Telefon')).toHaveAttribute('aria-invalid', 'true')
       await expect(page.getByRole('alert').filter({ hasText: 'Sprawdź zaznaczone pola.' })).toBeVisible()

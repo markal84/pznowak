@@ -37,7 +37,7 @@ export type CreatorSubmission = {
   pave: PaveId
   engraving: string
   name: string
-  /** Znormalizowany: „+48 501 321 347”. */
+  /** Znormalizowany: „+48 501 321 347” albo zagraniczny „+49 30 1234 5678”. */
   phone: string
   notes: string
   consent: true
@@ -84,7 +84,8 @@ export const MESSAGES = {
   nameRequired: 'Podaj imię.',
   nameInvalid: 'Wpisz imię literami (bez cyfr i znaków specjalnych).',
   phoneRequired: 'Podaj numer telefonu.',
-  phoneInvalid: 'Podaj polski numer telefonu, np. 501 321 347.',
+  phoneInvalid:
+    'Sprawdź numer telefonu, np. 501 321 347. Zagraniczny wpisz z kierunkowym, np. +49 30 1234 5678.',
   email: 'Sprawdź adres e-mail.',
   engraving: "Grawer może mieć litery, cyfry, spacje i znaki: & . , - ' + ! ? : ( ) ♥ ∞",
   consent: 'Zaznacz zgodę na kontakt, żebyśmy mogli oddzwonić.',
@@ -118,6 +119,30 @@ function text(raw: unknown, rule: TextRule): { value: string } | { error: string
 
 function choice<T extends string>(raw: unknown, allowed: readonly T[]): T | null {
   return typeof raw === 'string' && (allowed as readonly string[]).includes(raw) ? (raw as T) : null
+}
+
+/** Polski numer (bez kierunkowego albo z +48) lub zagraniczny z kierunkowym kraju. */
+export function normalizePhone(raw: string): string | null {
+  return normalizePolishPhone(raw) ?? normalizeForeignPhone(raw)
+}
+
+/**
+ * Numer zagraniczny: „+” albo „00”, kierunkowy kraju i razem 8–15 cyfr (E.164); separatory jak w polskim,
+ * „(0)” po kierunkowym (np. Wielka Brytania) jest pomijane. +48 sprawdza wyłącznie reguła polska.
+ * Zwraca „+” i cyfry w grupach wpisanych przez klienta, np. „+49 151 2345 6789”, albo null.
+ */
+export function normalizeForeignPhone(raw: string): string | null {
+  const trimmed = raw.trim()
+  if (!trimmed || length(trimmed) > LIMITS.phone || !PHONE_CHARS.test(trimmed)) return null
+  const spaced = trimmed
+    .replace(/\(0\)/g, ' ')
+    .replace(/[\s().\/-]+/g, ' ')
+    .trim()
+  const match = /^(?:\+|0 ?0) ?([1-9][\d ]*)$/.exec(spaced)
+  if (!match) return null
+  const digits = match[1].replace(/ /g, '')
+  if (digits.length < 8 || digits.length > 15 || digits.startsWith('48')) return null
+  return `+${match[1]}`
 }
 
 /**
@@ -163,7 +188,7 @@ function contactFields(data: Record<string, unknown>, errors: FieldErrors) {
     errors.phone = MESSAGES.type
   else if (!String(data.phone ?? '').trim()) errors.phone = MESSAGES.phoneRequired
   else {
-    const normalized = normalizePolishPhone(String(data.phone))
+    const normalized = normalizePhone(String(data.phone))
     if (normalized) phoneValue = normalized
     else errors.phone = MESSAGES.phoneInvalid
   }

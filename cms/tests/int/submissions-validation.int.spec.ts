@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { LIMITS } from '@/lib/submissions/options'
 import {
   MESSAGES,
+  normalizePhone,
   normalizePolishPhone,
   validateContact,
   validateCreator,
@@ -59,6 +60,46 @@ describe('telefon w formacie polskim', () => {
     '+48 501 321 347 501',
   ])('odrzuca %s', (raw) => {
     expect(normalizePolishPhone(raw)).toBeNull()
+  })
+})
+
+describe('telefon zagraniczny', () => {
+  it.each([
+    ['+49 30 1234 5678', '+49 30 1234 5678'],
+    ['0049 (151) 2345-6789', '+49 151 2345 6789'],
+    ['+44 (0) 20 7946 0958', '+44 20 7946 0958'],
+    ['+1 (555) 123-4567', '+1 555 123 4567'],
+    ['+4915123456789', '+4915123456789'],
+    ['+ 353 85 123 4567', '+353 85 123 4567'],
+    // polski numer dalej w postaci polskiej
+    ['501 321 347', '+48 501 321 347'],
+    ['0048 501 321 347', '+48 501 321 347'],
+  ])('przyjmuje %s', (raw, normalized) => {
+    expect(normalizePhone(raw)).toBe(normalized)
+  })
+
+  it.each([
+    // +48 z błędną liczbą cyfr nie przechodzi jako „zagraniczny”
+    '+48 501 321 34',
+    '0048 501 321 3477',
+    // bez + / 00 nie wiadomo, gdzie kończy się kierunkowy
+    '49 30 1234 5678',
+    '+0 30 1234 5678',
+    '+49 123 45',
+    '+4930123456789012',
+    '+49+30 1234 5678',
+    '+49 30 1234 5678 wew. 2',
+  ])('odrzuca %s', (raw) => {
+    expect(normalizePhone(raw)).toBeNull()
+  })
+
+  it('formularz kontaktowy i kreator przyjmują numer zagraniczny', () => {
+    const fromContact = validateContact(contact({ phone: '0049 30 1234 5678' }))
+    expect(fromContact.ok && fromContact.value.phone).toBe('+49 30 1234 5678')
+    const fromCreator = validateCreator(creator({ phone: '+44 20 7946 0958' }))
+    expect(fromCreator.ok && fromCreator.value.phone).toBe('+44 20 7946 0958')
+    const invalid = validateContact(contact({ phone: '49 30 1234 5678' }))
+    expect(!invalid.ok && invalid.errors.phone).toBe(MESSAGES.phoneInvalid)
   })
 })
 
