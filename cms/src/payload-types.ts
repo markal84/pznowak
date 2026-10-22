@@ -276,6 +276,24 @@ export interface Submission {
   visualizationStatus: 'not_applicable' | 'waiting' | 'approved' | 'in_progress' | 'done' | 'failed' | 'rejected';
   visualizationStartedAt?: string | null;
   visualizationFinishedAt?: string | null;
+  attachmentsState?:
+    | (
+        | 'none'
+        | 'uploading'
+        | 'complete'
+        | 'incomplete'
+        | 'refused_quarantine'
+        | 'refused_limit'
+        | 'refused_unavailable'
+        | 'expired'
+      )
+    | null;
+  attachmentsDeclared?: number | null;
+  attachmentsCount?: number | null;
+  /**
+   * Bez zaznaczenia zdjęcia są usuwane automatycznie 6 miesięcy po zgłoszeniu. Usunięcie zgłoszenia zawsze usuwa też zdjęcia.
+   */
+  attachmentsKeep?: boolean | null;
   notification?: ('pending' | 'sent' | 'skipped' | 'failed') | null;
   updatedAt: string;
   createdAt: string;
@@ -501,6 +519,10 @@ export interface SubmissionsSelect<T extends boolean = true> {
   visualizationStatus?: T;
   visualizationStartedAt?: T;
   visualizationFinishedAt?: T;
+  attachmentsState?: T;
+  attachmentsDeclared?: T;
+  attachmentsCount?: T;
+  attachmentsKeep?: T;
   notification?: T;
   updatedAt?: T;
   createdAt?: T;

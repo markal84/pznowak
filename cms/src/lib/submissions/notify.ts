@@ -1,5 +1,7 @@
 import type { Payload } from 'payload'
 
+import { photosLabel } from '../attachments/rules'
+import type { SubmissionAttachmentsState } from '../attachments/store'
 import type { NotificationStatus } from './statuses'
 
 /**
@@ -31,6 +33,10 @@ export type NotifiedSubmission = {
   /** `quarantine`: przyszło, gdy Cloudflare Turnstile był niedostępny (bez weryfikacji). */
   verification?: 'verified' | 'quarantine' | null
   createdAt: string
+  /** Zdjęcia od klienta: w mailu tylko liczba i link do panelu, nigdy same pliki. */
+  attachmentsState?: SubmissionAttachmentsState | null
+  attachmentsDeclared?: number | null
+  attachmentsCount?: number | null
 }
 
 export function payloadMailTransport(payload: Payload): MailTransport {
@@ -46,6 +52,34 @@ const KIND_LABEL = {
   creator: 'z kreatora pierścionka',
   contact: 'z formularza kontaktowego',
 } as const
+
+const REFUSED_REASON: Partial<Record<SubmissionAttachmentsState, string>> = {
+  refused_quarantine: 'weryfikacja Cloudflare była niedostępna',
+  refused_limit: 'dzienny limit zdjęć przez stronę został wyczerpany',
+  refused_unavailable: 'przyjmowanie zdjęć było chwilowo niedostępne',
+}
+
+/** Linie o zdjęciach do maila; pusta lista, gdy klient nic nie dołączał. */
+export function attachmentLines(submission: NotifiedSubmission): string[] {
+  const state = submission.attachmentsState ?? 'none'
+  const declared = submission.attachmentsDeclared ?? 0
+  const stored = submission.attachmentsCount ?? 0
+  if (state === 'none' || declared === 0) return []
+  const refused = REFUSED_REASON[state]
+  if (refused)
+    return [
+      `Załączniki: klient chciał dołączyć ${photosLabel(declared)}, ale ${refused}, więc zgłoszenie przyszło bez nich.`,
+      'Klient zobaczył prośbę o przesłanie zdjęć e-mailem.',
+    ]
+  if (stored === 0)
+    return [`Załączniki: klient zapowiedział ${photosLabel(declared)}, ale żadne nie dotarło (szczegóły w panelu).`]
+  const files = `${photosLabel(stored)} do obejrzenia w panelu (zdjęć nie dołączamy do maila)`
+  return [
+    stored < declared
+      ? `Załączniki: ${files}; dotarło ${stored} z ${declared}, szczegóły przy zgłoszeniu.`
+      : `Załączniki: ${files}.`,
+  ]
+}
 
 const warsawTime = new Intl.DateTimeFormat('pl-PL', {
   timeZone: 'Europe/Warsaw',
@@ -74,6 +108,7 @@ export function buildStudioMail(
     ...(submission.email ? [`E-mail: ${submission.email}`] : []),
     ...(submission.summary ? ['', submission.summary] : []),
     ...(submission.message ? ['', 'Wiadomość:', submission.message] : []),
+    ...(attachmentLines(submission).length ? ['', ...attachmentLines(submission)] : []),
     '',
     `Zgłoszenie w panelu: ${options.adminUrl}`,
     '',

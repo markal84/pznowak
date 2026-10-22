@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ResponseCode, SubmissionResponse } from '@/lib/submissions/handler'
 import type { FormKind } from '@/lib/submissions/options'
 import type { FieldErrors } from '@/lib/submissions/validation'
+import type { AttachmentsHandle, AttachmentsResult } from './Attachments'
 import type { TurnstileHandle } from './Turnstile'
 
 /**
@@ -13,6 +14,8 @@ import type { TurnstileHandle } from './Turnstile'
  * (człowiek tego nie zauważy), a po odpowiedzi serwera pokazuje komunikat lub błędy pól.
  * Gdy Turnstile nie da tokenu, zgłoszenie i tak idzie z flagą `turnstileUnavailable`: serwer sprawdza,
  * czy Cloudflare naprawdę nie działa (wtedy kwarantanna), a jeśli działa, odpowiada `verification_failed`.
+ * Zdjęcia (komponent `Attachments` podpięty przez `attachmentsRef`): zgłoszenie zapowiada pliki, a po przyjęciu
+ * hook wysyła je z biletami z odpowiedzi; karta „wysłane” pokazuje wynik (`attachmentsResult`).
  */
 
 export type Notice = { text: string; tone: 'error' | 'info'; contact: boolean }
@@ -49,6 +52,8 @@ export function useSubmission(form: FormKind, enabled: boolean) {
   const waiters = useRef<Array<(token: string | null) => void>>([])
   const formToken = useRef<FormToken | null>(null)
   const focusInvalid = useRef(false)
+  const attachments = useRef<AttachmentsHandle>(null)
+  const [attachmentsResult, setAttachmentsResult] = useState<AttachmentsResult | null>(null)
 
   // Po pokazaniu błędów fokus przechodzi do pierwszego błędnego pola (klawiatura, czytnik ekranu).
   useEffect(() => {
@@ -114,6 +119,8 @@ export function useSubmission(form: FormKind, enabled: boolean) {
     setNotice(null)
     setFieldErrors({})
     try {
+      // Dodane zdjęcia muszą być przygotowane (zmniejszone) przed zapowiedzią w zgłoszeniu.
+      const manifest = attachments.current ? await attachments.current.manifest() : []
       let token = formToken.current
       if (!token || Date.now() - token.receivedAt > token.maxAgeMs - REFRESH_MARGIN_MS)
         token = await fetchFormToken()
@@ -132,11 +139,18 @@ export function useSubmission(form: FormKind, enabled: boolean) {
           ...(turnstileValue ? {} : { turnstileUnavailable: true }),
           honeypot,
           data,
+          ...(manifest.length ? { attachments: manifest } : {}),
         }),
       })
       const body = (await response.json().catch(() => null)) as SubmissionResponse | null
       if (response.status === 201 && body?.ok) {
         turnstileToken.current = null
+        const reply = body.attachments
+        if (reply?.status === 'upload' && attachments.current)
+          setAttachmentsResult(await attachments.current.upload(reply.uploads))
+        // Serwer nie przyjął zdjęć (albo ich nie obsługuje): klient dostaje prośbę o e-mail, nic nie ginie po cichu.
+        else if (manifest.length) setAttachmentsResult({ kind: 'refused', declared: manifest.length })
+        else setAttachmentsResult(null)
         setSent(true)
         return true
       }
@@ -167,6 +181,7 @@ export function useSubmission(form: FormKind, enabled: boolean) {
     setSent(false)
     setNotice(null)
     setFieldErrors({})
+    setAttachmentsResult(null)
     fetchFormToken().catch(() => undefined)
   }
 
@@ -180,6 +195,8 @@ export function useSubmission(form: FormKind, enabled: boolean) {
     showErrors,
     submit,
     reset,
+    attachmentsRef: attachments,
+    attachmentsResult,
     turnstileProps: {
       ref: turnstile,
       action: form,

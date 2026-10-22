@@ -22,17 +22,22 @@ export function drizzleOf(payload: Payload): Db {
   return (payload.db as unknown as PostgresAdapter).drizzle
 }
 
-/** Zwraca liczbę użyć po zużyciu albo null, gdy limit był już wyczerpany. */
+/**
+ * Zwraca stan licznika po zużyciu albo null, gdy limit nie pozwala (licznik zwiększany o `amount`, domyślnie 1;
+ * przy 1 warunek `hits + 1 <= limit` to dawne `hits < limit`).
+ */
 export async function consumeBucket(
   executor: Db | Tx,
   bucket: LimitBucket,
 ): Promise<number | null> {
+  const amount = bucket.amount ?? 1
   const result = await executor.execute(sql`
     INSERT INTO "cms_limit_counters" ("bucket", "hits", "expires_at")
-    VALUES (${bucket.key}, 1, now() + make_interval(secs => ${bucket.ttlSeconds}))
+    SELECT ${bucket.key}, ${amount}::integer, now() + make_interval(secs => ${bucket.ttlSeconds})
+    WHERE ${amount}::integer <= ${bucket.limit}::integer
     ON CONFLICT ("bucket") DO UPDATE
-      SET "hits" = "cms_limit_counters"."hits" + 1, "updated_at" = now()
-      WHERE "cms_limit_counters"."hits" < ${bucket.limit}
+      SET "hits" = "cms_limit_counters"."hits" + ${amount}::integer, "updated_at" = now()
+      WHERE "cms_limit_counters"."hits" + ${amount}::integer <= ${bucket.limit}::integer
     RETURNING "hits"`)
   return result.rows.length ? Number(result.rows[0].hits) : null
 }

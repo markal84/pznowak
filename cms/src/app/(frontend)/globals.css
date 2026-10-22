@@ -1129,6 +1129,120 @@ fieldset.field legend {
   display: none;
 }
 
+/* ---------- załączniki (zdjęcia w formularzu kontaktowym, Zlecenie B) ---------- */
+.attachments.is-dragging {
+  outline: 2px dashed var(--velvet);
+  outline-offset: 8px;
+}
+.att-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+.att-item {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+}
+.att-item.is-failed {
+  box-shadow: inset 0 0 0 1px var(--error);
+  background: var(--error-bg);
+}
+.att-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  background: var(--shade);
+}
+.att-thumb-empty {
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.att-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.att-name {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.att-status {
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.att-item.is-failed .att-status {
+  color: var(--error);
+}
+.att-progress {
+  display: block;
+  height: 3px;
+  background: var(--line-soft);
+}
+.att-progress span {
+  display: block;
+  height: 100%;
+  background: var(--velvet);
+  transition: width 0.2s;
+}
+.att-remove {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  color: var(--graphite);
+  font-size: 14.5px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.att-remove[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.att-pick {
+  position: relative;
+  align-self: flex-start;
+}
+/* Prawdziwe pole wyboru plików zostaje dostępne dla klawiatury i czytnika; widać etykietę-przycisk. */
+.att-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+.att-input:focus-visible + .att-button {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.att-input:disabled + .att-button {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.att-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .kontakt-layout {
   padding-top: 24px;
   padding-bottom: 120px;

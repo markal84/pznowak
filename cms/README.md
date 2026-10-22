@@ -132,6 +132,27 @@ E2E_BASE_URL=<adres> npm run test:e2e:cross
 E2E_BASE_URL=<adres> E2E_CHANNEL=chrome npx playwright test --project=chromium --project=telefon
 ```
 
+### Zdjęcia od klientów (Zlecenie B, przełącznik `ATTACHMENTS_ENABLED`)
+
+Formularz kontaktowy może przyjmować do 5 zdjęć (JPG, PNG, WebP, HEIC). Logika: `src/lib/attachments/`.
+
+- Zgłoszenie zapowiada pliki (`attachments: [{ size }]`); odpowiedź 201 niesie jednorazowe bilety (15 min),
+  wydawane dopiero po honeypocie, czasie, walidacji, Turnstile i limitach. Każdy plik idzie osobno
+  (`POST /api/zgloszenia/zalaczniki`, do 4 MB; przeglądarka wcześniej zmniejsza duże zdjęcia).
+- Serwer rozpoznaje typ po zawartości, sprawdza wymiary przed dekodowaniem i zapisuje wyłącznie obraz
+  zakodowany od nowa jako JPEG (bez EXIF/GPS) w **prywatnym** magazynie Vercel Blob
+  (osobny magazyn: `ATTACHMENTS_BLOB_STORE_ID` z panelu Vercela albo `ATTACHMENTS_BLOB_READ_WRITE_TOKEN`).
+  Podgląd tylko w panelu
+  (`/api/zgloszenia/zalaczniki/[id]`, sesja administratora lub redaktora).
+- Kwarantanna, wyczerpany limit plików albo brak magazynu: zgłoszenie bez zdjęć, klient dostaje prośbę o e-mail.
+- Sprzątanie raz na dobę (`vercel.json` → `crons`, wymaga `CRON_SECRET`): porzucone przesyłania, retencja
+  (6 miesięcy bez „Zachowaj zdjęcia”), pliki bez wiersza w bazie. Usunięcie zgłoszenia usuwa też zdjęcia.
+- Schemat: migracja `20261021_182906_zlecenie_b_zalaczniki`. Lokalnie bez magazynu w chmurze:
+  `ATTACHMENTS_STORAGE=local` (pliki w `cms/.zalaczniki-lokalne/`).
+- Testy: `tests/int/attachments-*.int.spec.ts` (staging w `npm run test:int:staging`), e2e
+  `tests/e2e/zalaczniki.e2e.spec.ts` z `E2E_ATTACHMENTS=on` i panel `zalaczniki-panel.e2e.spec.ts`
+  (`E2E_PANEL=staging`, zakłada i usuwa tymczasowego redaktora).
+
 Uwaga: `getPayload` poza produkcją sam regeneruje `src/payload-types.ts`; bez `BLOB_READ_WRITE_TOKEN`
 znikają pola wtyczki Blob (`prefix`, `_objectKey`) i build na Vercelu pada. Przed commitem sprawdź
 `git diff src/payload-types.ts`.

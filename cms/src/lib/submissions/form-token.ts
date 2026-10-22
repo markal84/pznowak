@@ -20,7 +20,10 @@ const VERSION = 'v1'
 const CLOCK_SKEW_MS = 5_000
 
 /** Klucz pochodny od sekretu aplikacji, osobny dla każdego zastosowania. */
-export function deriveKey(secret: string, purpose: 'form-token' | 'ip-hash'): Buffer {
+export function deriveKey(
+  secret: string,
+  purpose: 'form-token' | 'ip-hash' | 'upload-token',
+): Buffer {
   return createHmac('sha256', secret).update(`pznowak:zgloszenia:${purpose}`).digest()
 }
 

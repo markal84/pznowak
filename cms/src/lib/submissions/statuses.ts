@@ -40,6 +40,22 @@ export const VERIFICATION_STATUSES = [
   { label: 'Kwarantanna – bez weryfikacji', value: 'quarantine' },
 ] as const
 
+/**
+ * Zdjęcia od klienta (formularz kontaktowy). `uploading`: klient przesyła pliki, powiadomienie czeka na ostatni;
+ * `refused_*`: zgłoszenie przyszło bez zdjęć, a klient dostał prośbę o przesłanie ich e-mailem.
+ */
+export const ATTACHMENT_STATES = [
+  { label: 'Brak', value: 'none' },
+  { label: 'Przesyłanie…', value: 'uploading' },
+  { label: 'Komplet', value: 'complete' },
+  { label: 'Niepełne (część nie dotarła)', value: 'incomplete' },
+  { label: 'Bez zdjęć – kwarantanna', value: 'refused_quarantine' },
+  { label: 'Bez zdjęć – limit dzienny', value: 'refused_limit' },
+  { label: 'Bez zdjęć – magazyn niedostępny', value: 'refused_unavailable' },
+  { label: 'Usunięte po okresie przechowywania', value: 'expired' },
+] as const
+
 export type SubmissionKind = (typeof SUBMISSION_KINDS)[number]['value']
 export type VisualizationStatus = (typeof VISUALIZATION_STATUSES)[number]['value']
 export type NotificationStatus = (typeof NOTIFICATION_STATUSES)[number]['value']
+export type AttachmentsState = (typeof ATTACHMENT_STATES)[number]['value']

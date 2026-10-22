@@ -7,9 +7,15 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  // Przełącznik zdjęć w formularzu kontaktowym (Zlecenie B): ta sama zmienna dla serwera i przeglądarki.
+  env: {
+    ATTACHMENTS_ENABLED: process.env.ATTACHMENTS_ENABLED ?? '',
+  },
   experimental: {
     globalNotFound: true,
   },
+  // Dekoder HEIC (libheif w WebAssembly) ładowany przez Node, nie pakowany przez webpack.
+  serverExternalPackages: ['heic-decode', 'libheif-js'],
   // The local verification tab uses 127.0.0.1 while Next.js advertises localhost.
   // Allow the dev client/HMR resources from that loopback origin as well.
   allowedDevOrigins: ['127.0.0.1'],

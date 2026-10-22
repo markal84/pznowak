@@ -50,3 +50,6 @@ node_modules/
 /playwright/.cache/
 
 /docs/parity-2026-10-09/screenshots/
+
+# Zdjęcia od klientów zapisywane lokalnie (ATTACHMENTS_STORAGE=local)
+/.zalaczniki-lokalne/

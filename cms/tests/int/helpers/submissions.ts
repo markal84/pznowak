@@ -31,6 +31,7 @@ export function testSettings(overrides: Partial<SubmissionSettings> = {}): Submi
     notifyTo: undefined,
     namespace: '',
     creatorEnabled: true,
+    attachmentsEnabled: false,
     ...overrides,
   }
 }

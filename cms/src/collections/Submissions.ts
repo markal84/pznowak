@@ -1,10 +1,14 @@
-import { APIError, type CollectionConfig } from 'payload'
+import { APIError, type CollectionConfig, type Condition } from 'payload'
 
 import { isAdmin, isAdminOrEditor } from '../access/permissions'
+import { attachmentStorageFromEnv } from '../lib/attachments/config'
+import { ATTACHMENTS_RETENTION_MONTHS } from '../lib/attachments/rules'
+import { storedPaths } from '../lib/attachments/store'
 import { visualizationSettingsFromEnv } from '../lib/submissions/config'
 import { CONTACT_TOPICS, RING_SIZE_KNOWN, type RingSizeKnownId } from '../lib/submissions/options'
 import { guardVisualizationTransition } from '../lib/submissions/queue'
 import {
+  ATTACHMENT_STATES,
   NOTIFICATION_STATUSES,
   SUBMISSION_KINDS,
   SUBMISSION_STATUSES,
@@ -21,6 +25,12 @@ const RING_SIZE_KNOWN_LABELS: Record<RingSizeKnownId, string> = {
   known: 'Zna rozmiar',
   unknown: 'Nie zna – zmierzymy w pracowni',
 }
+
+/** Pola zdjęć widać tylko przy zgłoszeniach, w których klient je dołączał (przełącznik wyłączony = panel bez zmian). */
+const hasAttachments: Condition = (data) =>
+  Boolean(data?.attachmentsState && data.attachmentsState !== 'none')
+
+const contextKey = (id: number | string) => `zalaczniki:${id}`
 
 export const Submissions: CollectionConfig = {
   slug: 'submissions',
@@ -79,6 +89,25 @@ export const Submissions: CollectionConfig = {
           now: new Date(),
         })
         return { ...data, ...patch }
+      },
+    ],
+    // RODO: zdjęcia znikają razem ze zgłoszeniem. Wiersze miejsc usuwa baza (ON DELETE CASCADE), pliki w magazynie
+    // ten hook; gdyby magazyn nie odpowiedział, sprzątanie osieroconych plików usunie je później.
+    beforeDelete: [
+      async ({ id, req }) => {
+        req.context[contextKey(id)] = await storedPaths(req.payload, Number(id))
+      },
+    ],
+    afterDelete: [
+      async ({ id, req }) => {
+        const paths = req.context[contextKey(id)] as string[] | undefined
+        const storage = attachmentStorageFromEnv()
+        if (!paths?.length || !storage) return
+        await storage.del(paths).catch((error: unknown) => {
+          req.payload.logger.warn(
+            `[zalaczniki] pliki zgłoszenia ${id} nie zostały usunięte z magazynu: ${error instanceof Error ? error.message : String(error)}`,
+          )
+        })
       },
     ],
   },
@@ -146,6 +175,15 @@ export const Submissions: CollectionConfig = {
           },
         },
       ],
+    },
+    {
+      name: 'attachmentsGallery',
+      type: 'ui',
+      label: 'Zdjęcia od klienta',
+      admin: {
+        condition: hasAttachments,
+        components: { Field: '/components/admin/AttachmentsGallery#AttachmentsGallery' },
+      },
     },
     {
       name: 'details',
@@ -264,6 +302,41 @@ export const Submissions: CollectionConfig = {
       type: 'date',
       label: 'Wizualizacja zakończona',
       admin: { ...readOnly, position: 'sidebar', date: { pickerAppearance: 'dayAndTime' } },
+    },
+    {
+      name: 'attachmentsState',
+      type: 'select',
+      label: 'Zdjęcia',
+      required: true,
+      defaultValue: 'none',
+      index: true,
+      options: [...ATTACHMENT_STATES],
+      admin: { ...readOnly, position: 'sidebar', condition: hasAttachments },
+    },
+    {
+      name: 'attachmentsDeclared',
+      type: 'number',
+      label: 'Zdjęcia zapowiedziane',
+      defaultValue: 0,
+      admin: { ...readOnly, position: 'sidebar', condition: hasAttachments },
+    },
+    {
+      name: 'attachmentsCount',
+      type: 'number',
+      label: 'Zdjęcia przesłane',
+      defaultValue: 0,
+      admin: { ...readOnly, position: 'sidebar', condition: hasAttachments },
+    },
+    {
+      name: 'attachmentsKeep',
+      type: 'checkbox',
+      label: 'Zachowaj zdjęcia (zamówienie)',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        condition: hasAttachments,
+        description: `Bez zaznaczenia zdjęcia są usuwane automatycznie ${ATTACHMENTS_RETENTION_MONTHS} miesięcy po zgłoszeniu. Usunięcie zgłoszenia zawsze usuwa też zdjęcia.`,
+      },
     },
     {
       name: 'notification',

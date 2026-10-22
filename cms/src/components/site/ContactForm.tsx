@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef, useState, type ReactNode } from 'react'
-import { PREVIEW_NOTICE, SITE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
+import { useRef, useState } from 'react'
+import { ATTACHMENTS_ENABLED, PREVIEW_NOTICE, SITE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
 import {
   BUDGETS,
   CONSENT_TEXT,
@@ -15,6 +15,7 @@ import {
   type RingSizeKnownId,
 } from '@/lib/submissions/options'
 import { validateContact } from '@/lib/submissions/validation'
+import Attachments, { AttachmentsNote } from './Attachments'
 import { FieldError, FormNotice, Honeypot, invalidProps } from './FormParts'
 import Turnstile from './Turnstile'
 import { useSubmission } from './useSubmission'
@@ -40,19 +41,15 @@ export default function ContactForm({
   initialTopic,
   project,
   choice,
-  attachments,
 }: {
   initialTopic?: string
   project?: string
   choice?: string
-  // ZLECENIE-B: punkt integracji załączników (zdjęcia, szkice). Komponent trafia pod pole wiadomości; formularz sam
-  // nie obsługuje plików. Identyfikatory przesłanych plików dopisz do `data` w onSubmit i do walidacji kontaktu.
-  attachments?: ReactNode
 }) {
   const [topic, setTopic] = useState<TopicId>(isTopic(initialTopic) ? initialTopic : project ? 'kolekcja' : 'nowy')
   const [sizeKnown, setSizeKnown] = useState<RingSizeKnownId>('unknown')
   const honeypot = useRef<HTMLInputElement>(null)
-  const { sending, sent, notice, setNotice, fieldErrors, setFieldErrors, showErrors, submit, reset, turnstileProps } =
+  const { sending, sent, notice, setNotice, fieldErrors, setFieldErrors, showErrors, submit, reset, attachmentsRef, attachmentsResult, turnstileProps } =
     useSubmission('kontakt', SUBMISSIONS_ENABLED)
   const [label, hint] = MESSAGES[topic]
   const ringDetails = RING_DETAIL_TOPICS.includes(topic)
@@ -76,7 +73,6 @@ export default function ContactForm({
       ringSizeKnown: sizeKnown,
       ringSize: text(form, 'rozmiar'),
       message: text(form, 'wiadomosc'),
-      // ZLECENIE-B: tu dopisz identyfikatory załączników.
       name: text(form, 'imie'),
       phone: text(form, 'telefon'),
       email: text(form, 'email'),
@@ -105,6 +101,8 @@ export default function ContactForm({
         <p className="text" style={{ maxWidth: '32em' }}>
           Dziękujemy. Oddzwonimy w godzinach pracy pracowni, żeby ustalić termin rozmowy.
         </p>
+        {/* ZLECENIE-B: wynik dołączania zdjęć (pusty, gdy klient ich nie dodawał). */}
+        <AttachmentsNote result={attachmentsResult} />
         <button className="linkbtn" onClick={reset} style={{ alignSelf: 'flex-start' }} type="button">
           Napisz kolejną wiadomość
         </button>
@@ -194,7 +192,7 @@ export default function ContactForm({
       <div className="field">
         <label htmlFor="k-wiad">{label}</label>
         <textarea className="fld" data-field="message" id="k-wiad" maxLength={LIMITS.message} name="wiadomosc" placeholder={hint} rows={6} style={{ resize: 'vertical', lineHeight: 1.55 }} {...err('message', 'k-wiad-err')} />
-        {topic === 'nowy' && !attachments ? (
+        {topic === 'nowy' && !ATTACHMENTS_ENABLED ? (
           <span className="field-hint">
             Własne zdjęcie albo szkic wyślij na <a href={`mailto:${SITE.email}`}>{SITE.email}</a> i podpisz imieniem
             z formularza.
@@ -203,8 +201,11 @@ export default function ContactForm({
         <FieldError id="k-wiad-err" message={fieldErrors.message} />
       </div>
 
-      {/* ZLECENIE-B: miejsce na komponent załączników (prop `attachments`). */}
-      {attachments}
+      {/* ZLECENIE-B: zdjęcia i szkice od klienta (przełącznik ATTACHMENTS_ENABLED). Jedyne miejsce, w którym
+          formularz dotyka plików; obsługa wysyłki: useSubmission + components/site/Attachments.tsx. */}
+      {ATTACHMENTS_ENABLED ? (
+        <Attachments disabled={sending} error={fieldErrors.attachments} ref={attachmentsRef} />
+      ) : null}
 
       {ringDetails ? (
         <div className="form-grid">
