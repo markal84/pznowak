@@ -495,6 +495,16 @@ describe('POST /api/zgloszenia: przyjęcie', () => {
     expect(t.accepted[0].origin).toBe('http://preview.example.vercel.app')
   })
 
+  it('numer zagraniczny: 201, telefon zapisany z kierunkowym kraju', async () => {
+    const t = setup()
+    const result = await send(
+      t.deps,
+      contactBody({ data: validContactData({ phone: '0049 (151) 2345-6789' }) }),
+    )
+    expect(result.status).toBe(201)
+    expect(t.inserted[0]).toMatchObject({ kind: 'contact', phone: '+49 151 2345 6789' })
+  })
+
   it('kontakt: 201, szkic bez wizualizacji, pola innych tematów pominięte', async () => {
     const t = setup()
     const result = await send(
