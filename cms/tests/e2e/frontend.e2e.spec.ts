@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { BAND_CONFIGURATOR_ENABLED, RING_CREATOR_ENABLED } from '../../src/lib/site'
 
 const NOTICE = /Wersja podglądowa: wysyłka jest jeszcze wyłączona/
 // Środowisko bez kluczy Turnstile (wysyłka wyłączona): E2E_SUBMISSIONS=off.
@@ -44,7 +45,7 @@ test.describe('Nowy design: strony i nawigacja', () => {
     ['/pracownia', 'Od kuźni w Szańcu do stołu złotniczego w Busku'],
     ['/realizacje', 'Realizacje'],
     ['/kontakt', 'Umów wizytę'],
-    ['/kreator', 'Zaprojektuj pierścionek'],
+    ...(RING_CREATOR_ENABLED ? ([['/kreator', 'Zaprojektuj pierścionek']] as const) : []),
   ] as const) {
     test(`${path} ładuje się i mieści w szerokości ekranu`, async ({ page }) => {
       const response = await visit(page, path)
@@ -137,6 +138,8 @@ test.describe('Katalog i karta pierścionka', () => {
 })
 
 test.describe('Kreator pierścionka', () => {
+  test.skip(!RING_CREATOR_ENABLED, 'kreator ukryty (RING_CREATOR_ENABLED = false)')
+
   test('przechodzi wszystkie sześć kroków, podgląd zmienia się na żywo, bez zgody nic nie wysyła', async ({ page }) => {
     await visit(page, '/kreator')
     const preview = page.locator('.preview svg')
@@ -209,6 +212,7 @@ test.describe('Kreator pierścionka', () => {
 
 test.describe('Obrączki i formularz kontaktowy', () => {
   test('konfigurator obrączek zmienia opis i przekazuje wybór do formularza', async ({ page }) => {
+    test.skip(!BAND_CONFIGURATOR_ENABLED, 'konfigurator ukryty (BAND_CONFIGURATOR_ENABLED = false)')
     await visit(page, '/obraczki')
     await page.getByRole('button', { name: 'Płaska' }).click()
     await page.getByRole('button', { name: '7 mm' }).click()
@@ -244,11 +248,12 @@ test.describe('Obrączki i formularz kontaktowy', () => {
   })
 })
 
-test.describe('Nagłówek: kreator pierścionka', () => {
+test.describe('Nagłówek na komputerze', () => {
   // Układ nagłówka zależy od szerokości okna, więc testy ustawiają własne; na emulacji telefonu pomijamy.
   test.skip(({ isMobile }) => isMobile, 'szerokości desktopowe sprawdza projekt desktopowy')
 
   test('z nagłówka na komputerze da się wejść do kreatora, „Umów wizytę” zostaje głównym przyciskiem', async ({ page }) => {
+    test.skip(!RING_CREATOR_ENABLED, 'kreator ukryty (RING_CREATOR_ENABLED = false)')
     await page.setViewportSize({ width: 1280, height: 800 })
     await visit(page, '/')
     const actions = page.locator('.header-actions')
@@ -268,6 +273,19 @@ test.describe('Nagłówek: kreator pierścionka', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Zaprojektuj pierścionek')
     await expect(creator).toHaveAttribute('aria-current', 'page')
     await expect(bookCta).not.toHaveAttribute('aria-current', 'page')
+  })
+
+  test('bez kreatora „Umów wizytę” jest jedynym przyciskiem, a podpis przy logo zostaje', async ({ page }) => {
+    test.skip(RING_CREATOR_ENABLED, 'kreator włączony')
+    await page.setViewportSize({ width: 1200, height: 800 })
+    await visit(page, '/')
+    const header = page.locator('.site-header')
+    await expect(header).not.toHaveClass(/has-creator/)
+    await expect(page.locator('.header-actions').getByRole('link')).toHaveText(['Umów wizytę'])
+    await expect(header.locator('a[href^="/kreator"]')).toHaveCount(0)
+    await expect(header.getByText('Zaprojektuj pierścionek')).toHaveCount(0)
+    // Z jednym przyciskiem podpis „Pracownia złotnicza / Busko-Zdrój” mieści się także w 1140–1319 px.
+    await expect(page.locator('.brand-text')).toBeVisible()
   })
 
   test('nagłówek nie łamie się w szerokościach 960–1440 px', async ({ page }) => {
@@ -303,6 +321,7 @@ test.describe('Nawigacja na telefonie', () => {
   })
 
   test('w menu jest osobna pozycja kreatora, prowadzi do /kreator i jest oznaczona jako bieżąca', async ({ page }) => {
+    test.skip(!RING_CREATOR_ENABLED, 'kreator ukryty (RING_CREATOR_ENABLED = false)')
     await visit(page, '/')
     await page.getByRole('button', { name: 'Otwórz menu' }).click()
     const menu = page.locator('#mobile-menu')
@@ -315,5 +334,138 @@ test.describe('Nawigacja na telefonie', () => {
     await expect(menu).toBeHidden()
     await page.getByRole('button', { name: 'Otwórz menu' }).click()
     await expect(menu.getByRole('link', { name: 'Zaprojektuj pierścionek' })).toHaveAttribute('aria-current', 'page')
+  })
+})
+
+test.describe('Ukryty kreator i konfigurator (zlecenie A)', () => {
+  test.skip(RING_CREATOR_ENABLED, 'kreator włączony (RING_CREATOR_ENABLED = true)')
+
+  test('menu na telefonie nie ma pozycji kreatora', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await visit(page, '/')
+    await page.getByRole('button', { name: 'Otwórz menu' }).click()
+    const menu = page.locator('#mobile-menu')
+    await expect(menu).toBeVisible()
+    await expect(menu.getByRole('link')).toHaveText([
+      'Pierścionki',
+      'Obrączki',
+      'Na zamówienie',
+      'Naprawy',
+      'Realizacje',
+      'Pracownia',
+      'Umów wizytę',
+    ])
+  })
+
+  for (const path of ['/', '/na-zamowienie']) {
+    test(`${path}: zamiast „Zaprojektuj wstępnie online” jest „Wyślij zdjęcie lub opis” do formularza`, async ({ page }) => {
+      await visit(page, path)
+      await expect(page.getByText(/Zaprojektuj (pierścionek|wstępnie)/)).toHaveCount(0)
+      const link = page.locator('main').getByRole('link', { name: 'Wyślij zdjęcie lub opis' })
+      await expect(link).toHaveAttribute('href', '/kontakt?temat=nowy')
+      await link.click()
+      await expect(page).toHaveURL(/\/kontakt\?temat=nowy$/)
+      await page.waitForSelector('html[data-hydrated="true"]')
+      await expect(page.getByRole('radio', { name: /Pierścionek lub obrączki na zamówienie/ })).toBeChecked()
+      await expect(page.getByLabel('Co Ci się podoba?')).toBeVisible()
+    })
+  }
+
+  test('/kreator odpowiada 404 ze stroną „Tej strony nie znaleźliśmy”', async ({ page }) => {
+    const response = await visit(page, '/kreator')
+    expect(response?.status()).toBe(404)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Tej strony nie znaleźliśmy')
+    await expect(page.getByText('Krok 1 z 6')).toHaveCount(0)
+  })
+
+  test('mapa linków: żadna strona nie prowadzi do kreatora ani konfiguratora', async ({ request }) => {
+    // Przechodzi po wszystkich wewnętrznych linkach od strony głównej (karty pierścionków: dwie pierwsze).
+    const queue = ['/']
+    const seen = new Set(queue)
+    const visited: string[] = []
+    let rings = 0
+    while (queue.length) {
+      const path = queue.shift()!
+      const response = await request.get(path)
+      expect(response.status(), path).toBeLessThan(400)
+      const html = await response.text()
+      visited.push(path)
+      expect(html, path).not.toMatch(/Zaprojektuj (pierścionek|wstępnie)|Dobierzcie wstępnie|konfigurator/i)
+      for (const [, href] of html.matchAll(/<a[^>]+href="([^"#]*)/g)) {
+        const url = new URL(href.replaceAll('&amp;', '&'), 'http://strona.test')
+        if (url.host !== 'strona.test') continue
+        expect(url.pathname, `link na ${path}`).not.toMatch(/^\/kreator/)
+        if (/^\/(api|admin|_next)\b/.test(url.pathname) || seen.has(url.pathname)) continue
+        if (url.pathname.startsWith('/pierscionki/') && ++rings > 2) continue
+        seen.add(url.pathname)
+        queue.push(url.pathname)
+      }
+    }
+    // strony z menu i stopki muszą być w mapie
+    for (const page of ['/pierscionki', '/obraczki', '/na-zamowienie', '/naprawy', '/realizacje', '/pracownia', '/kontakt']) {
+      expect(visited).toContain(page)
+    }
+  })
+})
+
+test.describe('Obrączki bez konfiguratora (zlecenie A)', () => {
+  test.skip(BAND_CONFIGURATOR_ENABLED, 'konfigurator włączony (BAND_CONFIGURATOR_ENABLED = true)')
+
+  test('rodzaje obrączek na zdjęciach, a wybór trafia do formularza', async ({ page }) => {
+    await visit(page, '/obraczki')
+    await expect(page.getByText('Dobierzcie wstępnie parę')).toHaveCount(0)
+    await expect(page.locator('.bands')).toHaveCount(0)
+    const section = page.getByRole('region', { name: 'Rodzaje obrączek' })
+    await expect(section.getByRole('heading', { level: 3 })).toHaveText(['Płaskie', 'Półokrągłe', 'Klasyczne'])
+    await expect(section).toContainText('od podstaw ręcznie, w każdej szerokości')
+    // Każda karta ma zdjęcie z galerii CMS albo widoczny placeholder.
+    for (const card of await section.locator('.band-type').all()) {
+      const photos = await card.locator('img:not([src*="obraczki.svg"])').count()
+      if (photos === 0) await expect(card.getByText('[zdjęcie do uzupełnienia]')).toBeVisible()
+    }
+    await noHorizontalScroll(page)
+
+    await section.getByRole('link', { name: 'Zapytaj o obrączki półokrągłe' }).click()
+    await expect(page).toHaveURL(/\/kontakt\?temat=obraczki&wybor=/)
+    await expect(page.getByLabel(/Wstępny wybór/)).toHaveValue('półokrągłe')
+  })
+})
+
+test.describe('Formularz: zamówienie z grawerem i rozmiarem', () => {
+  test('grawer i rozmiar są przy zamówieniu i projekcie z kolekcji, przy naprawie ich nie ma', async ({ page }) => {
+    await visit(page, '/kontakt?temat=nowy')
+    await expect(page.getByLabel(/Grawer/)).toBeVisible()
+    await expect(page.getByRole('radio', { name: 'Nie znam' })).toBeChecked()
+    await expect(page.getByText(/Zmierzymy palec w pracowni/)).toBeVisible()
+    await page.getByRole('radio', { name: 'Znam rozmiar' }).check()
+    await expect(page.getByLabel('Rozmiar w polskiej skali')).toBeVisible()
+    await expect(page.getByText(/Zmierzymy palec w pracowni/)).toHaveCount(0)
+
+    await page.locator('label.topic', { hasText: 'Projekt z kolekcji' }).click()
+    await expect(page.getByLabel(/Grawer/)).toBeVisible()
+    await page.locator('label.topic', { hasText: 'Naprawa lub przeróbka' }).click()
+    await expect(page.getByLabel(/Grawer/)).toHaveCount(0)
+    await expect(page.getByRole('radio', { name: 'Znam rozmiar' })).toHaveCount(0)
+  })
+
+  test('link w grawerze i brak rozmiaru: komunikaty przy polach, nic nie wychodzi', async ({ page }) => {
+    await visit(page, '/kontakt?temat=nowy')
+    const writes = captureWrites(page)
+    await page.getByLabel(/Grawer/).fill('www.sklep.pl')
+    await expect(page.getByLabel(/Grawer/)).toHaveValue('www.sklep.pl')
+    await page.getByRole('radio', { name: 'Znam rozmiar' }).check()
+    await page.getByLabel('Imię').fill('Marek')
+    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByLabel(/Zgadzam się na kontakt/).check()
+    await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
+    if (SUBMISSIONS_OFF) {
+      await expect(page.getByRole('status').filter({ hasText: NOTICE })).toBeVisible()
+    } else {
+      await expect(page.getByText('W tym polu nie może być linków ani adresów e-mail.')).toBeVisible()
+      await expect(page.getByText('Wybierz rozmiar albo zaznacz „Nie znam”.')).toBeVisible()
+      await expect(page.getByLabel(/Grawer/)).toHaveAttribute('aria-invalid', 'true')
+      await expect(page.getByLabel('Rozmiar w polskiej skali')).toHaveAttribute('aria-invalid', 'true')
+    }
+    expect(writes).toEqual([])
   })
 })

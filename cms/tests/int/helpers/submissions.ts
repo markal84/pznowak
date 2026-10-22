@@ -30,6 +30,7 @@ export function testSettings(overrides: Partial<SubmissionSettings> = {}): Submi
     visualizations: { limit: 10, mode: 'manual', namespace: '' },
     notifyTo: undefined,
     namespace: '',
+    creatorEnabled: true,
     ...overrides,
   }
 }

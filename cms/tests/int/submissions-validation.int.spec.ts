@@ -176,3 +176,94 @@ describe('walidacja formularza kontaktowego', () => {
     expect(ok.ok && ok.value.email).toBe('anna@example.pl')
   })
 })
+
+describe('formularz kontaktowy: zamówienie z grawerem i rozmiarem', () => {
+  const order = (overrides: Record<string, unknown> = {}) =>
+    contact({
+      topic: 'nowy',
+      message: 'Pierścionek jak na zdjęciu: https://pinterest.com/pin/1, ale z szafirem.',
+      engraving: 'A & M 14.06.2027',
+      ringSizeKnown: 'known',
+      ringSize: '14',
+      ...overrides,
+    })
+
+  it('przyjmuje poprawne zamówienie z grawerem i znanym rozmiarem', () => {
+    const result = validateContact(order())
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.value.engraving).toBe('A & M 14.06.2027')
+      expect(result.value.ringSizeKnown).toBe('known')
+      expect(result.value.ringSize).toBe('14')
+      expect(result.value.message).toContain('https://pinterest.com/pin/1')
+    }
+    // te same pola przy projekcie z kolekcji
+    const fromCatalog = validateContact(order({ topic: 'kolekcja', project: 'Phoebe' }))
+    expect(fromCatalog.ok && fromCatalog.value.ringSize).toBe('14')
+  })
+
+  it('„nie znam” albo brak odpowiedzi: rozmiar pusty, nawet jeśli przyszedł w żądaniu', () => {
+    const unknown = validateContact(order({ ringSizeKnown: 'unknown', ringSize: 'cokolwiek' }))
+    expect(unknown.ok).toBe(true)
+    if (unknown.ok) {
+      expect(unknown.value.ringSizeKnown).toBe('unknown')
+      expect(unknown.value.ringSize).toBe('')
+    }
+    for (const missing of [undefined, null, '']) {
+      const result = validateContact(order({ ringSizeKnown: missing, ringSize: undefined }))
+      expect(result.ok && result.value.ringSizeKnown, String(missing)).toBe('unknown')
+    }
+    // grawer jest opcjonalny
+    const noEngraving = validateContact(order({ engraving: '' }))
+    expect(noEngraving.ok && noEngraving.value.engraving).toBe('')
+  })
+
+  it('rozmiar tylko z listy polskiej skali 5–35', () => {
+    for (const size of ['5', '20', '35']) {
+      expect(validateContact(order({ ringSize: size })).ok, size).toBe(true)
+    }
+    for (const size of ['4', '36', '14.5', '14,5', 'XL', ' 14', '1e1', '<b>14</b>', 14, ['14']]) {
+      const result = validateContact(order({ ringSize: size }))
+      expect(!result.ok && result.errors.ringSize, String(size)).toBe(MESSAGES.ringSize)
+    }
+    const missing = validateContact(order({ ringSize: '' }))
+    expect(!missing.ok && missing.errors.ringSize).toBe(MESSAGES.ringSizeRequired)
+    const badChoice = validateContact(order({ ringSizeKnown: 'moze' }))
+    expect(!badChoice.ok && badChoice.errors.ringSizeKnown).toBe(MESSAGES.choice)
+  })
+
+  it('grawer jak w kreatorze: limit znaków, bez linków i HTML, tylko dozwolone znaki', () => {
+    const tooLong = validateContact(order({ engraving: 'x'.repeat(LIMITS.engraving + 1) }))
+    expect(!tooLong.ok && tooLong.errors.engraving).toBe(MESSAGES.tooLong(LIMITS.engraving))
+    for (const link of ['www.sklep.pl', 'http://a.b', 'kup.com', 'a@b.pl', 'javascript:alert(1)']) {
+      const result = validateContact(order({ engraving: link }))
+      expect(!result.ok && result.errors.engraving, link).toBe(MESSAGES.link)
+    }
+    const html = validateContact(order({ engraving: '<b>Anna</b>' }))
+    expect(!html.ok && html.errors.engraving).toBe(MESSAGES.html)
+    const emoji = validateContact(order({ engraving: 'Anna 💍' }))
+    expect(!emoji.ok && emoji.errors.engraving).toBe(MESSAGES.engraving)
+    expect(validateContact(order({ engraving: 'ż'.repeat(LIMITS.engraving) })).ok).toBe(true)
+  })
+
+  it('za długi opis i znaki sterujące są odrzucane', () => {
+    const long = validateContact(order({ message: 'x'.repeat(LIMITS.message + 1) }))
+    expect(!long.ok && long.errors.message).toBe(MESSAGES.tooLong(LIMITS.message))
+    expect(validateContact(order({ message: 'opis <script>alert(1)</script>' })).ok).toBe(false)
+    expect(validateContact(order({ engraving: 'Anna‮anna' })).ok).toBe(false)
+  })
+
+  it('przy innych tematach grawer i rozmiar są pomijane, także błędne', () => {
+    for (const topic of ['obraczki', 'naprawa', 'inne']) {
+      const result = validateContact(
+        order({ topic, engraving: 'www.spam.pl', ringSizeKnown: 'moze', ringSize: '99' }),
+      )
+      expect(result.ok, topic).toBe(true)
+      if (result.ok) {
+        expect(result.value.engraving).toBe('')
+        expect(result.value.ringSizeKnown).toBe('')
+        expect(result.value.ringSize).toBe('')
+      }
+    }
+  })
+})

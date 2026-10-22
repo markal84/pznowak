@@ -1,8 +1,12 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import BandConfigurator from '@/components/site/BandConfigurator'
+import BandTypes from '@/components/site/BandTypes'
 import Faq from '@/components/site/Faq'
+import { getGallery } from '@/lib/collection'
+import { BAND_CONFIGURATOR_ENABLED } from '@/lib/site'
 
+export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { title: 'Obrączki ślubne' }
 
 const FAQ = [
@@ -12,7 +16,9 @@ const FAQ = [
   { q: 'Czy obrączki mogą być różne?', a: 'Tak. Często są tego samego wzoru, ale w innej szerokości, albo jedna ma kamień, a druga nie.' },
 ]
 
-export default function BandsPage() {
+export default async function BandsPage() {
+  // Bez konfiguratora rodzaje obrączek pokazujemy na zdjęciach z galerii CMS.
+  const gallery = BAND_CONFIGURATOR_ENABLED ? [] : await getGallery()
   return (
     <>
       <section className="wrap" style={{ paddingTop: 64, paddingBottom: 40, display: 'flex', flexWrap: 'wrap', gap: '24px 72px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
@@ -25,9 +31,15 @@ export default function BandsPage() {
         </div>
       </section>
 
-      <section aria-label="Dobierz obrączki" className="wrap" style={{ paddingTop: 24, paddingBottom: 104 }}>
-        <BandConfigurator />
-      </section>
+      {BAND_CONFIGURATOR_ENABLED ? (
+        <section aria-label="Dobierz obrączki" className="wrap" style={{ paddingTop: 24, paddingBottom: 104 }}>
+          <BandConfigurator />
+        </section>
+      ) : (
+        <section aria-labelledby="rodzaje-obraczek" className="wrap" style={{ paddingTop: 24, paddingBottom: 104 }}>
+          <BandTypes gallery={gallery} />
+        </section>
+      )}
 
       <section className="dark">
         <div className="wrap sec cols-auto cols-300" style={{ gap: '48px 72px' }}>

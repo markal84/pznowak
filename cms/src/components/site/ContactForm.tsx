@@ -1,15 +1,26 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { PREVIEW_NOTICE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
-import { BUDGETS, CONSENT_TEXT, CONTACT_TOPICS as TOPICS, LIMITS, type ContactTopicId as TopicId } from '@/lib/submissions/options'
+import { useRef, useState, type ReactNode } from 'react'
+import { PREVIEW_NOTICE, SITE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
+import {
+  BUDGETS,
+  CONSENT_TEXT,
+  CONTACT_TOPICS as TOPICS,
+  LIMITS,
+  RING_DETAIL_TOPICS,
+  RING_SIZES,
+  RING_SIZE_KNOWN,
+  ringSizeLabel,
+  type ContactTopicId as TopicId,
+  type RingSizeKnownId,
+} from '@/lib/submissions/options'
 import { validateContact } from '@/lib/submissions/validation'
 import { FieldError, FormNotice, Honeypot, invalidProps } from './FormParts'
 import Turnstile from './Turnstile'
 import { useSubmission } from './useSubmission'
 
 const MESSAGES: Record<TopicId, [string, string]> = {
-  nowy: ['Opowiedz o pomyśle', 'Dla kogo jest pierścionek? Co ta osoba lubi nosić? Masz zdjęcia inspiracji? Dołączysz je przy rozmowie.'],
+  nowy: ['Co Ci się podoba?', 'Opisz pierścionek lub obrączki: kamień, kolor złota, styl, dla kogo. Zdjęcie z internetu? Wklej link.'],
   kolekcja: ['Co chcesz zmienić w projekcie?', 'np. inny kamień, białe złoto, rozmiar do sprawdzenia'],
   obraczki: ['Coś jeszcze o obrączkach?', 'np. chcemy różne szerokości, grawer z datą, złoto po dziadkach'],
   naprawa: ['Co trzeba zrobić?', 'np. zmniejszyć pierścionek po babci i sprawdzić oprawę kamienia'],
@@ -29,16 +40,22 @@ export default function ContactForm({
   initialTopic,
   project,
   choice,
+  attachments,
 }: {
   initialTopic?: string
   project?: string
   choice?: string
+  // ZLECENIE-B: punkt integracji załączników (zdjęcia, szkice). Komponent trafia pod pole wiadomości; formularz sam
+  // nie obsługuje plików. Identyfikatory przesłanych plików dopisz do `data` w onSubmit i do walidacji kontaktu.
+  attachments?: ReactNode
 }) {
   const [topic, setTopic] = useState<TopicId>(isTopic(initialTopic) ? initialTopic : project ? 'kolekcja' : 'nowy')
+  const [sizeKnown, setSizeKnown] = useState<RingSizeKnownId>('unknown')
   const honeypot = useRef<HTMLInputElement>(null)
   const { sending, sent, notice, setNotice, fieldErrors, setFieldErrors, showErrors, submit, reset, turnstileProps } =
     useSubmission('kontakt', SUBMISSIONS_ENABLED)
   const [label, hint] = MESSAGES[topic]
+  const ringDetails = RING_DETAIL_TOPICS.includes(topic)
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -55,7 +72,11 @@ export default function ContactForm({
       project: text(form, 'projekt'),
       weddingDate: text(form, 'slub'),
       bandChoice: text(form, 'wybor'),
+      engraving: text(form, 'grawer'),
+      ringSizeKnown: sizeKnown,
+      ringSize: text(form, 'rozmiar'),
       message: text(form, 'wiadomosc'),
+      // ZLECENIE-B: tu dopisz identyfikatory załączników.
       name: text(form, 'imie'),
       phone: text(form, 'telefon'),
       email: text(form, 'email'),
@@ -157,7 +178,7 @@ export default function ContactForm({
           </div>
           <div className="field">
             <label htmlFor="k-wybor">Wstępny wybór <span className="opt-note">(opcjonalnie)</span></label>
-            <input className="fld" data-field="bandChoice" defaultValue={choice ?? ''} id="k-wybor" maxLength={LIMITS.bandChoice} name="wybor" placeholder="np. komfort, 5 mm, matowe, żółte złoto" type="text" {...err('bandChoice', 'k-wybor-err')} />
+            <input className="fld" data-field="bandChoice" defaultValue={choice ?? ''} id="k-wybor" maxLength={LIMITS.bandChoice} name="wybor" placeholder="np. półokrągłe, 5 mm, żółte złoto" type="text" {...err('bandChoice', 'k-wybor-err')} />
             <FieldError id="k-wybor-err" message={fieldErrors.bandChoice} />
           </div>
         </div>
@@ -173,8 +194,53 @@ export default function ContactForm({
       <div className="field">
         <label htmlFor="k-wiad">{label}</label>
         <textarea className="fld" data-field="message" id="k-wiad" maxLength={LIMITS.message} name="wiadomosc" placeholder={hint} rows={6} style={{ resize: 'vertical', lineHeight: 1.55 }} {...err('message', 'k-wiad-err')} />
+        {topic === 'nowy' && !attachments ? (
+          <span className="field-hint">
+            Własne zdjęcie albo szkic wyślij na <a href={`mailto:${SITE.email}`}>{SITE.email}</a> i podpisz imieniem
+            z formularza.
+          </span>
+        ) : null}
         <FieldError id="k-wiad-err" message={fieldErrors.message} />
       </div>
+
+      {/* ZLECENIE-B: miejsce na komponent załączników (prop `attachments`). */}
+      {attachments}
+
+      {ringDetails ? (
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor="k-grawer">Grawer <span className="opt-note">(opcjonalnie)</span></label>
+            <input className="fld" data-field="engraving" id="k-grawer" maxLength={LIMITS.engraving} name="grawer" placeholder="np. A & M 14.06.2027" type="text" {...err('engraving', 'k-grawer-err')} />
+            <span className="field-hint">Do {LIMITS.engraving} znaków, po wewnętrznej stronie.</span>
+            <FieldError id="k-grawer-err" message={fieldErrors.engraving} />
+          </div>
+          <fieldset className="field">
+            <legend className="lbl">Rozmiar</legend>
+            <div className="choice-row">
+              {RING_SIZE_KNOWN.map((o) => (
+                <label className="check" key={o.id}>
+                  <input checked={sizeKnown === o.id} data-field="ringSizeKnown" name="rozmiar_znany" onChange={() => setSizeKnown(o.id)} type="radio" value={o.id} />
+                  <span>{o.label}</span>
+                </label>
+              ))}
+            </div>
+            {sizeKnown === 'known' ? (
+              <>
+                <select aria-label="Rozmiar w polskiej skali" className="fld" data-field="ringSize" defaultValue="" id="k-rozmiar" name="rozmiar" {...err('ringSize', 'k-rozmiar-err')}>
+                  <option value="">Wybierz rozmiar</option>
+                  {RING_SIZES.map((size) => (
+                    <option key={size} value={size}>{ringSizeLabel(size)}</option>
+                  ))}
+                </select>
+                <FieldError id="k-rozmiar-err" message={fieldErrors.ringSize} />
+              </>
+            ) : (
+              <span className="field-hint">Nic nie szkodzi. Zmierzymy palec w pracowni, a przy niespodziance podpowiemy, jak sprawdzić rozmiar po cichu.</span>
+            )}
+            <FieldError id="k-rozmiar-znany-err" message={fieldErrors.ringSizeKnown} />
+          </fieldset>
+        </div>
+      ) : null}
 
       <div className="form-grid">
         <div className="field">

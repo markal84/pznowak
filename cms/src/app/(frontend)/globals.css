@@ -1061,6 +1061,26 @@ summary::-webkit-details-marker {
   accent-color: var(--velvet);
   flex: 0 0 auto;
 }
+fieldset.field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+fieldset.field legend {
+  padding: 0 0 8px;
+}
+.field .check {
+  font-size: 15px;
+  font-weight: 400;
+}
+.choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  min-height: 50px;
+  align-items: center;
+}
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1775,9 +1795,10 @@ fieldset.plain legend {
     padding: 0 18px;
   }
 }
+/* Podpis przy logo nie mieści się obok dwóch przycisków (z kreatorem); z jednym przyciskiem zostaje. */
 @media (min-width: 1140px) and (max-width: 1319px) {
-  .brand-rule,
-  .brand-text {
+  .has-creator .brand-rule,
+  .has-creator .brand-text {
     display: none;
   }
 }

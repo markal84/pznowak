@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { RING_CREATOR_ENABLED } from '../../src/lib/site'
 
 /**
  * Ścieżka człowieka przez kreator i formularz kontaktowy z prawdziwą wysyłką do /api/zgloszenia.
@@ -50,6 +51,7 @@ const submissionResponse = (page: Page) =>
 
 test.describe('Wysyłka zgłoszeń z Turnstile', () => {
   test('kreator: człowiek przechodzi kroki i wysyła projekt do pracowni', async ({ page }) => {
+    test.skip(!RING_CREATOR_ENABLED, 'kreator ukryty (RING_CREATOR_ENABLED = false)')
     await visit(page, '/kreator')
     const writes = captureWrites(page)
 
@@ -119,6 +121,45 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
       honeypot: '',
       data: { topic: 'naprawa', name: E2E_NAME },
     })
+    await expect(page.getByRole('heading', { name: 'Wiadomość wysłana' })).toBeVisible()
+    expect(writes).toEqual(['POST /api/zgloszenia'])
+  })
+
+  test('kontakt: zamówienie z opisem, grawerem i rozmiarem trafia do pracowni', async ({
+    page,
+  }) => {
+    await visit(page, '/kontakt?temat=nowy')
+    const writes = captureWrites(page)
+    await expectTurnstileFrame(page)
+    await page.getByLabel('Okazja').fill('zaręczyny')
+    await page
+      .getByLabel('Co Ci się podoba?')
+      .fill('Zgłoszenie testowe Playwright, proszę zignorować. Jak na https://pinterest.com/pin/1')
+    await page.getByLabel(/Grawer/).fill('Na zawsze ♥')
+    await page.getByRole('radio', { name: 'Znam rozmiar' }).check()
+    await page.getByLabel('Rozmiar w polskiej skali').selectOption('14')
+    await page.getByLabel('Imię').fill(E2E_NAME)
+    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByLabel(/Zgadzam się na kontakt w sprawie mojej wiadomości/).check()
+
+    const response = submissionResponse(page)
+    await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
+    const sent = await response
+    expect(sent.status()).toBe(201)
+    expect(sent.request().postDataJSON()).toMatchObject({
+      form: 'kontakt',
+      honeypot: '',
+      data: {
+        topic: 'nowy',
+        occasionText: 'zaręczyny',
+        engraving: 'Na zawsze ♥',
+        ringSizeKnown: 'known',
+        ringSize: '14',
+        name: E2E_NAME,
+        consent: true,
+      },
+    })
+    expect(await sent.json()).toMatchObject({ ok: true, code: 'accepted' })
     await expect(page.getByRole('heading', { name: 'Wiadomość wysłana' })).toBeVisible()
     expect(writes).toEqual(['POST /api/zgloszenia'])
   })

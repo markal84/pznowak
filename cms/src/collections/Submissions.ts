@@ -2,7 +2,7 @@ import { APIError, type CollectionConfig } from 'payload'
 
 import { isAdmin, isAdminOrEditor } from '../access/permissions'
 import { visualizationSettingsFromEnv } from '../lib/submissions/config'
-import { CONTACT_TOPICS } from '../lib/submissions/options'
+import { CONTACT_TOPICS, RING_SIZE_KNOWN, type RingSizeKnownId } from '../lib/submissions/options'
 import { guardVisualizationTransition } from '../lib/submissions/queue'
 import {
   NOTIFICATION_STATUSES,
@@ -15,6 +15,12 @@ import {
 } from '../lib/submissions/statuses'
 
 const readOnly = { readOnly: true }
+// Grawer i rozmiar z formularza kontaktowego (temat „na zamówienie” albo „z kolekcji”); kreator ma je w karcie projektu.
+const contactOnly = (data: Partial<{ kind: SubmissionKind }>) => data?.kind === 'contact'
+const RING_SIZE_KNOWN_LABELS: Record<RingSizeKnownId, string> = {
+  known: 'Zna rozmiar',
+  unknown: 'Nie zna – zmierzymy w pracowni',
+}
 
 export const Submissions: CollectionConfig = {
   slug: 'submissions',
@@ -108,6 +114,38 @@ export const Submissions: CollectionConfig = {
       type: 'textarea',
       label: 'Wiadomość od klienta',
       admin: readOnly,
+    },
+    {
+      type: 'row',
+      admin: { condition: contactOnly },
+      fields: [
+        {
+          name: 'engraving',
+          type: 'text',
+          label: 'Grawer',
+          admin: { ...readOnly, width: '33%' },
+        },
+        {
+          name: 'ringSizeKnown',
+          type: 'select',
+          label: 'Rozmiar',
+          options: RING_SIZE_KNOWN.map((o) => ({
+            label: RING_SIZE_KNOWN_LABELS[o.id],
+            value: o.id,
+          })),
+          admin: { ...readOnly, width: '33%' },
+        },
+        {
+          name: 'ringSize',
+          type: 'text',
+          label: 'Rozmiar (polska skala)',
+          admin: {
+            ...readOnly,
+            width: '33%',
+            description: 'Obwód wewnętrzny w mm minus 40, np. 14 = 54 mm.',
+          },
+        },
+      ],
     },
     {
       name: 'details',

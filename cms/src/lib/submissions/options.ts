@@ -79,7 +79,11 @@ export const GEM_IDS = Object.keys(GEMS) as GemId[]
 export const CUT_IDS = Object.keys(CUTS) as CutId[]
 
 export const CONTACT_TOPICS = [
-  { id: 'nowy', label: 'Nowy pierścionek', hint: 'Projekt od podstaw' },
+  {
+    id: 'nowy',
+    label: 'Pierścionek lub obrączki na zamówienie',
+    hint: 'Według zdjęcia, szkicu lub opisu',
+  },
   { id: 'kolekcja', label: 'Projekt z kolekcji', hint: 'W Twoim rozmiarze lub z innym kamieniem' },
   { id: 'obraczki', label: 'Obrączki ślubne', hint: 'Przymiarka dla Was dwojga' },
   { id: 'naprawa', label: 'Naprawa lub przeróbka', hint: 'Rozmiar, oprawa, rodzinne złoto' },
@@ -87,6 +91,24 @@ export const CONTACT_TOPICS = [
 ] as const
 
 export type ContactTopicId = (typeof CONTACT_TOPICS)[number]['id']
+
+/** Tematy, przy których formularz pyta o grawer i rozmiar (pierścionek lub obrączki do wykonania). */
+export const RING_DETAIL_TOPICS: readonly ContactTopicId[] = ['nowy', 'kolekcja']
+
+export const RING_SIZE_KNOWN = [
+  { id: 'known', label: 'Znam rozmiar' },
+  { id: 'unknown', label: 'Nie znam' },
+] as const
+
+export type RingSizeKnownId = (typeof RING_SIZE_KNOWN)[number]['id']
+
+/**
+ * Rozmiary w polskiej skali: rozmiar = obwód wewnętrzny w milimetrach minus 40 (np. 14 = 54 mm).
+ * Zakres 5–35 obejmuje rozmiary dziecięce i duże męskie; serwer przyjmuje tylko wartości z tej listy.
+ */
+export const RING_SIZES = Array.from({ length: 31 }, (_, i) => String(5 + i))
+
+export const ringSizeLabel = (size: string) => `${size} (obwód ${Number(size) + 40} mm)`
 
 export const BUDGETS = [
   'Jeszcze nie wiem',
