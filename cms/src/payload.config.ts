@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { seoPlugin } from '@payloadcms/plugin-seo'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -14,6 +15,9 @@ import { GalleryItems } from './collections/GalleryItems'
 import { Submissions } from './collections/Submissions'
 import { SiteContent } from './globals/SiteContent'
 import { resolveCmsEnvironment } from './lib/environment'
+import { productPath, productSeoDescription, productSeoTitle } from './lib/product-seo'
+import { firstProductImageId } from './lib/product-seo-admin'
+import { absoluteUrl } from './lib/seo'
 
 import { isStagingEnvironment, STAGING_MEDIA_PREFIX } from './lib/staging-media'
 
@@ -52,6 +56,17 @@ export default buildConfig({
   }),
   sharp,
   plugins: [
+    // Pola SEO pierścionków (tytuł, opis, obraz do udostępnień). Przyciski „Wygeneruj” w panelu i strona pierścionka
+    // używają tych samych funkcji (src/lib/product-seo.ts), więc puste pola nigdy nie dają pustego tytułu.
+    seoPlugin({
+      collections: ['products'],
+      uploadsCollection: 'media',
+      tabbedUI: true,
+      generateTitle: ({ doc }) => productSeoTitle(doc),
+      generateDescription: ({ doc }) => productSeoDescription(doc),
+      generateImage: ({ doc, req }) => firstProductImageId(doc, req),
+      generateURL: ({ doc }) => absoluteUrl(productPath(doc.slug ?? '')),
+    }),
     vercelBlobStorage({
       access: 'public',
       addRandomSuffix: true,

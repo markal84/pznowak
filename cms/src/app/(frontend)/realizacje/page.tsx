@@ -1,11 +1,16 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { getGallery } from '@/lib/collection'
 import Photo from '@/components/site/Photo'
 import WorksBrowser, { type Work } from '@/components/site/WorksBrowser'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = { title: 'Realizacje, przed i po, opinie' }
+export const metadata: Metadata = pageMetadata({
+  title: 'Realizacje pracowni – przed i po',
+  description: 'Pierścionki, obrączki i naprawy wykonane w naszej pracowni w Busku-Zdroju.',
+  path: '/realizacje',
+})
 
 export default async function WorksPage() {
   const gallery = await getGallery()

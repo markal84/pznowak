@@ -170,6 +170,14 @@ export interface Product {
       | boolean
       | null;
   };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   /**
    * Archiwizacja automatycznie wycofuje produkt z publikacji.
    */
@@ -443,6 +451,13 @@ export interface ProductsSelect<T extends boolean = true> {
     | {
         wordpressId?: T;
         sourcePayload?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
       };
   archived?: T;
   sortOrder?: T;

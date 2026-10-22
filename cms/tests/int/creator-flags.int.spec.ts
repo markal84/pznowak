@@ -74,11 +74,11 @@ describe('przełączniki wyłączone (stan po 21.10.2026)', () => {
     expect(bands).toContain('od podstaw ręcznie, w każdej szerokości')
   })
 
-  it('/kreator odpowiada 404 i nie ma własnych metadanych', () => {
+  it('/kreator odpowiada 404 i ma tylko noindex (Zlecenie D), bez własnego tytułu i opisu', () => {
     expect(() => creatorPage.default()).toThrowError(
       expect.objectContaining({ digest: 'NEXT_HTTP_ERROR_FALLBACK;404' }),
     )
-    expect(creatorPage.generateMetadata()).toEqual({})
+    expect(creatorPage.generateMetadata()).toEqual({ robots: { index: false, follow: false } })
   })
 })
 

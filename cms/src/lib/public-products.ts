@@ -18,6 +18,17 @@ export type PublicProduct = {
   clarity: string
 }
 
+/** Pola SEO pierścionka (wtyczka SEO w Payload). Tylko dla stron serwisu; publiczny kontrakt API (`PublicProduct`) bez zmian. */
+export type ProductSeoFields = {
+  seoTitle: string
+  seoDescription: string
+  seoImage: string
+  /** Data ostatniej zmiany (ISO); trafia do `lastModified` w sitemap.xml. */
+  updatedAt: string
+}
+
+export type SiteProduct = PublicProduct & ProductSeoFields
+
 export type PublicGalleryItem = {
   id: number
   name: string
@@ -98,6 +109,16 @@ export function serializePublicProduct(product: Product): PublicProduct {
     stone: product.stone ?? '',
     carats: product.carats ?? '',
     clarity: product.clarity ?? '',
+  }
+}
+
+export function serializeSiteProduct(product: Product): SiteProduct {
+  return {
+    ...serializePublicProduct(product),
+    seoTitle: product.meta?.title?.trim() ?? '',
+    seoDescription: product.meta?.description?.trim() ?? '',
+    seoImage: populatedMedia(product.meta?.image ?? 0)?.url ?? '',
+    updatedAt: product.updatedAt,
   }
 }
 

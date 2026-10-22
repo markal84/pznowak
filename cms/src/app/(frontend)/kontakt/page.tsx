@@ -1,8 +1,15 @@
 import type { Metadata } from 'next'
 import ContactForm from '@/components/site/ContactForm'
+import JsonLd from '@/components/site/JsonLd'
+import { pageMetadata } from '@/lib/seo'
 import { SITE } from '@/lib/site'
+import { jewelryStoreJsonLd } from '@/lib/structured-data'
 
-export const metadata: Metadata = { title: 'Umów wizytę' }
+export const metadata: Metadata = pageMetadata({
+  title: 'Kontakt i dojazd – Kilińskiego 12, Busko-Zdrój',
+  description: 'Umów wizytę w pracowni. Tel. 501 321 347. Pon.–pt. 8–16, sob. 10–16.',
+  path: '/kontakt',
+})
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>
 
@@ -16,6 +23,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Sear
 
   return (
     <>
+      <JsonLd data={jewelryStoreJsonLd()} />
       <section className="wrap stack" style={{ paddingTop: 64, paddingBottom: 40, gap: 22 }}>
         <h1 className="h1">Umów wizytę</h1>
         <p className="lead" style={{ maxWidth: '36em' }}>

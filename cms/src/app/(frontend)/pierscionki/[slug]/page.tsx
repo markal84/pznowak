@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducts } from '@/lib/collection'
 import { formatMetal, formatStone, similarTo, toCatalogRing } from '@/lib/catalog'
+import { productPath, productSeoDescription, productSeoTitle } from '@/lib/product-seo'
+import { pageMetadata } from '@/lib/seo'
 import { SITE } from '@/lib/site'
 import ProductMedia from '@/components/site/ProductMedia'
 import RingCard from '@/components/site/RingCard'
@@ -14,12 +16,17 @@ type Params = { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params
   const product = (await getProducts()).find((p) => p.slug === slug)
-  if (!product) return { title: 'Nie znaleziono projektu' }
-  const stone = formatStone(product.stone)
-  return {
-    title: `${product.name}${stone ? ' — ' + stone.toLowerCase() : ''}`,
-    description: product.lead || `Pierścionek ${product.name} z pracowni Michała Nowaka w Busku-Zdroju.`,
-  }
+  if (!product) return { title: 'Nie znaleziono projektu', robots: { index: false, follow: false } }
+  // Pola z wtyczki SEO, a gdy puste: ten sam tekst, który generuje panel (src/lib/product-seo.ts). Tytuł nigdy nie jest pusty.
+  const title = product.seoTitle || productSeoTitle(product)
+  const description = product.seoDescription || productSeoDescription(product)
+  const image = product.seoImage || product.images[0] || product.imagePath
+  return pageMetadata({
+    title,
+    description,
+    path: productPath(product.slug),
+    image: image ? { url: image, alt: `Pierścionek ${product.name}` } : undefined,
+  })
 }
 
 export default async function ProductPage({ params }: Params) {

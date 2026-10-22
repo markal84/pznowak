@@ -10,7 +10,7 @@ import {
   stoneGroup,
   type CatalogRing,
 } from '../../src/lib/catalog'
-import type { Jewel } from '../../src/lib/collection'
+import type { PublicProduct as Jewel } from '../../src/lib/public-products'
 
 const jewel = (name: string, stone: string, metal = 'Żółty'): Jewel => ({
   id: name.length,

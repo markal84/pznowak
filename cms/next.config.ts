@@ -2,6 +2,8 @@ import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { isIndexable } from './src/lib/indexing'
+import { legacyRedirectRules } from './src/lib/legacy-redirects'
 
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
@@ -35,18 +37,19 @@ const nextConfig: NextConfig = {
       { pathname: '/grafiki/**' },
     ],
   },
-  // Adresy ze starego frontu przekierowują na nowy układ strony.
+  // Wbudowane przekierowanie skośnika (`/x/` → `/x`) działałoby przed poniższymi i robiło łańcuch dla starych
+  // adresów ze skośnikiem (`/katalog/aria/`). Wyłączone; zastępuje je ostatnia reguła w `redirects()`.
+  skipTrailingSlashRedirect: true,
+  // Adresy ze starej strony (src/lib/legacy-redirects.ts, tabela docs/seo/przekierowania.md): jeden skok, 308.
   async redirects() {
     return [
-      { source: '/katalog', destination: '/pierscionki', permanent: true },
-      { source: '/katalog/:slug', destination: '/pierscionki/:slug', permanent: true },
-      { source: '/galeria', destination: '/realizacje', permanent: true },
-      { source: '/o-nas', destination: '/pracownia', permanent: true },
+      ...legacyRedirectRules(),
+      { source: '/:path+/', destination: '/:path+', permanent: true },
     ]
   },
-  // Wersje podglądowe nie mogą być indeksowane (produkcja Vercela jest jedyną indeksowaną).
+  // Wersje podglądowe nie mogą być indeksowane (SITE_ENV=production albo VERCEL_ENV=production włącza indeksowanie).
   async headers() {
-    if (process.env.VERCEL_ENV === 'production') return []
+    if (isIndexable()) return []
     return [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }]
   },
   webpack: (webpackConfig) => {

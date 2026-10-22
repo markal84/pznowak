@@ -26,6 +26,7 @@
     "test:e2e:cross": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts --project=webkit --project=firefox --project=iphone",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "test:int:staging": "cross-env NODE_OPTIONS=--no-deprecation node --env-file=../backend/.env.staging.local ./node_modules/vitest/vitest.mjs run --config ./vitest.config.mts --testTimeout=60000 tests/int/submissions-staging.int.spec.ts tests/int/attachments-staging.int.spec.ts",
+    "seo:redirects-doc": "node --import=tsx/esm scripts/seo-redirects-doc.ts",
     "staging:mirror": "node --import=tsx/esm scripts/staging-mirror.ts",
     "staging:cleanup-tests": "node --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-cleanup-submissions.ts"
   },
@@ -33,6 +34,7 @@
     "@heroicons/react": "^2.2.0",
     "@payloadcms/db-postgres": "3.90.1",
     "@payloadcms/next": "3.90.1",
+    "@payloadcms/plugin-seo": "3.90.1",
     "@payloadcms/richtext-lexical": "3.90.1",
     "@payloadcms/storage-vercel-blob": "^3.90.1",
     "@payloadcms/ui": "3.90.1",

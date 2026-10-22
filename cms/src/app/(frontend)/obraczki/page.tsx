@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import Image from 'next/image'
 import BandConfigurator from '@/components/site/BandConfigurator'
 import BandTypes from '@/components/site/BandTypes'
@@ -7,7 +8,11 @@ import { getGallery } from '@/lib/collection'
 import { BAND_CONFIGURATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = { title: 'Obrączki ślubne' }
+export const metadata: Metadata = pageMetadata({
+  title: 'Obrączki ślubne – Busko-Zdrój',
+  description: 'Obrączki płaskie, półokrągłe i klasyczne z żółtego, białego i różowego złota. Przymiarka i grawer w pracowni.',
+  path: '/obraczki',
+})
 
 const FAQ = [
   { q: 'Kiedy przyjść na przymiarkę?', a: 'Najlepiej razem i z zapasem przed ślubem. Wykonanie trwa zwykle [TERMIN]. Palce zmieniają się w ciągu dnia, dlatego mierzymy kilkoma obręczami.' },
