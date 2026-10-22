@@ -1,12 +1,20 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import RingCreator from '@/components/site/RingCreator'
+import { RING_CREATOR_ENABLED } from '@/lib/site'
 
-export const metadata: Metadata = {
-  title: 'Zaprojektuj pierścionek',
-  description: 'Sześć kroków i kilka minut: wybierz kamień, szlif, oprawę i złoto, a my przygotujemy szkic do rozmowy.',
+// Wyłączony kreator nie ma strony (404), a nie przekierowania: 308 zapamiętują przeglądarki, więc po ponownym
+// włączeniu kreatora część osób dalej trafiałaby na formularz kontaktowy.
+export function generateMetadata(): Metadata {
+  if (!RING_CREATOR_ENABLED) return {}
+  return {
+    title: 'Zaprojektuj pierścionek',
+    description: 'Sześć kroków i kilka minut: wybierz kamień, szlif, oprawę i złoto, a my przygotujemy szkic do rozmowy.',
+  }
 }
 
 export default function CreatorPage() {
+  if (!RING_CREATOR_ENABLED) notFound()
   return (
     <>
       <section className="wrap" style={{ paddingTop: 48, paddingBottom: 28, display: 'flex', flexWrap: 'wrap', gap: '16px 72px', alignItems: 'flex-end', justifyContent: 'space-between' }}>

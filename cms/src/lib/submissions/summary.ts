@@ -12,10 +12,12 @@ import {
   CONTACT_TOPICS,
   METALS,
   OCCASIONS,
+  RING_DETAIL_TOPICS,
   SETTINGS,
   WIDTHS,
   labelOf,
   type ContactTopicId,
+  type RingSizeKnownId,
 } from './options'
 
 export type CreatorChoices = {
@@ -52,6 +54,9 @@ export type ContactDetails = {
   project: string
   weddingDate: string
   bandChoice: string
+  engraving: string
+  ringSizeKnown: RingSizeKnownId | ''
+  ringSize: string
 }
 
 export function describeContact(d: ContactDetails): [string, string][] {
@@ -64,7 +69,21 @@ export function describeContact(d: ContactDetails): [string, string][] {
     ['Data ślubu', d.weddingDate],
     ['Wstępny wybór', d.bandChoice],
   ]
-  return rows.concat(optional.filter(([, value]) => value))
+  const ring: [string, string][] = RING_DETAIL_TOPICS.includes(d.topic)
+    ? [
+        ['Grawer', d.engraving ? `„${d.engraving}”` : 'bez graweru'],
+        [
+          'Rozmiar',
+          d.ringSizeKnown === 'known'
+            ? `${d.ringSize} (polska skala)`
+            : 'nie zna, zmierzymy w pracowni',
+        ],
+      ]
+    : []
+  return rows.concat(
+    optional.filter(([, value]) => value),
+    ring,
+  )
 }
 
 export const rowsToText = (rows: [string, string][]) =>

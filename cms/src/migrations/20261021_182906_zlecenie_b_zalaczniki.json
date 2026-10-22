@@ -1592,6 +1592,25 @@
           "primaryKey": false,
           "notNull": false
         },
+        "engraving": {
+          "name": "engraving",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ring_size_known": {
+          "name": "ring_size_known",
+          "type": "enum_cms_submissions_ring_size_known",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ring_size": {
+          "name": "ring_size",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "details": {
           "name": "details",
           "type": "jsonb",
@@ -3173,6 +3192,14 @@
       "values": [
         "draft",
         "published"
+      ]
+    },
+    "public.enum_cms_submissions_ring_size_known": {
+      "name": "enum_cms_submissions_ring_size_known",
+      "schema": "public",
+      "values": [
+        "known",
+        "unknown"
       ]
     },
     "public.enum_cms_submissions_kind": {

@@ -237,6 +237,12 @@ export interface Submission {
   email?: string | null;
   summary?: string | null;
   message?: string | null;
+  engraving?: string | null;
+  ringSizeKnown?: ('known' | 'unknown') | null;
+  /**
+   * Obwód wewnętrzny w mm minus 40, np. 14 = 54 mm.
+   */
+  ringSize?: string | null;
   /**
    * Sprawdzone przez serwer wartości z kreatora lub formularza.
    */
@@ -492,6 +498,9 @@ export interface SubmissionsSelect<T extends boolean = true> {
   email?: T;
   summary?: T;
   message?: T;
+  engraving?: T;
+  ringSizeKnown?: T;
+  ringSize?: T;
   details?: T;
   consentText?: T;
   consentAt?: T;

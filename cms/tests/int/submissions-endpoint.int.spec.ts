@@ -8,9 +8,12 @@ import {
   type SubmissionDeps,
 } from '@/lib/submissions/handler'
 import type { LimitBucket } from '@/lib/submissions/limits'
+import { RING_CREATOR_ENABLED } from '@/lib/site'
+import { submissionSettingsFromEnv } from '@/lib/submissions/config'
 import { CONSENT_TEXT } from '@/lib/submissions/options'
 import type { SubmissionDraft } from '@/lib/submissions/store'
 import { siteverifyReachable, verifyTurnstile } from '@/lib/submissions/turnstile'
+import { MESSAGES } from '@/lib/submissions/validation'
 import {
   APP_SECRET,
   DUMMY_TOKEN,
@@ -143,6 +146,37 @@ describe('token otwarcia formularza (GET)', () => {
   })
 })
 
+describe('ukryty kreator (RING_CREATOR_ENABLED = false)', () => {
+  const hidden = testSettings({ creatorEnabled: false })
+
+  it('nie wydaje tokenu formularza kreatora (404); kontakt działa', () => {
+    const get = (form: string) =>
+      handleFormTokenRequest(new Request(`http://localhost/api/zgloszenia?form=${form}`), {
+        settings: hidden,
+        now: () => NOW,
+      })
+    expect(get('kreator').status).toBe(404)
+    expect(get('kontakt').status).toBe(200)
+  })
+
+  it('odrzuca zgłoszenie z kreatora (404) przed Turnstile, limitami i zapisem; kontakt przechodzi', async () => {
+    const t = setup({ settings: hidden })
+    const result = await send(t.deps, creatorBody())
+    expect(result.status).toBe(404)
+    expect(result.body).toMatchObject({ ok: false, code: 'disabled' })
+    expect(t.turnstile).not.toHaveBeenCalled()
+    expect(t.limits.consume).not.toHaveBeenCalled()
+    expect(t.inserted).toHaveLength(0)
+
+    expect((await send(t.deps, contactBody())).status).toBe(201)
+    expect(t.inserted).toHaveLength(1)
+  })
+
+  it('ustawienia ze środowiska idą za przełącznikiem w site.ts', () => {
+    expect(submissionSettingsFromEnv({}).creatorEnabled).toBe(RING_CREATOR_ENABLED)
+  })
+})
+
 describe('POST /api/zgloszenia: odrzucenia', () => {
   it('bez sekretu Turnstile wysyłka jest wyłączona (503), nic się nie zapisuje', async () => {
     const t = setup({ settings: testSettings({ turnstileSecret: undefined }) })
@@ -243,6 +277,30 @@ describe('POST /api/zgloszenia: odrzucenia', () => {
     expect((await send(t.deps, creatorBody({ formToken: undefined }))).body.code).toBe('rejected')
     expect(t.inserted).toHaveLength(0)
     expect(t.turnstile).not.toHaveBeenCalled()
+  })
+
+  it('grawer z linkiem albo rozmiar spoza listy: 400 przy polach, bez Turnstile, limitów i zapisu', async () => {
+    const t = setup()
+    const result = await send(
+      t.deps,
+      contactBody({
+        data: validContactData({
+          topic: 'nowy',
+          engraving: 'www.sklep.pl',
+          ringSizeKnown: 'known',
+          ringSize: '99',
+        }),
+      }),
+    )
+    expect(result.status).toBe(400)
+    expect(result.body.code).toBe('invalid')
+    expect(result.body.fields).toEqual({
+      engraving: MESSAGES.link,
+      ringSize: MESSAGES.ringSize,
+    })
+    expect(t.turnstile).not.toHaveBeenCalled()
+    expect(t.limits.consume).not.toHaveBeenCalled()
+    expect(t.inserted).toHaveLength(0)
   })
 
   it('złe wartości pól: 400 z błędami pól, bez zużycia tokenu Turnstile i limitów', async () => {
@@ -495,6 +553,16 @@ describe('POST /api/zgloszenia: przyjęcie', () => {
     expect(t.accepted[0].origin).toBe('http://preview.example.vercel.app')
   })
 
+  it('numer zagraniczny: 201, telefon zapisany z kierunkowym kraju', async () => {
+    const t = setup()
+    const result = await send(
+      t.deps,
+      contactBody({ data: validContactData({ phone: '0049 (151) 2345-6789' }) }),
+    )
+    expect(result.status).toBe(201)
+    expect(t.inserted[0]).toMatchObject({ kind: 'contact', phone: '+49 151 2345 6789' })
+  })
+
   it('kontakt: 201, szkic bez wizualizacji, pola innych tematów pominięte', async () => {
     const t = setup()
     const result = await send(
@@ -508,6 +576,80 @@ describe('POST /api/zgloszenia: przyjęcie', () => {
       visualizationStatus: 'not_applicable',
       email: 'ania@example.pl',
       consentText: CONSENT_TEXT.kontakt,
+    })
+    expect(t.inserted[0].summary).toBe('Temat: Naprawa lub przeróbka')
+  })
+
+  it('kontakt „na zamówienie”: grawer i rozmiar w osobnych kolumnach, w karcie i w danych', async () => {
+    const t = setup()
+    const result = await send(
+      t.deps,
+      contactBody({
+        data: validContactData({
+          topic: 'nowy',
+          occasionText: 'zaręczyny',
+          message: 'Jak na zdjęciu https://pinterest.com/pin/1, ale z szafirem.',
+          engraving: 'Na zawsze ♥',
+          ringSizeKnown: 'known',
+          ringSize: '14',
+        }),
+      }),
+    )
+    expect(result.status).toBe(201)
+    const draft = t.inserted[0]
+    expect(draft).toMatchObject({
+      kind: 'contact',
+      topic: 'nowy',
+      engraving: 'Na zawsze ♥',
+      ringSizeKnown: 'known',
+      ringSize: '14',
+      message: 'Jak na zdjęciu https://pinterest.com/pin/1, ale z szafirem.',
+    })
+    expect(draft.summary).toBe(
+      [
+        'Temat: Pierścionek lub obrączki na zamówienie',
+        'Okazja: zaręczyny',
+        'Budżet: Jeszcze nie wiem',
+        'Grawer: „Na zawsze ♥”',
+        'Rozmiar: 14 (polska skala)',
+      ].join('\n'),
+    )
+    expect(draft.details).toMatchObject({
+      engraving: 'Na zawsze ♥',
+      ringSizeKnown: 'known',
+      ringSize: '14',
+    })
+
+    // nie zna rozmiaru, bez graweru: puste kolumny zamiast pustych tekstów
+    await send(
+      t.deps,
+      contactBody({
+        data: validContactData({ topic: 'kolekcja', project: 'Phoebe', ringSizeKnown: 'unknown' }),
+      }),
+      { ip: '203.0.113.20' },
+    )
+    expect(t.inserted[1]).toMatchObject({
+      engraving: null,
+      ringSizeKnown: 'unknown',
+      ringSize: null,
+    })
+    expect(t.inserted[1].summary).toContain('Rozmiar: nie zna, zmierzymy w pracowni')
+    expect(t.inserted[1].summary).toContain('Grawer: bez graweru')
+  })
+
+  it('kontakt: temat bez graweru i rozmiaru nie zapisuje tych pól, nawet gdy przyszły', async () => {
+    const t = setup()
+    await send(
+      t.deps,
+      contactBody({
+        data: validContactData({ engraving: 'Anna', ringSizeKnown: 'known', ringSize: '14' }),
+      }),
+    )
+    expect(t.inserted[0]).toMatchObject({
+      topic: 'naprawa',
+      engraving: null,
+      ringSizeKnown: null,
+      ringSize: null,
     })
     expect(t.inserted[0].summary).toBe('Temat: Naprawa lub przeróbka')
   })
