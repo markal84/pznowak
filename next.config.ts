@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export', // Static build for home.pl (no Node)
+  ...(process.env.STATIC_EXPORT === '1' ? { output: 'export' as const } : {}),
   trailingSlash: true,
   images: {
     unoptimized: true,
