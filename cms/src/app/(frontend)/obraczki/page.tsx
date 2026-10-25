@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
-import Image from 'next/image'
+import Link from 'next/link'
 import BandConfigurator from '@/components/site/BandConfigurator'
 import BandTypes from '@/components/site/BandTypes'
 import Faq from '@/components/site/Faq'
+import Icon from '@/components/site/Icon'
+import PriceOffer from '@/components/site/PriceOffer'
+import SectionIntro from '@/components/site/SectionIntro'
 import { getGallery } from '@/lib/collection'
 import { BAND_CONFIGURATOR_ENABLED } from '@/lib/site'
 
@@ -26,14 +29,17 @@ export default async function BandsPage() {
   const gallery = BAND_CONFIGURATOR_ENABLED ? [] : await getGallery()
   return (
     <>
-      <section className="wrap" style={{ paddingTop: 64, paddingBottom: 40, display: 'flex', flexWrap: 'wrap', gap: '24px 72px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <h1 className="h1" style={{ flex: '1 1 460px' }}>Obrączki ślubne</h1>
-        <div className="stack" style={{ flex: '1 1 380px', maxWidth: '32em', gap: 14 }}>
-          <p className="lead">
-            Z naszych wzorów albo zaprojektowane dla Was dwojga. Mierzymy oboje, dobieramy szerokość i wykończenie, a w środku grawerujemy to, co ważne.
-          </p>
-          <p className="price" style={{ fontSize: 16 }}>Od [X] zł za parę</p>
-        </div>
+      <section className="wrap stack" style={{ paddingTop: 64, paddingBottom: 40, gap: 32 }}>
+        <SectionIntro
+          as="h1"
+          intro="Z naszych wzorów albo zaprojektowane dla Was dwojga. Mierzymy oboje, dobieramy szerokość i wykończenie, a w środku grawerujemy to, co ważne."
+          title="Obrączki ślubne"
+        />
+        <PriceOffer label="Para obrączek" note="Cena zależy od szerokości, wagi i próby złota." price="od [X] zł za parę">
+          <Link className="btn" href="/kontakt?temat=obraczki">
+            Umów przymiarkę
+          </Link>
+        </PriceOffer>
       </section>
 
       {BAND_CONFIGURATOR_ENABLED ? (
@@ -64,7 +70,7 @@ export default async function BandsPage() {
         <div className="cols-auto cols-300" style={{ gap: 24, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
           {['[Zdjęcie pary obrączek z pracowni]', '[Zdjęcie graweru w środku obrączki]', '[Zdjęcie obrączki obok pierścionka zaręczynowego]'].map((t) => (
             <div aria-label="Miejsce na zdjęcie obrączek" className="ph-empty" key={t} role="img" style={{ aspectRatio: '4 / 3' }}>
-              <Image alt="" height={40} src="/grafiki/ikony/obraczki.svg" width={40} />
+              <Icon name="obraczki" />
               {t}
             </div>
           ))}
@@ -76,6 +82,11 @@ export default async function BandsPage() {
           <h2 className="h2" style={{ flex: '1 1 320px' }}>Pytania o obrączki</h2>
           <div style={{ flex: '2 1 560px', minWidth: 0 }}>
             <Faq items={FAQ} />
+            <div className="row gap-14-28" style={{ marginTop: 40 }}>
+              <Link className="btn" href="/kontakt?temat=obraczki">
+                Umów przymiarkę
+              </Link>
+            </div>
           </div>
         </div>
       </section>

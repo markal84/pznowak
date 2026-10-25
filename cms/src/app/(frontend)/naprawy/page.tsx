@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
-import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
 import { SITE, FAMILY } from '@/lib/site'
+import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
+import SectionIntro from '@/components/site/SectionIntro'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = pageMetadata({
@@ -13,7 +14,7 @@ export const metadata: Metadata = pageMetadata({
   path: '/naprawy',
 })
 
-const SERVICES = [
+const SERVICES: { name: string; text: string; time: string; price: string; icon: IconName }[] = [
   { name: 'Zmiana rozmiaru pierścionka', text: 'Zmniejszenie lub powiększenie obrączki, z wyrównaniem i polerowaniem miejsca łączenia.', time: '[czas]', price: 'od [cena] zł', icon: 'rozmiar' },
   { name: 'Czyszczenie i polerowanie', text: 'Przywracamy połysk, usuwamy drobne rysy i doczyszczamy kamienie.', time: '[czas]', price: '[cena] zł', icon: 'czyszczenie' },
   { name: 'Przegląd oprawy', text: 'Sprawdzamy łapki i oprawę. Dociskamy kamień, zanim zdąży wypaść.', time: '[czas]', price: '[cena] zł', icon: 'lupa' },
@@ -68,16 +69,14 @@ export default async function RepairsPage() {
       </section>
 
       <section className="wrap stack" style={{ paddingTop: 24, paddingBottom: 104, gap: 40 }}>
-        <div className="row" style={{ gap: '20px 64px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          <h2 className="h2" style={{ flex: '1 1 420px' }}>Co robimy i ile to trwa</h2>
-          <p className="text" style={{ flex: '1 1 340px', maxWidth: '30em', fontSize: 16 }}>
-            Ceny są orientacyjne. Dokładną kwotę podajemy po obejrzeniu biżuterii, zanim zaczniemy pracę.
-          </p>
-        </div>
-        <ul style={{ listStyle: 'none', borderTop: '1px solid var(--graphite)' }}>
+        <SectionIntro
+          intro="Ceny są orientacyjne. Dokładną kwotę podajemy po obejrzeniu biżuterii, zanim zaczniemy pracę."
+          title="Co robimy i ile to trwa"
+        />
+        <ul data-reveal="" style={{ listStyle: 'none', borderTop: '1px solid var(--graphite)' }}>
           {SERVICES.map((s) => (
-            <li className="service" key={s.name}>
-              <Image alt="" height={32} src={`/grafiki/ikony/${s.icon}.svg`} width={32} />
+            <li className="service ic-host" key={s.name}>
+              <Icon name={s.icon} size={44} />
               <h3>{s.name}</h3>
               <p>{s.text}</p>
               <dl>

@@ -4,7 +4,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
 import Faq from '@/components/site/Faq'
+import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
+import PriceOffer from '@/components/site/PriceOffer'
+import SectionIntro from '@/components/site/SectionIntro'
 import { CUSTOM_ORDER_LINK, FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
@@ -40,15 +43,14 @@ export default async function OnOrderPage() {
             Zaczynamy od rozmowy o osobie, która będzie go nosić. Potem rysujemy, modelujemy w 3D i wyceniamy. Pracę
             przy stole zaczynamy dopiero wtedy, gdy projekt i cena są dla Ciebie jasne.
           </p>
-          <p className="price" style={{ fontSize: 16 }}>Pierścionki na zamówienie kosztują zwykle [X–Y] zł</p>
-          <div className="row gap-14-28">
+          <PriceOffer label="Pierścionek na zamówienie" note="Cena zależy od kamieni i złota." price="zwykle [X–Y] zł">
             <Link className="btn" href="/kontakt?temat=nowy">Umów rozmowę o projekcie</Link>
             {RING_CREATOR_ENABLED ? (
               <Link className="tl" href="/kreator">Zaprojektuj wstępnie online</Link>
             ) : (
               <Link className="tl" href={CUSTOM_ORDER_LINK.href}>{CUSTOM_ORDER_LINK.label}</Link>
             )}
-          </div>
+          </PriceOffer>
         </div>
         <figure className="stack" style={{ flex: '1 1 420px', minWidth: 0, gap: 12 }}>
           <Photo alt={michal.alt} position={michal.pos} priority sizes="(max-width: 960px) 100vw, 40vw" src={michal.img} />
@@ -58,15 +60,18 @@ export default async function OnOrderPage() {
 
       <section className="band">
         <div className="wrap sec-tight stack" style={{ gap: 40 }}>
-          <h2 className="h2" style={{ maxWidth: '16em' }}>Na początek wystarczy jedno z nich</h2>
-          <ul className="cols-auto cols-240" style={{ listStyle: 'none', gap: '32px 40px' }}>
-            {[
-              ['Zdjęcie, które Ci się podoba', 'Z internetu, z filmu, z ręki znajomej. Powiesz, co w nim lubisz, a co zmienić.'],
-              ['Rodzinna biżuteria', 'Złoto lub kamień po bliskiej osobie mogą stać się częścią nowego pierścionka.'],
-              ['Projekt z naszej kolekcji', `Weź jeden z ${count || 34} projektów i zmień kamień, kolor złota albo proporcje.`],
-              ['Tylko okazja i budżet', 'To też dobry start. Pokażemy kamienie i kilka kierunków do wyboru.'],
-            ].map(([t, p]) => (
-              <li className="item-rule" key={t} style={{ gap: 10, paddingTop: 18 }}>
+          <SectionIntro title="Na początek wystarczy jedno z nich" />
+          <ul className="cols-auto cols-240" data-reveal="" style={{ listStyle: 'none', gap: '32px 40px' }}>
+            {(
+              [
+                ['zdjecie', 'Zdjęcie, które Ci się podoba', 'Z internetu, z filmu, z ręki znajomej. Powiesz, co w nim lubisz, a co zmienić.'],
+                ['przetopienie', 'Rodzinna biżuteria', 'Złoto lub kamień po bliskiej osobie mogą stać się częścią nowego pierścionka.'],
+                ['pierscionek', 'Projekt z naszej kolekcji', `Weź jeden z ${count || 34} projektów i zmień kamień, kolor złota albo proporcje.`],
+                ['kalendarz', 'Tylko okazja i budżet', 'To też dobry start. Pokażemy kamienie i kilka kierunków do wyboru.'],
+              ] as [IconName, string, string][]
+            ).map(([icon, t, p]) => (
+              <li className="item-rule ic-host" key={t} style={{ gap: 10, paddingTop: 18 }}>
+                <Icon name={icon} size={40} />
                 <h3 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 24, lineHeight: 1.15 }}>{t}</h3>
                 <p style={{ fontSize: 15.5, lineHeight: 1.6 }}>{p}</p>
               </li>
@@ -76,13 +81,11 @@ export default async function OnOrderPage() {
       </section>
 
       <section className="wrap sec stack" id="proces" style={{ gap: 56 }}>
-        <div className="row" style={{ gap: '20px 64px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          <h2 className="h2" style={{ flex: '1 1 420px' }}>Cztery etapy, jeden złotnik</h2>
-          <p className="text" style={{ flex: '1 1 340px', maxWidth: '30em' }}>
-            Przez cały czas rozmawiasz z osobą, która robi Twój pierścionek. Od rozmowy do odbioru mija zwykle [TERMIN, np. 4–6 tygodni].
-          </p>
-        </div>
-        <ol style={{ listStyle: 'none', display: 'flex', flexDirection: 'column' }}>
+        <SectionIntro
+          intro="Przez cały czas rozmawiasz z osobą, która robi Twój pierścionek. Od rozmowy do odbioru mija zwykle [TERMIN, np. 4–6 tygodni]."
+          title="Cztery etapy, jeden złotnik"
+        />
+        <ol data-reveal="" style={{ listStyle: 'none', display: 'flex', flexDirection: 'column' }}>
           {STEPS.map((s) => (
             <li className="timeline-row" key={s.n}>
               <div className="row" style={{ gap: 20, alignItems: 'baseline', flexWrap: 'nowrap' }}>

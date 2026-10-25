@@ -3,6 +3,7 @@ import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { getGallery } from '@/lib/collection'
 import Photo from '@/components/site/Photo'
+import SectionIntro from '@/components/site/SectionIntro'
 import WorksBrowser, { type Work } from '@/components/site/WorksBrowser'
 
 export const dynamic = 'force-dynamic'
@@ -27,12 +28,12 @@ export default async function WorksPage() {
 
   return (
     <>
-      <section className="wrap" style={{ paddingTop: 64, paddingBottom: 48, display: 'flex', flexWrap: 'wrap', gap: '24px 72px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <h1 className="h1" style={{ flex: '1 1 460px' }}>Realizacje</h1>
-        <p className="lead" style={{ flex: '1 1 380px', maxWidth: '32em' }}>
-          Biżuteria zrobiona dla konkretnych osób i rzeczy, które wróciły do życia po naprawie. Przy każdej piszemy
-          krótko, co było zadaniem.
-        </p>
+      <section className="wrap" style={{ paddingTop: 64, paddingBottom: 48 }}>
+        <SectionIntro
+          as="h1"
+          intro="Biżuteria zrobiona dla konkretnych osób i rzeczy, które wróciły do życia po naprawie. Przy każdej piszemy krótko, co było zadaniem."
+          title="Realizacje"
+        />
       </section>
 
       {featured ? (
@@ -61,12 +62,7 @@ export default async function WorksPage() {
 
       <section className="band">
         <div className="wrap sec-tight stack" style={{ gap: 36 }}>
-          <div className="row" style={{ gap: '20px 64px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-            <h2 className="h2" style={{ flex: '1 1 420px' }}>Przed i po naprawie</h2>
-            <p className="text" style={{ flex: '1 1 340px', maxWidth: '30em', fontSize: 16 }}>
-              Ten sam kadr przed przyjęciem i po odbiorze. Wystarczy zdjęcie telefonem na tym samym tle.
-            </p>
-          </div>
+          <SectionIntro title="Przed i po naprawie" />
           <div className="cols-auto cols-300" style={{ gap: 32, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
             {['[np. Pierścionek po babci: nowe łapki, zmiana rozmiaru, polerowanie]', '[np. Dwie stare obrączki przetopione na nowy pierścionek]'].map((cap) => (
               <figure className="stack" key={cap} style={{ gap: 12 }}>
@@ -82,10 +78,7 @@ export default async function WorksPage() {
       </section>
 
       <section className="wrap stack" style={{ paddingTop: 104, paddingBottom: 120, gap: 40 }}>
-        <div className="row" style={{ gap: '16px 48px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          <h2 className="h2">Opinie klientów</h2>
-          <span className="small">[Link do opinii w Google: do uzupełnienia]</span>
-        </div>
+        <SectionIntro action={<span className="small">[Link do opinii w Google: do uzupełnienia]</span>} title="Opinie klientów" />
         <ul className="cols-auto cols-300" style={{ listStyle: 'none', gap: 28, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
           {['[Prawdziwa opinia klienta z Google, skrócona do 2–3 zdań]', '[Opinia o naprawie lub przeróbce]', '[Opinia o obrączkach lub pierścionku zaręczynowym]'].map((q) => (
             <li className="quote" key={q}>

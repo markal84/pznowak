@@ -1,6 +1,7 @@
-import Image from 'next/image'
 import Link from 'next/link'
+import Icon from './Icon'
 import Photo from './Photo'
+import SectionIntro from './SectionIntro'
 
 /**
  * Rodzaje obrączek jako zdjęcia (zamiast konfiguratora). Zdjęcie bierzemy z galerii CMS: element, którego nazwa
@@ -43,16 +44,12 @@ export function bandTypePhoto(gallery: { name: string; image: string }[], galler
 export default function BandTypes({ gallery }: { gallery: { name: string; image: string }[] }) {
   return (
     <div className="stack" style={{ gap: 40 }}>
-      <div className="row" style={{ gap: '16px 64px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <h2 className="h2" id="rodzaje-obraczek" style={{ flex: '1 1 380px' }}>
-          Rodzaje obrączek
-        </h2>
-        <p className="text" style={{ flex: '1 1 380px', maxWidth: '32em' }}>
-          Każdą parę wykonujemy od podstaw ręcznie, w każdej szerokości. Na przymiarce pokażemy próbki i razem dobierzemy
-          wykończenie.
-        </p>
-      </div>
-      <ul className="cols-auto cols-260" style={{ listStyle: 'none' }}>
+      <SectionIntro
+        id="rodzaje-obraczek"
+        intro="Każdą parę wykonujemy od podstaw ręcznie, w każdej szerokości. Na przymiarce pokażemy próbki i razem dobierzemy wykończenie."
+        title="Rodzaje obrączek"
+      />
+      <ul className="cols-auto cols-260" data-reveal="" style={{ listStyle: 'none' }}>
         {BAND_TYPES.map((t) => {
           const photo = bandTypePhoto(gallery, t.galleryName)
           const name = `obrączki ${t.label.toLowerCase()}`
@@ -62,7 +59,7 @@ export default function BandTypes({ gallery }: { gallery: { name: string; image:
                 <Photo alt={`Obrączki ${t.label.toLowerCase()} z pracowni`} ratio="32" sizes="(max-width: 720px) 100vw, 33vw" src={photo} />
               ) : (
                 <div aria-label={`Miejsce na zdjęcie: ${name}`} className="ph-empty" role="img" style={{ aspectRatio: '3 / 2' }}>
-                  <Image alt="" height={40} src="/grafiki/ikony/obraczki.svg" width={40} />
+                  <Icon name="obraczki" />
                   {BAND_PHOTO_PLACEHOLDER}
                 </div>
               )}
@@ -75,14 +72,6 @@ export default function BandTypes({ gallery }: { gallery: { name: string; image:
           )
         })}
       </ul>
-      <div className="row" style={{ gap: '12px 24px', alignItems: 'center' }}>
-        <Link className="btn" href="/kontakt?temat=obraczki">
-          Umów przymiarkę obrączek
-        </Link>
-        <span className="small" style={{ fontSize: 14, lineHeight: 1.5 }}>
-          Cena zależy od szerokości, wagi i próby złota.
-        </span>
-      </div>
     </div>
   )
 }

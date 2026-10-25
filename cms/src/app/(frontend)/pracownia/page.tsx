@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { FAMILY, SITE } from '@/lib/site'
+import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
+import SectionIntro from '@/components/site/SectionIntro'
 
 export const metadata: Metadata = pageMetadata({
   title: 'Pracownia i historia rodziny Nowaków od 1890',
@@ -23,22 +25,16 @@ export default function StudioPage() {
         </p>
       </section>
 
-      <section aria-label="Historia rodziny" className="wrap" style={{ paddingBottom: 96 }}>
-        <ol style={{ listStyle: 'none', display: 'flex', flexDirection: 'column' }}>
-          {FAMILY.map((f, i) => (
-            <li
-              className="pracownia-row"
-              key={f.name}
-              style={{ flexDirection: i % 2 ? 'row-reverse' : 'row', justifyContent: i % 2 ? 'flex-end' : 'flex-start' }}
-            >
-              <figure>
-                <Photo alt={f.alt} position={f.pos} sizes="(max-width: 720px) 100vw, 420px" src={f.img} />
-              </figure>
-              <div className="stack" style={{ flex: '1 1 420px', minWidth: 0, gap: 18 }}>
-                <span className="year-big">{f.year}</span>
-                <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 38, lineHeight: 1.1 }}>{f.name}</h2>
-                <span style={{ fontSize: 15, color: 'var(--muted)' }}>{f.role}</span>
-                <p style={{ maxWidth: '30em', fontSize: 17, lineHeight: 1.65, color: 'var(--graphite-2)' }}>{f.text}</p>
+      <section aria-label="Historia rodziny" className="wrap" style={{ paddingBottom: 88 }}>
+        <ol className="chrono" data-reveal="">
+          {FAMILY.map((f) => (
+            <li className="chrono-item" key={f.name}>
+              <span className="chrono-year">{f.year}</span>
+              <Photo alt={f.alt} position={f.pos} sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 25vw" src={f.img} />
+              <div className="chrono-body">
+                <h2>{f.name}</h2>
+                <span className="chrono-role">{f.role}</span>
+                <p>{f.text}</p>
               </div>
             </li>
           ))}
@@ -66,19 +62,20 @@ export default function StudioPage() {
 
       <section className="dark">
         <div className="wrap sec stack" style={{ gap: 48 }}>
-          <div className="row" style={{ gap: '20px 64px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-            <h2 className="h2" style={{ flex: '1 1 420px' }}>Na czym nam zależy</h2>
-            <p className="text" style={{ flex: '1 1 340px', maxWidth: '30em' }}>
-              Pierścionek nosi się codziennie przez lata. Dlatego wygląd to dla nas tylko połowa pracy.
-            </p>
-          </div>
-          <ul className="cols-auto cols-260" style={{ listStyle: 'none', gap: '36px 48px' }}>
-            {[
-              ['Jasne informacje', 'Parametry kamieni i próby złota opisujemy wprost. Dobór materiałów jest częścią rozmowy o projekcie.'],
-              ['Wygoda i trwałość', 'Sprawdzamy, czy pierścionek nie zahacza o ubrania, czy kamień siedzi pewnie i czy obrączka dobrze leży na palcu.'],
-              ['Opieka po latach', 'Czyścimy, sprawdzamy oprawę i odświeżamy biżuterię, którą u nas zrobiono. Także tę sprzed kilkudziesięciu lat.'],
-            ].map(([t, p]) => (
-              <li className="item-rule" key={t} style={{ paddingTop: 20 }}>
+          <SectionIntro
+            intro="Pierścionek nosi się codziennie przez lata. Dlatego wygląd to dla nas tylko połowa pracy."
+            title="Na czym nam zależy"
+          />
+          <ul className="cols-auto cols-260" data-reveal="" style={{ listStyle: 'none', gap: '36px 48px' }}>
+            {(
+              [
+                ['karta', 'Jasne informacje', 'Parametry kamieni i próby złota opisujemy wprost. Dobór materiałów jest częścią rozmowy o projekcie.'],
+                ['oprawa', 'Wygoda i trwałość', 'Sprawdzamy, czy pierścionek nie zahacza o ubrania, czy kamień siedzi pewnie i czy obrączka dobrze leży na palcu.'],
+                ['renowacja', 'Opieka po latach', 'Czyścimy, sprawdzamy oprawę i odświeżamy biżuterię, którą u nas zrobiono. Także tę sprzed kilkudziesięciu lat.'],
+              ] as [IconName, string, string][]
+            ).map(([icon, t, p]) => (
+              <li className="item-rule ic-host" key={t} style={{ paddingTop: 20 }}>
+                <Icon name={icon} size={40} />
                 <h3 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 26, lineHeight: 1.15, color: '#f6f5ef' }}>{t}</h3>
                 <p style={{ fontSize: 15.5, lineHeight: 1.6 }}>{p}</p>
               </li>
