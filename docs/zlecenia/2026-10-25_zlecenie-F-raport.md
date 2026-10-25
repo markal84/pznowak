@@ -2,8 +2,8 @@
 
 Data: 2026-10-25. Gałąź `claude/design-ogolny-f` (z `main`), PR do `main`. Nic nie trafiło do `release`.
 
-- **PR:** {{PR}}
-- **Preview:** {{PREVIEW}}
+- **PR:** https://github.com/markal84/pznowak/pull/13
+- **Preview:** https://pznowak-cms-git-claude-design-ogolny-f-markal84s-projects.vercel.app (wdrożenie `dpl_FJENwsjfG9kNkG8yXNCk9RFha5uE`, stan READY)
 - **Zrzuty:** `2026-10-25_zlecenie-F-zrzuty/przed/` i `…/po/` (strona główna, obrączki, pracownia, naprawy; 1440 i 390 px).
 
 ## Co powstało
@@ -88,7 +88,7 @@ Nie ma przybliżania całych sekcji ani ruchu bez udziału użytkownika poza jed
 ## Weryfikacja
 
 - `tsc --noEmit`: bez błędów. ESLint na `src/app/(frontend)` i `src/components/site`: bez uwag.
-- `next build --webpack` (jak na Vercelu, ze zmiennymi stagingu): {{BUILD}}
+- `next build --webpack` (jak na Vercelu, ze zmiennymi stagingu): bez błędów lokalnie; wdrożenie preview na Vercelu READY.
 - Testy int dotyczące frontu (creator-flags, heading-and-count, catalog, seo, indexing, legacy-redirects, frontend-publication): 91/91.
 - E2E `tests/e2e/frontend.e2e.spec.ts`, projekty `chromium` i `telefon`, lokalny serwer z bazą stagingową, `E2E_SUBMISSIONS=off`: 54 przeszło, 10 pominiętych (testy kreatora i konfiguratora, wyłączone przełącznikami). Testy sprawdzają, że formularze nie wysyłają żadnych żądań zapisu.
 - `prefers-reduced-motion: reduce`: brak animacji ikon i pojawiania się (sprawdzone w przeglądarce: `animation-name: none`), treść widoczna od razu.
