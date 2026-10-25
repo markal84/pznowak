@@ -6,9 +6,11 @@ import { pageMetadata } from '@/lib/seo'
 import { CUSTOM_ORDER_LINK, FAMILY, RING_CREATOR_ENABLED, SITE } from '@/lib/site'
 import { jewelryStoreJsonLd } from '@/lib/structured-data'
 import Faq from '@/components/site/Faq'
+import Icon, { type IconName } from '@/components/site/Icon'
 import JsonLd from '@/components/site/JsonLd'
 import Photo from '@/components/site/Photo'
 import RingCard from '@/components/site/RingCard'
+import SectionIntro from '@/components/site/SectionIntro'
 import Tag from '@/components/site/Tag'
 
 export const dynamic = 'force-dynamic'
@@ -35,6 +37,38 @@ export default async function HomePage() {
   const hero = products.find((p) => p.name === 'Phoebe') ?? products[0]
   const featured = pickByName(products, HOME_RINGS, 8).map(toCatalogRing)
   const heroRing = hero ? toCatalogRing(hero) : null
+  // Ceny i dłuższe opisy są na podstronach; tu kafelek prowadzi dalej.
+  const offers: { icon: IconName; title: string; text: string; href: string; link: string }[] = [
+    {
+      icon: 'szkic',
+      title: 'Z pomysłem na nowy pierścionek',
+      text: 'Wystarczy inspiracja, zdjęcie albo historia osoby, dla której ma powstać.',
+      ...(RING_CREATOR_ENABLED
+        ? { href: '/kreator', link: 'Zaprojektuj wstępnie online' }
+        : { href: CUSTOM_ORDER_LINK.href, link: CUSTOM_ORDER_LINK.label }),
+    },
+    {
+      icon: 'pierscionek',
+      title: 'Po projekt z naszej kolekcji',
+      text: `${count > 0 ? `Każdy z ${count} pierścionków` : 'Każdy pierścionek'} wykonamy w Twoim rozmiarze, z innym kamieniem albo złotem.`,
+      href: '/pierscionki',
+      link: 'Przeglądaj pierścionki',
+    },
+    {
+      icon: 'obraczki',
+      title: 'Po obrączki ślubne',
+      text: 'Z naszych wzorów albo zaprojektowane dla Was dwojga, z grawerem w środku.',
+      href: '/obraczki',
+      link: 'Obrączki ślubne',
+    },
+    {
+      icon: 'naprawa',
+      title: 'Z biżuterią do naprawy',
+      text: 'Zmiana rozmiaru, czyszczenie, nowe łapki albo nowy pierścionek z rodzinnego złota.',
+      href: '/naprawy',
+      link: 'Naprawy i przeróbki',
+    },
+  ]
 
   return (
     <>
@@ -78,15 +112,7 @@ export default async function HomePage() {
 
       <section className="band">
         <div className="wrap sec-tight stack" style={{ gap: 48 }}>
-          <div className="row" style={{ gap: '20px 64px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-            <h2 className="h2" style={{ flex: '1 1 420px' }}>
-              Cztery pokolenia przy jednym fachu
-            </h2>
-            <p className="text" style={{ flex: '1 1 360px', maxWidth: '30em' }}>
-              Od kuźni pradziadka w Szańcu do stołu złotniczego w Busku-Zdroju. Narzędzia się zmieniły, dbałość o detal
-              została.
-            </p>
-          </div>
+          <SectionIntro title="Cztery pokolenia przy jednym fachu" />
           <ol className="family-list">
             {FAMILY.map((f) => (
               <li className="family-item" key={f.name}>
@@ -105,56 +131,26 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="wrap sec stack" style={{ gap: 48 }}>
-        <h2 className="h2" style={{ maxWidth: '14em' }}>
-          Z czym możesz do nas przyjść
-        </h2>
-        <div className="cols-auto cols-260">
-          <div className="item-rule">
-            <h3 className="h3-serif">Z pomysłem na nowy pierścionek</h3>
-            <p>Wystarczy inspiracja, zdjęcie albo historia osoby, dla której ma powstać. Przygotujemy szkic, model 3D i wycenę, zanim zaczniemy pracę.</p>
-            <p className="price" style={{ marginTop: 'auto' }}>Zwykle [X–Y] zł</p>
-            {RING_CREATOR_ENABLED ? (
-              <Link className="tl" href="/kreator">Zaprojektuj wstępnie online</Link>
-            ) : (
-              <Link className="tl" href={CUSTOM_ORDER_LINK.href}>{CUSTOM_ORDER_LINK.label}</Link>
-            )}
-          </div>
-          <div className="item-rule">
-            <h3 className="h3-serif">Po projekt z naszej kolekcji</h3>
-            <p>
-              {count > 0 ? `Każdy z ${count} pierścionków` : 'Każdy pierścionek'} wykonamy w Twoim rozmiarze. Możemy zmienić kamień albo kolor złota.
-            </p>
-            <p className="price" style={{ marginTop: 'auto' }}>Od [X] zł</p>
-            <Link className="tl" href="/pierscionki">Przeglądaj pierścionki</Link>
-          </div>
-          <div className="item-rule">
-            <h3 className="h3-serif">Po obrączki ślubne</h3>
-            <p>Z naszych wzorów albo zaprojektowane dla Was dwojga. Mierzymy oboje i grawerujemy w środku to, co ważne.</p>
-            <p className="price" style={{ marginTop: 'auto' }}>Od [X] zł za parę</p>
-            <Link className="tl" href="/obraczki">Obrączki ślubne</Link>
-          </div>
-          <div className="item-rule">
-            <h3 className="h3-serif">Z biżuterią do naprawy</h3>
-            <p>Zmiana rozmiaru, czyszczenie, nowe łapki dla kamienia albo nowy pierścionek z rodzinnego złota.</p>
-            <p className="price" style={{ marginTop: 'auto' }}>Wycena na miejscu</p>
-            <Link className="tl" href="/naprawy">Naprawy i przeróbki</Link>
-          </div>
-        </div>
+      <section className="wrap sec stack" style={{ gap: 40 }}>
+        <SectionIntro title="Z czym możesz do nas przyjść" />
+        <ul className="tiles" data-reveal="">
+          {offers.map((o) => (
+            <li className="tile ic-host" key={o.title}>
+              <Icon name={o.icon} size={48} />
+              <h3>{o.title}</h3>
+              <p>{o.text}</p>
+              <Link className="tl" href={o.href}>
+                {o.link}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {featured.length > 0 ? (
         <section className="wrap stack" style={{ paddingBottom: 112, gap: 44 }}>
-          <div className="row" style={{ gap: '20px 48px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-            <div className="stack" style={{ gap: 16, maxWidth: '40em' }}>
-              <h2 className="h2">Pierścionki z pracowni</h2>
-              <p className="text">Nazwy pochodzą z mitologii i gwiazdozbiorów. Każdy projekt to punkt wyjścia do Twojej wersji.</p>
-            </div>
-            <Link className="btn btn-line" href="/pierscionki">
-              Wszystkie pierścionki ({count})
-            </Link>
-          </div>
-          <ul className="ring-grid">
+          <SectionIntro intro="Każdy projekt to punkt wyjścia do Twojej wersji." title="Pierścionki z pracowni" />
+          <ul className="ring-grid" data-reveal="">
             {featured.map((r) => (
               <RingCard
                 alt={r.alt}
@@ -167,18 +163,19 @@ export default async function HomePage() {
               />
             ))}
           </ul>
+          <Link className="btn btn-line" href="/pierscionki" style={{ alignSelf: 'flex-start' }}>
+            Wszystkie pierścionki ({count})
+          </Link>
         </section>
       ) : null}
 
       <section className="dark">
         <div className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '56px 80px', alignItems: 'stretch' }}>
           <div className="stack" style={{ flex: '1 1 520px', minWidth: 0, gap: 44 }}>
-            <div className="stack" style={{ gap: 18 }}>
-              <h2 className="h2">Jak powstaje pierścionek na zamówienie</h2>
-              <p className="text" style={{ maxWidth: '34em' }}>
-                Cenę i wygląd znasz, zanim zaczniemy. Od rozmowy do odbioru mija zwykle [TERMIN, np. 4–6 tygodni].
-              </p>
-            </div>
+            <SectionIntro
+              intro="Cenę i wygląd znasz, zanim zaczniemy. Od rozmowy do odbioru mija zwykle [TERMIN, np. 4–6 tygodni]."
+              title="Jak powstaje pierścionek na zamówienie"
+            />
             <ol className="steps">
               <li className="step"><span className="n">1</span><h3>Rozmowa</h3><p>W pracowni albo przez telefon. Mówisz, dla kogo jest pierścionek, na jaką okazję i jaki masz budżet.</p></li>
               <li className="step"><span className="n">2</span><h3>Projekt i wycena</h3><p>Szkic i model 3D. Dobieramy kamień, kolor złota i proporcje, aż projekt będzie gotowy do wykonania.</p></li>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
+import SectionIntro from '@/components/site/SectionIntro'
 import { getProducts } from '@/lib/collection'
 import { toCatalogRing } from '@/lib/catalog'
 import CatalogBrowser from '@/components/site/CatalogBrowser'
@@ -15,12 +16,12 @@ export default async function CatalogPage() {
   const rings = (await getProducts()).map(toCatalogRing)
   return (
     <>
-      <section className="wrap" style={{ paddingTop: 64, paddingBottom: 40, display: 'flex', flexWrap: 'wrap', gap: '24px 72px', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <h1 className="h1" style={{ flex: '1 1 480px' }}>Pierścionki z pracowni</h1>
-        <p className="text" style={{ flex: '1 1 360px', maxWidth: '30em' }}>
-          Każdy projekt wykonamy w Twoim rozmiarze. Kamień i kolor złota możemy zmienić. Ceny zaczynają się od [X] zł.
-          Ostateczna zależy od wybranego kamienia i złota.
-        </p>
+      <section className="wrap" style={{ paddingTop: 64, paddingBottom: 40 }}>
+        <SectionIntro
+          as="h1"
+          intro="Każdy projekt wykonamy w Twoim rozmiarze. Kamień i kolor złota możemy zmienić. Ceny zaczynają się od [X] zł. Ostateczna zależy od wybranego kamienia i złota."
+          title="Pierścionki z pracowni"
+        />
       </section>
       <CatalogBrowser rings={rings} />
       <section className="band">
