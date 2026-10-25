@@ -30,7 +30,7 @@ export default function StudioPage() {
           {FAMILY.map((f) => (
             <li className="chrono-item" key={f.name}>
               <span className="chrono-year">{f.year}</span>
-              <Photo alt={f.alt} position={f.pos} sizes="(max-width: 720px) 100vw, 240px" src={f.img} />
+              <Photo alt={f.alt} position={f.pos} sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 25vw" src={f.img} />
               <div className="chrono-body">
                 <h2>{f.name}</h2>
                 <span className="chrono-role">{f.role}</span>

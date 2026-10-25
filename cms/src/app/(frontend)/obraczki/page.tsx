@@ -82,6 +82,11 @@ export default async function BandsPage() {
           <h2 className="h2" style={{ flex: '1 1 320px' }}>Pytania o obrączki</h2>
           <div style={{ flex: '2 1 560px', minWidth: 0 }}>
             <Faq items={FAQ} />
+            <div className="row gap-14-28" style={{ marginTop: 40 }}>
+              <Link className="btn" href="/kontakt?temat=obraczki">
+                Umów przymiarkę
+              </Link>
+            </div>
           </div>
         </div>
       </section>

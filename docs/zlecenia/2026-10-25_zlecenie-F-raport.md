@@ -10,7 +10,7 @@ Data: 2026-10-25. Gałąź `claude/design-ogolny-f` (z `main`), PR do `main`. Ni
 
 | Element | Plik | Do czego |
 | --- | --- | --- |
-| `SectionIntro` | `cms/src/components/site/SectionIntro.tsx` | Tytuł sekcji, pod nim opcjonalny krótki wstęp i akcja. Jedna kolumna, miara 34em. Zastępuje wiersze „h2 z lewej, akapit z prawej”. Obsługuje też `h1` (nagłówki podstron, skala bez zmian). |
+| `SectionIntro` | `cms/src/components/site/SectionIntro.tsx` | Tytuł sekcji, pod nim opcjonalny krótki wstęp i akcja. Jedna kolumna; miara 34em ma tylko wstęp, tytuł zajmuje całą szerokość. Zastępuje wiersze „h2 z lewej, akapit z prawej”. Obsługuje też `h1` (nagłówki podstron, skala bez zmian). |
 | `PriceOffer` | `cms/src/components/site/PriceOffer.tsx` | Cena i wezwanie do działania jako jeden blok: papierowa przywieszka z ceną (ta sama co przy pierścionkach), obok przycisk i notka, od czego zależy cena. |
 | `Icon` | `cms/src/components/site/Icon.tsx` | Jeden zestaw 16 ikon SVG w stylu ilustracji „Jak powstaje pierścionek”: cienka linia w kolorze tekstu (grafit; na zieleni jasna), złoto tylko na kamieniach, połysku i złocie. Siatka 32 × 32, linia 1,35, `currentColor`, `aria-hidden`. Zastępuje ikony z `/grafiki/ikony` wstawiane jako `<img>` (te nie reagowały na kolor i były słabo widoczne). |
 | Style | `cms/src/app/(frontend)/globals.css`, blok „zlecenie F” na końcu | `.sec-intro`, `.offer`, `.tiles`/`.tile`, `.icon`, `.chrono` (oś czasu), ruch. |
@@ -31,8 +31,8 @@ Ikony: pierścionek, obrączki, szkic, naprawa, rozmiar, czyszczenie, lupa (prze
 - Puste miejsca na zdjęcia: ikona obrączek z zestawu zamiast starego `<img>`.
 
 **Pracownia**
-- Oś czasu na komputerze: zamiast naprzemiennych wierszy z dużymi datami (`.year-big`) jest zwarta oś: cienka pionowa linia z kropką, data w skali nagłówków sekcji (serif 26 px, patyna), zdjęcie 240 px tuż obok tekstu. Strona skróciła się z 5283 do 4269 px (1440). Najechanie na wpis zapala kropkę na złoto.
-- Telefon: jedna kolumna przy linii (data, zdjęcie na całą szerokość, tekst). Krótsza niż wcześniej (14884 → 13876 px przy DPR 2), kolejność i treść te same.
+- Oś czasu na komputerze: zamiast naprzemiennych wierszy z dużymi datami (`.year-big`) jest pozioma oś na całą szerokość: cztery pokolenia w jednym rzędzie, cienka linia przez kropki przy latach, data w skali nagłówków sekcji (serif 26 px, patyna), pod nią zdjęcie, imię, rola i opis. Od 1100 px w dół dwa wpisy w rzędzie. Strona skróciła się z 5283 do 3461 px (1440). Najechanie na wpis zapala kropkę na złoto. (Pierwsza wersja z PR miała pionową oś w lewych 2/3 strony; zmienione po uwagach, patrz niżej.)
+- Telefon: pionowa oś, jedna kolumna przy linii (data, zdjęcie na całą szerokość, tekst). Krótsza niż wcześniej (14884 → 13876 px przy DPR 2), kolejność i treść te same.
 - „Na czym nam zależy”: `SectionIntro` + ikony karta / oprawa / renowacja.
 
 **Na zamówienie**
@@ -49,7 +49,7 @@ Ikony: pierścionek, obrączki, szkic, naprawa, rozmiar, czyszczenie, lupa (prze
 - „Opinie klientów”: `SectionIntro`, placeholder linku do Google jako akcja pod tytułem.
 
 **Pierścionki**
-- Nagłówek strony: `SectionIntro as="h1"` (tekst bez zmian).
+- Nagłówek strony: `SectionIntro as="h1"`; cena „od [X] zł” przeniesiona ze zdania do małej przywieszki bez przycisku, z notką „Ostateczna cena zależy od wybranego kamienia i złota.” (po uwagach).
 
 Bez zmian: hero strony głównej (skala ta sama), nawigacja, struktura podstron, formularze, CMS, SEO, przekierowania, treści produktów. Nietknięte też wiersze h2 + link w „Podobne pierścionki” na stronie produktu i w ukrytym kreatorze (to nie są wiersze tytuł + akapit).
 
@@ -95,10 +95,25 @@ Nie ma przybliżania całych sekcji ani ruchu bez udziału użytkownika poza jed
 - Klawiatura: Tab po linkach w kaflach daje widoczny fokus (złota obwódka 2 px), kafel zapala górną linię, a ikona rusza tak samo jak przy najechaniu.
 - Zrzuty „po” są robione z wyłączonym ruchem, żeby pokazać ułożenie końcowe (na zrzucie całej strony animacja przewijania zatrzymałaby się w połowie). Zrzut `po/glowna-390.png` ma gęstość 1,6 zamiast 2: strona jest dłuższa niż limit jednego zrzutu w Chrome. Z tego samego powodu w `przed/glowna-390.png` ostatni fragment (FAQ i stopka) powtarza górę strony; te sekcje się nie zmieniły.
 
-## Pytania do Marcina
+## Pytania do Marcina (odpowiedzi w `2026-10-25_uwagi-po-F.md`, wdrożone niżej)
 
 1. **Ceny na głównej.** Zniknęły z kafli, zgodnie ze zleceniem; zostały na podstronach. Jeśli jedna orientacyjna cena na głównej ma zostać (np. obrączki), łatwo ją dodać pod zdaniem w kaflu.
 2. **Pierścionki: cena w zdaniu.** Nagłówek „Pierścionki” nadal ma „Ceny zaczynają się od [X] zł” w akapicie. Nie zrobiłem z tego bloku ceny, bo strona nie ma jednej akcji (to katalog). Zrobić tak jak przy obrączkach?
 3. **Obrączki: dwa przyciski „Umów przymiarkę”?** Teraz jest jeden, w nagłówku. Na dole „Rodzajów obrączek” zostały tylko linki „Zapytaj o obrączki …”. Czy na końcu strony potrzebny jest jeszcze jeden przycisk?
 4. **Ikony.** Zestaw jest mój, w stylu ilustracji etapów. Jeśli Michał ma uwagi do konkretnych narzędzi (np. jak wygląda młoteczek albo łapki), poprawię pojedyncze rysunki w jednym pliku.
 5. **Pojawianie się przy przewijaniu** działa dziś w Chrome, Edge i nowym Safari; w Firefoksie treść jest po prostu widoczna od razu. Czy to wystarczy, czy ruch ma być wszędzie (wtedy mały skrypt z IntersectionObserver, z ryzykiem mignięcia przy wolnym ładowaniu)?
+
+## Poprawki po uwagach (`2026-10-25_uwagi-po-F.md`)
+
+| Uwaga | Co zrobione |
+| --- | --- |
+| 1. Nagłówki sekcji łamią się za wcześnie | Zdjęty `max-width: 46rem` z `.sec-intro`; miara `34em` została tylko na `.text`/`.lead`. „Cztery pokolenia przy jednym fachu” i „Na początek wystarczy jedno z nich” mieszczą się w jednej linii na 1440. |
+| 2. Pracownia: pusta prawa strona | Oś czasu na komputerze jest pozioma, na całą szerokość (cztery wpisy w rzędzie, dwa od 1100 px w dół). Telefon bez zmian. |
+| 3. Ceny na głównej | Nie dodane. |
+| 3. Pierścionki | Mała przywieszka „Pierścionek z kolekcji / od [X] zł” bez przycisku, notka obok. `PriceOffer` ma teraz opcjonalne przyciski i rozmiar `sm`. |
+| 3. Obrączki | Przycisk „Umów przymiarkę” (do `/kontakt?temat=obraczki`) na końcu strony, pod pytaniami. |
+| 3. Ikony dla Michała | Arkusz wszystkich 16 ikon (64 i 28 px, na jasnym i zielonym tle, z miejscami użycia): `2026-10-25_zlecenie-F-zrzuty/ikony-arkusz.png`. Do pokazania Michałowi. |
+| 3. Firefox | Bez zmian, bez dodatkowego skryptu. |
+| 4. Dla Michała | Zdjęcia przed i po naprawie w tym samym kadrze i na tym samym tle; telefon wystarczy. |
+
+Zrzuty „po” odświeżone (główna, obrączki, pracownia, naprawy). Weryfikacja po poprawkach: `tsc` i ESLint bez uwag, `next build --webpack` bez błędów, testy int frontu 91/91, e2e (chromium + telefon, staging, `E2E_SUBMISSIONS=off`) 54 przeszło, 10 pominiętych.

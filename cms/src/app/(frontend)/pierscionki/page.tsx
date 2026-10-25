@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
+import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import { getProducts } from '@/lib/collection'
 import { toCatalogRing } from '@/lib/catalog'
@@ -16,12 +17,13 @@ export default async function CatalogPage() {
   const rings = (await getProducts()).map(toCatalogRing)
   return (
     <>
-      <section className="wrap" style={{ paddingTop: 64, paddingBottom: 40 }}>
+      <section className="wrap stack" style={{ paddingTop: 64, paddingBottom: 40, gap: 28 }}>
         <SectionIntro
           as="h1"
-          intro="Każdy projekt wykonamy w Twoim rozmiarze. Kamień i kolor złota możemy zmienić. Ceny zaczynają się od [X] zł. Ostateczna zależy od wybranego kamienia i złota."
+          intro="Każdy projekt wykonamy w Twoim rozmiarze. Kamień i kolor złota możemy zmienić."
           title="Pierścionki z pracowni"
         />
+        <PriceOffer label="Pierścionek z kolekcji" note="Ostateczna cena zależy od wybranego kamienia i złota." price="od [X] zł" size="sm" />
       </section>
       <CatalogBrowser rings={rings} />
       <section className="band">
