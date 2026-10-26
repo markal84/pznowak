@@ -88,3 +88,13 @@ Lista miejsc i zachowanie na produkcji (podgląd: bez zmian, ze znacznikiem):
 5. **Hero a „Pracownia od 1890”.** Lead w hero nadal mówi o 1890 i Michale (zlecenie nie kazało go zmieniać), a nowa sekcja niżej mówi o tym samym innymi słowami. Skrócić lead w hero?
 6. **Wyróżniona realizacja** na produkcji jest ukryta (ma tylko placeholdery). Gdy będzie opis, wystarczy wpisać go w `realizacje/page.tsx` i usunąć opakowanie `DoUzupelnienia`.
 7. **Migracja na produkcji:** do uruchomienia przez Marcina przed wdrożeniem (komendy wyżej).
+
+## Decyzje Marcina po raporcie (26.10.2026)
+
+1. **Polityka prywatności i regulamin:** treść dostarczy pracownia przed wdrożeniem; wtedy podmieniam zdanie zgody (`src/lib/submissions/consent.ts`) i dwa wiersze stopki na linki.
+2. **Linijka zaufania:** „Zamówienia wysyłamy do klientów w całej Polsce” (zmienione). Wideo i czas realizacji dalej czekają na potwierdzenie.
+3. **Budżet w formularzu:** zostaje ukryty na produkcji.
+4. **Opinie z Google:** ta sama sekcja na głównej i w „Realizacjach” (bez zmian).
+5. **Hero:** lead skrócony do „Projektujemy i wykonujemy biżuterię na zamówienie w rodzinnej pracowni w Busku-Zdroju.” Historia (od 1890, czwarte pokolenie) jest tylko w sekcji „Pracownia od 1890”.
+6. **Wyróżniona realizacja i inne placeholdery:** na preview wszystko jest widoczne (znaczniki żółte), żeby Michał i Kamila widzieli, co uzupełnić. Ukrywanie dotyczy wyłącznie produkcji (`SITE_ENV`/`VERCEL_ENV` = `production`); żadnej zmiany nie trzeba.
+7. **Migracja na produkcji:** uruchamia Marcin przed wdrożeniem (`npx payload migrate:status`, potem `npx payload migrate` w `cms/` ze zmiennymi produkcji).

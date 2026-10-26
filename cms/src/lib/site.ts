@@ -23,7 +23,7 @@ export const SITE = {
  * Dopisując fakt, ustaw `confirmed: true`.
  */
 export const HERO_TRUST: readonly { text: string; confirmed: boolean }[] = [
-  { text: 'Zamówienia wysyłamy do klientów', confirmed: true },
+  { text: 'Zamówienia wysyłamy do klientów w całej Polsce', confirmed: true },
   { text: 'Rozmowa o projekcie także przez wideo [do potwierdzenia]', confirmed: false },
   { text: 'Pierścionek na zamówienie gotowy zwykle w [TERMIN]', confirmed: false },
 ]

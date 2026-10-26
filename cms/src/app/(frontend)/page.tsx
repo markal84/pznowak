@@ -89,8 +89,7 @@ export default async function HomePage() {
         <div className="hero-copy">
           <h1 className="h1 h1-hero">Pierścionek zrobiony dla jednej osoby.</h1>
           <p className="lead">
-            Projektujemy i wykonujemy biżuterię na zamówienie w rodzinnej pracowni w Busku-Zdroju. Nowakowie pracują
-            w rzemiośle od {SITE.since} roku. Dziś przy stole złotniczym siedzi Michał, czwarte pokolenie.
+            Projektujemy i wykonujemy biżuterię na zamówienie w rodzinnej pracowni w Busku-Zdroju.
           </p>
           <div className="stack" style={{ gap: 18 }}>
             <div className="row gap-14-28">
