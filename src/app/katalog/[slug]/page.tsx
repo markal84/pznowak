@@ -270,108 +270,90 @@ const SingleProductPage = async ({ params }: ProductPageProps) => {
   }
 
 
+  const keyFacts: Array<[string, string]> = []
+  if (acf.kolor_metalu) keyFacts.push(['Kolor metalu', acf.kolor_metalu])
+  if (acf.czy_posiada_kamien && acf.rodzaj_kamienia) keyFacts.push(['Rodzaj kamienia', acf.rodzaj_kamienia])
+  if (acf.czystosc_kamienia) keyFacts.push(['Czystość kamienia', acf.czystosc_kamienia])
+  if (acf.masa_karatowa) keyFacts.push(['Masa karatowa', acf.masa_karatowa])
+
+  const lead = (product.acf as { lead?: string })?.lead?.trim() ||
+    'Ręcznie wykonany pierścionek tworzony z dbałością o każdy detal. Łączy klasyczną elegancję z nowoczesnym wykończeniem, aby subtelnie podkreślić wyjątkowe chwile.'
+
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="mx-auto max-w-7xl px-6 lg:px-10 pt-[calc(var(--header-height)+2.5rem)] pb-[var(--space-section-md)]">
       {/* Breadcrumbs */}
-      <nav className="mb-8 text-sm" aria-label="Breadcrumb">
-        <ol className="list-none p-0 inline-flex text-gray-500 dark:text-gray-400">
+      <nav className="mb-10" aria-label="Breadcrumb">
+        <ol className="list-none p-0 inline-flex items-center gap-3 text-[0.6875rem] font-medium uppercase tracking-[0.26em] text-[var(--ink-faint)]">
           <li>
-            <Link href="/katalog" className="hover:text-brand-gold transition-colors font-semibold">Katalog</Link>
-            <span className="mx-2">/</span>
+            <Link href="/katalog" className="link-subtle-hover">Katalog</Link>
           </li>
-          <li aria-current="page" className="text-gray-900 dark:text-gray-100">{product.title.rendered}</li>
+          <li aria-hidden className="text-[var(--gold)]">/</li>
+          <li aria-current="page" className="text-[var(--ink)]" dangerouslySetInnerHTML={{ __html: product.title.rendered }} />
         </ol>
       </nav>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-        {/* Galeria (desktop: sticky for better ergonomics) */}
-        <div className="w-full lg:sticky lg:top-20">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        {/* Galeria (desktop: sticky) */}
+        <div className="w-full lg:col-span-7 lg:sticky lg:top-[calc(var(--header-height)+1.5rem)]">
           {uniqueSlides.length > 0 ? (
             <ProductGalleryClient slides={uniqueSlides} imageAlt={imageAlt} />
           ) : (
-            // Możesz tu wyświetlić jakiś fallback, jeśli nie ma żadnych obrazów/wideo
-            <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden shadow-lg">
-            </div>
+            <div className="relative aspect-[4/3] bg-[var(--paper-deep)]" />
           )}
         </div>
 
-        {/* Szczegóły produktu – prawa kolumna z lewym wyrównaniem i lepszą hierarchią */}
-        <div className="lg:pt-4">
+        {/* Szczegóły */}
+        <div className="lg:col-span-5">
           <h1
-            className="text-3xl md:text-4xl font-serif font-light mb-6 md:mb-8 text-left"
+            className="display-title text-4xl md:text-5xl"
             dangerouslySetInnerHTML={{ __html: product.title.rendered }}
           />
 
-          {/* Lead (2–3 zdania). Priorytet: ACF lead → Excerpt → fallback. */}
-          {(() => {
-            const lead = (product.acf as { lead?: string })?.lead?.trim()
-            if (lead) {
-              return (
-                <p className="text-base md:text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6 max-w-prose">{lead}</p>
-              )
-            }
-            return (
-              <p className="text-base md:text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6 max-w-prose">
-                Ręcznie wykonany pierścionek tworzony z dbałością o każdy detal. Łączy klasyczną elegancję z nowoczesnym wykończeniem, aby subtelnie podkreślić wyjątkowe chwile.
-              </p>
-            )
-          })()}
+          <p className="mt-6 font-display text-lg md:text-xl italic leading-relaxed text-[var(--ink-soft)]">
+            {lead}
+          </p>
 
-          {/* Key facts: wrapper z podziałami i odstępem od CTA */}
-          <div className="mb-10 keyfacts-divider">
-            {acf.kolor_metalu && (
-              <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">Kolor metalu</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{acf.kolor_metalu}</span>
-              </div>
-            )}
-            {acf.czy_posiada_kamien && acf.rodzaj_kamienia && (
-              <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">Rodzaj kamienia</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{acf.rodzaj_kamienia}</span>
-              </div>
-            )}
-            {acf.czystosc_kamienia && (
-              <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">Czystość kamienia</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{acf.czystosc_kamienia}</span>
-              </div>
-            )}
-            {acf.masa_karatowa && (
-              <div className="py-3 flex justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">Masa karatowa</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{acf.masa_karatowa}</span>
-              </div>
-            )}
-          </div>
+          {/* Key facts */}
+          {keyFacts.length > 0 && (
+            <dl className="mt-10 keyfacts-divider">
+              {keyFacts.map(([label, value]) => (
+                <div key={label} className="py-4 flex items-baseline justify-between gap-6">
+                  <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.24em] text-[var(--ink-faint)]">{label}</dt>
+                  <dd className="font-display text-lg text-[var(--ink)]">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
 
-          {/* CTA bez dolnego marginesu + whisper kontakt */}
-          <div className="text-left">
-            <Button as="link" href="/kontakt" variant="primary" className="py-3 px-6 text-base">
+          {/* CTA */}
+          <div className="mt-10">
+            <Button as="link" href="/kontakt" variant="primary" className="w-full sm:w-auto">
               {globalOptions?.acf?.ask_button_text || 'Zapytaj o ten pierścionek'}
             </Button>
-            <div className="mt-4 md:mt-6 text-xs md:text-sm opacity-80 text-gray-600 dark:text-gray-400">
-              Lub zadzwoń <a className="link-subtle-hover underline-offset-2 hover:underline" href={`tel:${PHONE_NUMBER.replace(/\s+/g, '')}`}>{PHONE_NUMBER}</a> lub napisz <a className="link-subtle-hover underline-offset-2 hover:underline" href={`mailto:${EMAIL_ADDRESS}`}>{EMAIL_ADDRESS}</a>.
-            </div>
+            <p className="mt-5 text-sm font-light text-[var(--ink-faint)]">
+              Lub bezpośrednio: <a className="link-subtle-hover underline underline-offset-4" href={`tel:${PHONE_NUMBER.replace(/\s+/g, '')}`}>{PHONE_NUMBER}</a>
+              {' '}·{' '}
+              <a className="link-subtle-hover underline underline-offset-4" href={`mailto:${EMAIL_ADDRESS}`}>{EMAIL_ADDRESS}</a>
+            </p>
           </div>
 
-          <div className="space-y-1 mt-12 text-left">
+          <div className="mt-12">
             <AccordionItem title="Opis i materiały" initialOpen>
               <div
-                className="prose prose-sm dark:prose-invert max-w-prose leading-relaxed"
+                className="prose prose-sm max-w-prose leading-relaxed font-light"
                 dangerouslySetInnerHTML={{ __html: product.content.rendered }}
               />
-              <p className="mt-4 text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              <p className="mt-4 text-xs md:text-sm font-light text-[var(--ink-faint)] leading-relaxed">
                 Uwaga: masa karatowa kamieni może nieznacznie różnić się o ±3% w zależności od rozmiaru i techniki wykonania.
               </p>
             </AccordionItem>
-            {/* Na życzenie: pozostawiamy wyłącznie opis produktu. */}
           </div>
         </div>
       </div>
-      {/* Prezentacja / WOW */}
-      <div className="mt-[var(--space-section-lg)]">
-        <SectionTitle eyebrow="Dlaczego my" title="Rzemiosło. Materiały. Zaufanie." size="sm" center className="mb-6" />
+
+      {/* Dlaczego my */}
+      <div className="mt-[var(--space-section-lg)] hairline-t pt-14">
+        <SectionTitle eyebrow="Dlaczego my" title="Rzemiosło. Materiały. Zaufanie." size="sm" center className="mb-10" />
         <WhyUs />
       </div>
     </div>

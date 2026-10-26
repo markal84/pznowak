@@ -4,7 +4,7 @@ import Link from 'next/link'
 type CommonProps = {
   children: React.ReactNode
   className?: string
-  variant?: 'primary' | 'secondary'
+  variant?: 'primary' | 'secondary' | 'outline'
 }
 
 type LinkButtonProps = CommonProps & {
@@ -20,11 +20,10 @@ type NativeButtonProps = CommonProps & {
 export type ButtonProps = LinkButtonProps | NativeButtonProps
 
 /**
- * Uniwersalny przycisk zgodny ze stylem strony głównej.
- * variant="primary" = ciemny (domyślny jak na stronie głównej),
- * variant="secondary" = jasny (np. do formularza kontaktowego)
+ * Przycisk w stylu atelier: wersaliki, szeroki tracking, ostre krawędzie.
+ * primary = atrament (na noir: złoto), secondary/outline = obrys hairline.
  */
-const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({ 
+const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(({
   children,
   href,
   as = 'button',
@@ -32,15 +31,8 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
   variant = 'primary',
   ...rest
 }, ref) => {
-  const base =
-    'inline-flex items-center justify-center transition-colors duration-300 rounded-[8px] font-bold px-6 py-2 text-base shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60';
-  const variants = {
-    primary:
-      'bg-neutral-900 text-white hover:bg-neutral-800 hover:text-brand-gold-soft dark:bg-white dark:text-neutral-900 dark:hover:bg-gray-200',
-    secondary:
-      'bg-white text-neutral-900 hover:text-brand-gold-soft hover:bg-gray-100 dark:bg-neutral-900 dark:text-white dark:hover:text-brand-gold-soft dark:hover:bg-gray-800',
-  }
-  const classes = `${base} ${variants[variant]} ${className}`
+  const variantClass = variant === 'primary' ? 'btn-primary' : 'btn-outline'
+  const classes = `btn ${variantClass} ${className}`
 
   if (as === 'link' && href) {
     return (

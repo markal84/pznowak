@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react'
 import Button from './Button'
 import ContactMessage from './ContactMessage'
-const PHP_ENDPOINT = process.env.NEXT_PUBLIC_PHP_ENDPOINT || 'http://serwer1542079.home.pl/autoinstalator/pznowak/send-contact.php'
+const PHP_ENDPOINT = process.env.NEXT_PUBLIC_PHP_ENDPOINT || 'https://serwer1542079.home.pl/autoinstalator/pznowak/send-contact.php'
 
 export default function ContactForm() {
   const [form, setForm] = useState({
@@ -28,13 +28,11 @@ export default function ContactForm() {
 
   const validate = () => {
     const next: { [k: string]: string } = {}
-    // Email
     if (!form.email) {
       next.email = 'Podaj adres e-mail.'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       next.email = 'Wpisz poprawny adres e-mail.'
     }
-    // Wiadomość
     if (!form.message) {
       next.message = 'Napisz kilka słów wiadomości.'
     } else if (form.message.trim().length < 10) {
@@ -52,9 +50,8 @@ export default function ContactForm() {
       return
     }
     setStatus('sending')
-      try {
-        const body = new URLSearchParams()
-      // Połącz firstName i lastName w jedno pole name
+    try {
+      const body = new URLSearchParams()
       body.append('name', (form.firstName + ' ' + form.lastName).trim())
       body.append('email', form.email)
       body.append('subject', 'Wiadomość z formularza pznowak.pl')
@@ -66,34 +63,29 @@ export default function ContactForm() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: body.toString(),
       })
-        type ContactResponse = { ok: boolean; error?: string; ack_ok?: boolean }
-        const data: ContactResponse = await res.json()
-        if (typeof window !== 'undefined') {
-          // Prosty log diagnostyczny na czas testów (ack_ok z backendu).
-          console.log('[contact] response', data)
-        }
-        if (data.ok) {
-          setStatus('success')
-          setForm({ firstName:'', lastName:'', email:'', phone:'', message:'', website:'' })
-          setModalSuccess(true)
-          setModalError(null)
-          setAckOk(Boolean(data.ack_ok))
-          setShowModal(true)
-          // focus zostanie przeniesiony do modala; po zamknięciu wróci na przycisk
-        } else {
-          setStatus('error')
-          setModalSuccess(false)
-          setModalError(data.error || 'Wystąpił błąd serwera.')
-          setAckOk(undefined)
-          setShowModal(true)
-        }
-      } catch {
+      type ContactResponse = { ok: boolean; error?: string; ack_ok?: boolean }
+      const data: ContactResponse = await res.json()
+      if (data.ok) {
+        setStatus('success')
+        setForm({ firstName:'', lastName:'', email:'', phone:'', message:'', website:'' })
+        setModalSuccess(true)
+        setModalError(null)
+        setAckOk(Boolean(data.ack_ok))
+        setShowModal(true)
+      } else {
         setStatus('error')
         setModalSuccess(false)
-        setModalError('Wystąpił błąd sieci.')
+        setModalError(data.error || 'Wystąpił błąd serwera.')
         setAckOk(undefined)
         setShowModal(true)
       }
+    } catch {
+      setStatus('error')
+      setModalSuccess(false)
+      setModalError('Wystąpił błąd sieci.')
+      setAckOk(undefined)
+      setShowModal(true)
+    }
   }
 
   return (
@@ -104,98 +96,93 @@ export default function ContactForm() {
         {status === 'success' && 'Wiadomość została wysłana.'}
         {status === 'error' && 'Wystąpił błąd wysyłki.'}
       </div>
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit} className="space-y-9">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-9">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">Imię</label>
+            <label htmlFor="firstName" className="field-label">Imię</label>
             <input
               type="text"
               id="firstName"
               name="firstName"
               autoComplete="given-name"
-              placeholder="Podaj imię (opcjonalnie)"
-              className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-brand-gold)] focus:border-[var(--color-brand-gold)] px-3 py-3"
+              placeholder="Opcjonalnie"
+              className="field-line mt-1"
               value={form.firstName}
               onChange={handleChange}
             />
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">Nazwisko</label>
+            <label htmlFor="lastName" className="field-label">Nazwisko</label>
             <input
               type="text"
               id="lastName"
               name="lastName"
               autoComplete="family-name"
-              placeholder="Podaj nazwisko (opcjonalnie)"
-              className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-brand-gold)] focus:border-[var(--color-brand-gold)] px-3 py-3"
+              placeholder="Opcjonalnie"
+              className="field-line mt-1"
               value={form.lastName}
               onChange={handleChange}
             />
           </div>
         </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">Email <span className="text-red-500">*</span></label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            autoComplete="email"
-            inputMode="email"
-            autoCapitalize="none"
-            autoCorrect="off"
-            placeholder="you@example.com"
-            className={["block w-full rounded-md px-3 py-3",
-              errors.email ?
-                "border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white" :
-                "border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-brand-gold)] focus:border-[var(--color-brand-gold)]"
-            ].join(' ')}
-            value={form.email}
-            onChange={handleChange}
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? 'email-error' : undefined}
-          />
-          {errors.email && (
-            <p id="email-error" className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
-          )}
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Wykorzystamy tylko do kontaktu w sprawie Twojej wiadomości.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-9">
+          <div>
+            <label htmlFor="email" className="field-label">E-mail *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autoComplete="email"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              placeholder="ty@przyklad.pl"
+              className="field-line mt-1"
+              value={form.email}
+              onChange={handleChange}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
+            />
+            {errors.email && (
+              <p id="email-error" className="mt-2 text-sm font-light text-[#a23b2e]">{errors.email}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="phone" className="field-label">Telefon</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              autoComplete="tel"
+              inputMode="tel"
+              placeholder="Opcjonalnie"
+              className="field-line mt-1"
+              value={form.phone}
+              onChange={handleChange}
+            />
+          </div>
         </div>
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">Telefon</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            autoComplete="tel"
-            inputMode="tel"
-            placeholder="(opcjonalnie)"
-            className="block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-brand-gold)] focus:border-[var(--color-brand-gold)] px-3 py-3"
-            value={form.phone}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="message" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">Wiadomość <span className="text-red-500">*</span></label>
+          <label htmlFor="message" className="field-label">Wiadomość *</label>
           <textarea
             id="message"
             name="message"
             required
             rows={5}
-            placeholder="Treść wiadomości..."
-            className={["block w-full rounded-md px-3 py-3",
-              errors.message ?
-                "border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white" :
-                "border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-brand-gold)] focus:border-[var(--color-brand-gold)]"
-            ].join(' ')}
+            placeholder="Opowiedz o okazji, pomyśle, kamieniu, budżecie — o czymkolwiek, od czego chcesz zacząć."
+            className="field-line mt-1 resize-y"
             value={form.message}
             onChange={handleChange}
             aria-invalid={!!errors.message}
             aria-describedby={errors.message ? 'message-error' : 'message-help'}
           />
           {errors.message ? (
-            <p id="message-error" className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.message}</p>
+            <p id="message-error" className="mt-2 text-sm font-light text-[#a23b2e]">{errors.message}</p>
           ) : (
-            <p id="message-help" className="mt-1 text-sm text-gray-500 dark:text-gray-400">Napisz, czego potrzebujesz lub jaki masz pomysł.</p>
+            <p id="message-help" className="mt-2 text-sm font-light text-[var(--ink-faint)]">
+              Odpowiadamy zwykle w ciągu 1–2 dni roboczych.
+            </p>
           )}
         </div>
         {/* Honeypot (pole ukryte) */}
@@ -215,10 +202,10 @@ export default function ContactForm() {
           ref={submitButtonRef}
           type="submit"
           disabled={status === 'sending'}
-          className="w-full py-3 text-base disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
           variant="primary"
         >
-          {status === 'sending' ? 'Wysyłanie...' : 'Wyślij wiadomość'}
+          {status === 'sending' ? 'Wysyłanie…' : 'Wyślij wiadomość'}
         </Button>
       </form>
       {showModal && (
@@ -229,7 +216,6 @@ export default function ContactForm() {
           onClose={() => {
             setShowModal(false)
             setAckOk(undefined)
-            // przywróć focus na przycisk wyślij
             setTimeout(() => submitButtonRef.current?.focus(), 0)
           }}
         />

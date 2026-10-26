@@ -131,28 +131,21 @@ export default function GalleryClient() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl md:text-4xl font-serif font-light mb-10 text-center">
-        Galeria Inspiracji
-      </h1>
-      <p className="text-center mb-12 max-w-2xl mx-auto">
-        Zobacz przykłady naszych realizacji i znajdź inspirację dla swojej wymarzonej biżuterii.
-      </p>
-
-      <section className="mb-16">
+    <div className="mx-auto max-w-7xl px-6 lg:px-10 pb-[var(--space-section-sm)]">
+      <section className="hairline-t pt-14 mb-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 grid-flow-row-dense">
           {/* Hero: pierwszy element, pełna szerokość (3 kolumny) */}
           {items[0] && (() => {
             const { src, alt } = getSrc(items[0])
             return (
               <div key={`hero-a-${items[0].id}`} className="group cursor-pointer md:col-span-3" onClick={() => { setLightboxIndex(0); setLightboxOpen(true) }}>
-                <div className="relative aspect-[16/9] rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300">
+                <div className="relative aspect-[16/9] overflow-hidden bg-[var(--paper-deep)]">
                   <Image
                     src={src}
                     alt={alt}
                     fill
                     style={{ objectFit: 'cover' }}
-                    className="group-hover:scale-[1.02] transition-transform duration-300"
+                    className="transition-transform duration-700 ease-[var(--ease-smooth)] group-hover:scale-[1.03]"
                     sizes="100vw"
                     priority
                   />
@@ -169,13 +162,13 @@ export default function GalleryClient() {
             const rowSpanClass = orientation === 'portrait' ? 'sm:row-span-2' : 'sm:row-span-1'
             return (
               <div key={`a-${item.id}`} className={`group cursor-pointer ${rowSpanClass}`} onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}>
-                <div className={`relative ${aspectClass} rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-shadow duration-300`}>
+                <div className={`relative ${aspectClass} overflow-hidden bg-[var(--paper-deep)]`}>
                   <Image
                     src={src}
                     alt={alt}
                     fill
                     style={{ objectFit: 'cover' }}
-                    className="group-hover:scale-[1.03] transition-transform duration-300"
+                    className="transition-transform duration-700 ease-[var(--ease-smooth)] group-hover:scale-[1.04]"
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                     loading="lazy"
                   />

@@ -18,14 +18,22 @@ const AboutPage = async () => {
 
   return (
     <>
-      {/* Hero with feature image and left-aligned copy */}
-      <section className="relative min-h-[360px] md:min-h-[440px] overflow-hidden">
-        <Image src="/about-us-workshop.png" alt="Pracownia złotnicza – warsztat" fill sizes="100vw" className="object-cover" priority />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/10 dark:from-black/50 dark:to-black/20" />
-        <Container max="7xl" className="relative z-10 py-[var(--space-section-sm)] md:py-[var(--space-section-md)]">
-          <h1 className="text-3xl md:text-4xl font-serif font-light mb-6 md:mb-8 text-white" dangerouslySetInnerHTML={{ __html: page?.title.rendered || 'O nas' }} />
+      {/* Hero noir z obrazem pracowni */}
+      <section className="on-noir relative overflow-hidden">
+        <Image src="/about-us-workshop.png" alt="" fill sizes="100vw" className="object-cover opacity-40" priority />
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to right, rgba(20,17,12,0.92) 0%, rgba(20,17,12,0.5) 60%, rgba(20,17,12,0.2) 100%), linear-gradient(to top, rgba(20,17,12,0.9) 0%, transparent 45%)',
+          }}
+        />
+        <Container max="7xl" className="relative z-10 !px-6 lg:!px-10 pt-[calc(var(--header-height)+4rem)] pb-16 md:pt-[calc(var(--header-height)+6rem)] md:pb-24">
+          <div className="eyebrow eyebrow--rule mb-6 !text-[var(--gold-soft)]">O pracowni</div>
+          <h1 className="display-title text-5xl md:text-7xl max-w-3xl" dangerouslySetInnerHTML={{ __html: page?.title.rendered || 'O nas' }} />
           {lead && (
-            <p className="text-base md:text-lg leading-relaxed text-white/90 max-w-prose">{lead}</p>
+            <p className="mt-7 text-base md:text-lg font-light leading-relaxed text-[var(--cream-dim)] max-w-xl">{lead}</p>
           )}
         </Container>
       </section>

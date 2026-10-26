@@ -1,189 +1,139 @@
+'use client'
 
-'use client' // Needed for useState
-
-import React, { useState, useEffect, useRef } from 'react'
-import Image from 'next/image'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import MobileMenu from './MobileMenu' // Import MobileMenu
+import MobileMenu from './MobileMenu'
 import { useWindowScroll } from '@uidotdev/usehooks'
 import { usePathname } from 'next/navigation'
-import Container from './ui/Container'
-import { FaFacebook, FaInstagram } from 'react-icons/fa'
-import { FACEBOOK_URL, INSTAGRAM_URL } from '@/lib/socials'
 
-// Define navigation links
 const navLinks = [
-  { href: '/', label: 'GŁÓWNA' },
-  { href: '/katalog', label: 'KATALOG' },
-  { href: '/o-nas', label: 'O NAS' },
-  { href: '/galeria', label: 'GALERIA' },
-  { href: '/kontakt', label: 'KONTAKT' },
+  { href: '/', label: 'Główna' },
+  { href: '/katalog', label: 'Katalog' },
+  { href: '/o-nas', label: 'O nas' },
+  { href: '/galeria', label: 'Galeria' },
+  { href: '/kontakt', label: 'Kontakt' },
 ]
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [{ y }] = useWindowScroll()
-  const isScrolled = (y ?? 0) > 4 // Adjust this value to control when the header changes
+  const isScrolled = (y ?? 0) > 8
   const pathname = usePathname()
-  const headerRef = useRef<HTMLElement | null>(null)
+  // Strony z ciemnym hero — header w wersji jasnej, dopóki nie przewinięto
+  const normalizedPath = pathname !== '/' ? pathname.replace(/\/$/, '') : '/'
+  const hasDarkHero = normalizedPath === '/' || normalizedPath === '/o-nas'
+  const onDark = isMenuOpen || (hasDarkHero && !isScrolled)
 
-  // Aktualizuj CSS var --header-height na podstawie realnej wysokości headera
-  useEffect(() => {
-    const rafMeasure = () =>
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        const h = headerRef.current?.offsetHeight ?? 64
-        if (typeof document !== 'undefined') {
-          document.documentElement.style.setProperty('--header-height', `${h}px`)
-        }
-      }))
+  // Zamknij menu przy zmianie ścieżki
+  useEffect(() => { setIsMenuOpen(false) }, [pathname])
 
-    rafMeasure()
-
-    const onResize = () => rafMeasure()
-    const onScroll = () => rafMeasure()
-    const onOrientation = () => rafMeasure()
-    const onTransitionEnd = () => rafMeasure()
-
-    window.addEventListener('resize', onResize)
-    window.addEventListener('orientationchange', onOrientation)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    const el = headerRef.current
-    el?.addEventListener('transitionend', onTransitionEnd)
-
-    return () => {
-      window.removeEventListener('resize', onResize)
-      window.removeEventListener('orientationchange', onOrientation)
-      window.removeEventListener('scroll', onScroll)
-      el?.removeEventListener('transitionend', onTransitionEnd)
-    }
-  }, [])
-
-  // Dodatkowo mierz po zmianie stanów (scroll/menu), by złapać initial/threshold zmiany
-  useEffect(() => {
-    const h = headerRef.current?.offsetHeight ?? 64
-    if (typeof document !== 'undefined') {
-      document.documentElement.style.setProperty('--header-height', `${h}px`)
-    }
-  }, [isScrolled, isMenuOpen])
-
-  const toggleMenu = () => {
-    const willOpen = !isMenuOpen
-    setIsMenuOpen(willOpen)
-    if (willOpen && typeof window !== 'undefined') {
-      // Jeśli otwieramy menu na mobile i jesteśmy przewinięci w dół,
-      // przesuń widok do góry, aby menu było widoczne (push-down UX).
-      const isMobile = window.matchMedia('(max-width: 767px)').matches
-      if (isMobile) {
-        // Zmień przewijanie na natychmiastowe (znacznie szybsze niż domyślne smooth)
-        window.scrollTo({ top: 0, behavior: 'auto' })
-      }
-    }
-  }
-
-  // Zamknij menu klawiszem Escape (a11y)
+  // Escape zamyka menu (a11y) + blokada scrolla pod pełnoekranowym menu
   useEffect(() => {
     if (!isMenuOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsMenuOpen(false)
     }
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    document.documentElement.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      document.documentElement.style.overflow = ''
+    }
   }, [isMenuOpen])
 
   return (
     <>
       <header
-        ref={headerRef}
         className={[
-          'sticky top-0 inset-x-0 z-50 transition-all duration-300 ease-in-out',
-          // Minimalna, spójna przezroczystość i blur z tokenów (light/dark, mobile/desktop)
-          'bg-[color:var(--header-bg-light)] dark:bg-[color:var(--header-bg-dark)] backdrop-blur-[var(--header-blur)]',
-          isScrolled ? 'py-2' : 'py-4',
-          // Bez specjalnego trybu transparent na desktop — ujednolicone wartości
+          'fixed top-0 inset-x-0 z-50 transition-all duration-300',
+          onDark ? 'header-on-dark' : '',
+          isMenuOpen
+            ? 'bg-transparent'
+            : isScrolled
+              ? 'bg-[color:rgba(246,243,236,0.92)] backdrop-blur-md hairline-b'
+              : 'bg-transparent',
         ].join(' ')}
       >
-        <Container max="7xl" className={`px-6 flex items-center justify-between transition-all duration-300 ease-in-out ${isScrolled ? 'py-2' : 'py-4'}`}>
-          {/* Logo */}
-          <Link href="/" className='flex items-center'>
-            <Image
-              src="/logo.png"
-              alt="Logo Michał Nowak"
-              width={200}
-              height={200}
-              priority
-              className={
-                `h-auto transition-all duration-300 dark:invert dark:hue-rotate-180 ${
-                  isScrolled ? 'w-[176px] md:w-[160px]' : 'w-[220px] md:w-[200px]'
-                }`
-              }
-            />
-          </Link>
-
-          {/* Desktop Navigation (Hidden on Mobile) */}
-          <nav className='hidden md:block'>
-            <ul className='flex items-center gap-8 text-base font-medium tracking-wide font-serif text-gray-900 dark:text-white'>
-              {navLinks.map((link) => {
-                const isActive = link.href === '/'
-                  ? pathname === '/'
-                  : pathname === link.href || pathname.startsWith(link.href + '/')
-                return (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className={["nav-link-hover", isActive ? "nav-link-active" : ""].join(" ")}
-                      aria-current={isActive ? 'page' : undefined}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                )
-              })}
-              {/* Social icons (desktop) */}
-              <li className='ml-4 flex items-center gap-4'>
-                <a
-                  href={FACEBOOK_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label='Facebook'
-                  className='social-link text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
-                >
-                  <FaFacebook className='h-6 w-6' aria-hidden='true' />
-                </a>
-                <a
-                  href={INSTAGRAM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label='Instagram'
-                  className='social-link text-gray-700 dark:text-gray-200 hover:text-brand-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
-                >
-                  <FaInstagram className='h-6 w-6' aria-hidden='true' />
-                </a>
-              </li>
-            </ul>
-          </nav>
-
-          {/* Hamburger Menu Button (Mobile Only) */}
-          <div className='md:hidden'>
-            <button
-              onClick={toggleMenu}
-              className='p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded-sm'
-              aria-label='Toggle menu'
-              aria-expanded={isMenuOpen}
-              aria-controls='mobile-menu'
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
+          <div
+            className={[
+              'flex items-center justify-between transition-all duration-300',
+              isScrolled ? 'h-16 md:h-[68px]' : 'h-[76px] md:h-[84px]',
+            ].join(' ')}
+          >
+            {/* Logotyp tekstowy */}
+            <Link
+              href="/"
+              className={[
+                'group flex flex-col leading-none focus-visible:outline-none',
+                onDark ? 'text-[var(--cream)]' : 'text-[var(--ink)]',
+              ].join(' ')}
+              aria-label="Michał Nowak — Pracownia Złotnicza, strona główna"
             >
-              {/* Animated Hamburger/Close Icon */}
-              <div className='w-6 h-5 flex flex-col justify-between items-center relative'>
-                <span className={`block w-full h-0.5 bg-gray-800 dark:bg-gray-100 rounded-full transition-transform duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 translate-y-[9px]' : ''}`}></span>
-                <span className={`block w-full h-0.5 bg-gray-800 dark:bg-gray-100 rounded-full transition-opacity duration-300 ease-in-out ${isMenuOpen ? 'opacity-0' : ''}`}></span>
-                <span className={`block w-full h-0.5 bg-gray-800 dark:bg-gray-100 rounded-full transition-transform duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 -translate-y-[9px]' : ''}`}></span>
-              </div>
+              <span className="font-display text-[1.45rem] md:text-2xl tracking-[0.02em]">
+                Michał&nbsp;Nowak
+              </span>
+              <span
+                className={[
+                  'mt-1 text-[0.56rem] font-medium uppercase tracking-[0.42em]',
+                  onDark ? 'text-[var(--gold-soft)]' : 'text-[var(--gold)]',
+                ].join(' ')}
+              >
+                Pracownia Złotnicza
+              </span>
+            </Link>
+
+            {/* Nawigacja desktop */}
+            <nav className="hidden md:block" aria-label="Nawigacja główna">
+              <ul className="flex items-center gap-9">
+                {navLinks.map((link) => {
+                  const isActive = link.href === '/'
+                    ? pathname === '/'
+                    : pathname === link.href || pathname.startsWith(link.href + '/')
+                  return (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className={['nav-link-hover', isActive ? 'nav-link-active' : ''].join(' ')}
+                        aria-current={isActive ? 'page' : undefined}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  )
+                })}
+                <li>
+                  <Link href="/kontakt" className="btn btn-outline !px-6 !py-3 text-[0.6875rem]">
+                    Umów rozmowę
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+
+            {/* Przycisk menu (mobile) */}
+            <button
+              onClick={() => setIsMenuOpen((v) => !v)}
+              className={[
+                'md:hidden relative z-50 flex items-center gap-3 p-2 focus-visible:outline-none',
+                onDark ? 'text-[var(--cream)]' : 'text-[var(--ink)]',
+              ].join(' ')}
+              aria-label={isMenuOpen ? 'Zamknij menu' : 'Otwórz menu'}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
+            >
+              <span className="text-[0.6875rem] font-medium uppercase tracking-[0.3em]">
+                {isMenuOpen ? 'Zamknij' : 'Menu'}
+              </span>
+              <span className="flex w-6 flex-col gap-[6px]" aria-hidden="true">
+                <span className={`block h-px w-full bg-current transition-transform duration-300 ${isMenuOpen ? 'translate-y-[3.5px] rotate-45' : ''}`} />
+                <span className={`block h-px w-full bg-current transition-transform duration-300 ${isMenuOpen ? '-translate-y-[3.5px] -rotate-45' : ''}`} />
+              </span>
             </button>
           </div>
-        </Container>
+        </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
-      <MobileMenu isOpen={isMenuOpen} onClose={toggleMenu} links={navLinks} />
+      <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} links={navLinks} />
     </>
   )
 }

@@ -75,28 +75,31 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
 
   return (
     <div>
-      {/* Główny obraz/poster wideo */}
+      {/* Główny obraz/poster wideo — pełny kadr, bez passe-partout */}
       <div
         onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
-        className="relative aspect-square bg-[--color-surface-muted] dark:bg-gray-900/70 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-transform duration-200 ease-[var(--ease-standard)] hover:-translate-y-0.5 motion-reduce:transform-none cursor-pointer group p-6 sm:p-8"
-        role="button" // Dodanie roli dla dostępności
-        tabIndex={0} // Umożliwienie focusu
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setLightboxIndex(0); setLightboxOpen(true); }}} // Obsługa klawiatury
+        className="frame-zoom relative aspect-[4/3] bg-[var(--paper-deep)] cursor-zoom-in group"
+        role="button"
+        tabIndex={0}
+        aria-label="Powiększ zdjęcie"
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setLightboxIndex(0); setLightboxOpen(true); }}}
       >
         <Image
           src={firstSlide.type === 'video' ? (firstSlide.poster || firstImageSlide?.src || '/logo-placeholder.png') : firstSlide.src}
           alt={firstSlide.alt || imageAlt}
           fill
-          style={{ objectFit: 'contain' }}
-          sizes="(max-width: 1024px) 100vw, 50vw" // Dostosuj wg potrzeb
-          priority // Dla LCP (Largest Contentful Paint)
-          className="rounded-lg object-contain transition-opacity duration-300 ease-[var(--ease-standard)] group-hover:opacity-90"
+          style={{ objectFit: 'cover' }}
+          sizes="(max-width: 1024px) 100vw, 60vw"
+          priority
         />
         {firstSlide.type === 'video' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors pointer-events-none">
             <PlayIcon />
           </div>
         )}
+        <span className="absolute bottom-3 right-3 bg-[var(--noir)]/70 px-3 py-1.5 text-[0.6rem] font-medium uppercase tracking-[0.24em] text-[var(--cream)] opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none">
+          Powiększ
+        </span>
       </div>
 
       {/* Miniaturki na stronie (jeśli jest więcej niż 1 slajd) */}
@@ -112,8 +115,8 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
               <div
                 key={idx}
                 onClick={() => { setLightboxIndex(idx); setLightboxOpen(true); }}
-                className={`w-16 h-16 relative rounded-md cursor-pointer overflow-hidden border flex-shrink-0 group ${
-                  idx === lightboxIndex && lightboxOpen ? 'ring-2 ring-brand-gold border-brand-gold' : 'border-gray-300 dark:border-gray-600'
+                className={`w-20 h-20 relative cursor-pointer overflow-hidden border flex-shrink-0 group transition-colors ${
+                  idx === lightboxIndex && lightboxOpen ? 'border-[var(--gold)]' : 'border-[var(--hairline)] hover:border-[var(--gold)]'
                 }`}
                 role="button" // Dodanie roli dla dostępności
                 tabIndex={0} // Umożliwienie focusu
@@ -124,8 +127,8 @@ const ProductGalleryClient: React.FC<ProductGalleryClientProps> = ({ slides, ima
                   src={thumbnailUrl}
                   alt={thumbnailAlt}
                   fill
-                  sizes="64px" // Zgodne z w-16 h-16 (64px)
-                  style={{ objectFit: 'contain' }}
+                  sizes="80px"
+                  style={{ objectFit: 'cover' }}
                   className="transition-opacity duration-300 group-hover:opacity-75"
                   onError={(e) => {
                     // Opcjonalnie: obsługa błędu ładowania miniaturki, np. ustawienie domyślnego obrazka
