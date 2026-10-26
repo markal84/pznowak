@@ -2,7 +2,8 @@
 
 Data: 2026-10-26. Gałąź `feat/strona-glowna` (od `origin/main`), PR do `main`. Nic nie trafiło do `main` ani `release`.
 
-- **PR / preview:** link w opisie PR (uzupełniony po wdrożeniu preview).
+- **PR:** https://github.com/markal84/pznowak/pull/17
+- **Preview:** https://pznowak-cms-git-feat-strona-glowna-markal84s-projects.vercel.app (wdrożenie w toku w chwili pisania raportu; stan sprawdź w PR).
 - **Zrzuty:** `2026-10-26_zlecenie-I-zrzuty/przed/` i `…/po/` (główna 1440 i 390, hero 1440 i 390, kafelki w spoczynku, po najechaniu i z fokusem). Zrzuty nie są w gicie (jak przy poprzednich zleceniach), leżą obok raportu.
 - Zrzuty „po” są z podglądu (znaczniki „do uzupełnienia” widoczne, żółte). Wersję produkcyjną (bez znaczników) sprawdziłem osobno na buildzie z `VERCEL_ENV=production`.
 
