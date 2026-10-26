@@ -73,6 +73,8 @@ const { isStagingEnvironment, STAGING_MEDIA_PREFIX } = await import('../src/lib/
 if (env === 'staging' && !isStagingEnvironment()) throw new Error('Konfiguracja nie widzi stagingu')
 
 const payload = await getPayload({ config: await config })
+// Skrypt działa poza Next (revalidateTag rzuca błąd), a szkice i wersje robocze nie zmieniają opublikowanej strony.
+const context = { skipFrontendRevalidation: true }
 
 type RunLog = {
   createdMedia: number[]
@@ -334,7 +336,7 @@ async function rollback(file: string) {
   )
   if (!apply) return console.log('Na sucho: nic nie usunięto. Dodaj --apply.')
   for (const id of log.createdProducts) {
-    await payload.delete({ collection: 'products', id, overrideAccess: true })
+    await payload.delete({ collection: 'products', context, id, overrideAccess: true })
   }
   for (const id of log.createdMedia) {
     await payload.delete({ collection: 'media', id, overrideAccess: true })
@@ -396,6 +398,7 @@ try {
             }
             const product = await payload.create({
               collection: 'products',
+              context,
               data: {
                 ...p.data,
                 _status: 'draft',
@@ -441,6 +444,7 @@ try {
             ]
             await payload.update({
               collection: 'products',
+              context,
               data: { media },
               draft: true,
               id: current.id,
