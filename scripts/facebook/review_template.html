@@ -74,6 +74,7 @@ figure.m .q{position:absolute;top:4px;left:4px;background:#000b;color:#fff;font-
 figure.m .q.low{background:#c00}
 figure.m .seg button{padding:0 6px;font-size:12px}
 figure.m .ov{font-size:11px;color:var(--muted);text-align:center}
+figure.m .ovf{font-size:11px;color:var(--mat);text-align:center}
 .seg.post button{font-size:13px}
 .site{position:absolute;top:7px;left:7px;z-index:3;font-size:11px;line-height:1.5;padding:0 7px;border-radius:10px;color:#fff;background:var(--ok);cursor:default}
 .site.similar{background:#f9a825;color:#000}
@@ -92,6 +93,29 @@ figure.m .ov{font-size:11px;color:var(--muted);text-align:center}
 .dup .state{color:var(--muted);font-size:12px}
 .dup button[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
 .cbtn[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
+.props{display:flex;flex-direction:column;gap:6px;margin:6px 0}
+.props:empty{display:none}
+.prop{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;border:1px solid var(--mat);border-radius:8px;padding:4px 8px;font-size:13px}
+.prop .bd{background:var(--mat);color:#fff;border-radius:10px;padding:0 8px;font-weight:600}
+.prop .why{color:var(--muted)}
+.prop img,.mrow img,.pick-row img{height:56px;width:auto;border-radius:4px;border:1px solid var(--line)}
+.prop a.go,.mrow a.go{color:inherit;cursor:pointer;text-decoration:underline}
+.mrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;margin:6px 0;color:var(--muted)}
+.mrow b{color:var(--fg)}
+.item.merged{border-left-color:var(--muted);opacity:.8}
+.item.merged .head h3{font-size:15px}
+.mergebtn{font-size:13px}
+#pick{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--fg);padding:0;width:min(720px,calc(100vw - 32px));max-height:min(80vh,800px)}
+#pick::backdrop{background:#0008}
+#pick .ph{position:sticky;top:0;background:var(--card);padding:12px 14px 8px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+#pick .ph .r{display:flex;gap:8px;align-items:center;justify-content:space-between}
+#pick input[type=search]{font:inherit;width:100%;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+#pick .dir{font-size:13px;color:var(--muted)}
+#pick ul{list-style:none;margin:0;padding:6px 8px 12px}
+.pick-row{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:6px 8px;margin:2px 0;border-radius:8px}
+.pick-row .t{display:flex;flex-direction:column;line-height:1.3}
+.pick-row small{color:var(--muted)}
+.pick-row .ph0{width:56px;height:56px;border-radius:4px;background:var(--line)}
 .item.complete figure.m{opacity:.35;filter:grayscale(1)}
 .item.complete .bulk{opacity:.5}
 .item.complete .bulk .seg,.item.complete figure.m .seg{pointer-events:none}
@@ -140,6 +164,17 @@ footer .orph{background:var(--card);border:1px solid var(--warn);border-radius:8
   <button class="nav next" data-lb="next" aria-label="Następne">›</button>
   <div class="cap"></div>
 </div>
+<dialog id="pick" aria-label="Połącz z kartą">
+  <div class="ph">
+    <div class="r"><b id="pickTitle">Połącz z kartą</b><button type="button" data-act="pickClose" aria-label="Zamknij">×</button></div>
+    <div class="dir">
+      <label><input type="radio" name="pickDir" value="into" checked> ta karta dołącza do wybranej (zostaje wybrana)</label><br>
+      <label><input type="radio" name="pickDir" value="from"> wybrana dołącza do tej karty (zostaje ta)</label>
+    </div>
+    <input type="search" id="pickFilter" placeholder="Szukaj po numerze, nazwie, kamieniu…" aria-label="Szukaj karty">
+  </div>
+  <ul id="pickList"></ul>
+</dialog>
 <noscript>Ta strona wymaga JavaScriptu.</noscript>
 <script type="application/json" id="data">__DATA__</script>
 <script>
@@ -187,12 +222,48 @@ const GBY = {};
 for (const [sec, , type] of SECTIONS) {
   for (const it of D[sec]) {
     const files = [...it.photos.map(f => ({ file: f, kind: 'photo' })), ...it.videos.map(v => ({ file: v.file, kind: 'video', q: v.q, poster: v.poster }))];
-    const g = { gid: type + ':' + it.key, type, sec, key: it.key, it, files, opts: OPTS[type], el: null };
+    const g = { gid: type + ':' + it.key, type, sec, key: it.key, it, files, own: files, opts: OPTS[type], el: null, root: null, members: [] };
     G.push(g); GBY[g.gid] = g;
   }
 }
 const bucket = g => S[BUCKET[g.type]];
 const entry = g => bucket(g)[g.key];
+
+// ---------- łączenie kart (sameAs) ----------
+// Karta z sameAs dołącza do karty docelowej: znika z listy (zwinięta), dziedziczy jej decyzję, a jej zdjęcia i filmy
+// pokazuje i rozstrzyga karta docelowa. Łańcuchy rozwiązujemy do korzenia; w cyklu korzeniem jest najmniejszy klucz.
+const CARD = {}, LBL = {}, BYLBL = {};
+for (const sec of ['new', 'maybe']) G.filter(g => g.sec === sec).forEach((g, i) => {
+  CARD[g.key] = g; LBL[g.key] = (sec === 'maybe' ? 'D' : '') + (i + 1); BYLBL[LBL[g.key]] = g.key;
+});
+const cardLabel = k => 'karta ' + (LBL[k] || '?');
+function rootOf(k) {
+  const path = [];
+  let cur = k;
+  while (S.cards[cur] && CARD[S.cards[cur].sameAs] && !path.includes(cur)) { path.push(cur); cur = S.cards[cur].sameAs; }
+  if (path.includes(cur)) cur = path.slice(path.indexOf(cur)).sort()[0];
+  return cur;
+}
+let renderedSig = null;  // stan połączeń, dla którego narysowano karty; po zmianie rysujemy od nowa
+function currentMergeSig() { return JSON.stringify(Object.keys(CARD).map(k => [k, (S.cards[k] || {}).sameAs || ''])); }
+function rebuildMerge() {
+  for (const g of Object.values(CARD)) { g.root = rootOf(g.key); g.members = []; }
+  for (const g of Object.values(CARD)) if (g.root !== g.key) CARD[g.root].members.push(g);
+  for (const g of Object.values(CARD)) {
+    const seen = new Set(g.own.map(f => f.file));
+    g.files = g.root !== g.key ? g.own : [...g.own, ...g.members.flatMap(m => m.own.filter(f => !seen.has(f.file) && seen.add(f.file)).map(f => ({ ...f, from: m.key })))];
+  }
+}
+function flash(g) {
+  if (!g || !g.el) return;
+  g.el.classList.remove('flash'); void g.el.offsetWidth; g.el.classList.add('flash');
+}
+const isMerged = g => g.type === 'card' && g.root !== g.key;
+function groupOf(g) { return [g, ...g.members]; }
+function memberExplicit(g, file) {
+  for (const m of g.members) { const e = S.cards[m.key]; if (e && e.media && e.media[file]) return e.media[file]; }
+  return null;
+}
 function ensure(g) {
   const b = bucket(g);
   if (!b[g.key]) b[g.key] = g.type === 'skipped' ? {} : { media: {} };
@@ -203,21 +274,24 @@ function prune(g) {
   const e = entry(g);
   if (!e) return;
   const empty = g.type === 'skipped' ? !e.decision
-    : !e.decision && !e.name && !e.note && !e.cover && !e.complete && !e.sameAs && !Object.keys(e.media || {}).length;
+    : !e.decision && !e.name && !e.note && !e.cover && !e.complete && !e.sameAs && !(e.notSame || []).length && !Object.keys(e.media || {}).length;
   if (empty) delete bucket(g)[g.key];
 }
 function eff(g, file) {
+  if (g.type === 'card') {
+    const e = entry(g) || {};
+    return (e.media && e.media[file]) || memberExplicit(g, file) || (INHERIT[e.decision] ?? null);
+  }
   const e = entry(g);
   if (!e) return null;
   if (g.type === 'skipped') return e.decision ?? null;
-  if (e.media && e.media[file]) return e.media[file];
-  return g.type === 'card' ? (INHERIT[e.decision] ?? null) : null;
+  return (e.media && e.media[file]) || null;
 }
-function explicit(g, file) { const e = entry(g); return !!(e && e.media && e.media[file]); }
+function explicit(g, file) { const e = entry(g); return !!((e && e.media && e.media[file]) || (g.type === 'card' && memberExplicit(g, file))); }
 function isComplete(g) { const e = entry(g); return g.type === 'existing' && !!(e && e.complete); }
 function isDone(g) {
   const e = entry(g);
-  if (isComplete(g)) return true;
+  if (isComplete(g) || isMerged(g)) return true;
   if (g.type === 'card') return !!(e && e.decision);
   if (g.type === 'skipped') return !!(e && e.decision) || !g.files.length;
   return g.files.every(f => e && e.media && e.media[f.file]);
@@ -244,8 +318,13 @@ function setMedia(g, file, val) {
   if (g.type === 'skipped') {
     if (!val || e.decision === val) delete e.decision; else e.decision = val;
   } else {
-    if (!val || e.media[file] === val) delete e.media[file]; else e.media[file] = val;
-    if (g.type === 'card') fixCover(g);
+    const cur = g.type === 'card' ? (e.media[file] || memberExplicit(g, file)) : e.media[file];
+    if (!val || cur === val) delete e.media[file]; else e.media[file] = val;
+    if (g.type === 'card') {
+      // decyzja dla pliku z dołączonej karty należy teraz do karty docelowej
+      for (const m of g.members) { const me = S.cards[m.key]; if (me && me.media) { delete me.media[file]; prune(m); } }
+      fixCover(g);
+    }
   }
   changed(g);
 }
@@ -273,15 +352,52 @@ function toggleComplete(g) {
   if (e.complete) delete e.complete; else e.complete = true;
   changed(g);
 }
-function toggleSameAs(g, other) {
+function mergeInto(src, dst) {
+  // src (z całą swoją grupą) dołącza do grupy dst
+  const target = CARD[rootOf(dst.key)];
+  if (!target || rootOf(src.key) === target.key) return;
+  if (isMerged(src)) unmerge(src, true);
+  ensure(src).sameAs = target.key;
+  const ns = (entry(target) || {}).notSame;
+  if (ns) { const e = entry(target); e.notSame = ns.filter(k => k !== src.key); if (!e.notSame.length) delete e.notSame; }
+  changed(src);
+  flash(target);
+}
+function unmerge(g, quiet) {
+  const old = CARD[g.root];
+  const e = entry(g);
+  if (!e || !e.sameAs) return;
+  delete e.sameAs;
+  // decyzje plików i okładka zapisane w karcie docelowej wracają do kart, które teraz pokazują te pliki
+  rebuildMerge();
+  const oe = entry(old);
+  if (oe) {
+    const have = new Set(old.files.map(f => f.file));
+    for (const [f, v] of Object.entries(oe.media || {})) {
+      if (have.has(f)) continue;
+      const home = Object.values(CARD).find(c => c.root === c.key && c.files.some(x => x.file === f));
+      if (home) { const he = ensure(home); if (!he.media[f]) he.media[f] = v; }
+      delete oe.media[f];
+    }
+    if (oe.cover && !have.has(oe.cover)) delete oe.cover;
+  }
+  if (quiet) return;
+  changed(g);
+  prune(old);
+}
+function markNotSame(g, otherKey) {
   const e = ensure(g);
-  if (e.sameAs === other) delete e.sameAs; else e.sameAs = other;
+  e.notSame = [...new Set([...(e.notSame || []), otherKey])];
   changed(g);
 }
 function resetOverrides(g) {
-  const e = entry(g);
-  if (!e) return;
-  e.media = {}; delete e.cover;
+  for (const m of groupOf(g)) {
+    const e = entry(m);
+    if (!e) continue;
+    e.media = {};
+    if (m === g) delete e.cover;
+    prune(m);
+  }
   changed(g);
 }
 
@@ -423,7 +539,8 @@ function figure(g, f) {
     `<span class="q${f.q && f.q < 720 ? ' low' : ''}">${f.q ? f.q + 'p' : 'film'}</span><button type="button" class="zoom" data-act="zoom" title="Powiększ">⤢</button>`;
   const cover = g.type === 'card' && f.kind === 'photo' ? `<button type="button" class="cover" data-act="cover" aria-pressed="false" title="Okładka (c)">★</button>` : '';
   const ctrl = g.type === 'skipped' ? '' : seg('sm', g.opts, 'data-act="media"');
-  return `<figure class="m" data-file="${esc(f.file)}" data-d="?">${siteBadge(g, f)}<div class="th">${th}${f.kind === 'photo' ? cover : ''}</div>${ctrl}<div class="ov"></div></figure>`;
+  const from = f.from ? `<div class="ovf">z karty ${esc(LBL[f.from])}</div>` : '';
+  return `<figure class="m" data-file="${esc(f.file)}" data-d="?">${siteBadge(g, f)}<div class="th">${th}${f.kind === 'photo' ? cover : ''}</div>${ctrl}<div class="ov"></div>${from}</figure>`;
 }
 function posts(it) {
   const ps = it.posts || [it];
@@ -444,7 +561,58 @@ function groupName(k) {
   const g = GKEY[k];
   if (!g) return k;
   if (g.type === 'existing') return `«${g.it.title}» (już w katalogu)`;
-  return `karta ${SIM.labels[k]}`;
+  return cardLabel(k);
+}
+const cardTitle = g => ((entry(g) || {}).name || '').trim() || g.it.title;
+function thumbFor(g) {
+  const e = entry(g) || {};
+  const ph = g.files.filter(f => f.kind === 'photo');
+  const f = ph.find(x => x.file === e.cover) || ph[0];
+  if (f) return 'thumbs/' + encodeURI(f.file);
+  const v = g.files.find(x => x.kind === 'video' && x.poster);
+  return v ? v.poster : null;
+}
+const thumbImg = g => { const t = thumbFor(g); return t ? `<img src="${esc(t)}" alt="" loading="lazy">` : `<span class="ph0"></span>`; };
+// Propozycje połączeń: z pliku merge-proposals.json i z notatek „= karta N”. Pokazujemy je na obu kartach (na korzeniach
+// grup), dopóki karty nie są połączone i żadna nie ma drugiej na liście „to nie ten” (notSame).
+const NOTE_REF = /=\s*karta\s*(d?\d+)/gi;
+function proposals() {
+  const raw = (D.proposals || []).map(p => ({ ...p }));
+  for (const g of Object.values(CARD)) {
+    const note = (entry(g) || {}).note || '';
+    for (const m of note.matchAll(NOTE_REF)) {
+      const k = BYLBL[m[1].toUpperCase()];
+      if (k && k !== g.key) raw.push({ a: g.key, b: k, source: 'notatka', reason: `${cardLabel(g.key)}: „${note.trim().slice(0, 80)}”` });
+    }
+  }
+  const out = {}, seen = new Set();
+  for (const p of raw) {
+    const ra = rootOf(p.a), rb = rootOf(p.b);
+    if (ra === rb) continue;
+    const id = [ra, rb].sort().join('|');
+    if (seen.has(id)) continue;
+    const no = k => (S.cards[k] || {}).notSame || [];
+    if ([p.a, ra].some(k => no(k).includes(p.b) || no(k).includes(rb)) || [p.b, rb].some(k => no(k).includes(p.a) || no(k).includes(ra))) continue;
+    seen.add(id);
+    (out[ra] ||= []).push({ other: rb, source: p.source, reason: p.reason });
+    (out[rb] ||= []).push({ other: ra, source: p.source, reason: p.reason });
+  }
+  return out;
+}
+function propsHTML(g, list) {
+  return (list || []).map(p => {
+    const o = CARD[p.other];
+    return `<div class="prop" data-other="${esc(p.other)}"><span class="bd">propozycja: ten sam pierścionek co ${esc(cardLabel(p.other))}</span>` +
+      `${thumbImg(o)}<span><b>${esc(cardTitle(o))}</b> <a class="go" data-act="jump" data-to="${esc(o.gid)}">przejdź</a><br><span class="why">${esc(p.source || '')}${p.reason ? ': ' + esc(p.reason) : ''}</span></span>` +
+      `<button type="button" data-act="propMerge" data-src="${esc(g.key)}" data-dst="${esc(p.other)}">połącz, zostaje ${esc(cardLabel(p.other))}</button>` +
+      `<button type="button" data-act="propMerge" data-src="${esc(p.other)}" data-dst="${esc(g.key)}">połącz, zostaje ${esc(cardLabel(g.key))}</button>` +
+      `<button type="button" data-act="notSame" data-other="${esc(p.other)}">to nie ten</button></div>`;
+  }).join('');
+}
+function membersHTML(g) {
+  if (!g.members.length) return '';
+  return `<div class="mrow">Dołączone karty (ich zdjęcia i filmy są niżej, decyzję podejmuje ta karta): ` +
+    g.members.map(m => `<span>${thumbImg(m)} <b>${esc(cardLabel(m.key))}</b> ${esc(m.it.title)} <button type="button" data-act="unmerge" data-key="${esc(m.key)}">rozłącz</button></span>`).join(' ') + `</div>`;
 }
 function dupsHTML(g) {
   const list = SIM && SIM.dups[g.key];
@@ -462,10 +630,17 @@ function itemHTML(g, n, label) {
   const it = g.it;
   const num = label ? esc(label) + '. ' : '';
   let head, extra = '';
+  if (isMerged(g)) {
+    const r = CARD[g.root];
+    return `<section class="item merged" id="i-${esc(g.gid)}" data-g="${esc(g.gid)}"><div class="head"><h3>${num}${esc(it.title)}</h3>` +
+      `<span>połączona z <b>kartą ${esc(LBL[r.key])}</b> «${esc(cardTitle(r))}» · <a class="go" data-act="jump" data-to="${esc(r.gid)}">przejdź</a> ` +
+      `<button type="button" data-act="unmerge" data-key="${esc(g.key)}">rozłącz</button></span></div>` +
+      `<div class="bulk">Decyzję, okładkę i wybór zdjęć tej karty ustala teraz ${esc(cardLabel(r.key))}.</div>${posts(it)}</section>`;
+  }
   if (g.type === 'card') {
-    head = `<h3>${num}${esc(it.title)}</h3>${seg('dec', CARD_DEC, 'data-act="decide"')}`;
-    extra = `<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza" aria-label="Nazwa robocza" value="">` +
-      `<textarea data-f="note" placeholder="Krótka notatka" aria-label="Notatka"></textarea></div>`;
+    head = `<h3>${num}${esc(it.title)}</h3><span><button type="button" class="mergebtn" data-act="pickOpen">połącz z kartą…</button> ${seg('dec', CARD_DEC, 'data-act="decide"')}</span>`;
+    extra = `<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza" aria-label="Nazwa robocza" value="">` +
+      `<textarea data-f="note" placeholder="Krótka notatka (np. „= karta 12”, żeby zaproponować połączenie)" aria-label="Notatka"></textarea></div>`;
   } else if (g.type === 'existing') {
     head = `<h3>${esc(it.title)}</h3><button type="button" class="cbtn" data-act="complete" aria-pressed="false" title="Nic z tych postów nie trafia do galerii; decyzje zdjęć zostają w pliku, ale eksport je pomija">kompletne – bez zmian</button>`;
     extra = existingSummary(g) + `<div class="bulk">Wszystkie (${g.files.length}): ${seg('sm', g.opts, 'data-act="bulk"')}</div>`;
@@ -478,6 +653,8 @@ function itemHTML(g, n, label) {
     `<div class="media">${g.files.map(f => figure(g, f)).join('')}</div>${reset}${posts(it)}</section>`;
 }
 function renderAll() {
+  rebuildMerge();
+  renderedSig = currentMergeSig();
   let html = '';
   for (const [sec, title, type] of SECTIONS) {
     const gs = G.filter(g => g.sec === sec);
@@ -494,6 +671,7 @@ function fillFields() {
     if (g.type !== 'card' || !g.el) continue;
     const e = entry(g) || {};
     const n = $('[data-f=name]', g.el), t = $('[data-f=note]', g.el);
+    if (!n || !t) continue;
     n.value = e.name ?? g.it.title;
     t.value = e.note ?? '';
   }
@@ -501,11 +679,18 @@ function fillFields() {
 
 // ---------- synchronizacja widoku ----------
 function press(root, sel, val) {
+  if (!root) return;
   root.querySelectorAll(sel).forEach(b => b.setAttribute('aria-pressed', String((b.dataset.v ?? '') === val)));
 }
 function sync() {
+  if (currentMergeSig() !== renderedSig) {
+    const y = window.scrollY;
+    renderAll();
+    window.scrollTo(0, y);
+  }
   const catF = new Set(), matF = new Set(), kind = {};
   const prog = {};
+  const props = proposals();
   for (const g of G) {
     const el = g.el;
     if (!el) continue;
@@ -518,11 +703,13 @@ function sync() {
     const cb = $('.cbtn', el);
     if (cb) { cb.setAttribute('aria-pressed', String(isComplete(g))); cb.textContent = isComplete(g) ? '✔ kompletne – bez zmian' : 'kompletne – bez zmian'; }
     for (const dp of el.querySelectorAll('.dup')) {
-      const other = dp.dataset.other, btn = $('button[data-act=sameas]', dp);
-      if (!btn) continue;
-      const mine = !!(e && e.sameAs === other), theirs = !!(S.cards[other] && S.cards[other].sameAs === g.key);
-      btn.setAttribute('aria-pressed', String(mine));
-      $('.state', dp).textContent = (mine ? ' ✔ zapisane (cofnij kliknięciem)' : '') + (theirs ? ' · tamta karta też to oznaczyła' : '');
+      // para już połączona: wiersz dubla niepotrzebny
+      dp.hidden = g.type === 'card' && !!CARD[dp.dataset.other] && rootOf(dp.dataset.other) === g.root;
+    }
+    const pe = $('.props', el);
+    if (pe) {
+      const html = propsHTML(g, props[g.key]);
+      if (pe.dataset.html !== html) { pe.innerHTML = html; pe.dataset.html = html; }
     }
     el.classList.toggle('touched', touched.has(g.gid));
     el.dataset.dec = g.type === 'card' ? (e && e.decision || '') : g.type === 'skipped' ? (e && e.decision || '') : '';
@@ -560,7 +747,8 @@ function footer() {
       const g = known[type + ':' + k];
       if (!g) { orph.push({ b, k, why: 'brak takiej karty w przeglądzie' }); continue; }
       const e = S[b][k];
-      const have = new Set(g.files.map(f => f.file));
+      if (type === 'card' && e.sameAs && !CARD[e.sameAs]) orph.push({ b, k, why: 'połączona z kartą, której nie ma w przeglądzie: ' + e.sameAs });
+      const have = new Set([...g.own, ...g.files].map(f => f.file));
       const lost = Object.keys(e.media || {}).filter(f => !have.has(f));
       if (e.cover && !have.has(e.cover)) lost.push(e.cover + ' (okładka)');
       if (lost.length) orph.push({ b, k, why: 'nie ma już plików: ' + lost.join(', ') });
@@ -586,6 +774,8 @@ const lbEl = $('#lb');
 function lbOpen(g, i) { lb.g = g; lb.i = i; lbEl.hidden = false; document.body.classList.add('lbopen'); lbRender(); }
 function lbClose() { lb.g = null; lbEl.hidden = true; $('.stage', lbEl).innerHTML = ''; delete $('.stage', lbEl).dataset.file; document.body.classList.remove('lbopen'); }
 function lbRender() {
+  if (!lb.g.files.length || isMerged(lb.g)) { lbClose(); return; }
+  lb.i = Math.min(lb.i, lb.g.files.length - 1);
   const g = lb.g, f = g.files[lb.i], stage = $('.stage', lbEl);
   const src = 'media/' + encodeURI(f.file);
   if (stage.dataset.file !== f.file) {
@@ -613,6 +803,41 @@ function lbDecide(k) {
   if (lb.auto) lbMove(1);
 }
 
+// ---------- „połącz z kartą…” ----------
+const pickEl = $('#pick');
+let pickFor = null;
+function pickOpen(g) {
+  pickFor = g;
+  $('#pickTitle').textContent = `Połącz kartę ${LBL[g.key]} «${cardTitle(g)}» z kartą…`;
+  $('#pickFilter').value = '';
+  pickRender();
+  pickEl.showModal();
+  $('#pickFilter').focus();
+}
+function pickRender() {
+  const q = $('#pickFilter').value.trim().toLowerCase();
+  const DEC = { catalog: 'katalog', material: 'materiały', reject: 'odrzuć' };
+  const rows = Object.values(CARD).filter(c => c.root === c.key && c.key !== pickFor.root).filter(c => {
+    if (!q) return true;
+    const hay = [LBL[c.key], 'karta ' + LBL[c.key], c.it.title, cardTitle(c), (entry(c) || {}).note || '', ...c.it.posts.map(p => p.text || '')].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+  $('#pickList').innerHTML = rows.map(c => {
+    const e = entry(c) || {};
+    const extra = c.members.length ? ` · dołączone: ${c.members.map(m => LBL[m.key]).join(', ')}` : '';
+    return `<li><button type="button" class="pick-row" data-act="pick" data-key="${esc(c.key)}">${thumbImg(c)}<span class="t"><b>${esc(cardLabel(c.key))} · ${esc(cardTitle(c))}</b>` +
+      `<small>${c.files.filter(f => f.kind === 'photo').length} zdj. · ${c.files.filter(f => f.kind === 'video').length} filmów · decyzja: ${esc(DEC[e.decision] || '?')}${esc(extra)}</small></span></button></li>`;
+  }).join('') || '<li class="bulk">Brak kart pasujących do wyszukiwania.</li>';
+}
+function pickChoose(key) {
+  const other = CARD[key], g = pickFor;
+  pickEl.close();
+  if (!other || !g) return;
+  if (document.querySelector('input[name=pickDir]:checked').value === 'into') mergeInto(CARD[g.root], other);
+  else mergeInto(other, CARD[g.root]);
+}
+$('#pickFilter').addEventListener('input', pickRender);
+
 // ---------- zdarzenia ----------
 function itemOf(t) { const s = t.closest('.item'); return s ? GBY[s.dataset.g] : null; }
 document.addEventListener('click', async ev => {
@@ -635,11 +860,17 @@ document.addEventListener('click', async ev => {
   if (act === 'adoptOrphan') { S.cards[t.dataset.to] = S.cards[t.dataset.from]; delete S.cards[t.dataset.from]; fillFields(); changed(GBY['card:' + t.dataset.to]); return; }
   if (act === 'jump') { const g2 = GBY[t.dataset.to]; if (g2 && g2.el) { g2.el.scrollIntoView({ block: 'start', behavior: 'smooth' }); g2.el.classList.remove('flash'); void g2.el.offsetWidth; g2.el.classList.add('flash'); } return; }
   if (act === 'zoomfile') { const fl = t.dataset.file; window.open(fl.startsWith('frames/') ? fl : 'media/' + fl, '_blank', 'noopener'); return; }
+  if (act === 'propMerge') { mergeInto(CARD[t.dataset.src], CARD[t.dataset.dst]); return; }
+  if (act === 'unmerge') { const m = CARD[t.dataset.key]; if (m) unmerge(m); return; }
+  if (act === 'pickClose') { pickEl.close(); return; }
+  if (act === 'pick') { pickChoose(t.dataset.key); return; }
   const g = itemOf(t);
   if (!g) return;
   const v = vb ? vb.dataset.v : undefined;
   if (act === 'complete') { toggleComplete(g); return; }
-  if (act === 'sameas') { toggleSameAs(g, t.dataset.other); return; }
+  if (act === 'sameas') { mergeInto(g, CARD[t.dataset.other]); return; }
+  if (act === 'notSame') { markNotSame(g, t.dataset.other); return; }
+  if (act === 'pickOpen') { pickOpen(g); return; }
   if (act === 'decide') setDecision(g, v);
   else if (act === 'bulk') bulk(g, v);
   else if (act === 'reset') resetOverrides(g);
@@ -665,7 +896,7 @@ document.addEventListener('change', ev => {
 });
 document.addEventListener('keydown', ev => {
   const tag = (ev.target.tagName || '').toLowerCase();
-  if (tag === 'input' || tag === 'textarea' || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+  if (tag === 'input' || tag === 'textarea' || ev.metaKey || ev.ctrlKey || ev.altKey || pickEl.open) return;
   if (lb.g) {
     const k = ev.key;
     if (k === 'Escape') lbClose();

@@ -3,6 +3,7 @@
 Użycie: python3 build_review.py data/facebook
 Decyzje (selection.json) obsługuje review_server.py; ten skrypt ich nie dotyka.
 Przy okazji odświeża miniatury (make_thumbs.py) i podobieństwa zdjęć (hash_images.mjs, similarity.py).
+Propozycje połączeń kart („to ten sam pierścionek”) czyta z data/facebook/merge-proposals.json, jeśli plik jest.
 """
 import json
 import re
@@ -183,6 +184,18 @@ except (OSError, subprocess.CalledProcessError, KeyError) as e:
 
 keys = [g["key"] for sec in ("new", "maybe", "existing") for g in page_data[sec]]
 assert len(keys) == len(set(keys)), "zdublowane klucze kart"
+
+# Propozycje połączeń kart (ręczne, później także z weryfikacji modelem). To tylko podpowiedź w przeglądzie:
+# decyzję zapisuje Marcin przyciskiem, ten skrypt selection.json nie dotyka.
+card_keys = {g["key"] for sec in ("new", "maybe") for g in page_data[sec]}
+page_data["proposals"] = []
+prop_path = root / "merge-proposals.json"
+if prop_path.exists():
+    for p in json.loads(prop_path.read_text(encoding="utf-8")).get("proposals", []):
+        if p.get("a") in card_keys and p.get("b") in card_keys and p["a"] != p["b"]:
+            page_data["proposals"].append({k: p.get(k, "") for k in ("a", "b", "source", "reason")})
+        else:
+            print(f"UWAGA: pominięto propozycję połączenia z nieznaną kartą: {p.get('a')} ↔ {p.get('b')}")
 (root / "review-data.json").write_text(json.dumps(page_data, ensure_ascii=False, indent=1))
 
 # Miniatury (thumbs/) do szybkiego przeglądu; oryginały w media/ zostają nietknięte.
