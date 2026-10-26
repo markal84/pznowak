@@ -187,6 +187,29 @@ export const Products: CollectionConfig = {
       },
     },
     {
+      name: 'featuredOnHome',
+      type: 'checkbox',
+      label: 'Na stronie głównej',
+      defaultValue: false,
+      index: true,
+      admin: {
+        description:
+          'Pokazuje pierścionek w sekcji „Wybrane pierścionki” na stronie głównej (mieszczą się 4; pierścionek z nagłówka strony się tam nie powtarza). Bez zaznaczeń strona użyje listy domyślnej.',
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'homeOrder',
+      type: 'number',
+      label: 'Kolejność na stronie głównej',
+      defaultValue: 0,
+      admin: {
+        condition: (data) => Boolean(data?.featuredOnHome),
+        description: 'Mniejsza liczba = wcześniej. Przy takiej samej liczbie decyduje kolejność w katalogu.',
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'sortOrder',
       type: 'number',
       label: 'Kolejność',

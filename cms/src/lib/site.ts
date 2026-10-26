@@ -17,6 +17,17 @@ export const SITE = {
   ],
 } as const
 
+/**
+ * Jedna linijka zaufania pod przyciskami w hero (strona główna). `confirmed: false` = jeszcze niepotwierdzone przez
+ * pracownię: na podglądzie widać wyróżniony znacznik „do uzupełnienia”, na produkcji pozycja się nie pokazuje.
+ * Dopisując fakt, ustaw `confirmed: true`.
+ */
+export const HERO_TRUST: readonly { text: string; confirmed: boolean }[] = [
+  { text: 'Zamówienia wysyłamy do klientów', confirmed: true },
+  { text: 'Rozmowa o projekcie także przez wideo [do potwierdzenia]', confirmed: false },
+  { text: 'Pierścionek na zamówienie gotowy zwykle w [TERMIN]', confirmed: false },
+]
+
 export const NAV = [
   { id: 'pierscionki', label: 'Pierścionki', href: '/pierscionki' },
   { id: 'obraczki', label: 'Obrączki', href: '/obraczki' },

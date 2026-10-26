@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { SITE } from '@/lib/site'
+import DoUzupelnienia from './DoUzupelnienia'
 
 export default function SiteFooter() {
   return (
@@ -51,11 +52,13 @@ export default function SiteFooter() {
         </div>
         <div className="footer-base">
           <span>© 2026 Pracownia Złotnicza Michał Nowak</span>
-          <span style={{ display: 'flex', gap: 24 }}>
-            {/* [do uzupełnienia] treść polityki prywatności i regulaminu dostarcza pracownia */}
-            <span>Polityka prywatności [wkrótce]</span>
-            <span>Regulamin [wkrótce]</span>
-          </span>
+          {/* Treść polityki prywatności i regulaminu dostarcza pracownia; do tego czasu stopka pokazuje je tylko na podglądzie. */}
+          <DoUzupelnienia>
+            <span style={{ display: 'flex', gap: 24 }}>
+              <span>Polityka prywatności [wkrótce]</span>
+              <span>Regulamin [wkrótce]</span>
+            </span>
+          </DoUzupelnienia>
         </div>
       </div>
     </footer>

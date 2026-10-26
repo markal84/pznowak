@@ -5,6 +5,7 @@ import * as migration_20261020_211333_etap2_kwarantanna from './20261020_211333_
 import * as migration_20261021_182202_zamowienie_grawer_rozmiar from './20261021_182202_zamowienie_grawer_rozmiar'
 import * as migration_20261021_182906_zlecenie_b_zalaczniki from './20261021_182906_zlecenie_b_zalaczniki'
 import * as migration_20261022_095455_seo_pierscionki from './20261022_095455_seo_pierscionki'
+import * as migration_20261026_111856_strona_glowna_wybrane from './20261026_111856_strona_glowna_wybrane'
 
 export const migrations = [
   {
@@ -41,5 +42,10 @@ export const migrations = [
     up: migration_20261022_095455_seo_pierscionki.up,
     down: migration_20261022_095455_seo_pierscionki.down,
     name: '20261022_095455_seo_pierscionki',
+  },
+  {
+    up: migration_20261026_111856_strona_glowna_wybrane.up,
+    down: migration_20261026_111856_strona_glowna_wybrane.down,
+    name: '20261026_111856_strona_glowna_wybrane',
   },
 ]

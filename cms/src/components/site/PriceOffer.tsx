@@ -3,8 +3,8 @@ import type { ReactNode } from 'react'
 type PriceOfferProps = {
   /** Czego dotyczy cena, np. „Obrączki ślubne”. */
   label: string
-  /** Cena albo placeholder, np. „od [X] zł za parę”. */
-  price: string
+  /** Cena albo placeholder, np. „od [X] zł za parę”. Bez ceny (produkcja przed podaniem kwot) zostaje sam przycisk. */
+  price?: string
   /** Przycisk i ewentualny link; bez nich zostaje sama cena z notką. */
   children?: ReactNode
   /** Krótka notka o tym, od czego zależy cena. */
@@ -18,6 +18,9 @@ type PriceOfferProps = {
  * Cena stoi na papierowej przywieszce, tej samej co przy pierścionkach, obok przycisk i notka.
  */
 export default function PriceOffer({ label, price, children, note, size }: PriceOfferProps) {
+  if (!price) {
+    return children ? <div className="row gap-14-28">{children}</div> : null
+  }
   return (
     <div className={size === 'sm' ? 'offer offer-sm' : 'offer'}>
       <p className={size === 'sm' ? 'tag offer-tag' : 'tag tag-md offer-tag'}>

@@ -35,7 +35,7 @@ export default function WorksBrowser({ works }: { works: Work[] }) {
                 <Tag className="tag-corner" name={w.kindLabel} />
               </span>
               <h3>{w.title}</h3>
-              <p>{w.text}</p>
+              {w.text ? <p>{w.text}</p> : null}
             </li>
           ))}
         </ul>

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import RingCreator from '@/components/site/RingCreator'
 import { RING_CREATOR_ENABLED } from '@/lib/site'
+import { consentText } from '@/lib/submissions/consent'
 
 // Wyłączony kreator nie ma strony (404), a nie przekierowania: 308 zapamiętują przeglądarki, więc po ponownym
 // włączeniu kreatora część osób dalej trafiałaby na formularz kontaktowy.
@@ -27,7 +29,7 @@ export default function CreatorPage() {
           pokażemy kamienie na żywo i podamy cenę.
         </p>
       </section>
-      <RingCreator />
+      <RingCreator consentText={consentText('kreator')} priceNote={<DoUzupelnienia> Pierścionki na zamówienie kosztują zwykle [X–Y] zł.</DoUzupelnienia>} />
     </>
   )
 }

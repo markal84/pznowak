@@ -3,8 +3,6 @@
 import { useRef, useState } from 'react'
 import { ATTACHMENTS_ENABLED, PREVIEW_NOTICE, SITE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
 import {
-  BUDGETS,
-  CONSENT_TEXT,
   CONTACT_TOPICS as TOPICS,
   LIMITS,
   RING_DETAIL_TOPICS,
@@ -41,10 +39,16 @@ export default function ContactForm({
   initialTopic,
   project,
   choice,
+  consentText,
+  budgets,
 }: {
   initialTopic?: string
   project?: string
   choice?: string
+  /** Treść zgody (z serwera; ta sama trafia do zapisu zgłoszenia). */
+  consentText: string
+  /** Przedziały budżetu do wyboru; pusta lista ukrywa pole (do czasu podania przedziałów przez pracownię). */
+  budgets: readonly string[]
 }) {
   const [topic, setTopic] = useState<TopicId>(isTopic(initialTopic) ? initialTopic : project ? 'kolekcja' : 'nowy')
   const [sizeKnown, setSizeKnown] = useState<RingSizeKnownId>('unknown')
@@ -146,15 +150,17 @@ export default function ContactForm({
             <input className="fld" data-field="when" id="k-data" maxLength={LIMITS.when} name="data" placeholder="np. koniec czerwca" type="text" {...err('when', 'k-data-err')} />
             <FieldError id="k-data-err" message={fieldErrors.when} />
           </div>
-          <div className="field">
-            <label htmlFor="k-budzet">Budżet <span className="opt-note">(opcjonalnie)</span></label>
-            <select className="fld" data-field="budget" id="k-budzet" name="budzet" {...err('budget', 'k-budzet-err')}>
-              {BUDGETS.map((b) => (
-                <option key={b}>{b}</option>
-              ))}
-            </select>
-            <FieldError id="k-budzet-err" message={fieldErrors.budget} />
-          </div>
+          {budgets.length > 0 ? (
+            <div className="field">
+              <label htmlFor="k-budzet">Budżet <span className="opt-note">(opcjonalnie)</span></label>
+              <select className="fld" data-field="budget" id="k-budzet" name="budzet" {...err('budget', 'k-budzet-err')}>
+                {budgets.map((b) => (
+                  <option key={b}>{b}</option>
+                ))}
+              </select>
+              <FieldError id="k-budzet-err" message={fieldErrors.budget} />
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -264,7 +270,7 @@ export default function ContactForm({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <label className="check">
           <input data-field="consent" name="zgoda" type="checkbox" {...err('consent', 'k-zgoda-err')} />
-          <span>{CONSENT_TEXT.kontakt}</span>
+          <span>{consentText}</span>
         </label>
         <FieldError id="k-zgoda-err" message={fieldErrors.consent} />
         {/* Widżet pojawia się tu tylko wtedy, gdy Cloudflare poprosi człowieka o interakcję. */}

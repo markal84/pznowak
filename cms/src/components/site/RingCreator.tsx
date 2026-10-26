@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   CUTS,
   GEMS,
@@ -15,7 +15,7 @@ import {
   type WidthId,
 } from '@/lib/ring-geometry'
 import { PREVIEW_NOTICE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
-import { CONSENT_TEXT, LIMITS, METALS, OCCASIONS, PAVES, SETTINGS, WIDTHS, type OccasionId } from '@/lib/submissions/options'
+import { LIMITS, METALS, OCCASIONS, PAVES, SETTINGS, WIDTHS, type OccasionId } from '@/lib/submissions/options'
 import { describeCreator } from '@/lib/submissions/summary'
 import { validateCreator } from '@/lib/submissions/validation'
 import { FieldError, FormNotice, Honeypot, invalidProps } from './FormParts'
@@ -31,7 +31,8 @@ const EARLIER_FIELDS = [
   { key: 'engraving', step: 4, label: 'Grawer' },
 ] as const
 
-export default function RingCreator() {
+/** `priceNote`: zdanie o cenie z serwera (komponent kliencki nie zna środowiska, więc nie wybiera go sam). */
+export default function RingCreator({ priceNote, consentText }: { priceNote?: ReactNode; consentText: string }) {
   const [step, setStep] = useState(0)
   const [moved, setMoved] = useState(false)
   const [direction, setDirection] = useState<'forward' | 'back'>('forward')
@@ -350,7 +351,7 @@ export default function RingCreator() {
               <h2 className="wiz-h">Twój szkic jest gotowy</h2>
               <p className="wiz-p" style={{ lineHeight: 1.6 }}>
                 Wyślij go do pracowni. Oddzwonimy, umówimy spotkanie i na podstawie karty przygotujemy szkic i wycenę.
-                Pierścionki na zamówienie kosztują zwykle [X–Y] zł.
+                {priceNote}
               </p>
               <div className="form-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
                 <div className="field">
@@ -407,7 +408,7 @@ export default function RingCreator() {
                     type="checkbox"
                     {...invalidProps('kr-zgoda-err', fieldErrors.consent)}
                   />
-                  <span>{CONSENT_TEXT.kreator}</span>
+                  <span>{consentText}</span>
                 </label>
                 <FieldError id="kr-zgoda-err" message={fieldErrors.consent} />
                 {/* Widżet pojawia się tu tylko wtedy, gdy Cloudflare poprosi człowieka o interakcję. */}

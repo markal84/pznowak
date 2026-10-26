@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { FAMILY, SITE } from '@/lib/site'
+import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
 import SectionIntro from '@/components/site/SectionIntro'
@@ -41,6 +42,7 @@ export default function StudioPage() {
         </ol>
       </section>
 
+      <DoUzupelnienia as="div">
       <section className="band" style={{ borderBottom: 0 }}>
         <div className="wrap" style={{ paddingTop: 96, paddingBottom: 96, display: 'flex', flexWrap: 'wrap', gap: '48px 80px', alignItems: 'center' }}>
           <div className="video-ph" role="img" aria-label="Miejsce na krótki film z pracowni" style={{ flex: '1 1 520px', minWidth: 0 }}>
@@ -59,6 +61,7 @@ export default function StudioPage() {
           </div>
         </div>
       </section>
+      </DoUzupelnienia>
 
       <section className="dark">
         <div className="wrap sec stack" style={{ gap: 48 }}>
@@ -91,7 +94,8 @@ export default function StudioPage() {
             Pracownia mieści się przy ulicy {SITE.street} w Busku-Zdroju. Na rozmowę o projekcie umów się wcześniej, wtedy mamy dla Ciebie czas i kamienie do obejrzenia.
           </p>
           <p className="text" style={{ maxWidth: '30em' }}>
-            Przy pracowni działa sklep z gotową biżuterią: kolczykami, wisiorkami i innymi [asortyment do potwierdzenia].
+            Przy pracowni działa sklep z gotową biżuterią
+            <DoUzupelnienia fallback=".">: kolczykami, wisiorkami i innymi [asortyment do potwierdzenia].</DoUzupelnienia>
           </p>
           <dl className="hours" style={{ fontSize: 16 }}>
             {SITE.hours.map((h) => (
@@ -110,9 +114,11 @@ export default function StudioPage() {
             <a className="tl" href={SITE.mapsUrl} rel="noreferrer" target="_blank">Prowadź do pracowni</a>
           </div>
         </div>
-        <div aria-label="Miejsce na mapę dojazdu do pracowni" className="map-ph" role="img" style={{ flex: '1 1 520px', minWidth: 0 }}>
-          [Mapa Google: Kilińskiego 12, Busko-Zdrój]
-        </div>
+        <DoUzupelnienia as="div">
+          <div aria-label="Miejsce na mapę dojazdu do pracowni" className="map-ph" role="img" style={{ flex: '1 1 520px', minWidth: 0 }}>
+            [Mapa Google: Kilińskiego 12, Busko-Zdrój]
+          </div>
+        </DoUzupelnienia>
       </section>
     </>
   )

@@ -113,8 +113,8 @@ export function filterRings(
 }
 
 /** Wybór pierścionków do sekcji "Pierścionki z pracowni" wg nazw z designu, uzupełniony kolejnymi. */
-export function pickByName(products: readonly Jewel[], names: readonly string[], limit: number): Jewel[] {
-  const picked = names.map((n) => products.find((p) => p.name === n)).filter((p): p is Jewel => Boolean(p))
+export function pickByName<T extends Jewel>(products: readonly T[], names: readonly string[], limit: number): T[] {
+  const picked = names.map((n) => products.find((p) => p.name === n)).filter((p): p is T => Boolean(p))
   for (const p of products) {
     if (picked.length >= limit) break
     if (!picked.includes(p)) picked.push(p)
