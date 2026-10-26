@@ -1,6 +1,11 @@
 import { slugField, type CollectionConfig } from 'payload'
 
-import { isAdmin, isAdminOrEditor, isAuthenticatedOrPublished } from '../access/permissions'
+import {
+  isAdmin,
+  isAdminOrEditor,
+  isAdminOrEditorField,
+  isAuthenticatedOrPublished,
+} from '../access/permissions'
 import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-publication'
 import { applyArchiveStatus, validateProductMedia } from '../lib/product-workflow'
 
@@ -175,6 +180,12 @@ export const Products: CollectionConfig = {
               name: 'source',
               type: 'group',
               label: 'Import z Facebooka / Instagrama',
+              // Dane robocze importu (klucz karty, notatki z przeglądu, posty) tylko dla zalogowanych w panelu:
+              // publiczne REST/GraphQL nie zwraca tej grupy i nie pozwala po niej filtrować.
+              // Skrypt importu czyta ją przez Local API z overrideAccess: true.
+              access: {
+                read: isAdminOrEditorField,
+              },
               admin: {
                 description:
                   'Wypełnia skrypt importu (cms/scripts/import-fb-catalog.ts). Opis i dane z posta to szkic do zatwierdzenia przed publikacją.',
