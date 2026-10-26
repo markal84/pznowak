@@ -25,6 +25,8 @@ test.describe('Przełącznik paska cookies (COOKIE_BANNER_ENABLED)', () => {
     await expect(banner(page)).toHaveCount(0)
     await expect(footerButton(page)).toHaveCount(0)
     await expect(mapFrame(page)).toHaveCount(0)
+    await expect(page.getByText(/^To zdjęcie mapy\./)).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Zmień ustawienia' })).toHaveCount(0)
     await showMap(page).click()
     await expect(mapFrame(page)).toHaveCount(1)
     // Bez paska nic nie zapisujemy w przeglądarce.
@@ -133,60 +135,102 @@ test.describe('Zgoda na cookies', () => {
   })
 })
 
-test.describe('Mapa na stronie „Kontakt”', () => {
-  test.skip(!COOKIE_BANNER_ENABLED, 'mapa z zapisem zgody wymaga paska (zob. test przy wyłączonym pasku)')
+// Ten sam ContactMap stoi na „Kontakt” i na „Pracownia”.
+for (const path of ['/kontakt', '/pracownia']) {
+  test.describe(`Mapa na stronie ${path}`, () => {
+    test.skip(!COOKIE_BANNER_ENABLED, 'mapa z zapisem zgody wymaga paska (zob. test przy wyłączonym pasku)')
 
-  test('bez zgody: statyczna mapa, przycisk nawigacji i ani jednego zapytania do Google', async ({ page }) => {
-    const googleRequests: string[] = []
-    page.on('request', (request) => {
-      if (/(^|\.)(google|googleapis|gstatic)\.com$/.test(new URL(request.url()).hostname)) googleRequests.push(request.url())
+    test('bez zgody: statyczna mapa z podpisem i ani jednego zapytania do Google', async ({ page }) => {
+      const googleRequests: string[] = []
+      page.on('request', (request) => {
+        if (/(^|\.)(google|googleapis|gstatic)\.com$/.test(new URL(request.url()).hostname)) googleRequests.push(request.url())
+      })
+      await visit(page, path)
+      await expect(staticMap(page)).toBeVisible()
+      await expect(mapFrame(page)).toHaveCount(0)
+      await expect(showMap(page)).toBeVisible()
+      // Podpis widoczny także przed pierwszym wyborem w pasku.
+      await expect(banner(page)).toBeVisible()
+      await expect(page.getByText(/To zdjęcie mapy – interaktywna mapa Google pojawi się po akceptacji plików cookies/)).toBeVisible()
+      await page.waitForLoadState('networkidle')
+      expect(googleRequests).toEqual([])
     })
+
+    test('obrazek mapy jest linkiem do nawigacji', async ({ page }) => {
+      await visit(page, path)
+      const link = page.getByRole('link', { name: 'Otwórz nawigację do pracowni' })
+      await expect(link).toHaveCount(1)
+      await expect(link.locator('img[src*="mapa-pracowni"]')).toBeVisible()
+      await expect(link).toHaveAttribute('href', /(google\.com\/maps\/dir|maps\.apple\.com).*Kili%C5%84skiego/)
+      await expect(link).toHaveAttribute('target', '_blank')
+    })
+
+    test('„Zmień ustawienia” pod mapą otwiera ustawienia cookies', async ({ page }) => {
+      await visit(page, path)
+      await banner(page).getByRole('button', { name: 'Odrzuć opcjonalne' }).click()
+      await expect(banner(page)).toBeHidden()
+      await page.getByRole('button', { name: 'Zmień ustawienia' }).click()
+      await expect(banner(page)).toBeVisible()
+      await expect(banner(page).getByRole('checkbox', { name: /Mapy/ })).not.toBeChecked()
+    })
+
+    test('odrzucenie opcjonalnych zostawia statyczną mapę z podpisem', async ({ page }) => {
+      await visit(page, path)
+      await banner(page).getByRole('button', { name: 'Odrzuć opcjonalne' }).click()
+      await expect(staticMap(page)).toBeVisible()
+      await expect(mapFrame(page)).toHaveCount(0)
+      await expect(page.getByText(/To zdjęcie mapy/)).toBeVisible()
+    })
+
+    test('„Akceptuj wszystkie” obejmuje mapy: mapa interaktywna od razu, także po odświeżeniu', async ({ page }) => {
+      await visit(page, path)
+      await banner(page).getByRole('button', { name: 'Akceptuj wszystkie' }).click()
+      await expect(mapFrame(page)).toHaveCount(1)
+      await expect(staticMap(page)).toHaveCount(0)
+      expect(await consentCookie(page)).toMatchObject({ maps: true })
+      await visit(page, path)
+      await expect(mapFrame(page)).toHaveCount(1)
+      await expect(showMap(page)).toHaveCount(0)
+    })
+
+    test('kliknięcie „Pokaż interaktywną mapę” ładuje mapę Google i zapisuje zgodę tylko na mapy', async ({ page }) => {
+      await visit(page, path)
+      await expect(mapFrame(page)).toHaveCount(0)
+      await showMap(page).click()
+      await expect(mapFrame(page)).toHaveCount(1)
+      await expect(staticMap(page)).toHaveCount(0)
+      expect(await consentCookie(page)).toMatchObject({ maps: true, analytics: false, marketing: false })
+      await visit(page, path)
+      await expect(mapFrame(page)).toHaveCount(1)
+    })
+
+    test('wycofanie zgody na mapy w stopce wraca do statycznej mapy', async ({ page, context, baseURL }) => {
+      await presetConsent(context, baseURL, { maps: true })
+      await visit(page, path)
+      await expect(mapFrame(page)).toHaveCount(1)
+      await footerButton(page).click()
+      await banner(page).getByRole('checkbox', { name: /Mapy/ }).uncheck()
+      await banner(page).getByRole('button', { name: 'Zapisz wybór' }).click()
+      await visit(page, path)
+      await expect(mapFrame(page)).toHaveCount(0)
+      await expect(staticMap(page)).toBeVisible()
+    })
+
+    test('zapisana zgoda na mapy: mapa interaktywna od razu po wejściu', async ({ page, context, baseURL }) => {
+      await presetConsent(context, baseURL, { maps: true })
+      await visit(page, path)
+      await expect(mapFrame(page)).toHaveCount(1)
+      await expect(showMap(page)).toHaveCount(0)
+    })
+  })
+}
+
+test.describe('Strona „Kontakt”: przycisk nawigacji', () => {
+  test('„Prowadź do pracowni” prowadzi do nawigacji (Mapy Google lub Apple)', async ({ page, context, baseURL }) => {
+    await presetConsent(context, baseURL)
     await visit(page, '/kontakt')
-    await expect(staticMap(page)).toBeVisible()
-    await expect(mapFrame(page)).toHaveCount(0)
-    await expect(showMap(page)).toBeVisible()
     const navigate = page.getByRole('link', { name: 'Prowadź do pracowni' })
     await expect(navigate).toBeVisible()
     await expect(navigate).toHaveAttribute('href', /(google\.com\/maps\/dir|maps\.apple\.com).*Kili%C5%84skiego/)
-    await page.waitForLoadState('networkidle')
-    expect(googleRequests).toEqual([])
-  })
-
-  test('kliknięcie „Pokaż interaktywną mapę” ładuje mapę Google i zapisuje zgodę tylko na mapy', async ({ page }) => {
-    await visit(page, '/kontakt')
-    await expect(mapFrame(page)).toHaveCount(0)
-    await showMap(page).click()
-    await expect(mapFrame(page)).toHaveCount(1)
-    await expect(staticMap(page)).toHaveCount(0)
-    expect(await consentCookie(page)).toMatchObject({ maps: true, analytics: false, marketing: false })
-    // Zgoda jest zapamiętana: po odświeżeniu mapa jest od razu interaktywna.
-    await visit(page, '/kontakt')
-    await expect(mapFrame(page)).toHaveCount(1)
-  })
-
-  test('zgoda na mapy z paska włącza mapę interaktywną, a jej wycofanie wraca do statycznej', async ({ page }) => {
-    await visit(page, '/kontakt')
-    await banner(page).getByRole('button', { name: 'Akceptuj wszystkie' }).click()
-    await expect(mapFrame(page)).toHaveCount(1)
-    await footerButton(page).click()
-    await banner(page).getByRole('checkbox', { name: /Mapy/ }).uncheck()
-    await banner(page).getByRole('button', { name: 'Zapisz wybór' }).click()
-    await visit(page, '/kontakt')
-    await expect(mapFrame(page)).toHaveCount(0)
-    await expect(staticMap(page)).toBeVisible()
-  })
-
-  test('odrzucenie opcjonalnych zostawia statyczną mapę', async ({ page }) => {
-    await visit(page, '/kontakt')
-    await banner(page).getByRole('button', { name: 'Odrzuć opcjonalne' }).click()
-    await expect(staticMap(page)).toBeVisible()
-    await expect(mapFrame(page)).toHaveCount(0)
-  })
-
-  test('zapisana zgoda na mapy: mapa interaktywna od razu po wejściu', async ({ page, context, baseURL }) => {
-    await presetConsent(context, baseURL, { maps: true })
-    await visit(page, '/kontakt')
-    await expect(mapFrame(page)).toHaveCount(1)
-    await expect(showMap(page)).toHaveCount(0)
   })
 })

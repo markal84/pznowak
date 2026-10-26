@@ -15,14 +15,23 @@ function prefersAppleMaps() {
  * Link „Prowadź do pracowni”: otwiera nawigację w aplikacji Mapy (iPhone, iPad) albo w Mapach Google (reszta).
  * Zwykły link bez skryptów i bez ciasteczek; na serwerze i bez JS działa wersja Google.
  */
-export default function NavigateLink({ className, children }: { className?: string; children: ReactNode }) {
+export default function NavigateLink({
+  className,
+  children,
+  label,
+}: {
+  className?: string
+  children: ReactNode
+  /** Nazwa linku dla czytników ekranu, gdy w środku jest sam obrazek. */
+  label?: string
+}) {
   const href = useSyncExternalStore(
     noopSubscribe,
     () => (prefersAppleMaps() ? SITE.mapsAppleUrl : SITE.mapsUrl),
     () => SITE.mapsUrl,
   )
   return (
-    <a className={className} href={href} rel="noreferrer" target="_blank">
+    <a aria-label={label} className={className} href={href} rel="noreferrer" target="_blank">
       {children}
     </a>
   )

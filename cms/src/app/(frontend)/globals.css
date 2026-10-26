@@ -2861,7 +2861,18 @@ fieldset.plain legend {
   border: 0;
   object-fit: cover;
 }
+.map-link {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+.map-link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -4px;
+}
 .map-note {
+  display: grid;
+  gap: 4px;
   color: var(--muted);
 }
 .map-show {
