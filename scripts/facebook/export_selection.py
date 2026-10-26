@@ -11,6 +11,10 @@ Wynik:
   galleryAdditions   zdjęcia/filmy z postów pierścionków, które już są w katalogu, oznaczone „dodaj do galerii”.
   materials          wszystko oznaczone „materiał” (płaska lista, bez duplikatów, z postem źródłowym).
   warnings           niespójności (np. zdjęcie „w katalogu” w karcie, która nie jest katalogowa).
+
+Pierścienie „Już w katalogu” oznaczone „kompletne – bez zmian” są pomijane w całości (decyzje zdjęć zostają w
+selection.json, ale eksport ich nie widzi). Karty z polem sameAs (to ten sam pierścionek co inna karta) są łączone:
+zdjęcia, filmy i posty trafiają do karty docelowej (mergedFrom), o ile obie mają decyzję „katalog”.
 """
 import json
 import sys
@@ -22,6 +26,7 @@ data = json.loads((root / "review-data.json").read_text(encoding="utf-8"))
 sel_path = root / "selection.json"
 sel = json.loads(sel_path.read_text(encoding="utf-8")) if sel_path.exists() else {}
 cards, existing, skipped = sel.get("cards", {}), sel.get("existing", {}), sel.get("skipped", {})
+sim = data.get("sim") or {}
 
 INHERIT = {"catalog": "catalog", "material": "material", "reject": "skip"}
 warnings = []
@@ -43,6 +48,7 @@ def card_eff(entry, file):
 
 
 catalog, additions, materials, seen = [], [], [], set()
+complete_rings = 0
 undecided = rejected = 0
 
 
@@ -71,6 +77,9 @@ for sec in ("new", "maybe"):
             photos = [f for f, k in cat if k == "photo"]
             videos = [f for f, k in cat if k == "video"]
             cover = e.get("cover") if e.get("cover") in photos else (photos[0] if photos else None)
+            for p in photos:
+                if p in sim.get("newOnSite", {}).get(g["key"], {}):
+                    warnings.append(f"„{label}”: zdjęcie {p} wygląda na już obecne na stronie ({sim['newOnSite'][g['key']][p]['product']})")
             if not photos:
                 warnings.append(f"„{label}”: karta w katalogu, ale bez zdjęć oznaczonych „w katalogu”")
             if cover:
@@ -85,12 +94,19 @@ for sec in ("new", "maybe"):
 
 for g in data["existing"]:
     e = existing.get(g["key"]) or {}
+    if e.get("complete"):
+        complete_rings += 1
+        continue
     media = e.get("media", {})
     files = [(f, "photo") for f in g["photos"]] + [(v["file"], "video") for v in g["videos"]]
     add = [(f, k) for f, k in files if media.get(f) == "gallery"]
     for f, k in files:
         if media.get(f) == "material":
             add_material(g, f, k, "istniejący pierścionek", {"key": g["key"], "title": g["title"]})
+    on_site = (sim.get("existing", {}).get(g["key"]) or {}).get("files", {})
+    for f, k in add:
+        if on_site.get(f, {}).get("level") == "on":
+            warnings.append(f"„{g['title']}”: zdjęcie {f} oznaczone „do galerii”, ale wygląda na już obecne na stronie (d={on_site[f]['d']})")
     if add:
         additions.append({
             "key": g["key"], "ring": g["title"],
@@ -113,12 +129,43 @@ for b, keys in known.items():
         if k not in keys:
             warnings.append(f"osierocona decyzja {b}/{k} (pominięta w eksporcie)")
 
+def merge_catalog():
+    """Łączy karty oznaczone sameAs z kartą docelową (obie muszą być w katalogu)."""
+    by_key = {c["key"]: c for c in catalog}
+    away = set()
+    for k in by_key:
+        path, cur = [], k
+        while cards.get(cur, {}).get("sameAs") and cards[cur]["sameAs"] != cur and cur not in path:
+            path.append(cur)
+            cur = cards[cur]["sameAs"]
+        if cur in path:  # cykl: korzeniem jest najmniejszy klucz z cyklu
+            cur = min(path[path.index(cur):])
+        if cur == k:
+            continue
+        if cur not in by_key:
+            warnings.append(f"„{by_key[k]['name']}”: oznaczona jako ten sam pierścionek co karta spoza katalogu ({cur}), nie łączę")
+            continue
+        t, c = by_key[cur], by_key[k]
+        for field in ("photos", "videos"):
+            t[field] += [x for x in c[field] if x not in t[field]]
+        have = {p["postId"] for p in t["posts"]}
+        t["posts"] += [p for p in c["posts"] if p["postId"] not in have]
+        if c["note"]:
+            t["note"] = (t["note"] + "\n" if t["note"] else "") + f"[{c['name']}] {c['note']}"
+        t.setdefault("mergedFrom", []).append({"key": c["key"], "name": c["name"]})
+        away.add(k)
+    return [c for c in catalog if c["key"] not in away], len(away)
+
+
+catalog, merged = merge_catalog()
+
 out = {
     "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     "selectionRev": sel.get("rev", 0),
     "summary": {
         "catalogRings": len(catalog), "galleryAdditions": len(additions), "materials": len(materials),
-        "cardsUndecided": undecided, "cardsRejected": rejected, "warnings": len(warnings),
+        "cardsUndecided": undecided, "cardsRejected": rejected, "ringsCompleteNoChange": complete_rings, "cardsMerged": merged,
+        "warnings": len(warnings),
     },
     "catalog": catalog,
     "galleryAdditions": additions,
@@ -128,4 +175,5 @@ out = {
 (root / "catalog-selection.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
 s = out["summary"]
 print(f"catalog-selection.json: {s['catalogRings']} pierścionków do katalogu, {s['galleryAdditions']} uzupełnień galerii, "
-      f"{s['materials']} materiałów; nieprzejrzanych kart: {undecided}; ostrzeżeń: {s['warnings']}")
+      f"{s['materials']} materiałów; połączonych kart: {merged}; kompletnych pierścionków (pominięte): {complete_rings}; "
+      f"nieprzejrzanych kart: {undecided}; ostrzeżeń: {s['warnings']}")

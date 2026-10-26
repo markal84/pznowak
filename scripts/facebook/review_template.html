@@ -75,6 +75,26 @@ figure.m .q.low{background:#c00}
 figure.m .seg button{padding:0 6px;font-size:12px}
 figure.m .ov{font-size:11px;color:var(--muted);text-align:center}
 .seg.post button{font-size:13px}
+.site{position:absolute;top:7px;left:7px;z-index:3;font-size:11px;line-height:1.5;padding:0 7px;border-radius:10px;color:#fff;background:var(--ok);cursor:default}
+.site.similar{background:#f9a825;color:#000}
+.site .tip{display:none;position:absolute;top:100%;left:0;margin-top:4px;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:6px;font-size:12px;line-height:1.3;width:max-content;max-width:240px;box-shadow:0 4px 14px #0005}
+.site .tip img{display:block;height:150px;width:auto;max-width:230px;border-radius:4px;margin-bottom:4px;cursor:default}
+.site:hover .tip,.site:focus .tip{display:block}
+.sum{font-size:13px;color:var(--muted);margin:2px 0 6px}
+.sum b{color:var(--fg)}
+.ok{color:var(--ok)}.warn{color:var(--warn)}
+.dups{display:flex;flex-direction:column;gap:6px;margin:6px 0}
+.dup{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;border:1px solid var(--warn);border-radius:8px;padding:4px 8px;font-size:13px}
+.dup .bd{background:#f9a825;color:#000;border-radius:10px;padding:0 8px;font-weight:600}
+.dup a.go{color:inherit;cursor:pointer;text-decoration:underline}
+.dup .pr{display:inline-flex;align-items:center;gap:4px}
+.dup .pr img{height:56px;width:auto;border-radius:4px;border:1px solid var(--line);cursor:zoom-in}
+.dup .state{color:var(--muted);font-size:12px}
+.dup button[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
+.cbtn[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
+.item.complete figure.m{opacity:.35;filter:grayscale(1)}
+.item.complete .bulk{opacity:.5}
+.item.complete .bulk .seg,.item.complete figure.m .seg{pointer-events:none}
 details{margin:2px 0}
 summary{cursor:pointer;color:var(--muted);font-size:13px}
 details p{white-space:pre-wrap;margin:4px 0 8px;font-size:14px}
@@ -183,7 +203,7 @@ function prune(g) {
   const e = entry(g);
   if (!e) return;
   const empty = g.type === 'skipped' ? !e.decision
-    : !e.decision && !e.name && !e.note && !e.cover && !Object.keys(e.media || {}).length;
+    : !e.decision && !e.name && !e.note && !e.cover && !e.complete && !e.sameAs && !Object.keys(e.media || {}).length;
   if (empty) delete bucket(g)[g.key];
 }
 function eff(g, file) {
@@ -194,8 +214,10 @@ function eff(g, file) {
   return g.type === 'card' ? (INHERIT[e.decision] ?? null) : null;
 }
 function explicit(g, file) { const e = entry(g); return !!(e && e.media && e.media[file]); }
+function isComplete(g) { const e = entry(g); return g.type === 'existing' && !!(e && e.complete); }
 function isDone(g) {
   const e = entry(g);
+  if (isComplete(g)) return true;
   if (g.type === 'card') return !!(e && e.decision);
   if (g.type === 'skipped') return !!(e && e.decision) || !g.files.length;
   return g.files.every(f => e && e.media && e.media[f.file]);
@@ -217,6 +239,7 @@ function changed(g) {
   scheduleSave(500);
 }
 function setMedia(g, file, val) {
+  if (isComplete(g)) return;
   const e = ensure(g);
   if (g.type === 'skipped') {
     if (!val || e.decision === val) delete e.decision; else e.decision = val;
@@ -240,8 +263,19 @@ function setCover(g, file) {
   changed(g);
 }
 function bulk(g, val) {
+  if (isComplete(g)) return;
   const e = ensure(g);
   for (const f of g.files) e.media[f.file] = val;
+  changed(g);
+}
+function toggleComplete(g) {
+  const e = ensure(g);
+  if (e.complete) delete e.complete; else e.complete = true;
+  changed(g);
+}
+function toggleSameAs(g, other) {
+  const e = ensure(g);
+  if (e.sameAs === other) delete e.sameAs; else e.sameAs = other;
   changed(g);
 }
 function resetOverrides(g) {
@@ -364,6 +398,23 @@ window.addEventListener('beforeunload', e => { if (loaded && seq !== savedSeq) {
 function seg(cls, opts, attrs) {
   return `<span class="seg ${cls}" ${attrs || ''}>${opts.map(([v, l]) => `<button type="button" data-v="${esc(v)}" aria-pressed="false">${esc(l)}</button>`).join('')}</span>`;
 }
+const SIM = D.sim || null;
+const GKEY = {};
+for (const g of G) GKEY[g.key] = g;
+const thumbOf = f => (f.startsWith('frames/') ? f : 'thumbs/' + encodeURI(f));
+function siteInfo(g, file) {
+  if (!SIM) return null;
+  if (g.type === 'existing') return (SIM.existing[g.key] && SIM.existing[g.key].files[file]) || null;
+  if (g.type === 'card') return (SIM.newOnSite[g.key] && SIM.newOnSite[g.key][file]) || null;
+  return null;
+}
+function siteBadge(g, f) {
+  const x = f.kind === 'photo' ? siteInfo(g, f.file) : null;
+  if (!x) return '';
+  const lbl = x.level === 'on' ? (x.product === 'galeria' ? 'na stronie (galeria)' : x.other ? 'na stronie (inny: ' + x.product + ')' : 'na stronie') : 'podobne?';
+  const th = 'legacy-thumbs/' + encodeURI(x.img.replace(/\.\w+$/, '') + '.jpg');
+  return `<span class="site ${x.level}" tabindex="0">${esc(lbl)}<span class="tip"><img src="${th}" alt="">${esc(x.product || '')} · odległość ${x.d} (${esc(x.method)})<br>${esc(x.img)}</span></span>`;
+}
 function figure(g, f) {
   const src = 'media/' + encodeURI(f.file);
   let th;
@@ -372,13 +423,41 @@ function figure(g, f) {
     `<span class="q${f.q && f.q < 720 ? ' low' : ''}">${f.q ? f.q + 'p' : 'film'}</span><button type="button" class="zoom" data-act="zoom" title="Powiększ">⤢</button>`;
   const cover = g.type === 'card' && f.kind === 'photo' ? `<button type="button" class="cover" data-act="cover" aria-pressed="false" title="Okładka (c)">★</button>` : '';
   const ctrl = g.type === 'skipped' ? '' : seg('sm', g.opts, 'data-act="media"');
-  return `<figure class="m" data-file="${esc(f.file)}" data-d="?"><div class="th">${th}${f.kind === 'photo' ? cover : ''}</div>${ctrl}<div class="ov"></div></figure>`;
+  return `<figure class="m" data-file="${esc(f.file)}" data-d="?">${siteBadge(g, f)}<div class="th">${th}${f.kind === 'photo' ? cover : ''}</div>${ctrl}<div class="ov"></div></figure>`;
 }
 function posts(it) {
   const ps = it.posts || [it];
   return ps.map(p => `<details><summary>#${p.idx} · ${esc(p.date || 'brak daty')} · <a href="https://www.facebook.com/${esc(p.post_id)}" target="_blank" rel="noopener">post</a></summary><p>${p.text ? esc(p.text) : '<i>bez tekstu</i>'}</p></details>`).join('');
 }
 function snippet(t) { t = (t || '').replace(/\s+/g, ' ').trim(); return t.length > 140 ? t.slice(0, 140) + '…' : t; }
+function existingSummary(g) {
+  const x = SIM && SIM.existing[g.key];
+  if (!x) return '';
+  const vals = Object.values(x.files);
+  const on = vals.filter(v => v.level === 'on').length, sim = vals.filter(v => v.level === 'similar').length;
+  const nw = g.it.photos.length - on - sim;
+  const vid = g.it.videos.length;
+  return `<div class="sum">na stronie: <b class="ok">${on}</b> zdj.${sim ? ` · podobne?: <b class="warn">${sim}</b>` : ''} · nowe: <b>${nw}</b> zdj. · filmy: <b>${vid}</b>` +
+    `${vid || x.siteVideo ? ` · film na stronie: <b class="${x.siteVideo ? 'ok' : 'warn'}">${x.siteVideo ? 'jest' : 'nie ma'}</b>` : ''}</div>`;
+}
+function groupName(k) {
+  const g = GKEY[k];
+  if (!g) return k;
+  if (g.type === 'existing') return `«${g.it.title}» (już w katalogu)`;
+  return `karta ${SIM.labels[k]}`;
+}
+function dupsHTML(g) {
+  const list = SIM && SIM.dups[g.key];
+  if (!list) return '';
+  return `<div class="dups">` + list.map(d => {
+    const og = GKEY[d.other];
+    const thumbs = d.pairs.slice(0, 2).map(p => `<span class="pr"><img src="${thumbOf(p.a)}" alt="" data-act="zoomfile" data-file="${esc(p.a)}"> ≈ <img src="${thumbOf(p.b)}" alt="" data-act="zoomfile" data-file="${esc(p.b)}"> <small>d=${p.d}</small></span>`).join('');
+    const same = g.type === 'card' && og && og.type === 'card'
+      ? `<button type="button" data-act="sameas" data-other="${esc(d.other)}" aria-pressed="false">to ten sam pierścionek co ${esc(groupName(d.other))}</button><span class="state"></span>` : '';
+    return `<div class="dup" data-other="${esc(d.other)}"><span class="bd">${d.level === 'close' ? 'możliwy dubel' : 'podobne zdjęcia'}: ${esc(groupName(d.other))}</span>` +
+      `<a class="go" data-act="jump" data-to="${esc(og ? og.gid : '')}">przejdź</a>${thumbs}${same}</div>`;
+  }).join('') + `</div>`;
+}
 function itemHTML(g, n, label) {
   const it = g.it;
   const num = label ? esc(label) + '. ' : '';
@@ -388,14 +467,14 @@ function itemHTML(g, n, label) {
     extra = `<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza" aria-label="Nazwa robocza" value="">` +
       `<textarea data-f="note" placeholder="Krótka notatka" aria-label="Notatka"></textarea></div>`;
   } else if (g.type === 'existing') {
-    head = `<h3>${esc(it.title)}</h3>`;
-    extra = `<div class="bulk">Wszystkie (${g.files.length}): ${seg('sm', g.opts, 'data-act="bulk"')}</div>`;
+    head = `<h3>${esc(it.title)}</h3><button type="button" class="cbtn" data-act="complete" aria-pressed="false" title="Nic z tych postów nie trafia do galerii; decyzje zdjęć zostają w pliku, ale eksport je pomija">kompletne – bez zmian</button>`;
+    extra = existingSummary(g) + `<div class="bulk">Wszystkie (${g.files.length}): ${seg('sm', g.opts, 'data-act="bulk"')}</div>`;
   } else {
     head = `<h3>#${it.idx} · ${esc(it.date || 'brak daty')}</h3>${seg('post', g.opts, 'data-act="media"')}`;
     extra = `<div class="bulk">${esc(snippet(it.text)) || '<i>bez tekstu</i>'}</div>`;
   }
   const reset = g.type === 'card' && g.files.length ? `<div class="bulk"><button type="button" data-act="reset">wyczyść ręczne nadpisania zdjęć</button></div>` : '';
-  return `<section class="item" id="i-${esc(g.gid)}" data-g="${esc(g.gid)}"><div class="head">${head}</div>${extra}` +
+  return `<section class="item" id="i-${esc(g.gid)}" data-g="${esc(g.gid)}"><div class="head">${head}</div>${dupsHTML(g)}${extra}` +
     `<div class="media">${g.files.map(f => figure(g, f)).join('')}</div>${reset}${posts(it)}</section>`;
 }
 function renderAll() {
@@ -435,6 +514,16 @@ function sync() {
     (prog[g.sec] ||= [0, 0])[1]++;
     if (done) prog[g.sec][0]++;
     el.classList.toggle('done', done);
+    el.classList.toggle('complete', isComplete(g));
+    const cb = $('.cbtn', el);
+    if (cb) { cb.setAttribute('aria-pressed', String(isComplete(g))); cb.textContent = isComplete(g) ? '✔ kompletne – bez zmian' : 'kompletne – bez zmian'; }
+    for (const dp of el.querySelectorAll('.dup')) {
+      const other = dp.dataset.other, btn = $('button[data-act=sameas]', dp);
+      if (!btn) continue;
+      const mine = !!(e && e.sameAs === other), theirs = !!(S.cards[other] && S.cards[other].sameAs === g.key);
+      btn.setAttribute('aria-pressed', String(mine));
+      $('.state', dp).textContent = (mine ? ' ✔ zapisane (cofnij kliknięciem)' : '') + (theirs ? ' · tamta karta też to oznaczyła' : '');
+    }
     el.classList.toggle('touched', touched.has(g.gid));
     el.dataset.dec = g.type === 'card' ? (e && e.decision || '') : g.type === 'skipped' ? (e && e.decision || '') : '';
     if (g.type === 'card') press($('.head .seg', el), 'button', e && e.decision || '');
@@ -450,6 +539,7 @@ function sync() {
       if (s) press(s, 'button', d || '');
       const c = $('.cover', fig);
       if (c) c.setAttribute('aria-pressed', String(!!(e && e.cover === f)));
+      if (isComplete(g)) continue;
       if (d === 'catalog' || d === 'gallery') catF.add(f); else if (d === 'material') matF.add(f);
     }
   }
@@ -543,9 +633,13 @@ document.addEventListener('click', async ev => {
   }
   if (act === 'dropPending') { try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ } lock(false); banner(''); return; }
   if (act === 'adoptOrphan') { S.cards[t.dataset.to] = S.cards[t.dataset.from]; delete S.cards[t.dataset.from]; fillFields(); changed(GBY['card:' + t.dataset.to]); return; }
+  if (act === 'jump') { const g2 = GBY[t.dataset.to]; if (g2 && g2.el) { g2.el.scrollIntoView({ block: 'start', behavior: 'smooth' }); g2.el.classList.remove('flash'); void g2.el.offsetWidth; g2.el.classList.add('flash'); } return; }
+  if (act === 'zoomfile') { const fl = t.dataset.file; window.open(fl.startsWith('frames/') ? fl : 'media/' + fl, '_blank', 'noopener'); return; }
   const g = itemOf(t);
   if (!g) return;
   const v = vb ? vb.dataset.v : undefined;
+  if (act === 'complete') { toggleComplete(g); return; }
+  if (act === 'sameas') { toggleSameAs(g, t.dataset.other); return; }
   if (act === 'decide') setDecision(g, v);
   else if (act === 'bulk') bulk(g, v);
   else if (act === 'reset') resetOverrides(g);

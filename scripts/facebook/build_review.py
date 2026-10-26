@@ -2,7 +2,7 @@
 
 Użycie: python3 build_review.py data/facebook
 Decyzje (selection.json) obsługuje review_server.py; ten skrypt ich nie dotyka.
-Przy okazji odświeża miniatury (make_thumbs.py).
+Przy okazji odświeża miniatury (make_thumbs.py) i podobieństwa zdjęć (hash_images.mjs, similarity.py).
 """
 import json
 import re
@@ -168,6 +168,18 @@ for p in proposal["skipped"]:
     g = group(p["post_id"], [p["idx"]], ph, vi)
     g.update(idx=p["idx"], post_id=p["post_id"], date=p["date"], text=p["text"])
     page_data["skipped"].append(g)
+
+# Podobieństwo zdjęć (plakietki „na stronie” i „możliwy dubel”). Bez node/sharp strona działa, tylko bez plakietek.
+legacy = root.parent / "legacy"
+try:
+    subprocess.run(["node", str(Path(__file__).parent / "hash_images.mjs"), str(legacy), str(root)], check=True)
+    sys.path.insert(0, str(Path(__file__).parent))
+    import similarity
+
+    page_data["sim"], sim_report = similarity.compute(root, legacy, page_data)
+    (root / "similarity-report.json").write_text(json.dumps(sim_report, ensure_ascii=False, indent=1))
+except (OSError, subprocess.CalledProcessError, KeyError) as e:
+    print(f"UWAGA: bez plakietek podobieństwa ({e})")
 
 keys = [g["key"] for sec in ("new", "maybe", "existing") for g in page_data[sec]]
 assert len(keys) == len(set(keys)), "zdublowane klucze kart"
