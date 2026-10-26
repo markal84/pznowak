@@ -201,12 +201,16 @@ function mainStone(text: string): string {
 }
 
 /**
- * Szkic danych z nazwy karty i tekstu postów. Kamień główny najpierw z nazwy (tekst postów potrafi wspominać
- * inne modele), karaty też najpierw z nazwy. Wszystko to szkic do sprawdzenia przez Michała.
+ * Szkic danych z nazwy karty i tekstu postów. Kamień główny najpierw z nazwy karty, potem z nazw kart do niej
+ * dołączonych (tekst postów potrafi wspominać inne modele), karaty też najpierw z nazwy. Wszystko to szkic do sprawdzenia przez Michała.
  */
-export function extractDetails(name: string, texts: string[]): FbDetails {
-  const all = [name, ...texts].join('\n')
-  const fromName = mainStone(name)
+export function extractDetails(
+  name: string,
+  texts: string[],
+  mergedNames: string[] = [],
+): FbDetails {
+  const all = [name, ...mergedNames, ...texts].join('\n')
+  const fromName = mainStone(name) || mainStone(mergedNames.join('\n'))
   const main = fromName || (DIAMOND.test(name) ? '' : mainStone(texts.join('\n')))
   const hasDiamond = DIAMOND.test(all)
   const stone = main
@@ -293,7 +297,11 @@ export function buildImportPlan(selection: FbCatalogSelection, state: ImportStat
   const products = selection.catalog.map((item): PlannedProduct => {
     const itemWarnings: string[] = []
     const texts = item.posts.map((post) => post.text)
-    const parsed = extractDetails(item.name, texts)
+    const parsed = extractDetails(
+      item.name,
+      texts,
+      (item.mergedFrom ?? []).map((m) => m.name),
+    )
     const existing = byKey.get(item.key)
     const baseSlug = slugify(item.name)
     const slug = existing ? existing.slug : uniqueSlug(baseSlug, takenSlugs)

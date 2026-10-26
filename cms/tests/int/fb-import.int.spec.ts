@@ -87,6 +87,16 @@ describe('fb-import: tekst i dane z posta', () => {
     })
   })
 
+  it('kamień z nazwy karty dołączonej, gdy nazwa główna mówi tylko o brylantach', () => {
+    expect(
+      extractDetails(
+        'ETERNITY: kamienie kolorowe i brylanty',
+        ['Model z szafirem albo rubinem'],
+        ['Obrączka eternity z różowymi szafirami'],
+      ).stone,
+    ).toBe('Szafir różowy, Diament')
+  })
+
   it('opis od najstarszego posta, bez powtórzeń; krótki opis to pierwsze zdanie', () => {
     const posts = [
       post('Drugi post.', '2025-02-01'),

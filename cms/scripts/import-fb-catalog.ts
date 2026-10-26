@@ -187,7 +187,8 @@ async function describeFile(file: PlannedFile) {
   if (file.kind === 'photo') {
     const meta = await sharp(fullPath).metadata()
     const long = Math.max(meta.width ?? 0, meta.height ?? 0)
-    return `${meta.width}×${meta.height}${long > 2000 ? ' → 2000 px' : ''}${meta.exif ? ', EXIF do usunięcia' : ''}`
+    const note = long > 2000 ? ' → 2000 px' : long < 1000 ? ' – mała rozdzielczość' : ''
+    return `${meta.width}×${meta.height}${note}${meta.exif ? ', EXIF do usunięcia' : ''}`
   }
   const v = await probeVideo(fullPath)
   const target = canCopyVideo(v) ? 'bez przekodowania' : '→ H.264 ≤ 1280 px'
