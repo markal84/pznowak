@@ -56,3 +56,6 @@ next-env.d.ts
 !cms/docs/**/*.md
 !data/legacy/README.md
 /.playwright-cli/
+
+# Surowy eksport z fanpage FB (linki CDN wygasają, media duże)
+/data/facebook/
