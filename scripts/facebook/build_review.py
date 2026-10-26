@@ -17,62 +17,25 @@ posts = json.loads((root / "posts.json").read_text())["posts"]
 posts.sort(key=lambda p: p["time"] or 0)
 media = sorted(p.name for p in (root / "media").iterdir())
 
-# Indeksy postów w kolejności chronologicznej (jak w stykówkach).
-NEW = [
-    ("Brylant w szlifie szmaragdowym 0,41 ct", [31, 30, 14]),
-    ("Solitaire w białym szatonie", [36, 37]),
-    ("Pierścionek z 15 diamentami noszony na dwa sposoby", [38]),
-    ("Czarny diament w żółtym złocie", [39]),
-    ("Owal z diamentami po bokach (szafir, rubin, diament, szmaragd)", [53]),
-    ("Czarny diament w białym złocie", [56]),
-    ("Niebieski diament 0,21 ct w stylu art déco", [106, 97]),
-    ("Szafir niebiesko-zielony w otoczeniu diamentów", [107, 108]),
-    ("Jesień w złocie: szafiry i turmaliny", [109]),
-    ("Obrączka eternity z różowymi szafirami", [117]),
-    ("Oliwin w szlifie emerald", [120]),
-    ("Turmalin arbuzowy z diamentami", [123]),
-    ("Trilogy ze szmaragdem", [126]),
-    ("Malinowy turmalin w oprawie halo", [131, 127]),
-    ("Różowy turmalin w oprawie halo", [134]),
-    ("Morganit z diamentami (walentynkowy)", [142, 159]),
-    ("Diament 0,5 ct w żółtym złocie", [145]),
-    ("Niebieski diament w białym złocie", [162, 150, 147, 144]),
-    ("Owalny morganit z diamentami", [148]),
-    ("Australijski opal z diamentami", [151, 160]),
-    ("Ametyst owalny z diamentami", [165, 156, 152, 196]),
-    ("Andaluzyt z diamentami", [153, 161]),
-    ("Ametyst w szlifie oktagon z diamentami", [165, 154]),
-    ("Agat w owalu z diamentami", [164, 158]),
-    ("Morganit z diamentami na szynie pavé", [163]),
-    ("Turmalin cytrynowy z diamentami", [169]),
-    ("Oliwin w stylu vintage", [189]),
-    ("Morganit w oprawie halo", [191, 185]),
-    ("Pierścionek „dłoń trzymająca kamień”", [197]),
-    ("Diament 0,30 ct z certyfikatem GIA", [198, 190]),
-    ("ETERNITY: kamienie kolorowe i brylanty", [1]),
-    ("Moissanit 2 ct w odcieniu szampana", [0]),
-]
-# Zdjęcia posta 165 (ametysty): 1. i 4. oktagon, 2. i 3. owal.
-SPLIT = {("Ametyst owalny z diamentami", 165): [1, 2], ("Ametyst w szlifie oktagon z diamentami", 165): [0, 3]}
-MAYBE = {
-    "Sygnet męski z awenturynem": [44, 43, 42],
-    "Sygnet z onyksem": [175],
-    "Sygnet z monetą SIC TRANSIT GLORIA MUNDI": [186],
-    "Pierścionek zaręczynowy klienta (wyspa)": [182],
-    "Pierścionek dla żony": [195],
-    "Obrączka eternity odtworzona dla klientki": [137, 138],
-    "Pierścionek zwierzęcy (proces)": [75, 76],
-}
-EXISTING = {  # nazwa w katalogu -> indeksy postów (pierwszy to post zdjęciowy dopasowany po obrazie)
-    "Adamas": [2], "Gaia": [3], "Delos": [4], "Egea": [5, 70, 73], "Ione": [6], "Iris": [7], "Pelagia": [8, 16],
-    "Helios": [9, 168], "Asteria": [10, 69], "Aria": [17, 28], "Phoebe": [19, 26], "Chryse": [21, 22, 27],
-    "Athena": [23, 24, 25], "Dione": [46, 47], "Hestia": [50, 52, 51], "Cyane": [63, 60],
-    "Harmonia / Leto (ten sam post)": [64, 62], "Eirene": [65, 61, 66], "Nyx": [67, 58, 68],
-    "Terpsichore": [77, 110, 200], "Urania": [98, 92], "Thalassa": [99, 91], "Thalia": [100, 87, 95],
-    "Pyrrha": [101, 89], "Daphne": [102, 88], "Euterpe": [103, 93, 104, 199], "Prometheus": [105, 90],
-    "Cassiopeia": [116, 96], "Electra": [119, 128], "Maia": [121], "Merope": [124], "Taygete": [132, 130],
-    "Celaeno": [133, 125, 83],
-}
+# Grupowanie postów w karty leży w groups.json (adresowane po post_id, nie po numerze w kolejności).
+# Format: {"version":1, "new":[{"title","posts":[post_id,..],"pick":{post_id:[nr zdjęcia,..]}}], "maybe":[..], "existing":[..],
+#          "skipped":[post_id,..]}. Pierwszy jednorazowy zapis robi init_groups.py; dalej plik edytuje się ręcznie/skryptem.
+# Post, którego nie ma w żadnej karcie ani w "skipped", jest nowy: dostaje własną kartę w sekcji „Nowe od DD.MM”.
+groups = json.loads((root / "groups.json").read_text(encoding="utf-8"))
+by_id = {p["post_id"]: i for i, p in enumerate(posts)}
+assert len(by_id) == len(posts), "zdublowane post_id w posts.json"
+for sec in ("new", "maybe", "existing"):
+    for card in groups[sec]:
+        for pid in card["posts"]:
+            assert pid in by_id, f"groups.json: post {pid} (karta „{card['title']}”) nie istnieje w posts.json"
+NEW = [(c["title"], [by_id[p] for p in c["posts"]]) for c in groups["new"]]
+# Zdjęcia posta przypisane do konkretnej karty (np. post z dwoma ametystami rozdzielony na dwie karty).
+SPLIT = {(c["title"], by_id[pid]): pick for c in groups["new"] for pid, pick in c.get("pick", {}).items()}
+MAYBE = {c["title"]: [by_id[p] for p in c["posts"]] for c in groups["maybe"]}
+EXISTING = {c["title"]: [by_id[p] for p in c["posts"]] for c in groups["existing"]}
+assert len(MAYBE) == len(groups["maybe"]) and len(EXISTING) == len(groups["existing"]), "zdublowany tytuł karty w groups.json"
+KNOWN = {p for sec in ("new", "maybe", "existing") for c in groups[sec] for p in c["posts"]} | set(groups.get("skipped", []))
+FRESH = [i for i, p in enumerate(posts) if p["post_id"] not in KNOWN]
 
 
 def files_for(idx, pick=None):
@@ -100,6 +63,30 @@ def post_info(idx):
     return {"idx": idx, "post_id": p["post_id"], "date": (p["date"] or "")[:10], "text": p["text"]}
 
 
+EMOJI = re.compile("[\u2190-\u2bff\u2600-\u27bf\u3030\u303d\u3297\u3299\u200d\ufe0f\U0001f000-\U0001faff\U000e0020-\U000e007f]")
+
+
+def fresh_title(post, maxlen=70):
+    """Tytuł roboczy karty nowego posta: pierwsze zdanie tekstu bez emoji i hasztagów, przycięte do maxlen znaków."""
+    t = EMOJI.sub(" ", post["text"] or "")
+    t = re.sub(r"(?<!\w)#\w+", " ", t)
+    t = re.sub(r"https?://\S+", " ", t)
+    t = re.sub(r"[ \t]+", " ", t).strip()
+    first = next((ln.strip() for ln in t.splitlines() if ln.strip()), "")
+    m = re.match(r"(.+?[.!?…])(\s|$)", first)
+    first = (m.group(1) if m else first).strip(" -–—•*:;,.")
+    if not first:
+        d = (post["date"] or "")[:10]
+        return f"Post z {d[8:10]}.{d[5:7]} (bez opisu)"
+    if len(first) > maxlen:
+        first = first[:maxlen].rsplit(" ", 1)[0].rstrip(" ,;:-–—") + "…"
+    return first
+
+
+def ddmm(date):
+    return f"{date[8:10]}.{date[5:7]}"
+
+
 proposal = {"new": [], "maybe": [], "existing": []}
 for name, idxs in NEW:
     photos, videos = [], []
@@ -117,6 +104,12 @@ for name, idxs in MAYBE.items():
     proposal["maybe"].append({"title": name, "posts": [post_info(i) for i in idxs], "photos": photos, "videos": videos})
 for name, idxs in EXISTING.items():
     proposal["existing"].append({"title": name, "posts": [post_info(i) for i in idxs]})
+if FRESH:
+    # Nowe od ostatniego grupowania: jedna karta na post, w kolejności chronologicznej. Etykieta sekcji z daty najstarszego z nich.
+    proposal["fresh"] = []
+    for i in FRESH:
+        ph, vi = files_for(i)
+        proposal["fresh"].append({"title": fresh_title(posts[i]), "posts": [post_info(i)], "photos": ph, "videos": vi})
 used = {p["idx"] for sec in proposal.values() for r in sec for p in r["posts"]}
 proposal["skipped"] = [post_info(i) for i in range(len(posts)) if i not in used]
 (root / "rings-proposal.json").write_text(json.dumps(proposal, ensure_ascii=False, indent=1))
@@ -157,6 +150,9 @@ page_data = {
     "existing": [],
     "skipped": [],
 }
+if FRESH:
+    page_data["freshSince"] = ddmm(min(post_info(i)["date"] for i in FRESH))
+    page_data["fresh"] = [with_key(r) for r in proposal["fresh"]]
 for r in proposal["existing"]:
     photos, videos = [], []
     for p in r["posts"]:
@@ -182,12 +178,12 @@ try:
 except (OSError, subprocess.CalledProcessError, KeyError) as e:
     print(f"UWAGA: bez plakietek podobieństwa ({e})")
 
-keys = [g["key"] for sec in ("new", "maybe", "existing") for g in page_data[sec]]
+keys = [g["key"] for sec in ("new", "maybe", "existing", "fresh") for g in page_data.get(sec, [])]
 assert len(keys) == len(set(keys)), "zdublowane klucze kart"
 
 # Propozycje połączeń kart (ręczne, później także z weryfikacji modelem). To tylko podpowiedź w przeglądzie:
 # decyzję zapisuje Marcin przyciskiem, ten skrypt selection.json nie dotyka.
-card_keys = {g["key"] for sec in ("new", "maybe") for g in page_data[sec]}
+card_keys = {g["key"] for sec in ("new", "maybe", "fresh") for g in page_data.get(sec, [])}
 page_data["proposals"] = []
 prop_path = root / "merge-proposals.json"
 if prop_path.exists():
@@ -202,6 +198,16 @@ if prop_path.exists():
 subprocess.run([sys.executable, str(Path(__file__).parent / "make_thumbs.py"), str(root)], check=False)
 
 template = (Path(__file__).parent / "review_template.html").read_text()
+if FRESH:
+    # Sekcja „Nowe od DD.MM” pojawia się w stronie tylko wtedy, gdy są nowe posty (bez nich review.html zostaje bajt w bajt taki jak dawniej).
+    for old, new in (
+        ("  ['existing', 'Już w katalogu', 'existing', 'W katalogu'],\n",
+         "  ['fresh', 'Nowe od ' + D.freshSince, 'card', 'Nowe od ' + D.freshSince],\n  ['existing', 'Już w katalogu', 'existing', 'W katalogu'],\n"),
+        ("for (const sec of ['new', 'maybe']) G.filter(", "for (const sec of ['new', 'maybe', 'fresh']) G.filter("),
+        ("(sec === 'maybe' ? 'D' : '')", "(sec === 'maybe' ? 'D' : sec === 'fresh' ? 'N' : '')"),
+    ):
+        assert old in template, f"szablon review_template.html się zmienił, nie znaleziono: {old.strip()}"
+        template = template.replace(old, new)
 blob = json.dumps(page_data, ensure_ascii=False).replace("</", "<\\/").replace("<!--", "<\\!--")
 (root / "review.html").write_text(template.replace("__DATA__", blob))
-print(len(proposal["new"]), len(proposal["maybe"]), len(proposal["existing"]), len(proposal["skipped"]))
+print(len(proposal["new"]), len(proposal["maybe"]), len(proposal["existing"]), len(proposal["skipped"]), *([f"nowe od {page_data['freshSince']}: {len(FRESH)}"] if FRESH else []))
