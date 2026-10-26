@@ -16,6 +16,9 @@ export const isAdminField: FieldAccess = ({ req: { user } }) => hasRole(user, 'a
 export const isAdminOrEditor: Access = ({ req: { user } }) =>
   hasRole(user, 'admin') || hasRole(user, 'editor')
 
+export const isAdminOrEditorField: FieldAccess = ({ req: { user } }) =>
+  hasRole(user, 'admin') || hasRole(user, 'editor')
+
 export const isAuthenticatedOrPublished: Access = ({ req: { user } }) => {
   if (user) return true
 
