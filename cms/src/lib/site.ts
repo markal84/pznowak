@@ -8,7 +8,11 @@ export const SITE = {
   email: 'kontakt@pznowak.pl',
   street: 'Kilińskiego 12',
   city: '28-100 Busko-Zdrój',
-  mapsUrl: 'https://maps.google.com/?q=Kili%C5%84skiego+12+Busko-Zdr%C3%B3j',
+  // Nawigacja do pracowni: Mapy Google (apka na telefonie albo przeglądarka) i Mapy Apple (iPhone, iPad, Mac).
+  mapsUrl: 'https://www.google.com/maps/dir/?api=1&destination=Kili%C5%84skiego+12%2C+28-100+Busko-Zdr%C3%B3j',
+  mapsAppleUrl: 'https://maps.apple.com/?daddr=Kili%C5%84skiego+12%2C+28-100+Busko-Zdr%C3%B3j&dirflg=d',
+  // Interaktywna mapa Google: wolno ją wczytać dopiero po zgodzie na kategorię „mapy” (src/lib/cookie-consent.ts).
+  mapsEmbedUrl: 'https://www.google.com/maps?q=Kili%C5%84skiego+12%2C+28-100+Busko-Zdr%C3%B3j&hl=pl&z=17&output=embed',
   instagram: 'https://www.instagram.com/nowak_pracownia_zlotnicza/',
   facebook: 'https://www.facebook.com/profile.php?id=61568506251939',
   hours: [
@@ -27,6 +31,14 @@ export const HERO_TRUST: readonly { text: string; confirmed: boolean }[] = [
   { text: 'Rozmowa o projekcie także przez wideo [do potwierdzenia]', confirmed: false },
   { text: 'Pierścionek na zamówienie gotowy zwykle w [TERMIN]', confirmed: false },
 ]
+
+/**
+ * Pasek zgody na cookies (zlecenie J). Jedyny przełącznik: `false` wyłącza pasek i przycisk „Ustawienia cookies”
+ * w stopce, a kategorie opcjonalne (mapy, statystyki, marketing) zostają zablokowane: `hasConsent()` zwraca wtedy
+ * zawsze `false`, więc interaktywna mapa Google ładuje się tylko po kliknięciu „Pokaż interaktywną mapę” i tylko
+ * na tej wizycie (bez zapisu cookie). Nie dodawaj skryptów statystycznych ani reklamowych przy wyłączonym pasku.
+ */
+export const COOKIE_BANNER_ENABLED = true
 
 export const NAV = [
   { id: 'pierscionki', label: 'Pierścionki', href: '/pierscionki' },

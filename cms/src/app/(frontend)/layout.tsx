@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import CookieBanner from '@/components/site/CookieBanner'
 import HydrationFlag from '@/components/site/HydrationFlag'
 import SiteHeader from '@/components/site/SiteHeader'
 import SiteFooter from '@/components/site/SiteFooter'
 import { fontClassName } from '@/lib/fonts'
 import { isIndexable } from '@/lib/indexing'
 import { siteUrl } from '@/lib/seo'
+import { COOKIE_BANNER_ENABLED } from '@/lib/site'
 
 export const metadata: Metadata = {
   // Adres bazowy dla względnych adresów kanonicznych i obrazów Open Graph (SITE_URL, domyślnie https://pznowak.pl).
@@ -30,6 +32,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <SiteHeader />
         <main id="main">{children}</main>
         <SiteFooter />
+        {COOKIE_BANNER_ENABLED && <CookieBanner />}
         <HydrationFlag />
       </body>
     </html>

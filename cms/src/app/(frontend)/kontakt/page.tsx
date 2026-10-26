@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import ContactForm from '@/components/site/ContactForm'
+import ContactMap from '@/components/site/ContactMap'
+import NavigateLink from '@/components/site/NavigateLink'
 import { byEnv } from '@/lib/placeholders'
 import { consentText } from '@/lib/submissions/consent'
 import { BUDGETS } from '@/lib/submissions/options'
@@ -59,9 +61,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Sear
               <a href={SITE.phoneHref} style={{ textDecoration: 'none', fontWeight: 500 }}>{SITE.phone}</a>
               <a href={`mailto:${SITE.email}`} style={{ textDecoration: 'none' }}>{SITE.email}</a>
             </div>
-            <a className="tl" href={SITE.mapsUrl} rel="noreferrer" style={{ alignSelf: 'flex-start' }} target="_blank">
-              Prowadź do pracowni
-            </a>
+            <NavigateLink className="btn nav-btn">Prowadź do pracowni</NavigateLink>
           </div>
           <div className="stack" style={{ gap: 16 }}>
             <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 26, lineHeight: 1.1 }}>Co dalej</h2>
@@ -72,6 +72,16 @@ export default async function ContactPage({ searchParams }: { searchParams: Sear
             </ol>
           </div>
         </aside>
+      </section>
+
+      <section aria-labelledby="dojazd" className="wrap stack map-section">
+        <h2 id="dojazd" style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 34, lineHeight: 1.1 }}>
+          Jak dojechać
+        </h2>
+        <p className="lead" style={{ maxWidth: '36em' }}>
+          {SITE.street}, {SITE.city}. Przycisk „Prowadź do pracowni” uruchomi nawigację w aplikacji Mapy na telefonie.
+        </p>
+        <ContactMap />
       </section>
     </>
   )

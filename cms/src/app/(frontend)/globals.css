@@ -2723,3 +2723,171 @@ fieldset.plain legend {
   flex-direction: column;
   gap: 22px;
 }
+/* ---------- zgoda na cookies: pasek przyklejony do dołu ---------- */
+.cookie-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -10px 36px rgba(29, 56, 50, 0.14);
+}
+.cookie-banner:focus {
+  outline: none;
+}
+.cookie-in {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 22px 40px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px 40px;
+}
+.cookie-copy {
+  display: grid;
+  gap: 8px;
+  max-width: 760px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--graphite-2);
+}
+.cookie-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--graphite);
+}
+.cookie-cats {
+  display: grid;
+  gap: 14px;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+.cookie-cat strong {
+  display: block;
+  font-weight: 600;
+  color: var(--graphite);
+}
+.cookie-cat-note {
+  display: block;
+  color: var(--muted);
+}
+.cookie-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.cookie-actions .btn {
+  min-height: 46px;
+  padding: 0 22px;
+}
+.cookie-settings-btn {
+  font-size: 13px;
+  font-weight: 400;
+  color: #9aa09a;
+  padding: 0;
+}
+.cookie-settings-btn:hover {
+  color: #eef0ea;
+}
+@media (max-width: 900px) {
+  .cookie-in {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+@media (max-width: 720px) {
+  .cookie-in {
+    padding: 18px 20px calc(18px + env(safe-area-inset-bottom));
+  }
+  .cookie-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .cookie-actions .btn {
+    padding: 0 10px;
+    font-size: 14px;
+  }
+  .cookie-actions .btn-line {
+    grid-column: 1 / -1;
+    min-height: 42px;
+  }
+  .cookie-banner .cookie-copy {
+    font-size: 14px;
+  }
+}
+
+/* ---------- zlecenie J: mapa dojazdu na „Kontakt” ---------- */
+.nav-btn {
+  align-self: flex-start;
+  min-height: 56px;
+  padding: 0 32px;
+  font-size: 16.5px;
+}
+.map-section {
+  padding-top: 8px;
+  padding-bottom: 120px;
+  gap: 20px;
+}
+.map-block {
+  display: grid;
+  gap: 12px;
+  max-width: 1100px;
+}
+.map-frame {
+  position: relative;
+  aspect-ratio: 1200 / 640;
+  min-height: 280px;
+  background: var(--shade);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+  overflow: hidden;
+}
+.map-frame img,
+.map-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+.map-link {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+.map-link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -4px;
+}
+.map-note {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+}
+.map-show {
+  display: inline;
+  padding: 0;
+  font-size: inherit;
+}
+@media (max-width: 720px) {
+  .nav-btn {
+    align-self: stretch;
+  }
+  .map-frame {
+    aspect-ratio: 4 / 3;
+  }
+  .map-section {
+    padding-bottom: 80px;
+  }
+}

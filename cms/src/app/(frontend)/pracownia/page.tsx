@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { FAMILY, SITE } from '@/lib/site'
+import ContactMap from '@/components/site/ContactMap'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
@@ -114,11 +115,9 @@ export default function StudioPage() {
             <a className="tl" href={SITE.mapsUrl} rel="noreferrer" target="_blank">Prowadź do pracowni</a>
           </div>
         </div>
-        <DoUzupelnienia as="div">
-          <div aria-label="Miejsce na mapę dojazdu do pracowni" className="map-ph" role="img" style={{ flex: '1 1 520px', minWidth: 0 }}>
-            [Mapa Google: Kilińskiego 12, Busko-Zdrój]
-          </div>
-        </DoUzupelnienia>
+        <div style={{ flex: '1 1 520px', minWidth: 0 }}>
+          <ContactMap />
+        </div>
       </section>
     </>
   )
