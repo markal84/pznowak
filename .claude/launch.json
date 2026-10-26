@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "cms", "run", "dev", "--", "-p", "3001"],
       "port": 3001
+    },
+    {
+      "name": "fb-review",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-I", "-m", "http.server", "3011", "--bind", "127.0.0.1", "--directory", "data/facebook"],
+      "port": 3011
     }
   ]
 }
