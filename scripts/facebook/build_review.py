@@ -1,8 +1,13 @@
-"""Buduje propozycję katalogu (rings-proposal.json) i stronę przeglądu (review.html) z eksportu FB."""
-import html
+"""Buduje propozycję katalogu (rings-proposal.json), dane przeglądu (review-data.json) i stronę review.html z eksportu FB.
+
+Użycie: python3 build_review.py data/facebook
+Decyzje (selection.json) obsługuje review_server.py; ten skrypt ich nie dotyka.
+"""
 import json
+import re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 root = Path(sys.argv[1])
@@ -114,51 +119,60 @@ used = {p["idx"] for sec in proposal.values() for r in sec for p in r["posts"]}
 proposal["skipped"] = [post_info(i) for i in range(len(posts)) if i not in used]
 (root / "rings-proposal.json").write_text(json.dumps(proposal, ensure_ascii=False, indent=1))
 
-E = html.escape
+
+def slug(title):
+    t = title.lower().replace("ł", "l")
+    t = unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", "-", t).strip("-")
 
 
-def card(r, n=None):
-    imgs = "".join(f'<a href="media/{E(f)}" target="_blank"><img loading="lazy" src="media/{E(f)}"></a>' for f in r.get("photos", []))
-    frames = ""
-    if not r.get("photos"):
-        for v in r.get("videos", [])[:2]:
-            frames += f'<img loading="lazy" class="frame" src="frames/{E(v[:-4])}_50.jpg">'
-    vids = "".join(
-        f'<figure><video controls preload="none" poster="frames/{E(v[:-4])}_25.jpg" src="media/{E(v)}"></video>'
-        f'<figcaption class="{"low" if (q := video_height(v)) < 720 else ""}">{q}p</figcaption></figure>'
-        for v in r.get("videos", [])
-    )
-    ps = "".join(
-        f'<details><summary>#{p["idx"]} · {E(p["date"] or "brak daty")} · <a href="https://www.facebook.com/{p["post_id"]}" target="_blank">post</a></summary><p>{E(p["text"]) or "<i>bez tekstu</i>"}</p></details>'
-        for p in r["posts"]
-    )
-    head = f"{n}. " if n else ""
-    return f'<section><h3>{head}{E(r["title"])}</h3><div class="media">{imgs}{frames}{vids}</div>{ps}</section>'
+def video_info(name):
+    stem = name[:-4]
+    poster = f"frames/{stem}_25.jpg"
+    return {"file": name, "q": video_height(name), "poster": poster if (root / poster).exists() else None}
 
 
-skipped = "".join(
-    f'<li>#{p["idx"]} {E(p["date"])} — {E(" ".join(p["text"].split())[:140]) or "<i>bez tekstu</i>"}</li>' for p in proposal["skipped"]
-)
-existing = "".join(
-    f'<li><b>{E(r["title"])}</b>: posty {", ".join("#" + str(p["idx"]) for p in r["posts"])}</li>' for r in proposal["existing"]
-)
-page = f"""<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Przegląd pierścionków z FB</title><style>
-:root{{color-scheme:light dark;--bg:#faf8f5;--fg:#222;--card:#fff;--line:#ddd}}
-@media (prefers-color-scheme:dark){{:root{{--bg:#161616;--fg:#eee;--card:#222;--line:#333}}}}
-body{{font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0 auto;max-width:1200px;padding:16px}}
-section{{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:14px 0}}
-h3{{margin:0 0 8px}} .media{{display:flex;flex-wrap:wrap;gap:6px}}
-.media img,.media video{{height:200px;width:auto;border-radius:6px;object-fit:cover;background:#000}}
-figure{{margin:0;position:relative}} figcaption{{position:absolute;top:6px;left:6px;background:#000a;color:#fff;font-size:12px;padding:1px 6px;border-radius:4px}} figcaption.low{{background:#c00}}
-details p{{white-space:pre-wrap;margin:4px 0 8px}} summary{{cursor:pointer;color:#888}}
-</style></head><body>
-<h1>Pierścionki z fanpage'a: propozycja do katalogu</h1>
-<p>Eksport z {E(json.loads((root / 'posts.json').read_text())['exportedAt'][:10])}: {len(posts)} postów z mediami. Numery #N to kolejność chronologiczna postów.</p>
-<h2>Nowe pierścionki ({len(proposal['new'])})</h2>{''.join(card(r, i + 1) for i, r in enumerate(proposal['new']))}
-<h2>Do decyzji: pierścionki klientów, sygnety ({len(proposal['maybe'])})</h2>{''.join(card(r, 'D' + str(i + 1)) for i, r in enumerate(proposal['maybe']))}
-<h2>Już w katalogu ({len(proposal['existing'])})</h2><ul>{existing}</ul>
-<h2>Pominięte posty ({len(proposal['skipped'])})</h2><ul>{skipped}</ul>
-</body></html>"""
-(root / "review.html").write_text(page)
+def group(key, idxs, photos, videos, title=None):
+    g = {"key": key, "posts": [post_info(i) for i in idxs], "photos": photos, "videos": [video_info(v) for v in videos]}
+    if title is not None:
+        g["title"] = title
+    return g
+
+
+def card_key(r):
+    return f"{slug(r['title'])}@{r['posts'][0]['post_id']}"
+
+
+def with_key(r):
+    return group(card_key(r), [p["idx"] for p in r["posts"]], r.get("photos", []), r.get("videos", []), r["title"])
+
+
+page_data = {
+    "exportedAt": json.loads((root / "posts.json").read_text())["exportedAt"][:10],
+    "nPosts": len(posts),
+    "new": [with_key(r) for r in proposal["new"]],
+    "maybe": [with_key(r) for r in proposal["maybe"]],
+    "existing": [],
+    "skipped": [],
+}
+for r in proposal["existing"]:
+    photos, videos = [], []
+    for p in r["posts"]:
+        ph, vi = files_for(p["idx"])
+        photos += ph
+        videos += vi
+    page_data["existing"].append(group(card_key(r), [p["idx"] for p in r["posts"]], photos, videos, r["title"]))
+for p in proposal["skipped"]:
+    ph, vi = files_for(p["idx"])
+    g = group(p["post_id"], [p["idx"]], ph, vi)
+    g.update(idx=p["idx"], post_id=p["post_id"], date=p["date"], text=p["text"])
+    page_data["skipped"].append(g)
+
+keys = [g["key"] for sec in ("new", "maybe", "existing") for g in page_data[sec]]
+assert len(keys) == len(set(keys)), "zdublowane klucze kart"
+(root / "review-data.json").write_text(json.dumps(page_data, ensure_ascii=False, indent=1))
+
+template = (Path(__file__).parent / "review_template.html").read_text()
+blob = json.dumps(page_data, ensure_ascii=False).replace("</", "<\\/").replace("<!--", "<\\!--")
+(root / "review.html").write_text(template.replace("__DATA__", blob))
 print(len(proposal["new"]), len(proposal["maybe"]), len(proposal["existing"]), len(proposal["skipped"]))

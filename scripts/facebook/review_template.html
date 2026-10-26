@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Przegląd pierścionków z FB</title>
+<style>
+:root{color-scheme:light dark;--bg:#faf8f5;--fg:#222;--muted:#777;--card:#fff;--line:#ddd;--ok:#2e7d32;--mat:#1565c0;--no:#757575;--warn:#b26a00;--bad:#c62828;--sel:#e8f0fe}
+@media (prefers-color-scheme:dark){:root{--bg:#161616;--fg:#eee;--muted:#999;--card:#222;--line:#3a3a3a;--ok:#66bb6a;--mat:#64b5f6;--no:#9e9e9e;--warn:#ffb74d;--bad:#ef5350;--sel:#26324a}}
+*{box-sizing:border-box}
+body{font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0}
+body.lbopen{overflow:hidden}
+main,footer,#banner{max-width:1200px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 16px}
+header .in{max-width:1200px;margin:0 auto}
+header .row{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+header h1{font-size:17px;margin:0;flex:1 1 auto}
+.counters{font-size:13px;color:var(--muted);margin-top:4px}
+.counters b{color:var(--fg)}
+.counters span{white-space:nowrap;margin-right:14px}
+.tools{font-size:13px;margin-top:4px;color:var(--muted)}
+#status{font-size:13px;color:var(--muted)}
+#status.err{color:var(--bad);font-weight:600}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:6px;padding:2px 10px}
+button:hover{border-color:var(--muted)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--mat);outline-offset:1px}
+#banner{margin-top:10px}
+#banner .b{background:var(--bad);color:#fff;border-radius:8px;padding:10px 14px;font-weight:600}
+#banner .b.info{background:var(--warn)}
+#banner .b button{margin-left:8px;color:#222}
+#banner code{background:#0003;border-radius:4px;padding:1px 5px;font-weight:400}
+body.nosync main button,body.nosync main input,body.nosync main textarea,body.nosync #nextBtn,body.nosync #exportBtn{pointer-events:none;opacity:.45}
+h2{scroll-margin-top:150px;margin:28px 0 0;font-size:20px}
+h2 small{color:var(--muted);font-weight:400;font-size:14px}
+.item{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:10px;padding:10px 14px;margin:12px 0;scroll-margin-top:150px}
+.item.done{border-left-color:var(--muted)}
+.item[data-dec=catalog]{border-left-color:var(--ok)}
+.item[data-dec=material]{border-left-color:var(--mat)}
+.item[data-dec=reject],.item[data-dec=skip]{border-left-color:var(--no)}
+.item:not(.done){border-left-color:var(--warn)}
+.item.flash{animation:flash 1.4s}
+@keyframes flash{0%,60%{background:var(--sel)}100%{background:var(--card)}}
+body.only-open .item.done:not(.touched){display:none}
+.head{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}
+.head h3{margin:0;font-size:17px}
+.seg{display:inline-flex;gap:0}
+.seg button{border-radius:0;margin-left:-1px;padding:2px 9px;font-size:13px}
+.seg button:first-child{border-radius:6px 0 0 6px;margin-left:0}
+.seg button:last-child{border-radius:0 6px 6px 0}
+.seg button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.seg.dec button[aria-pressed=true][data-v=catalog],.seg.sm button[aria-pressed=true][data-v=catalog],.seg.sm button[aria-pressed=true][data-v=gallery]{background:var(--ok);border-color:var(--ok);color:#fff}
+.seg.dec button[aria-pressed=true][data-v=material],.seg.sm button[aria-pressed=true][data-v=material],.seg.post button[aria-pressed=true][data-v=material]{background:var(--mat);border-color:var(--mat);color:#fff}
+.seg.dec button[aria-pressed=true][data-v=reject],.seg.sm button[aria-pressed=true][data-v=skip],.seg.post button[aria-pressed=true][data-v=skip]{background:var(--no);border-color:var(--no);color:#fff}
+.fields{display:grid;grid-template-columns:minmax(200px,1fr) minmax(200px,2fr);gap:8px;margin:8px 0}
+.fields input,.fields textarea{font:inherit;width:100%;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);resize:vertical}
+.fields textarea{height:34px}
+@media (max-width:700px){.fields{grid-template-columns:1fr}}
+.bulk{font-size:13px;color:var(--muted);margin:4px 0}
+.media{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+figure.m{margin:0;position:relative;display:flex;flex-direction:column;gap:3px}
+figure.m .th{align-self:flex-start;position:relative;border:3px solid var(--line);border-radius:8px;overflow:hidden;background:#000;line-height:0}
+figure.m[data-d=catalog] .th,figure.m[data-d=gallery] .th{border-color:var(--ok)}
+figure.m[data-d=material] .th{border-color:var(--mat)}
+figure.m[data-d=skip] .th{border-color:var(--no)}
+figure.m[data-d=skip] img,figure.m[data-d=skip] video{opacity:.4}
+figure.m[data-d="?"] .th{border-style:dashed}
+figure.m img,figure.m video{height:180px;width:auto;max-width:100%;cursor:zoom-in;object-fit:cover}
+figure.m video{cursor:auto}
+figure.m .cover,figure.m .zoom{position:absolute;top:4px;background:#000b;color:#fff;border:0;border-radius:4px;padding:0 6px;line-height:1.5;font-size:14px}
+figure.m .cover{right:4px}
+figure.m .zoom{right:4px}
+figure.m .cover[aria-pressed=true]{background:#f9a825;color:#000}
+figure.m .q{position:absolute;top:4px;left:4px;background:#000b;color:#fff;font-size:12px;line-height:1.4;padding:0 6px;border-radius:4px}
+figure.m .q.low{background:#c00}
+figure.m .seg button{padding:0 6px;font-size:12px}
+figure.m .ov{font-size:11px;color:var(--muted);text-align:center}
+.seg.post button{font-size:13px}
+details{margin:2px 0}
+summary{cursor:pointer;color:var(--muted);font-size:13px}
+details p{white-space:pre-wrap;margin:4px 0 8px;font-size:14px}
+footer{padding-bottom:60px;color:var(--muted);font-size:13px}
+footer .orph{background:var(--card);border:1px solid var(--warn);border-radius:8px;padding:8px 12px;margin-top:10px}
+#lb{position:fixed;inset:0;z-index:50;background:#000e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px}
+#lb[hidden]{display:none}
+#lb .stage{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;width:100%}
+#lb .stage img,#lb .stage video{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px}
+#lb .nav{position:absolute;top:50%;transform:translateY(-50%);font-size:34px;background:#0006;color:#fff;border:0;border-radius:8px;padding:6px 14px}
+#lb .nav.prev{left:10px}#lb .nav.next{right:10px}
+#lb .x{position:absolute;top:10px;right:14px;font-size:28px;background:#0006;color:#fff;border:0;border-radius:8px;padding:0 12px}
+#lb .cap{color:#eee;text-align:center;font-size:14px;max-width:900px}
+#lb .cap .seg{margin:4px 0}
+#lb .cap .hint{color:#aaa;font-size:12px}
+#lb .cap button{background:#333;color:#eee;border-color:#666;padding:3px 12px}
+#lb .cap .seg button[aria-pressed=true]{background:#fff;color:#000;font-weight:700;border-color:#fff}
+#lb .cap button[data-lbcover][aria-pressed=true]{background:#f9a825;color:#000;border-color:#f9a825}
+#lb .cap label{font-size:12px;color:#aaa;margin-left:10px}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <div class="row">
+    <h1>Pierścionki z fanpage'a: przegląd i decyzje</h1>
+    <span id="status">…</span>
+    <button id="exportBtn" title="Zapisuje data/facebook/catalog-selection.json">Eksportuj wybór</button>
+  </div>
+  <div class="counters" id="counters"></div>
+  <div class="tools">
+    <label><input type="checkbox" id="onlyOpen"> pokaż tylko nieprzejrzane</label>
+    · <button id="nextBtn">Następna nieprzejrzana (n)</button>
+    · klik w zdjęcie = powiększenie; w podglądzie: ←/→ zdjęcia, 1/2/3 decyzja, 0 wyczyść, c okładka, Esc zamknij
+  </div>
+</div></header>
+<div id="banner"></div>
+<main id="main"></main>
+<footer id="foot"></footer>
+<div id="lb" hidden role="dialog" aria-modal="true" aria-label="Podgląd zdjęcia">
+  <button class="x" data-lb="close" aria-label="Zamknij">×</button>
+  <button class="nav prev" data-lb="prev" aria-label="Poprzednie">‹</button>
+  <div class="stage"></div>
+  <button class="nav next" data-lb="next" aria-label="Następne">›</button>
+  <div class="cap"></div>
+</div>
+<noscript>Ta strona wymaga JavaScriptu.</noscript>
+<script type="application/json" id="data">__DATA__</script>
+<script>
+(() => {
+'use strict';
+const D = JSON.parse(document.getElementById('data').textContent);
+const API = '/api/selection';
+const PENDING_KEY = 'fbreview:pending';
+const START_CMD = 'python3 scripts/facebook/review_server.py';
+
+const OPTS = {
+  card: [['catalog', 'w katalogu'], ['material', 'materiał'], ['skip', 'pomiń']],
+  existing: [['gallery', 'dodaj do galerii'], ['material', 'materiał'], ['skip', 'pomiń']],
+  skipped: [['material', 'zachowaj jako materiał'], ['skip', 'pomiń']],
+};
+const CARD_DEC = [['catalog', 'katalog'], ['material', 'materiały'], ['reject', 'odrzuć'], ['', '?']];
+const INHERIT = { catalog: 'catalog', material: 'material', reject: 'skip' };
+const LABEL = { catalog: 'w katalogu', gallery: 'do galerii', material: 'materiał', skip: 'pomiń' };
+const SECTIONS = [
+  ['new', 'Nowe pierścionki', 'card', 'Nowe'],
+  ['maybe', 'Do decyzji: pierścionki klientów, sygnety', 'card', 'Do decyzji'],
+  ['existing', 'Już w katalogu', 'existing', 'W katalogu'],
+  ['skipped', 'Pominięte posty', 'skipped', 'Pominięte'],
+];
+const BUCKET = { card: 'cards', existing: 'existing', skipped: 'skipped' };
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (s, r = document) => r.querySelector(s);
+const hhmmss = d => d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+// ---------- stan ----------
+let S = blank();
+let serverRev = 0;
+function blank() { return { version: 1, rev: 0, cards: {}, existing: {}, skipped: {} }; }
+function normalize(o) {
+  const s = (o && typeof o === 'object') ? o : {};
+  for (const b of ['cards', 'existing', 'skipped']) if (!s[b] || typeof s[b] !== 'object') s[b] = {};
+  s.version = 1;
+  return s;
+}
+
+// ---------- model grup ----------
+const G = [];
+const GBY = {};
+for (const [sec, , type] of SECTIONS) {
+  for (const it of D[sec]) {
+    const files = [...it.photos.map(f => ({ file: f, kind: 'photo' })), ...it.videos.map(v => ({ file: v.file, kind: 'video', q: v.q, poster: v.poster }))];
+    const g = { gid: type + ':' + it.key, type, sec, key: it.key, it, files, opts: OPTS[type], el: null };
+    G.push(g); GBY[g.gid] = g;
+  }
+}
+const bucket = g => S[BUCKET[g.type]];
+const entry = g => bucket(g)[g.key];
+function ensure(g) {
+  const b = bucket(g);
+  if (!b[g.key]) b[g.key] = g.type === 'skipped' ? {} : { media: {} };
+  if (g.type !== 'skipped' && !b[g.key].media) b[g.key].media = {};
+  return b[g.key];
+}
+function prune(g) {
+  const e = entry(g);
+  if (!e) return;
+  const empty = g.type === 'skipped' ? !e.decision
+    : !e.decision && !e.name && !e.note && !e.cover && !Object.keys(e.media || {}).length;
+  if (empty) delete bucket(g)[g.key];
+}
+function eff(g, file) {
+  const e = entry(g);
+  if (!e) return null;
+  if (g.type === 'skipped') return e.decision ?? null;
+  if (e.media && e.media[file]) return e.media[file];
+  return g.type === 'card' ? (INHERIT[e.decision] ?? null) : null;
+}
+function explicit(g, file) { const e = entry(g); return !!(e && e.media && e.media[file]); }
+function isDone(g) {
+  const e = entry(g);
+  if (g.type === 'card') return !!(e && e.decision);
+  if (g.type === 'skipped') return !!(e && e.decision) || !g.files.length;
+  return g.files.every(f => e && e.media && e.media[f.file]);
+}
+function fixCover(g) {
+  const e = entry(g);
+  if (e && e.cover && eff(g, e.cover) !== 'catalog') delete e.cover;
+}
+
+// ---------- zmiany ----------
+const touched = new Set();
+let seq = 0, savedSeq = 0, loaded = false, conflict = false, saving = false, saveTimer = null, retryTimer = null, lastSaved = null;
+
+function changed(g) {
+  if (g) { touched.add(g.gid); prune(g); }
+  seq++;
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify({ ts: Date.now(), state: S })); } catch (e) { /* bufor opcjonalny */ }
+  sync();
+  scheduleSave(500);
+}
+function setMedia(g, file, val) {
+  const e = ensure(g);
+  if (g.type === 'skipped') {
+    if (!val || e.decision === val) delete e.decision; else e.decision = val;
+  } else {
+    if (!val || e.media[file] === val) delete e.media[file]; else e.media[file] = val;
+    if (g.type === 'card') fixCover(g);
+  }
+  changed(g);
+}
+function setDecision(g, val) {
+  const e = ensure(g);
+  if (val) e.decision = val; else delete e.decision;
+  fixCover(g);
+  changed(g);
+}
+function setCover(g, file) {
+  const e = ensure(g);
+  if (e.cover === file) { delete e.cover; changed(g); return; }
+  e.cover = file;
+  if (eff(g, file) !== 'catalog') e.media[file] = 'catalog';
+  changed(g);
+}
+function bulk(g, val) {
+  const e = ensure(g);
+  for (const f of g.files) e.media[f.file] = val;
+  changed(g);
+}
+function resetOverrides(g) {
+  const e = entry(g);
+  if (!e) return;
+  e.media = {}; delete e.cover;
+  changed(g);
+}
+
+// ---------- zapis ----------
+function setStatus(txt, err) { const s = $('#status'); s.textContent = txt; s.classList.toggle('err', !!err); }
+function banner(html, info) { $('#banner').innerHTML = html ? `<div class="b${info ? ' info' : ''}">${html}</div>` : ''; }
+function lock(on) { document.body.classList.toggle('nosync', on); }
+function updateStatus() {
+  if (conflict) return;
+  if (seq !== savedSeq) setStatus(saving ? 'zapisywanie…' : 'niezapisane zmiany…');
+  else if (lastSaved) setStatus('zapisano ' + hhmmss(lastSaved));
+}
+async function api(method, path, body) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const r = await fetch(path, { method, signal: ctl.signal, cache: 'no-store',
+      headers: body ? { 'Content-Type': 'application/json' } : undefined, body: body ? JSON.stringify(body) : undefined });
+    let data = null;
+    try { data = await r.json(); } catch (e) { /* nie JSON */ }
+    return { ok: r.ok, status: r.status, data };
+  } finally { clearTimeout(t); }
+}
+function offlineBanner() {
+  banner(`Serwer zapisu nie odpowiada: decyzje się NIE zapisują. Uruchom <code>${START_CMD}</code> i zostaw to okno otwarte. <button data-act="retry">Spróbuj teraz</button>`);
+  setStatus('NIE zapisano', true);
+}
+function scheduleSave(ms) {
+  clearTimeout(saveTimer);
+  if (!loaded || conflict) return;
+  saveTimer = setTimeout(save, ms);
+  updateStatus();
+}
+async function save() {
+  if (!loaded || conflict || saving || seq === savedSeq) return;
+  saving = true;
+  const mySeq = seq;
+  updateStatus();
+  let ok = false;
+  try {
+    const r = await api('PUT', API, { rev: serverRev, state: S });
+    if (r.ok && r.data && typeof r.data.rev === 'number') {
+      ok = true;
+      serverRev = S.rev = r.data.rev;
+      savedSeq = mySeq; lastSaved = new Date();
+      if (seq === savedSeq) { try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ } }
+      banner('');
+    } else if (r.status === 409) {
+      conflict = true;
+      const cur = r.data && r.data.rev;
+      banner(`Plik decyzji zmienił się poza tą kartą (inna karta lub ręczna edycja). Nic nie zostało nadpisane. <button data-act="reload">Wczytaj z serwera</button> <button data-act="force" data-rev="${esc(cur)}">Nadpisz moimi zmianami</button>`);
+      setStatus('KONFLIKT, nie zapisano', true);
+    } else {
+      throw new Error((r.data && r.data.error) || 'HTTP ' + r.status);
+    }
+  } catch (e) {
+    offlineBanner();
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(save, 4000);
+  } finally {
+    saving = false;
+  }
+  if (ok) { updateStatus(); if (seq !== savedSeq) scheduleSave(200); }
+}
+
+function adopt(remote) {
+  S = normalize(remote);
+  serverRev = S.rev || 0;
+  seq = savedSeq = 0;
+  fillFields();
+  sync();
+}
+async function load(first) {
+  try {
+    const r = await api('GET', API);
+    if (!r.ok || !r.data || typeof r.data !== 'object' || !('cards' in r.data)) throw new Error((r.data && r.data.error) || 'HTTP ' + r.status);
+    adopt(r.data);
+    loaded = true; conflict = false;
+    banner(''); lock(false);
+    lastSaved = new Date(); setStatus('wczytano ' + hhmmss(lastSaved));
+    if (first) checkPending();
+    return true;
+  } catch (e) {
+    if (!loaded) lock(true);
+    offlineBanner();
+    return false;
+  }
+}
+function checkPending() {
+  let p = null;
+  try { p = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); } catch (e) { /* brak */ }
+  if (!p || !p.state) return;
+  if (JSON.stringify(p.state.cards) === JSON.stringify(S.cards) && JSON.stringify(p.state.existing) === JSON.stringify(S.existing)
+      && JSON.stringify(p.state.skipped) === JSON.stringify(S.skipped)) {
+    try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ }
+    return;
+  }
+  lock(true);
+  banner(`W tej przeglądarce są niezapisane zmiany z ${esc(new Date(p.ts).toLocaleString('pl-PL'))} (serwer ich nie dostał). <button data-act="sendPending">Wyślij zaległe</button> <button data-act="dropPending">Odrzuć je</button>`, true);
+}
+// co kilka sekund: wykrywa wyłączony serwer i zmiany z innej karty
+setInterval(async () => {
+  if (!loaded || saving || seq !== savedSeq || conflict) return;
+  try {
+    const r = await api('GET', API);
+    if (!r.ok || !r.data) throw new Error('bad');
+    if (!$('#banner .b.info')) banner('');
+    if (r.data.rev !== serverRev) { adopt(r.data); lastSaved = new Date(); setStatus('wczytano nowszy stan ' + hhmmss(lastSaved)); }
+  } catch (e) { offlineBanner(); }
+}, 8000);
+window.addEventListener('beforeunload', e => { if (loaded && seq !== savedSeq) { e.preventDefault(); e.returnValue = ''; } });
+
+// ---------- render ----------
+function seg(cls, opts, attrs) {
+  return `<span class="seg ${cls}" ${attrs || ''}>${opts.map(([v, l]) => `<button type="button" data-v="${esc(v)}" aria-pressed="false">${esc(l)}</button>`).join('')}</span>`;
+}
+function figure(g, f) {
+  const src = 'media/' + encodeURI(f.file);
+  let th;
+  if (f.kind === 'photo') th = `<img loading="lazy" decoding="async" src="${src}" alt="" data-act="zoom">`;
+  else th = `<video controls preload="none" ${f.poster ? `poster="${esc(f.poster)}"` : ''} src="${src}"></video>` +
+    `<span class="q${f.q && f.q < 720 ? ' low' : ''}">${f.q ? f.q + 'p' : 'film'}</span><button type="button" class="zoom" data-act="zoom" title="Powiększ">⤢</button>`;
+  const cover = g.type === 'card' && f.kind === 'photo' ? `<button type="button" class="cover" data-act="cover" aria-pressed="false" title="Okładka (c)">★</button>` : '';
+  const ctrl = g.type === 'skipped' ? '' : seg('sm', g.opts, 'data-act="media"');
+  return `<figure class="m" data-file="${esc(f.file)}" data-d="?"><div class="th">${th}${f.kind === 'photo' ? cover : ''}</div>${ctrl}<div class="ov"></div></figure>`;
+}
+function posts(it) {
+  const ps = it.posts || [it];
+  return ps.map(p => `<details><summary>#${p.idx} · ${esc(p.date || 'brak daty')} · <a href="https://www.facebook.com/${esc(p.post_id)}" target="_blank" rel="noopener">post</a></summary><p>${p.text ? esc(p.text) : '<i>bez tekstu</i>'}</p></details>`).join('');
+}
+function snippet(t) { t = (t || '').replace(/\s+/g, ' ').trim(); return t.length > 140 ? t.slice(0, 140) + '…' : t; }
+function itemHTML(g, n, label) {
+  const it = g.it;
+  const num = label ? esc(label) + '. ' : '';
+  let head, extra = '';
+  if (g.type === 'card') {
+    head = `<h3>${num}${esc(it.title)}</h3>${seg('dec', CARD_DEC, 'data-act="decide"')}`;
+    extra = `<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza" aria-label="Nazwa robocza" value="">` +
+      `<textarea data-f="note" placeholder="Krótka notatka" aria-label="Notatka"></textarea></div>`;
+  } else if (g.type === 'existing') {
+    head = `<h3>${esc(it.title)}</h3>`;
+    extra = `<div class="bulk">Wszystkie (${g.files.length}): ${seg('sm', g.opts, 'data-act="bulk"')}</div>`;
+  } else {
+    head = `<h3>#${it.idx} · ${esc(it.date || 'brak daty')}</h3>${seg('post', g.opts, 'data-act="media"')}`;
+    extra = `<div class="bulk">${esc(snippet(it.text)) || '<i>bez tekstu</i>'}</div>`;
+  }
+  const reset = g.type === 'card' && g.files.length ? `<div class="bulk"><button type="button" data-act="reset">wyczyść ręczne nadpisania zdjęć</button></div>` : '';
+  return `<section class="item" id="i-${esc(g.gid)}" data-g="${esc(g.gid)}"><div class="head">${head}</div>${extra}` +
+    `<div class="media">${g.files.map(f => figure(g, f)).join('')}</div>${reset}${posts(it)}</section>`;
+}
+function renderAll() {
+  let html = '';
+  for (const [sec, title, type] of SECTIONS) {
+    const gs = G.filter(g => g.sec === sec);
+    html += `<h2 id="s-${sec}">${esc(title)} <small>(${gs.length})</small></h2>`;
+    if (type === 'existing') html += `<p class="bulk">Zdjęcia z postów pierścionków, które już są w katalogu: część może uzupełnić ich galerie.</p>`;
+    html += gs.map((g, i) => itemHTML(g, i, type === 'card' ? (sec === 'maybe' ? 'D' : '') + (i + 1) : '')).join('');
+  }
+  $('#main').innerHTML = html;
+  for (const g of G) g.el = document.getElementById('i-' + g.gid);
+  fillFields();
+}
+function fillFields() {
+  for (const g of G) {
+    if (g.type !== 'card' || !g.el) continue;
+    const e = entry(g) || {};
+    const n = $('[data-f=name]', g.el), t = $('[data-f=note]', g.el);
+    n.value = e.name ?? g.it.title;
+    t.value = e.note ?? '';
+  }
+}
+
+// ---------- synchronizacja widoku ----------
+function press(root, sel, val) {
+  root.querySelectorAll(sel).forEach(b => b.setAttribute('aria-pressed', String((b.dataset.v ?? '') === val)));
+}
+function sync() {
+  const catF = new Set(), matF = new Set(), kind = {};
+  const prog = {};
+  for (const g of G) {
+    const el = g.el;
+    if (!el) continue;
+    const done = isDone(g);
+    const e = entry(g);
+    (prog[g.sec] ||= [0, 0])[1]++;
+    if (done) prog[g.sec][0]++;
+    el.classList.toggle('done', done);
+    el.classList.toggle('touched', touched.has(g.gid));
+    el.dataset.dec = g.type === 'card' ? (e && e.decision || '') : g.type === 'skipped' ? (e && e.decision || '') : '';
+    if (g.type === 'card') press($('.head .seg', el), 'button', e && e.decision || '');
+    if (g.type === 'skipped') press($('.head .seg', el), 'button', e && e.decision || '');
+    for (const fig of el.querySelectorAll('figure.m')) {
+      const f = fig.dataset.file;
+      const d = eff(g, f);
+      fig.dataset.d = d || '?';
+      const ex = explicit(g, f);
+      const ov = $('.ov', fig);
+      ov.textContent = g.type === 'card' && ex ? '• ręcznie' : '';
+      const s = $('.seg', fig);
+      if (s) press(s, 'button', d || '');
+      const c = $('.cover', fig);
+      if (c) c.setAttribute('aria-pressed', String(!!(e && e.cover === f)));
+      if (d === 'catalog' || d === 'gallery') catF.add(f); else if (d === 'material') matF.add(f);
+    }
+  }
+  for (const g of G) for (const f of g.files) kind[f.file] = f.kind;
+  const cnt = set => { let p = 0, v = 0; set.forEach(f => kind[f] === 'video' ? v++ : p++); return `<b>${p}</b> zdj. + <b>${v}</b> filmów`; };
+  $('#counters').innerHTML = SECTIONS.map(([sec, , , short]) => `<span>${esc(short)}: przejrzane <b>${(prog[sec] || [0, 0])[0]}</b> / ${(prog[sec] || [0, 0])[1]}</span>`).join('') +
+    `<br><span>W katalogu (z galeriami): ${cnt(catF)}</span><span>W materiałach: ${cnt(matF)}</span>`;
+  footer();
+  updateStatus();
+  if (lb.g) lbRender();
+}
+function footer() {
+  const orph = [];
+  const known = {};
+  for (const g of G) known[g.gid] = g;
+  for (const [b, type] of [['cards', 'card'], ['existing', 'existing'], ['skipped', 'skipped']]) {
+    for (const k of Object.keys(S[b])) {
+      const g = known[type + ':' + k];
+      if (!g) { orph.push({ b, k, why: 'brak takiej karty w przeglądzie' }); continue; }
+      const e = S[b][k];
+      const have = new Set(g.files.map(f => f.file));
+      const lost = Object.keys(e.media || {}).filter(f => !have.has(f));
+      if (e.cover && !have.has(e.cover)) lost.push(e.cover + ' (okładka)');
+      if (lost.length) orph.push({ b, k, why: 'nie ma już plików: ' + lost.join(', ') });
+    }
+  }
+  const el = $('#foot');
+  if (!orph.length) { el.innerHTML = `Gotowe decyzje są w <code>data/facebook/selection.json</code>.`; return; }
+  el.innerHTML = `<div class="orph"><b>Osierocone decyzje (${orph.length})</b>: zostają w selection.json, ale nie pasują do obecnego przeglądu.<ul>` +
+    orph.map(o => {
+      let act = '';
+      if (o.b === 'cards') {
+        const pid = o.k.split('@')[1];
+        const cand = G.filter(g => g.type === 'card' && g.key.split('@')[1] === pid);
+        if (cand.length === 1 && !S.cards[cand[0].key]) act = ` <button type="button" data-act="adoptOrphan" data-from="${esc(o.k)}" data-to="${esc(cand[0].key)}">przenieś na „${esc(cand[0].it.title)}”</button>`;
+      }
+      return `<li><code>${esc(o.b)}/${esc(o.k)}</code>: ${esc(o.why)}${act}</li>`;
+    }).join('') + `</ul></div>`;
+}
+
+// ---------- podgląd (lightbox) ----------
+const lb = { g: null, i: 0, auto: true };
+const lbEl = $('#lb');
+function lbOpen(g, i) { lb.g = g; lb.i = i; lbEl.hidden = false; document.body.classList.add('lbopen'); lbRender(); }
+function lbClose() { lb.g = null; lbEl.hidden = true; $('.stage', lbEl).innerHTML = ''; delete $('.stage', lbEl).dataset.file; document.body.classList.remove('lbopen'); }
+function lbRender() {
+  const g = lb.g, f = g.files[lb.i], stage = $('.stage', lbEl);
+  const src = 'media/' + encodeURI(f.file);
+  if (stage.dataset.file !== f.file) {
+    stage.dataset.file = f.file;
+    stage.innerHTML = f.kind === 'photo' ? `<img src="${src}" alt="">` : `<video controls src="${src}"></video>`;
+    for (const d of [-1, 1]) { const n = g.files[lb.i + d]; if (n && n.kind === 'photo') new Image().src = 'media/' + encodeURI(n.file); }
+  }
+  const d = eff(g, f.file), e = entry(g) || {};
+  const opts = g.opts.map(([v, l], k) => `<button type="button" data-v="${v}" data-lbset="${v}" aria-pressed="${d === v}">${k + 1} ${esc(l)}</button>`).join('');
+  const cover = g.type === 'card' && f.kind === 'photo' ? ` <button type="button" data-lbcover aria-pressed="${e.cover === f.file}">c ★ okładka${e.cover === f.file ? ' (jest)' : ''}</button>` : '';
+  const title = g.type === 'skipped' ? `#${g.it.idx} ${g.it.date || ''}` : g.it.title;
+  lbEl.querySelector('.cap').innerHTML = `<div><b>${esc(title)}</b> · ${lb.i + 1}/${g.files.length} · ${d ? esc(LABEL[d]) : 'nieprzejrzane'}</div>` +
+    `<div class="seg">${opts}</div>${cover}` +
+    `<div class="hint">←/→ dalej · 0 wyczyść · Esc zamknij<label><input type="checkbox" id="lbAuto" ${lb.auto ? 'checked' : ''}> po decyzji przejdź dalej</label></div>`;
+}
+function lbMove(d) {
+  const n = lb.i + d;
+  if (n < 0 || n >= lb.g.files.length) return;
+  lb.i = n; lbRender();
+}
+function lbDecide(k) {
+  const o = lb.g.opts[k];
+  if (!o) return;
+  setMedia(lb.g, lb.g.files[lb.i].file, o[0]);
+  if (lb.auto) lbMove(1);
+}
+
+// ---------- zdarzenia ----------
+function itemOf(t) { const s = t.closest('.item'); return s ? GBY[s.dataset.g] : null; }
+document.addEventListener('click', async ev => {
+  const t = ev.target.closest('[data-act],[data-lb],[data-lbset],[data-lbcover]');
+  if (!t) return;
+  const vb = ev.target.closest('button[data-v]');
+  if (t.dataset.lb) { if (t.dataset.lb === 'close') lbClose(); else lbMove(t.dataset.lb === 'prev' ? -1 : 1); return; }
+  if (t.dataset.lbset !== undefined) { setMedia(lb.g, lb.g.files[lb.i].file, t.dataset.lbset); if (lb.auto) lbMove(1); return; }
+  if (t.hasAttribute('data-lbcover')) { setCover(lb.g, lb.g.files[lb.i].file); return; }
+  const act = t.dataset.act;
+  if (act === 'retry') { clearTimeout(retryTimer); if (!loaded) await load(true); else if (seq !== savedSeq) save(); else await load(false); return; }
+  if (act === 'reload') { conflict = false; await load(false); try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ } return; }
+  if (act === 'force') { serverRev = Number(t.dataset.rev) || 0; conflict = false; banner(''); save(); return; }
+  if (act === 'sendPending') {
+    let p = null; try { p = JSON.parse(localStorage.getItem(PENDING_KEY)); } catch (e) { /* brak */ }
+    if (p && p.state) { const rev = serverRev; S = normalize(p.state); S.rev = serverRev = rev; fillFields(); seq = 1; savedSeq = 0; }
+    lock(false); banner(''); sync(); save(); return;
+  }
+  if (act === 'dropPending') { try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ } lock(false); banner(''); return; }
+  if (act === 'adoptOrphan') { S.cards[t.dataset.to] = S.cards[t.dataset.from]; delete S.cards[t.dataset.from]; fillFields(); changed(GBY['card:' + t.dataset.to]); return; }
+  const g = itemOf(t);
+  if (!g) return;
+  const v = vb ? vb.dataset.v : undefined;
+  if (act === 'decide') setDecision(g, v);
+  else if (act === 'bulk') bulk(g, v);
+  else if (act === 'reset') resetOverrides(g);
+  else if (act === 'cover') setCover(g, t.closest('figure').dataset.file);
+  else if (act === 'zoom') { const f = t.closest('figure').dataset.file; lbOpen(g, g.files.findIndex(x => x.file === f)); }
+  else if (act === 'media') {
+    const fig = t.closest('figure');
+    setMedia(g, fig ? fig.dataset.file : null, v);
+  }
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if (!t.dataset || !t.dataset.f) return;
+  const g = itemOf(t);
+  const e = ensure(g);
+  const val = t.value;
+  if (t.dataset.f === 'name') { if (!val.trim() || val.trim() === g.it.title) delete e.name; else e.name = val; }
+  else if (!val.trim()) delete e.note; else e.note = val;
+  changed(g);
+});
+document.addEventListener('change', ev => {
+  if (ev.target.id === 'lbAuto') lb.auto = ev.target.checked;
+});
+document.addEventListener('keydown', ev => {
+  const tag = (ev.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+  if (lb.g) {
+    const k = ev.key;
+    if (k === 'Escape') lbClose();
+    else if (k === 'ArrowLeft') lbMove(-1);
+    else if (k === 'ArrowRight') lbMove(1);
+    else if (k >= '1' && k <= '9') lbDecide(Number(k) - 1);
+    else if (k === '0' || k === 'Backspace') setMedia(lb.g, lb.g.files[lb.i].file, '');
+    else if (k === 'c' && lb.g.type === 'card' && lb.g.files[lb.i].kind === 'photo') setCover(lb.g, lb.g.files[lb.i].file);
+    else return;
+    ev.preventDefault();
+    return;
+  }
+  if (ev.key === 'n') { nextOpen(); ev.preventDefault(); }
+});
+function nextOpen() {
+  const open = G.filter(g => g.el && !g.el.classList.contains('done') && g.el.offsetParent !== null);
+  if (!open.length) { setStatus('Wszystko przejrzane'); return; }
+  const hh = $('header').offsetHeight + 24;
+  const g = open.find(x => x.el.getBoundingClientRect().top > hh) || open[0];
+  g.el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  g.el.classList.remove('flash'); void g.el.offsetWidth; g.el.classList.add('flash');
+}
+$('#nextBtn').addEventListener('click', nextOpen);
+const onlyOpen = $('#onlyOpen');
+onlyOpen.addEventListener('change', () => {
+  touched.clear();
+  document.body.classList.toggle('only-open', onlyOpen.checked);
+  sync();
+  try { localStorage.setItem('fbreview:onlyOpen', onlyOpen.checked ? '1' : ''); } catch (e) { /* ok */ }
+});
+$('#exportBtn').addEventListener('click', async () => {
+  if (!loaded) return;
+  clearTimeout(saveTimer);
+  for (let i = 0; i < 5 && seq !== savedSeq && !conflict; i++) { await save(); if (seq !== savedSeq) await new Promise(r => setTimeout(r, 400)); }
+  if (conflict || seq !== savedSeq) { alert('Najpierw trzeba zapisać decyzje (zobacz czerwony baner).'); return; }
+  try {
+    const r = await api('POST', '/api/export');
+    if (!r.ok || !r.data || !r.data.ok) throw new Error((r.data && r.data.error) || 'HTTP ' + r.status);
+    alert(r.data.summary);
+  } catch (e) { alert('Eksport nie powiódł się: ' + e.message); }
+});
+
+// ---------- start ----------
+renderAll();
+try { if (localStorage.getItem('fbreview:onlyOpen')) { onlyOpen.checked = true; document.body.classList.add('only-open'); } } catch (e) { /* ok */ }
+lock(true);
+sync();
+(async function boot() {
+  const ok = await load(true);
+  if (!ok) {
+    const t = setInterval(async () => { if (await load(true)) clearInterval(t); }, 3000);
+  }
+})();
+})();
+</script>
+</body>
+</html>
