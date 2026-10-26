@@ -2826,3 +2826,57 @@ fieldset.plain legend {
     font-size: 14px;
   }
 }
+
+/* ---------- zlecenie J: mapa dojazdu na „Kontakt” ---------- */
+.nav-btn {
+  align-self: flex-start;
+  min-height: 56px;
+  padding: 0 32px;
+  font-size: 16.5px;
+}
+.map-section {
+  padding-top: 8px;
+  padding-bottom: 120px;
+  gap: 20px;
+}
+.map-block {
+  display: grid;
+  gap: 12px;
+  max-width: 1100px;
+}
+.map-frame {
+  position: relative;
+  aspect-ratio: 1200 / 640;
+  min-height: 280px;
+  background: var(--shade);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+  overflow: hidden;
+}
+.map-frame img,
+.map-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+.map-note {
+  color: var(--muted);
+}
+.map-show {
+  display: inline;
+  padding: 0;
+  font-size: inherit;
+}
+@media (max-width: 720px) {
+  .nav-btn {
+    align-self: stretch;
+  }
+  .map-frame {
+    aspect-ratio: 4 / 3;
+  }
+  .map-section {
+    padding-bottom: 80px;
+  }
+}

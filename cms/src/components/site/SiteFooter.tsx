@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import CookieSettingsButton from '@/components/site/CookieSettingsButton'
-import { SITE } from '@/lib/site'
+import { COOKIE_BANNER_ENABLED, SITE } from '@/lib/site'
 import DoUzupelnienia from './DoUzupelnienia'
 
 export default function SiteFooter() {
@@ -61,7 +61,7 @@ export default function SiteFooter() {
                 <span>Regulamin [wkrótce]</span>
               </span>
             </DoUzupelnienia>
-            <CookieSettingsButton />
+            {COOKIE_BANNER_ENABLED && <CookieSettingsButton />}
           </span>
         </div>
       </div>
