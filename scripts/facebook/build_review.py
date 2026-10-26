@@ -2,6 +2,7 @@
 
 Użycie: python3 build_review.py data/facebook
 Decyzje (selection.json) obsługuje review_server.py; ten skrypt ich nie dotyka.
+Przy okazji odświeża miniatury (make_thumbs.py).
 """
 import json
 import re
@@ -171,6 +172,9 @@ for p in proposal["skipped"]:
 keys = [g["key"] for sec in ("new", "maybe", "existing") for g in page_data[sec]]
 assert len(keys) == len(set(keys)), "zdublowane klucze kart"
 (root / "review-data.json").write_text(json.dumps(page_data, ensure_ascii=False, indent=1))
+
+# Miniatury (thumbs/) do szybkiego przeglądu; oryginały w media/ zostają nietknięte.
+subprocess.run([sys.executable, str(Path(__file__).parent / "make_thumbs.py"), str(root)], check=False)
 
 template = (Path(__file__).parent / "review_template.html").read_text()
 blob = json.dumps(page_data, ensure_ascii=False).replace("</", "<\\/").replace("<!--", "<\\!--")

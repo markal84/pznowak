@@ -367,7 +367,7 @@ function seg(cls, opts, attrs) {
 function figure(g, f) {
   const src = 'media/' + encodeURI(f.file);
   let th;
-  if (f.kind === 'photo') th = `<img loading="lazy" decoding="async" src="${src}" alt="" data-act="zoom">`;
+  if (f.kind === 'photo') th = `<img loading="lazy" decoding="async" src="thumbs/${encodeURI(f.file)}" onerror="this.onerror=null;this.src='${src}'" alt="" data-act="zoom">`;
   else th = `<video controls preload="none" ${f.poster ? `poster="${esc(f.poster)}"` : ''} src="${src}"></video>` +
     `<span class="q${f.q && f.q < 720 ? ' low' : ''}">${f.q ? f.q + 'p' : 'film'}</span><button type="button" class="zoom" data-act="zoom" title="Powiększ">⤢</button>`;
   const cover = g.type === 'card' && f.kind === 'photo' ? `<button type="button" class="cover" data-act="cover" aria-pressed="false" title="Okładka (c)">★</button>` : '';
