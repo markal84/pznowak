@@ -14,6 +14,7 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "import:catalog": "node --env-file=.env.local --import=tsx/esm scripts/import-legacy-catalog.ts --apply",
     "import:catalog:check": "node --env-file=.env.local --import=tsx/esm scripts/import-legacy-catalog.ts",
+    "import:fb": "node --no-deprecation --import=tsx/esm scripts/import-fb-catalog.ts",
     "migrate:videos": "node --env-file=.env.local --import=tsx/esm scripts/migrate-legacy-videos.ts --apply",
     "migrate:videos:check": "node --env-file=.env.local --import=tsx/esm scripts/migrate-legacy-videos.ts",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
