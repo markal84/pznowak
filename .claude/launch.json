@@ -10,7 +10,7 @@
     {
       "name": "fb-review",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-I", "-m", "http.server", "3011", "--bind", "127.0.0.1", "--directory", "data/facebook"],
+      "runtimeArgs": ["-I", "scripts/facebook/review_server.py"],
       "port": 3011
     }
   ]
