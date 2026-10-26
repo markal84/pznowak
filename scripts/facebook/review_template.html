@@ -100,6 +100,12 @@ figure.m .ovf{font-size:11px;color:var(--mat);text-align:center}
 .prop .why{color:var(--muted)}
 .prop img,.mrow img,.pick-row img{height:56px;width:auto;border-radius:4px;border:1px solid var(--line)}
 .prop a.go,.mrow a.go{color:inherit;cursor:pointer;text-decoration:underline}
+.vm{display:flex;flex-direction:column;gap:2px;flex-basis:100%;font-size:13px}
+.vm .vb{display:inline-block;border-radius:10px;padding:0 8px;font-weight:600;color:#fff;margin-right:6px}
+.vm .vb.same{background:var(--ok)}.vm .vb.different{background:var(--no)}.vm .vb.unsure{background:var(--warn)}
+.vm .vr{color:var(--muted)}
+.vm .vx{color:var(--bad);font-weight:600}
+.dup .vm{flex-basis:auto}
 .mrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;margin:6px 0;color:var(--muted)}
 .mrow b{color:var(--fg)}
 .item.merged{border-left-color:var(--muted);opacity:.8}
@@ -594,19 +600,31 @@ function proposals() {
     const no = k => (S.cards[k] || {}).notSame || [];
     if ([p.a, ra].some(k => no(k).includes(p.b) || no(k).includes(rb)) || [p.b, rb].some(k => no(k).includes(p.a) || no(k).includes(ra))) continue;
     seen.add(id);
-    (out[ra] ||= []).push({ other: rb, source: p.source, reason: p.reason });
-    (out[rb] ||= []).push({ other: ra, source: p.source, reason: p.reason });
+    (out[ra] ||= []).push({ other: rb, source: p.source, reason: p.reason, model: p.model });
+    (out[rb] ||= []).push({ other: ra, source: p.source, reason: p.reason, model: p.model });
   }
   return out;
 }
+// Opinie modeli (etap B, vision/results.json): tylko podpowiedź, decyzję i tak zapisuje przycisk.
+const VISION = D.vision || {};
+const V_LABEL = { same: 'prawdopodobnie ten sam', different: 'raczej inny', unsure: 'niepewne' };
+function visionHTML(ops) {
+  if (!ops || !ops.length) return '';
+  const split = new Set(ops.map(o => o.verdict)).size > 1;
+  return `<div class="vm">` + (split ? `<span class="vx">modele się różnią – oceń sam:</span>` : '') + ops.map(o =>
+    `<span title="${esc('na co patrzył: ' + (o.looked || []).join(', '))}"><span class="vb ${esc(o.verdict)}">model: ${esc(V_LABEL[o.verdict] || o.verdict)} – ${esc(o.confidence)} %</span>` +
+    `<span class="vr">${esc(o.model)}: ${esc(o.reason)}</span></span>`).join('') + `</div>`;
+}
+const visionFor = (a, b) => VISION[[a, b].sort().join('|')];
 function propsHTML(g, list) {
   return (list || []).map(p => {
     const o = CARD[p.other];
+    const src = p.source === 'model' ? '' : `<br><span class="why">${esc(p.source || '')}${p.reason ? ': ' + esc(p.reason) : ''}</span>`;
     return `<div class="prop" data-other="${esc(p.other)}"><span class="bd">propozycja: ten sam pierścionek co ${esc(cardLabel(p.other))}</span>` +
-      `${thumbImg(o)}<span><b>${esc(cardTitle(o))}</b> <a class="go" data-act="jump" data-to="${esc(o.gid)}">przejdź</a><br><span class="why">${esc(p.source || '')}${p.reason ? ': ' + esc(p.reason) : ''}</span></span>` +
+      `${thumbImg(o)}<span><b>${esc(cardTitle(o))}</b> <a class="go" data-act="jump" data-to="${esc(o.gid)}">przejdź</a>${src}</span>` +
       `<button type="button" data-act="propMerge" data-src="${esc(g.key)}" data-dst="${esc(p.other)}">połącz, zostaje ${esc(cardLabel(p.other))}</button>` +
       `<button type="button" data-act="propMerge" data-src="${esc(p.other)}" data-dst="${esc(g.key)}">połącz, zostaje ${esc(cardLabel(g.key))}</button>` +
-      `<button type="button" data-act="notSame" data-other="${esc(p.other)}">to nie ten</button></div>`;
+      `<button type="button" data-act="notSame" data-other="${esc(p.other)}">to nie ten</button>${visionHTML(p.model)}</div>`;
   }).join('');
 }
 function membersHTML(g) {
@@ -623,7 +641,7 @@ function dupsHTML(g) {
     const same = g.type === 'card' && og && og.type === 'card'
       ? `<button type="button" data-act="sameas" data-other="${esc(d.other)}" aria-pressed="false">to ten sam pierścionek co ${esc(groupName(d.other))}</button><span class="state"></span>` : '';
     return `<div class="dup" data-other="${esc(d.other)}"><span class="bd">${d.level === 'close' ? 'możliwy dubel' : 'podobne zdjęcia'}: ${esc(groupName(d.other))}</span>` +
-      `<a class="go" data-act="jump" data-to="${esc(og ? og.gid : '')}">przejdź</a>${thumbs}${same}</div>`;
+      `<a class="go" data-act="jump" data-to="${esc(og ? og.gid : '')}">przejdź</a>${thumbs}${same}${visionHTML(visionFor(g.key, d.other))}</div>`;
   }).join('') + `</div>`;
 }
 function itemHTML(g, n, label) {
