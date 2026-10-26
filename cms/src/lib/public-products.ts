@@ -27,7 +27,14 @@ export type ProductSeoFields = {
   updatedAt: string
 }
 
-export type SiteProduct = PublicProduct & ProductSeoFields
+/** Wybór pierścionków na stronę główną (panel: pola w pasku bocznym). Tylko dla stron serwisu, nie dla publicznego API. */
+export type ProductHomeFields = {
+  featuredOnHome: boolean
+  /** Kolejność w sekcji „Wybrane pierścionki”; mniejsza liczba = wcześniej. */
+  homeOrder: number
+}
+
+export type SiteProduct = PublicProduct & ProductSeoFields & ProductHomeFields
 
 export type PublicGalleryItem = {
   id: number
@@ -119,6 +126,8 @@ export function serializeSiteProduct(product: Product): SiteProduct {
     seoDescription: product.meta?.description?.trim() ?? '',
     seoImage: populatedMedia(product.meta?.image ?? 0)?.url ?? '',
     updatedAt: product.updatedAt,
+    featuredOnHome: product.featuredOnHome === true,
+    homeOrder: product.homeOrder ?? 0,
   }
 }
 

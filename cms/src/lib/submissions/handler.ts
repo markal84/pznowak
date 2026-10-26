@@ -11,7 +11,8 @@ import {
   submissionBuckets,
   type LimitBucket,
 } from './limits'
-import { CONSENT_TEXT, type FormKind } from './options'
+import { consentText } from './consent'
+import type { FormKind } from './options'
 import type { LimitOutcome, SubmissionDraft } from './store'
 import { describeContact, describeCreator, rowsToText } from './summary'
 import type { TurnstileResult } from './turnstile'
@@ -175,7 +176,7 @@ function buildDraft(
 ): { draft: SubmissionDraft } | { errors: FieldErrors } {
   const common = {
     status: 'draft' as const,
-    consentText: CONSENT_TEXT[form],
+    consentText: consentText(form),
     consentAt: meta.now.toISOString(),
     notification: 'pending' as const,
     verification: 'verified' as 'verified' | 'quarantine',

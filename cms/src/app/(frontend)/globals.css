@@ -2187,8 +2187,20 @@ fieldset.plain legend {
   gap: 12px;
   padding: 28px 26px 26px;
   background: var(--paper);
-  box-shadow: inset 0 1px 0 var(--graphite);
-  transition: box-shadow 0.3s;
+  transition: background-color 0.3s;
+}
+/* Złoty akcent: w spoczynku go nie ma (kafelek jest kompletny bez hover, także na telefonie); pod wskaźnikiem
+   i fokusem cienka linia rośnie od lewej do prawej krawędzi. Bez ruchu (prefers-reduced-motion) pojawia się od razu. */
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: var(--focus);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
 }
 .tile .icon {
   margin-bottom: 10px;
@@ -2213,14 +2225,16 @@ fieldset.plain legend {
   position: absolute;
   inset: 0;
 }
-.tile:hover,
-.tile:focus-within {
-  box-shadow: inset 0 2px 0 var(--focus);
+.tile:hover::before,
+.tile:focus-within::before {
+  transform: scaleX(1);
 }
 .dark .tile {
   background: transparent;
-  box-shadow: inset 0 1px 0 var(--velvet-line);
   padding: 22px 0 0;
+}
+.dark .tile::before {
+  background: var(--gold);
 }
 .dark .tile h3 {
   color: #f6f5ef;
@@ -2534,4 +2548,178 @@ fieldset.plain legend {
   80% {
     transform: rotate(-1deg);
   }
+}
+
+/* ---------- zlecenie I: strona główna (hero, wybrane pierścionki, opinie, pracownia, znaczniki) ---------- */
+
+/* Całe zdjęcie w hero jest linkiem do karty pierścionka (na telefonie nie ma hover). */
+.hero-link {
+  display: block;
+  position: relative;
+  color: var(--graphite);
+  text-decoration: none;
+  overflow: hidden;
+}
+.hero-link:hover {
+  color: var(--graphite);
+}
+.hero-link:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+.hero-link .ph img {
+  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hero-link:hover .ph img,
+.hero-link:focus-visible .ph img {
+  transform: scale(1.025);
+}
+.hero-link:hover .hero-tag .nm,
+.hero-link:focus-visible .hero-tag .nm {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* Jedna linijka zaufania pod przyciskami w hero. */
+.hero-trust {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.hero-trust li + li::before {
+  content: '·';
+  margin: 0 10px;
+}
+
+/* Cztery wybrane pierścionki: jeden rząd na komputerze, 2 × 2 na telefonie. */
+.ring-grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 960px) {
+  .ring-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .ring-grid-4 {
+    gap: 14px;
+  }
+}
+
+/* Pracownia od 1890: zdjęcie i krótki tekst. */
+.pracownia {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 48px 80px;
+  align-items: center;
+}
+.pracownia-fig {
+  flex: 1 1 520px;
+  min-width: 0;
+}
+.pracownia-copy {
+  flex: 1 1 400px;
+  min-width: 0;
+}
+
+/* Opinie z Google. */
+.review-sum {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+.review-sum strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--graphite);
+}
+.stars {
+  display: inline-flex;
+  gap: 2px;
+}
+.star {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.star.on {
+  fill: var(--focus);
+  stroke: var(--focus);
+}
+.review-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 28px;
+}
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--graphite);
+  padding-top: 22px;
+}
+.review blockquote {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.45;
+}
+.review-by {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+  font-size: 14px;
+  color: var(--graphite-2);
+}
+.review-by .muted {
+  color: var(--muted);
+}
+.review-by a {
+  color: inherit;
+}
+.review-empty {
+  padding: 32px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--muted);
+  background: var(--shade);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+}
+
+/* Znacznik „do uzupełnienia”: tylko poza produkcją (src/lib/placeholders.ts). */
+.todo {
+  background: #ffe9a8;
+  color: #3b2d00;
+  outline: 1px dashed #b78a00;
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+.todo-block {
+  display: block;
+  background: transparent;
+  outline-offset: -1px;
+}
+@media (max-width: 720px) {
+  .hero-trust {
+    flex-direction: column;
+  }
+  .hero-trust li + li::before {
+    content: none;
+  }
+}
+.feature-copy .todo-block {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }

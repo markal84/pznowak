@@ -1,4 +1,6 @@
-export type FaqItem = { q: string; a: string }
+import type { ReactNode } from 'react'
+
+export type FaqItem = { q: string; a: ReactNode }
 
 export default function Faq({ items, openFirst = true }: { items: readonly FaqItem[]; openFirst?: boolean }) {
   return (

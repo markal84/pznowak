@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import DoUzupelnienia from './DoUzupelnienia'
 import Photo from './Photo'
 import Tag from './Tag'
 
@@ -27,7 +28,9 @@ export default function RingCard({ slug, name, stone, image, alt, sizes, metal, 
           <span className="card-meta">
             <span>{stone || 'Projekt pracowni'}</span>
             {metal ? <span className="muted">{metal}</span> : null}
-            <span style={{ fontSize: 14, fontWeight: 500 }}>od [cena] zł</span>
+            <DoUzupelnienia>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>od [cena] zł</span>
+            </DoUzupelnienia>
           </span>
         </Link>
       </li>

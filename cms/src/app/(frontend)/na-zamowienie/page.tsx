@@ -1,13 +1,16 @@
 import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
+import type { ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
-import Faq from '@/components/site/Faq'
+import DoUzupelnienia from '@/components/site/DoUzupelnienia'
+import Faq, { type FaqItem } from '@/components/site/Faq'
 import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
+import { byEnv, showPlaceholders } from '@/lib/placeholders'
 import { CUSTOM_ORDER_LINK, FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
@@ -24,11 +27,35 @@ const STEPS = [
   { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz, a my poprawiamy drobiazgi. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek i opiekę pracowni na kolejne lata', ill: '6-odbior' },
 ]
 
-const FAQ = [
+/** Pytanie „Czy rozmowa o projekcie coś kosztuje?” nie ma jeszcze odpowiedzi od pracowni: na produkcji go nie ma. */
+const faq = (): FaqItem[] => [
   { q: 'Czy mogę zobaczyć pierścionek przed wykonaniem?', a: 'Tak. Pokazujemy szkic i model 3D. Zmieniamy go, dopóki proporcje nie będą takie, jak chcesz.' },
-  { q: 'Czy rozmowa o projekcie coś kosztuje?', a: '[Do uzupełnienia przez pracownię: czy pierwsza rozmowa i projekt są bezpłatne, czy wymagana jest zaliczka.]' },
-  { q: 'Czy da się pracować zdalnie?', a: 'Pierwszą rozmowę możemy przeprowadzić przez telefon. Na przymiarkę i odbiór zapraszamy do Buska-Zdroju. [Do potwierdzenia: rozmowy wideo i wysyłka gotowej biżuterii.]' },
-  { q: 'Skąd pochodzą kamienie?', a: 'Parametry kamieni opisujemy wprost. [Do uzupełnienia: dostawcy, certyfikaty, dostępność kamieni laboratoryjnych.]' },
+  ...(showPlaceholders()
+    ? [
+        {
+          q: 'Czy rozmowa o projekcie coś kosztuje?',
+          a: <DoUzupelnienia>[Do uzupełnienia przez pracownię: czy pierwsza rozmowa i projekt są bezpłatne, czy wymagana jest zaliczka.]</DoUzupelnienia>,
+        },
+      ]
+    : []),
+  {
+    q: 'Czy da się pracować zdalnie?',
+    a: (
+      <>
+        Pierwszą rozmowę możemy przeprowadzić przez telefon. Na przymiarkę i odbiór zapraszamy do Buska-Zdroju.
+        <DoUzupelnienia> [Do potwierdzenia: rozmowy wideo i wysyłka gotowej biżuterii.]</DoUzupelnienia>
+      </>
+    ),
+  },
+  {
+    q: 'Skąd pochodzą kamienie?',
+    a: (
+      <>
+        Parametry kamieni opisujemy wprost.
+        <DoUzupelnienia> [Do uzupełnienia: dostawcy, certyfikaty, dostępność kamieni laboratoryjnych.]</DoUzupelnienia>
+      </>
+    ),
+  },
 ]
 
 export default async function OnOrderPage() {
@@ -43,7 +70,11 @@ export default async function OnOrderPage() {
             Zaczynamy od rozmowy o osobie, która będzie go nosić. Potem rysujemy, modelujemy w 3D i wyceniamy. Pracę
             przy stole zaczynamy dopiero wtedy, gdy projekt i cena są dla Ciebie jasne.
           </p>
-          <PriceOffer label="Pierścionek na zamówienie" note="Cena zależy od kamieni i złota." price="zwykle [X–Y] zł">
+          <PriceOffer
+            label="Pierścionek na zamówienie"
+            note={byEnv('Cena zależy od kamieni i złota.', undefined)}
+            price={byEnv('zwykle [X–Y] zł', undefined)}
+          >
             <Link className="btn" href="/kontakt?temat=nowy">Umów rozmowę o projekcie</Link>
             {RING_CREATOR_ENABLED ? (
               <Link className="tl" href="/kreator">Zaprojektuj wstępnie online</Link>
@@ -82,7 +113,12 @@ export default async function OnOrderPage() {
 
       <section className="wrap sec stack" id="proces" style={{ gap: 56 }}>
         <SectionIntro
-          intro="Przez cały czas rozmawiasz z osobą, która robi Twój pierścionek. Od rozmowy do odbioru mija zwykle [TERMIN, np. 4–6 tygodni]."
+          intro={
+            <>
+              Przez cały czas rozmawiasz z osobą, która robi Twój pierścionek.
+              <DoUzupelnienia> Od rozmowy do odbioru mija zwykle [TERMIN, np. 4–6 tygodni].</DoUzupelnienia>
+            </>
+          }
           title="Cztery etapy, jeden złotnik"
         />
         <ol data-reveal="" style={{ listStyle: 'none', display: 'flex', flexDirection: 'column' }}>
@@ -123,14 +159,14 @@ export default async function OnOrderPage() {
                 <span style={{ fontSize: 13, color: 'var(--muted)' }}>Przykład</span>
               </div>
               <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(110px, auto) 1fr', fontSize: 15.5, lineHeight: 1.45 }}>
-                {[
+                {([
                   ['Dla kogo', 'Narzeczona, nosi drobną biżuterię'],
                   ['Okazja', 'Zaręczyny, wyjazd w czerwcu'],
                   ['Kamień', 'Szafir, owal, około 1 ct'],
                   ['Złoto', 'Żółte'],
                   ['Rozmiar', 'Do sprawdzenia po cichu'],
-                  ['Budżet', '[kwota od klienta]'],
-                ].map(([k, v], i, a) => (
+                  ['Budżet', <DoUzupelnienia fallback="Do omówienia w rozmowie" key="budzet">[kwota od klienta]</DoUzupelnienia>],
+                ] as [string, ReactNode][]).map(([k, v], i, a) => (
                   <div key={k} style={{ display: 'contents' }}>
                     <dt style={{ color: 'var(--muted)', padding: '10px 0', borderBottom: i < a.length - 1 ? '1px dashed var(--line-soft)' : 0 }}>{k}</dt>
                     <dd style={{ margin: 0, padding: '10px 0', borderBottom: i < a.length - 1 ? '1px dashed var(--line-soft)' : 0, fontFamily: 'var(--serif)', fontSize: 18, color: k === 'Rozmiar' ? 'var(--patina)' : undefined }}>{v}</dd>
@@ -146,7 +182,7 @@ export default async function OnOrderPage() {
       <section className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '48px 96px' }}>
         <h2 className="h2" style={{ flex: '1 1 320px' }}>Pytania o pracę na zamówienie</h2>
         <div style={{ flex: '2 1 560px', minWidth: 0 }}>
-          <Faq items={FAQ} />
+          <Faq items={faq()} />
         </div>
       </section>
     </>

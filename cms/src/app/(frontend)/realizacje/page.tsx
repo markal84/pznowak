@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { getGallery } from '@/lib/collection'
+import { byEnv, showPlaceholders } from '@/lib/placeholders'
+import DoUzupelnienia from '@/components/site/DoUzupelnienia'
+import GoogleReviews from '@/components/site/GoogleReviews'
 import Photo from '@/components/site/Photo'
 import SectionIntro from '@/components/site/SectionIntro'
 import WorksBrowser, { type Work } from '@/components/site/WorksBrowser'
@@ -15,13 +18,15 @@ export const metadata: Metadata = pageMetadata({
 
 export default async function WorksPage() {
   const gallery = await getGallery()
-  const [featured, ...rest] = gallery
+  // Wyróżniona realizacja ma jeszcze opisy „do uzupełnienia”: na produkcji jej nie ma, zdjęcie idzie do siatki.
+  const featured = showPlaceholders() ? gallery[0] : undefined
+  const rest = showPlaceholders() ? gallery.slice(1) : gallery
   const works: Work[] = rest.map((g, i) => ({
     id: g.id,
     kind: 'zamowienie',
     kindLabel: 'Na zamówienie',
     title: `Realizacja ${i + 1}`,
-    text: '[Krótko: dla kogo i co było zadaniem]',
+    text: byEnv('[Krótko: dla kogo i co było zadaniem]', ''),
     image: g.image,
     alt: `Realizacja pracowni ${i + 1}`,
   }))
@@ -31,7 +36,10 @@ export default async function WorksPage() {
       <section className="wrap" style={{ paddingTop: 64, paddingBottom: 48 }}>
         <SectionIntro
           as="h1"
-          intro="Biżuteria zrobiona dla konkretnych osób i rzeczy, które wróciły do życia po naprawie. Przy każdej piszemy krótko, co było zadaniem."
+          intro={byEnv(
+            'Biżuteria zrobiona dla konkretnych osób i rzeczy, które wróciły do życia po naprawie. Przy każdej piszemy krótko, co było zadaniem.',
+            'Biżuteria zrobiona dla konkretnych osób i rzeczy, które wróciły do życia po naprawie.',
+          )}
           title="Realizacje"
         />
       </section>
@@ -43,13 +51,15 @@ export default async function WorksPage() {
               <Photo alt="Wyróżniona realizacja pracowni" priority ratio="32" sizes="(max-width: 960px) 100vw, 55vw" src={featured.image} />
             </div>
             <div className="feature-copy">
-              <span style={{ fontSize: 14, color: 'var(--muted)' }}>Na zamówienie, [rok]</span>
-              <h2 className="h2 h2-md" style={{ fontSize: 'clamp(32px, 3.2vw, 46px)' }}>[Nazwa wyróżnionej realizacji]</h2>
-              <dl className="dl-stack">
-                <div><dt>Zadanie</dt><dd>[Dla kogo i z jaką prośbą przyszedł klient, 1–2 zdania]</dd></div>
-                <div><dt>Co zrobiliśmy</dt><dd>[Kamień, oprawa, technika, na co zwróciliśmy uwagę]</dd></div>
-                <div><dt>Czas</dt><dd>[np. 5 tygodni od pierwszej rozmowy]</dd></div>
-              </dl>
+              <DoUzupelnienia as="div">
+                <span style={{ fontSize: 14, color: 'var(--muted)' }}>Na zamówienie, [rok]</span>
+                <h2 className="h2 h2-md" style={{ fontSize: 'clamp(32px, 3.2vw, 46px)' }}>[Nazwa wyróżnionej realizacji]</h2>
+                <dl className="dl-stack">
+                  <div><dt>Zadanie</dt><dd>[Dla kogo i z jaką prośbą przyszedł klient, 1–2 zdania]</dd></div>
+                  <div><dt>Co zrobiliśmy</dt><dd>[Kamień, oprawa, technika, na co zwróciliśmy uwagę]</dd></div>
+                  <div><dt>Czas</dt><dd>[np. 5 tygodni od pierwszej rozmowy]</dd></div>
+                </dl>
+              </DoUzupelnienia>
               <Link className="btn" href="/kontakt?temat=nowy" style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
                 Chcę podobny pierścionek
               </Link>
@@ -60,6 +70,7 @@ export default async function WorksPage() {
 
       <WorksBrowser works={works} />
 
+      <DoUzupelnienia as="div">
       <section className="band">
         <div className="wrap sec-tight stack" style={{ gap: 36 }}>
           <SectionIntro title="Przed i po naprawie" />
@@ -76,18 +87,9 @@ export default async function WorksPage() {
           </div>
         </div>
       </section>
+      </DoUzupelnienia>
 
-      <section className="wrap stack" style={{ paddingTop: 104, paddingBottom: 120, gap: 40 }}>
-        <SectionIntro action={<span className="small">[Link do opinii w Google: do uzupełnienia]</span>} title="Opinie klientów" />
-        <ul className="cols-auto cols-300" style={{ listStyle: 'none', gap: 28, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-          {['[Prawdziwa opinia klienta z Google, skrócona do 2–3 zdań]', '[Opinia o naprawie lub przeróbce]', '[Opinia o obrączkach lub pierścionku zaręczynowym]'].map((q) => (
-            <li className="quote" key={q}>
-              <p>{q}</p>
-              <span>[Imię, miesiąc i rok]</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <GoogleReviews title="Opinie klientów" />
 
       <section className="dark">
         <div className="wrap" style={{ paddingTop: 80, paddingBottom: 80, display: 'flex', flexWrap: 'wrap', gap: '24px 64px', alignItems: 'center', justifyContent: 'space-between' }}>

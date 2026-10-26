@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import ContactForm from '@/components/site/ContactForm'
+import { byEnv } from '@/lib/placeholders'
+import { consentText } from '@/lib/submissions/consent'
+import { BUDGETS } from '@/lib/submissions/options'
 import JsonLd from '@/components/site/JsonLd'
 import { pageMetadata } from '@/lib/seo'
 import { SITE } from '@/lib/site'
@@ -34,7 +37,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Sear
 
       <section className="wrap kontakt-layout">
         <div style={{ flex: '2 1 560px', minWidth: 0 }}>
-          <ContactForm choice={choice} initialTopic={topic} key={`${topic}|${project}|${choice}`} project={project} />
+          <ContactForm budgets={byEnv<readonly string[]>(BUDGETS, [])} choice={choice} consentText={consentText('kontakt')} initialTopic={topic} key={`${topic}|${project}|${choice}`} project={project} />
         </div>
         <aside className="stack" style={{ flex: '1 1 320px', minWidth: 0, gap: 36 }}>
           <div className="info-card">

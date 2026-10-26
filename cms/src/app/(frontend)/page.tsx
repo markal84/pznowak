@@ -1,11 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
-import { pickByName, pluralRing, toCatalogRing } from '@/lib/catalog'
+import { pluralRing, toCatalogRing } from '@/lib/catalog'
+import { heroRing as pickHero, pickHomeRings } from '@/lib/home'
+import { showPlaceholders } from '@/lib/placeholders'
 import { pageMetadata } from '@/lib/seo'
-import { CUSTOM_ORDER_LINK, FAMILY, RING_CREATOR_ENABLED, SITE } from '@/lib/site'
+import { CUSTOM_ORDER_LINK, FAMILY, HERO_TRUST, RING_CREATOR_ENABLED, SITE } from '@/lib/site'
 import { jewelryStoreJsonLd } from '@/lib/structured-data'
-import Faq from '@/components/site/Faq'
+import DoUzupelnienia from '@/components/site/DoUzupelnienia'
+import Faq, { type FaqItem } from '@/components/site/Faq'
+import GoogleReviews from '@/components/site/GoogleReviews'
 import Icon, { type IconName } from '@/components/site/Icon'
 import JsonLd from '@/components/site/JsonLd'
 import Photo from '@/components/site/Photo'
@@ -21,11 +25,18 @@ export const metadata: Metadata = pageMetadata({
   path: '/',
 })
 
-const HOME_RINGS = ['Phoebe', 'Harmonia', 'Athena', 'Nyx', 'Pyrrha', 'Cyane', 'Eirene', 'Daphne']
-
-const FAQ = [
+/** Odpowiedzi z miejscami „do uzupełnienia” budowane przy renderowaniu (środowisko wybiera wersję: src/lib/placeholders.ts). */
+const faq = (): FaqItem[] => [
   { q: 'Czy muszę mieć gotowy projekt?', a: 'Nie. Wystarczy zdjęcie, okazja albo styl, który lubisz. Kierunek ustalimy razem przy pierwszej rozmowie.' },
-  { q: 'Ile kosztuje pierścionek na zamówienie?', a: 'Pierścionki z kolekcji kosztują od [X] zł, a projekty na zamówienie zwykle [X–Y] zł. Cena zależy od kamieni i złota. Powiedz, jaki budżet planujesz, a dopasujemy do niego projekt. Wycenę dostajesz przed rozpoczęciem pracy.' },
+  {
+    q: 'Ile kosztuje pierścionek na zamówienie?',
+    a: (
+      <>
+        <DoUzupelnienia>Pierścionki z kolekcji kosztują od [X] zł, a projekty na zamówienie zwykle [X–Y] zł. </DoUzupelnienia>
+        Cena zależy od kamieni i złota. Powiedz, jaki budżet planujesz, a dopasujemy do niego projekt. Wycenę dostajesz przed rozpoczęciem pracy.
+      </>
+    ),
+  },
   { q: 'Jak dobrać rozmiar, jeśli to niespodzianka?', a: 'Przynieś pierścionek, który ta osoba nosi na tym samym palcu, albo odrysuj jego wnętrze na kartce. Rozmiar można też poprawić po zaręczynach.' },
   { q: 'Czy mogę użyć własnego kamienia lub złota?', a: 'Tak. Obejrzymy kamień i biżuterię w pracowni i powiemy, co da się z nich zrobić.' },
   { q: 'Na kiedy będzie gotowy?', a: 'Termin ustalamy razem z projektem. Jeśli pierścionek ma być gotowy na konkretną datę, napisz ją w pierwszej wiadomości.' },
@@ -34,9 +45,10 @@ const FAQ = [
 export default async function HomePage() {
   const products = await getProducts()
   const count = products.length
-  const hero = products.find((p) => p.name === 'Phoebe') ?? products[0]
-  const featured = pickByName(products, HOME_RINGS, 8).map(toCatalogRing)
+  const hero = pickHero(products)
+  const featured = pickHomeRings(products, hero).map(toCatalogRing)
   const heroRing = hero ? toCatalogRing(hero) : null
+  const trust = HERO_TRUST.filter((t) => t.confirmed || showPlaceholders())
   // Ceny i dłuższe opisy są na podstronach; tu kafelek prowadzi dalej.
   const offers: { icon: IconName; title: string; text: string; href: string; link: string }[] = [
     {
@@ -77,80 +89,53 @@ export default async function HomePage() {
         <div className="hero-copy">
           <h1 className="h1 h1-hero">Pierścionek zrobiony dla jednej osoby.</h1>
           <p className="lead">
-            Projektujemy i wykonujemy biżuterię na zamówienie w rodzinnej pracowni w Busku-Zdroju. Nowakowie pracują
-            w rzemiośle od {SITE.since} roku. Dziś przy stole złotniczym siedzi Michał, czwarte pokolenie.
+            Projektujemy i wykonujemy biżuterię na zamówienie w rodzinnej pracowni w Busku-Zdroju.
           </p>
-          <div className="row gap-14-28">
-            <Link className="btn" href="/kontakt">
-              Umów rozmowę o projekcie
-            </Link>
-            <Link className="tl" href="/pierscionki">
-              {count > 0 ? `Zobacz ${count} ${pluralRing(count)} z pracowni` : 'Zobacz pierścionki z pracowni'}
-            </Link>
+          <div className="stack" style={{ gap: 18 }}>
+            <div className="row gap-14-28">
+              <Link className="btn" href="/kontakt">
+                Zapytaj o pierścionek
+              </Link>
+              <Link className="tl" href="/pierscionki">
+                {count > 0 ? `Zobacz ${count} ${pluralRing(count)} z pracowni` : 'Zobacz pierścionki z pracowni'}
+              </Link>
+            </div>
+            {trust.length > 0 ? (
+              <ul className="hero-trust">
+                {trust.map((t) => (
+                  <li key={t.text}>{t.confirmed ? t.text : <DoUzupelnienia>{t.text}</DoUzupelnienia>}</li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         </div>
         {hero && heroRing ? (
           <figure className="hero-fig">
-            <Photo
-              alt={`Pierścionek ${hero.name}${heroRing.stone ? ': ' + heroRing.stone.toLowerCase() : ''}`}
-              className="ph-hero"
-              position="55% 50%"
-              priority
-              ratio="none"
-              sizes="(max-width: 960px) 100vw, 56vw"
-              src={hero.images[0] ?? hero.imagePath}
-            />
-            <Link className="hero-tag" href={`/pierscionki/${hero.slug}`}>
-              <svg aria-hidden="true" height="70" viewBox="0 0 90 70" width="90">
-                <path d="M3 64 C 0 40, 30 22, 88 2" fill="none" stroke="#F3F1EA" strokeOpacity="0.85" strokeWidth="1.2" />
-              </svg>
-              <Tag className="hang" name={hero.name} size="md" sub={[heroRing.stone, heroRing.metal.toLowerCase()].filter(Boolean).join(', ')} />
+            <Link aria-label={`Pierścionek ${hero.name} – zobacz szczegóły`} className="hero-link" href={`/pierscionki/${hero.slug}`}>
+              <Photo
+                alt={`Pierścionek ${hero.name}${heroRing.stone ? ': ' + heroRing.stone.toLowerCase() : ''}`}
+                className="ph-hero"
+                position="55% 50%"
+                priority
+                ratio="none"
+                sizes="(max-width: 960px) 100vw, 56vw"
+                src={hero.images[0] ?? hero.imagePath}
+              />
+              <span className="hero-tag">
+                <svg aria-hidden="true" height="70" viewBox="0 0 90 70" width="90">
+                  <path d="M3 64 C 0 40, 30 22, 88 2" fill="none" stroke="#F3F1EA" strokeOpacity="0.85" strokeWidth="1.2" />
+                </svg>
+                <Tag className="hang" name={hero.name} size="md" sub={[heroRing.stone, heroRing.metal.toLowerCase()].filter(Boolean).join(', ')} />
+              </span>
             </Link>
           </figure>
         ) : null}
       </section>
 
-      <section className="band">
-        <div className="wrap sec-tight stack" style={{ gap: 48 }}>
-          <SectionIntro title="Cztery pokolenia przy jednym fachu" />
-          <ol className="family-list">
-            {FAMILY.map((f) => (
-              <li className="family-item" key={f.name}>
-                <Photo alt={f.alt} position={f.pos} sizes="(max-width: 720px) 210px, 25vw" src={f.img} />
-                <div className="family-meta">
-                  <span className="year">{f.year}</span>
-                  <span className="family-name">{f.name}</span>
-                  <span style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--graphite-2)' }}>{f.short}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <Link className="tl" href="/pracownia" style={{ alignSelf: 'flex-start' }}>
-            Poznaj historię pracowni
-          </Link>
-        </div>
-      </section>
-
-      <section className="wrap sec stack" style={{ gap: 40 }}>
-        <SectionIntro title="Z czym możesz do nas przyjść" />
-        <ul className="tiles" data-reveal="">
-          {offers.map((o) => (
-            <li className="tile ic-host" key={o.title}>
-              <Icon name={o.icon} size={48} />
-              <h3>{o.title}</h3>
-              <p>{o.text}</p>
-              <Link className="tl" href={o.href}>
-                {o.link}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       {featured.length > 0 ? (
-        <section className="wrap stack" style={{ paddingBottom: 112, gap: 44 }}>
-          <SectionIntro intro="Każdy projekt to punkt wyjścia do Twojej wersji." title="Pierścionki z pracowni" />
-          <ul className="ring-grid" data-reveal="">
+        <section className="wrap stack" style={{ gap: 44 }}>
+          <SectionIntro intro="Każdy projekt to punkt wyjścia do Twojej wersji." title="Wybrane pierścionki" />
+          <ul className="ring-grid ring-grid-4" data-reveal="">
             {featured.map((r) => (
               <RingCard
                 alt={r.alt}
@@ -169,11 +154,32 @@ export default async function HomePage() {
         </section>
       ) : null}
 
+      <section className="wrap sec stack" style={{ gap: 40 }}>
+        <SectionIntro title="Z czym możesz do nas przyjść" />
+        <ul className="tiles" data-reveal="">
+          {offers.map((o) => (
+            <li className="tile ic-host" key={o.title}>
+              <Icon name={o.icon} size={48} />
+              <h3>{o.title}</h3>
+              <p>{o.text}</p>
+              <Link className="tl" href={o.href}>
+                {o.link}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section className="dark">
         <div className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '56px 80px', alignItems: 'stretch' }}>
           <div className="stack" style={{ flex: '1 1 520px', minWidth: 0, gap: 44 }}>
             <SectionIntro
-              intro="Cenę i wygląd znasz, zanim zaczniemy. Od rozmowy do odbioru mija zwykle [TERMIN, np. 4–6 tygodni]."
+              intro={
+                <>
+                  Cenę i wygląd znasz, zanim zaczniemy.
+                  <DoUzupelnienia> Od rozmowy do odbioru mija zwykle [TERMIN, np. 4–6 tygodni].</DoUzupelnienia>
+                </>
+              }
               title="Jak powstaje pierścionek na zamówienie"
             />
             <ol className="steps">
@@ -202,21 +208,23 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '48px 80px', alignItems: 'center' }}>
-        <figure className="stack" style={{ flex: '1 1 520px', minWidth: 0, gap: 12 }}>
-          <Photo alt={FAMILY[2].alt} position={FAMILY[2].pos} ratio="32" sizes="(max-width: 960px) 100vw, 50vw" src={FAMILY[2].img} />
-          <figcaption className="fig-cap">Mieczysław Nowak w pracowni, lata 80.</figcaption>
-        </figure>
-        <div className="stack" style={{ flex: '1 1 400px', minWidth: 0, gap: 22 }}>
-          <h2 className="h2">Biżuteria z historią wraca do pracowni</h2>
-          <p className="text">
-            Pierścionki zaprojektowane przez Mieczysława Nowaka w latach 80. do dziś trafiają do nas na renowację. Tak
-            samo zajmiemy się pierścionkiem po babci: oczyścimy go, wzmocnimy oprawę, dopasujemy rozmiar albo przerobimy
-            złoto na nowy projekt.
-          </p>
-          <div className="row gap-14-28">
-            <Link className="btn btn-line" href="/naprawy">Naprawy i przeróbki</Link>
-            <Link className="tl" href="/realizacje">Zobacz realizacje</Link>
+      <GoogleReviews />
+
+      <section className="band">
+        <div className="wrap sec-tight pracownia">
+          <figure className="pracownia-fig stack" style={{ gap: 12 }}>
+            <Photo alt={FAMILY[2].alt} position={FAMILY[2].pos} ratio="32" sizes="(max-width: 960px) 100vw, 50vw" src={FAMILY[2].img} />
+            <figcaption className="fig-cap">Mieczysław Nowak w pracowni, lata 80.</figcaption>
+          </figure>
+          <div className="stack pracownia-copy" style={{ gap: 28 }}>
+            <SectionIntro
+              intro="Od 1890 roku fach przechodzi w rodzinie Nowaków z ojca na syna: od kowala z Szańca, przez Stanisława i Mieczysława, po Michała. Pierścionki, które Mieczysław projektował w latach 80., do dziś wracają do nas na renowację. Z tą samą uwagą zajmiemy się pierścionkiem po babci."
+              title="Pracownia od 1890"
+            />
+            <div className="row gap-14-28">
+              <Link className="btn btn-line" href="/pracownia">Poznaj historię pracowni</Link>
+              <Link className="tl" href="/naprawy">Naprawy i przeróbki</Link>
+            </div>
           </div>
         </div>
       </section>
@@ -225,7 +233,7 @@ export default async function HomePage() {
         <div className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '64px 96px' }}>
           <div className="stack" style={{ flex: '1 1 520px', minWidth: 0, gap: 32 }}>
             <h2 className="h2">Zanim przyjdziesz</h2>
-            <Faq items={FAQ} />
+            <Faq items={faq()} />
           </div>
           <aside className="hint-panel" style={{ flex: '1 1 340px', minWidth: 0, alignSelf: 'flex-start' }}>
             <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 34, lineHeight: 1.1 }}>Pracownia w Busku-Zdroju</h2>
@@ -249,7 +257,8 @@ export default async function HomePage() {
             <Link className="btn" href="/kontakt" style={{ alignSelf: 'flex-start' }}>Umów wizytę</Link>
             <p className="small">Na rozmowę o projekcie najlepiej umówić się wcześniej. Z naprawą możesz przyjść w godzinach otwarcia.</p>
             <p className="small" style={{ borderTop: '1px solid var(--line-soft)', paddingTop: 18, color: 'var(--graphite-2)' }}>
-              Na miejscu jest też sklep z gotową biżuterią: kolczyki, wisiorki i inne [asortyment do potwierdzenia].
+              Na miejscu jest też sklep z gotową biżuterią
+              <DoUzupelnienia fallback=".">: kolczyki, wisiorki i inne [asortyment do potwierdzenia].</DoUzupelnienia>
             </p>
           </aside>
         </div>

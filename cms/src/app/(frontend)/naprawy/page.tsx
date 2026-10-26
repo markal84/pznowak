@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
+import { byEnv, showPlaceholders } from '@/lib/placeholders'
 import { SITE, FAMILY } from '@/lib/site'
+import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
 import SectionIntro from '@/components/site/SectionIntro'
@@ -24,6 +26,10 @@ const SERVICES: { name: string; text: string; time: string; price: string; icon:
   { name: 'Grawer', text: 'Daty, inicjały i krótkie napisy po wewnętrznej stronie obrączki.', time: '[czas]', price: '[cena] zł', icon: 'grawer' },
   { name: 'Renowacja biżuterii z historią', text: 'Ostrożna naprawa starych wyrobów, z zachowaniem ich charakteru i śladów czasu.', time: 'indywidualnie', price: 'po wycenie', icon: 'renowacja' },
 ]
+
+/** Czas i cena z nawiasem to placeholder: na produkcji w jego miejsce wchodzi `fallback`. */
+const unlessTodo = (value: string, fallback: string) =>
+  value.includes('[') ? <DoUzupelnienia fallback={fallback}>{value}</DoUzupelnienia> : value
 
 export default async function RepairsPage() {
   const products = await getProducts()
@@ -70,8 +76,11 @@ export default async function RepairsPage() {
 
       <section className="wrap stack" style={{ paddingTop: 24, paddingBottom: 104, gap: 40 }}>
         <SectionIntro
-          intro="Ceny są orientacyjne. Dokładną kwotę podajemy po obejrzeniu biżuterii, zanim zaczniemy pracę."
-          title="Co robimy i ile to trwa"
+          intro={byEnv(
+            'Ceny są orientacyjne. Dokładną kwotę podajemy po obejrzeniu biżuterii, zanim zaczniemy pracę.',
+            'Cenę i termin podajemy po obejrzeniu biżuterii, zanim zaczniemy pracę.',
+          )}
+          title={byEnv('Co robimy i ile to trwa', 'Co robimy')}
         />
         <ul data-reveal="" style={{ listStyle: 'none', borderTop: '1px solid var(--graphite)' }}>
           {SERVICES.map((s) => (
@@ -81,9 +90,9 @@ export default async function RepairsPage() {
               <p>{s.text}</p>
               <dl>
                 <dt>Czas</dt>
-                <dd>{s.time}</dd>
+                <dd>{unlessTodo(s.time, 'po obejrzeniu')}</dd>
                 <dt>Cena</dt>
-                <dd className="p">{s.price}</dd>
+                <dd className="p">{unlessTodo(s.price, 'po wycenie')}</dd>
               </dl>
             </li>
           ))}
@@ -112,8 +121,14 @@ export default async function RepairsPage() {
           <dl className="hours" style={{ flex: '1 1 260px', gap: '6px 18px' }}>
             <dt style={{ color: 'var(--on-velvet-3)' }}>Adres</dt>
             <dd>{SITE.street}</dd>
-            <dt style={{ color: 'var(--on-velvet-3)' }}>Dojście</dt>
-            <dd>[ok. X minut pieszo od Parku Zdrojowego]</dd>
+            {showPlaceholders() ? (
+              <>
+                <dt style={{ color: 'var(--on-velvet-3)' }}>Dojście</dt>
+                <dd>
+                  <DoUzupelnienia>[ok. X minut pieszo od Parku Zdrojowego]</DoUzupelnienia>
+                </dd>
+              </>
+            ) : null}
             <dt style={{ color: 'var(--on-velvet-3)' }}>Godziny</dt>
             <dd>Pon.–pt. 8–16, sob. 10–16</dd>
           </dl>

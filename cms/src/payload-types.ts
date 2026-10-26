@@ -182,6 +182,14 @@ export interface Product {
    * Archiwizacja automatycznie wycofuje produkt z publikacji.
    */
   archived?: boolean | null;
+  /**
+   * Pokazuje pierścionek w sekcji „Wybrane pierścionki” na stronie głównej (mieszczą się 4; pierścionek z nagłówka strony się tam nie powtarza). Bez zaznaczeń strona użyje listy domyślnej.
+   */
+  featuredOnHome?: boolean | null;
+  /**
+   * Mniejsza liczba = wcześniej. Przy takiej samej liczbie decyduje kolejność w katalogu.
+   */
+  homeOrder?: number | null;
   sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -460,6 +468,8 @@ export interface ProductsSelect<T extends boolean = true> {
         image?: T;
       };
   archived?: T;
+  featuredOnHome?: T;
+  homeOrder?: T;
   sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;

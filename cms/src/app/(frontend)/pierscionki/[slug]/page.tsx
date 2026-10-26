@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducts } from '@/lib/collection'
 import { formatMetal, formatStone, similarTo, toCatalogRing } from '@/lib/catalog'
 import { productPath, productSeoDescription, productSeoTitle } from '@/lib/product-seo'
 import { pageMetadata } from '@/lib/seo'
+import { showPlaceholders } from '@/lib/placeholders'
 import { SITE } from '@/lib/site'
+import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import ProductMedia from '@/components/site/ProductMedia'
 import RingCard from '@/components/site/RingCard'
 
@@ -38,10 +41,19 @@ export default async function ProductPage({ params }: Params) {
   const stone = formatStone(product.stone)
   const metal = formatMetal(product.metal)
   const similar = similarTo(product, products, 4).map(toCatalogRing)
-  const facts: [string, string][] = [
-    ['Kamień główny', stone || '[do uzupełnienia]'],
-    ['Złoto', metal ? `${metal}, [próba do uzupełnienia]` : '[do uzupełnienia]'],
-  ]
+  // Pusty kamień albo metal: na produkcji wiersza nie ma, na podglądzie widać znacznik „do uzupełnienia”.
+  const facts: [string, ReactNode][] = []
+  if (stone) facts.push(['Kamień główny', stone])
+  else if (showPlaceholders()) facts.push(['Kamień główny', <DoUzupelnienia key="stone">[do uzupełnienia]</DoUzupelnienia>])
+  if (metal) {
+    facts.push([
+      'Złoto',
+      <>
+        {metal}
+        <DoUzupelnienia>, [próba do uzupełnienia]</DoUzupelnienia>
+      </>,
+    ])
+  } else if (showPlaceholders()) facts.push(['Złoto', <DoUzupelnienia key="metal">[do uzupełnienia]</DoUzupelnienia>])
   if (product.carats) facts.push(['Masa kamienia', product.carats])
   if (product.clarity) facts.push(['Czystość kamienia', product.clarity])
 
@@ -81,9 +93,13 @@ export default async function ProductPage({ params }: Params) {
               <dt>Rozmiar</dt>
               <dd>Wykonamy w Twoim rozmiarze</dd>
               <dt>Czas wykonania</dt>
-              <dd>[TERMIN], ustalamy przy zamówieniu</dd>
+              <dd>
+                <DoUzupelnienia fallback="Ustalamy przy zamówieniu">[TERMIN], ustalamy przy zamówieniu</DoUzupelnienia>
+              </dd>
               <dt className="total">Cena</dt>
-              <dd className="total">od [X] zł w tej wersji</dd>
+              <dd className="total">
+                <DoUzupelnienia fallback="Wycena przed rozpoczęciem pracy">od [X] zł w tej wersji</DoUzupelnienia>
+              </dd>
             </dl>
           </div>
 

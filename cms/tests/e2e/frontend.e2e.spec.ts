@@ -37,6 +37,38 @@ test.describe('Nowy design: strony i nawigacja', () => {
     await noHorizontalScroll(page)
   })
 
+  test('całe zdjęcie w hero prowadzi do karty pierścionka (też dotykiem)', async ({ page }) => {
+    await visit(page, '/')
+    const link = page.locator('a.hero-link')
+    await expect(link).toHaveAttribute('aria-label', /^Pierścionek .+ – zobacz szczegóły$/)
+    expect(await link.locator('a').count()).toBe(0)
+    await link.scrollIntoViewIfNeeded()
+    const box = (await link.boundingBox())!
+    await page.mouse.click(box.x + box.width / 2, box.y + 40)
+    await expect(page).toHaveURL(/\/pierscionki\/[^/]+$/)
+  })
+
+  test('hero: główny przycisk to „Zapytaj o pierścionek”, a wybrane pierścionki to cztery karty bez powtórki z hero', async ({ page }) => {
+    await visit(page, '/')
+    await expect(page.getByRole('link', { name: 'Zapytaj o pierścionek' }).first()).toHaveAttribute('href', '/kontakt')
+    const heroHref = await page.locator('a.hero-link').getAttribute('href')
+    const cards = page.locator('ul.ring-grid-4 a')
+    await expect(cards).toHaveCount(4)
+    const hrefs = await cards.evaluateAll((els) => els.map((e) => e.getAttribute('href')))
+    expect(hrefs).not.toContain(heroHref)
+  })
+
+  test('kafelki: w spoczynku bez złotej linii, pod wskaźnikiem linia rośnie', async ({ page, isMobile }) => {
+    await visit(page, '/')
+    const tile = page.locator('.tile').first()
+    await tile.scrollIntoViewIfNeeded()
+    const scale = () => tile.evaluate((el) => new DOMMatrix(getComputedStyle(el, '::before').transform).a)
+    expect(await scale()).toBe(0)
+    if (isMobile) return
+    await tile.hover()
+    await expect.poll(scale).toBeGreaterThan(0.99)
+  })
+
   for (const [path, heading] of [
     ['/pierscionki', 'Pierścionki z pracowni'],
     ['/obraczki', 'Obrączki ślubne'],

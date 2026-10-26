@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import DoUzupelnienia from './DoUzupelnienia'
 import Icon from './Icon'
 import Photo from './Photo'
 import SectionIntro from './SectionIntro'
@@ -26,9 +27,12 @@ export const BAND_TYPES = [
     id: 'klasyczne',
     label: 'Klasyczne',
     galleryName: 'Obrączki klasyczne',
-    text: '[Krótki opis od pracowni: czym klasyczne różnią się od półokrągłych]',
+    text: null,
   },
 ] as const
+
+/** Zastępczy tekst opisu, gdy pracownia jeszcze go nie podała (na produkcji akapitu wtedy nie ma). */
+const BAND_TEXT_PLACEHOLDER = '[Krótki opis od pracowni: czym klasyczne różnią się od półokrągłych]'
 
 export const BAND_PHOTO_PLACEHOLDER = '[zdjęcie do uzupełnienia]'
 
@@ -58,13 +62,21 @@ export default function BandTypes({ gallery }: { gallery: { name: string; image:
               {photo ? (
                 <Photo alt={`Obrączki ${t.label.toLowerCase()} z pracowni`} ratio="32" sizes="(max-width: 720px) 100vw, 33vw" src={photo} />
               ) : (
-                <div aria-label={`Miejsce na zdjęcie: ${name}`} className="ph-empty" role="img" style={{ aspectRatio: '3 / 2' }}>
-                  <Icon name="obraczki" />
-                  {BAND_PHOTO_PLACEHOLDER}
-                </div>
+                <DoUzupelnienia as="div">
+                  <div aria-label={`Miejsce na zdjęcie: ${name}`} className="ph-empty" role="img" style={{ aspectRatio: '3 / 2' }}>
+                    <Icon name="obraczki" />
+                    {BAND_PHOTO_PLACEHOLDER}
+                  </div>
+                </DoUzupelnienia>
               )}
               <h3 className="h3-serif">{t.label}</h3>
-              <p>{t.text}</p>
+              {t.text ? (
+                <p>{t.text}</p>
+              ) : (
+                <DoUzupelnienia as="div">
+                  <p>{BAND_TEXT_PLACEHOLDER}</p>
+                </DoUzupelnienia>
+              )}
               <Link className="tl" href={`/kontakt?temat=obraczki&wybor=${encodeURIComponent(t.label.toLowerCase())}`} style={{ marginTop: 'auto' }}>
                 Zapytaj o {name}
               </Link>

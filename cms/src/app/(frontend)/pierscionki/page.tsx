@@ -4,6 +4,7 @@ import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import { getProducts } from '@/lib/collection'
 import { toCatalogRing } from '@/lib/catalog'
+import { byEnv } from '@/lib/placeholders'
 import CatalogBrowser from '@/components/site/CatalogBrowser'
 
 export const dynamic = 'force-dynamic'
@@ -23,7 +24,12 @@ export default async function CatalogPage() {
           intro="Każdy projekt wykonamy w Twoim rozmiarze. Kamień i kolor złota możemy zmienić."
           title="Pierścionki z pracowni"
         />
-        <PriceOffer label="Pierścionek z kolekcji" note="Ostateczna cena zależy od wybranego kamienia i złota." price="od [X] zł" size="sm" />
+        <PriceOffer
+          label="Pierścionek z kolekcji"
+          note={byEnv('Ostateczna cena zależy od wybranego kamienia i złota.', undefined)}
+          price={byEnv('od [X] zł', undefined)}
+          size="sm"
+        />
       </section>
       <CatalogBrowser rings={rings} />
       <section className="band">
