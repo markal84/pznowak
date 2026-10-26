@@ -171,6 +171,31 @@ export const Products: CollectionConfig = {
                 },
               ],
             },
+            {
+              name: 'source',
+              type: 'group',
+              label: 'Import z Facebooka / Instagrama',
+              admin: {
+                description:
+                  'Wypełnia skrypt importu (cms/scripts/import-fb-catalog.ts). Opis i dane z posta to szkic do zatwierdzenia przed publikacją.',
+              },
+              fields: [
+                {
+                  name: 'facebookKey',
+                  type: 'text',
+                  label: 'Klucz karty z przeglądu',
+                  unique: true,
+                  index: true,
+                  admin: { readOnly: true },
+                },
+                {
+                  name: 'facebookPayload',
+                  type: 'json',
+                  label: 'Dane z przeglądu i posty źródłowe',
+                  admin: { readOnly: true },
+                },
+              ],
+            },
           ],
         },
       ],

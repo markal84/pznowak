@@ -170,6 +170,21 @@ export interface Product {
       | boolean
       | null;
   };
+  /**
+   * Wypełnia skrypt importu (cms/scripts/import-fb-catalog.ts). Opis i dane z posta to szkic do zatwierdzenia przed publikacją.
+   */
+  source?: {
+    facebookKey?: string | null;
+    facebookPayload?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -459,6 +474,12 @@ export interface ProductsSelect<T extends boolean = true> {
     | {
         wordpressId?: T;
         sourcePayload?: T;
+      };
+  source?:
+    | T
+    | {
+        facebookKey?: T;
+        facebookPayload?: T;
       };
   meta?:
     | T
