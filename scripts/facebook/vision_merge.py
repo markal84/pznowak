@@ -8,13 +8,17 @@ Co robi (tylko podpowiedzi; selection.json nie jest tu nawet czytany):
   - para „prawdopodobnie ten sam” albo „niepewne” (u któregokolwiek modelu) → propozycja połączenia
     w page_data["proposals"] (z polem "model"); jeśli propozycja tej pary już jest (ręczna, z notatki), dostaje tylko
     plakietkę modelu,
+  - kolejność i zasada: plakietki pokazują w pierwszej kolejności GPT Terra 6.1 (pole "terra"), potem Astrę 6 (eskalacja);
+    stare opinie Claude (pole "claude", etap H-B) są tylko historyczne i pokazują się WYŁĄCZNIE, gdy pary nie oceniła Terra
+    (nie wpływają wtedy na rozbieżność „modele się różnią” przy parach ocenionych Terrą),
   - para „raczej inny” u wszystkich modeli → bez nowej propozycji; plakietka tylko przy istniejącej propozycji/dublu.
 Przegląd sam ukrywa propozycje par już połączonych albo odrzuconych („to nie ten”).
 """
 import json
 from pathlib import Path
 
-NAMES = {"claude-sonnet-5-5": "Claude Sonnet 5.5", "claude-opus-5-5": "Claude Opus 5.5", "gpt-6-astra": "Astra 6"}
+NAMES = {"gpt-6.1-terra": "GPT Terra 6.1", "gpt-6-astra": "Astra 6",
+         "claude-sonnet-5-5": "Claude Sonnet 5.5", "claude-opus-5-5": "Claude Opus 5.5"}
 
 
 def _opinion(o):
@@ -38,7 +42,11 @@ def add(root, page_data):
     for r in json.loads(path.read_text(encoding="utf-8")).get("pairs", []):
         if r["a"] not in cards or r["b"] not in cards:
             continue
-        ops = [_opinion(r["claude"])] + ([_opinion(r["codex"])] if r.get("codex") else [])
+        ops = [_opinion(r[k]) for k in ("terra", "astra") if r.get(k)]
+        if not r.get("terra") and r.get("claude"):
+            ops.insert(0, _opinion(r["claude"]))
+        if not ops:
+            continue
         pid = pair_id(r["a"], r["b"])
         page_data["vision"][pid] = ops
         if pid in by_pair:
