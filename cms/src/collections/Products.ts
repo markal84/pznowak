@@ -173,6 +173,11 @@ export const Products: CollectionConfig = {
                   name: 'sourcePayload',
                   type: 'json',
                   label: 'Oryginalne dane importu',
+                  // Pełny zapis ze starego katalogu to dane robocze: ukryte przed niezalogowanymi.
+                  // `wordpressId` zostaje publiczne (endpoint /products bierze je jako `id`).
+                  access: {
+                    read: isAdminOrEditorField,
+                  },
                 },
               ],
             },

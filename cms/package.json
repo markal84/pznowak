@@ -26,7 +26,7 @@
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
     "test:e2e:cross": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts --project=webkit --project=firefox --project=iphone",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
-    "test:int:staging": "cross-env NODE_OPTIONS=--no-deprecation node --env-file=../backend/.env.staging.local ./node_modules/vitest/vitest.mjs run --config ./vitest.config.mts --testTimeout=60000 tests/int/submissions-staging.int.spec.ts tests/int/attachments-staging.int.spec.ts",
+    "test:int:staging": "cross-env NODE_OPTIONS=--no-deprecation node --env-file=../backend/.env.staging.local ./node_modules/vitest/vitest.mjs run --config ./vitest.config.mts --testTimeout=60000 tests/int/submissions-staging.int.spec.ts tests/int/attachments-staging.int.spec.ts tests/int/products-private-fields-staging.int.spec.ts",
     "check:placeholders": "node --import=tsx/esm scripts/check-placeholders.ts",
     "seo:redirects-doc": "node --import=tsx/esm scripts/seo-redirects-doc.ts",
     "staging:mirror": "node --import=tsx/esm scripts/staging-mirror.ts",
