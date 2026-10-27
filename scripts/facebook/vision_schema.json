@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "same",
+        "different",
+        "unsure"
+      ],
+      "description": "same = ten sam fizyczny pierścionek na obu kartach, different = inne pierścionki, unsure = nie da się rozstrzygnąć z tych obrazów"
+    },
+    "confidence": {
+      "type": "integer",
+      "description": "pewność werdyktu w procentach, liczba całkowita od 0 do 100"
+    },
+    "reason": {
+      "type": "string",
+      "description": "jedno zdanie uzasadnienia po polsku"
+    },
+    "looked": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "na co patrzyłem: krótkie hasła po polsku (np. kształt oprawy, liczba kamieni, szlif, kolor metalu)"
+    }
+  },
+  "required": [
+    "verdict",
+    "confidence",
+    "reason",
+    "looked"
+  ]
+}

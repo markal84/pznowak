@@ -192,6 +192,9 @@ if prop_path.exists():
             page_data["proposals"].append({k: p.get(k, "") for k in ("a", "b", "source", "reason")})
         else:
             print(f"UWAGA: pominięto propozycję połączenia z nieznaną kartą: {p.get('a')} ↔ {p.get('b')}")
+# Weryfikacja modelem (etap B, vision/results.json): plakietki i propozycje; osobny moduł, tu tylko wywołanie.
+sys.path.insert(0, str(Path(__file__).parent))
+__import__("vision_merge").add(root, page_data)
 (root / "review-data.json").write_text(json.dumps(page_data, ensure_ascii=False, indent=1))
 
 # Miniatury (thumbs/) do szybkiego przeglądu; oryginały w media/ zostają nietknięte.
