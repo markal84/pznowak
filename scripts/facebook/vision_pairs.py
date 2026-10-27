@@ -25,7 +25,7 @@ Silnik: WYŁĄCZNIE `codex exec` (konto ChatGPT, bez klucza API); `claude -p` ni
   Krok 1 – domyślny model GPT-6.1 Terra (`gpt-6.1-terra`, rozumowanie medium), równolegle najwyżej 4,
     cache vision/terra/<skrót>.json (skrót z kluczy kart i list ich plików: zmiana plików karty = nowa para),
     licznik wywołań vision/terra-calls.json (bez limitu, tylko statystyka).
-  Krok 2 – eskalacja: pary, dla których Terra dała „unsure” albo pewność < --escalate-below (domyślnie 75) →
+  Krok 2 – eskalacja: pary, dla których Terra dała „same”, „unsure” albo pewność < --escalate-below (domyślnie 90) →
     GPT-6 Astra (`gpt-6-astra`, rozumowanie high), cache vision/astra/<skrót>.json, TWARDY limit wywołań Astry
     w vision/codex-calls.json (osobny licznik; stała ASTRA_HARD_LIMIT w kodzie, z linii poleceń nie do podniesienia).
     Po wyczerpaniu limitu skrypt zatrzymuje eskalację i wypisuje, ile par czeka na Astrę.
@@ -62,8 +62,8 @@ MAX_PHOTOS, MAX_VIDEOS = 8, 3  # więcej i kafelki robią się za małe
 GRAY_LO, GRAY_HI = similarity.SAME + 1, similarity.SIMILAR  # 11–18; powyżej (19–24) to tło szumu: ma to prawie każda para
 JOBS = 4
 CODEX_TIMEOUT = 600
-ASTRA_HARD_LIMIT = 3  # decyzja Marcina (26.10.2026): najwyżej 3 wywołania Astry łącznie; zmiana tylko po jego decyzji
-ESCALATE_BELOW = 75  # Terra z pewnością poniżej tego progu (%) albo „unsure” → Astra
+ASTRA_HARD_LIMIT = 7  # decyzja Marcina 26.10: 3; 27.10: +4 nowe → 7 łącznie; zmiana tylko po jego decyzji
+ESCALATE_BELOW = 90  # Terra „same”, „unsure” albo pewność poniżej tego progu (%) → Astra
 CODEX_BIN_DEFAULT = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex"
 # Identyfikatory z `codex debug models` (katalog modeli CLI 0.164.0-alpha.11.1): gpt-6.1-terra = „GPT-6.1 Terra”.
 TERRA = {"id": "gpt-6.1-terra", "effort": "medium", "dir": "terra", "counter": "terra-calls.json", "limit": None}
@@ -416,7 +416,7 @@ def rebuild_results(vdir):
 
 
 def doubtful(res, below):
-    return res["verdict"] == "unsure" or res["confidence"] < below
+    return res["verdict"] in ("same", "unsure") or res["confidence"] < below
 
 
 def main():
@@ -430,7 +430,7 @@ def main():
     ap.add_argument("--no-escalate", action="store_true", help="bez eskalacji do Astry")
     ap.add_argument("--escalate-only", action="store_true", help="bez nowych wywołań Terry; tylko eskalacja par z cache")
     ap.add_argument("--escalate-below", type=int, default=ESCALATE_BELOW, metavar="PROC",
-                    help="Terra „unsure” albo pewność poniżej PROC %% → Astra (domyślnie %(default)s)")
+                    help="Terra „same”, „unsure” albo pewność poniżej PROC %% → Astra (domyślnie %(default)s)")
     a = ap.parse_args()
 
     root = Path(a.dir).resolve()
