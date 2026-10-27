@@ -49,6 +49,7 @@ const makeReq = (user: TestUser) =>
 const storedProduct = () => ({
   _status: 'published',
   id: 42,
+  legacy: { sourcePayload: { wpTitle: 'Stary wpis 777' }, wordpressId: 777 },
   name: 'Morganit z diamentami',
   slug: 'morganit-z-diamentami',
   sortOrder: 1,
@@ -104,7 +105,7 @@ async function queryErrors(user: TestUser, where: Where) {
   return errors.map((error) => error.path)
 }
 
-describe('pierścionki: dane robocze importu FB (source)', () => {
+describe('pierścionki: dane robocze (source z FB, legacy.sourcePayload ze starego katalogu)', () => {
   it('niezalogowany nie dostaje grupy source (facebookKey ani facebookPayload)', async () => {
     const doc = await readAs(anonymous)
     expect(doc.name).toBe('Morganit z diamentami')
@@ -117,6 +118,28 @@ describe('pierścionki: dane robocze importu FB (source)', () => {
       const doc = await readAs(user)
       expect(doc.source).toEqual(storedProduct().source)
     }
+  })
+
+  it('niezalogowany nie dostaje legacy.sourcePayload, ale legacy.wordpressId zostaje publiczne', async () => {
+    const doc = (await readAs(anonymous)) as { legacy?: Record<string, unknown> }
+    expect(doc.legacy?.wordpressId).toBe(777)
+    expect(doc.legacy).not.toHaveProperty('sourcePayload')
+    expect(JSON.stringify(doc)).not.toContain('Stary wpis 777')
+  })
+
+  it('editor, admin i import (overrideAccess) widzą legacy.sourcePayload', async () => {
+    const expected = storedProduct().legacy
+    for (const user of [editor, admin]) {
+      expect((await readAs(user)).legacy).toEqual(expected)
+    }
+    expect((await readAs(anonymous, { overrideAccess: true })).legacy).toEqual(expected)
+  })
+
+  it('niezalogowany nie może filtrować po legacy.sourcePayload, po wordpressId może', async () => {
+    const where = { 'legacy.sourcePayload': { exists: true } } as Where
+    expect(await queryErrors(anonymous, where)).toEqual(['legacy.sourcePayload'])
+    expect(await queryErrors(editor, where)).toEqual([])
+    expect(await queryErrors(anonymous, { 'legacy.wordpressId': { equals: 777 } })).toEqual([])
   })
 
   it('import przez Local API z overrideAccess dalej widzi klucz (idempotencja)', async () => {
@@ -153,5 +176,18 @@ describe('pierścionki: dane robocze importu FB (source)', () => {
     }
     expect(await sourcePermission(anonymous, 'read')).toBe(false)
     expect(await sourcePermission(anonymous, 'update')).toBe(false)
+  })
+
+  it('uprawnienia w panelu: legacy.sourcePayload czyta editor, niezalogowany nie', async () => {
+    const legacyReadable = async (user: TestUser) => {
+      const permissions = (await getAccessResults({ req: makeReq(user) })).collections?.products
+      const fields = permissions?.fields as
+        Record<string, { fields?: Record<string, { read?: unknown }> }> | true | undefined
+      if (fields === true) return Boolean(permissions?.read)
+      return Boolean(fields?.legacy?.fields?.sourcePayload?.read)
+    }
+    expect(await legacyReadable(editor)).toBe(true)
+    expect(await legacyReadable(admin)).toBe(true)
+    expect(await legacyReadable(anonymous)).toBe(false)
   })
 })
