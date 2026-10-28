@@ -78,7 +78,7 @@ export default function CookieBanner() {
   }
 
   return (
-    <section aria-labelledby="cookie-title" className="cookie-banner" ref={root} tabIndex={-1}>
+    <section aria-labelledby="cookie-title" className={detail ? 'cookie-banner cookie-open' : 'cookie-banner'} ref={root} tabIndex={-1}>
       <div className="cookie-in">
         <div className="cookie-copy">
           <h2 className="cookie-title" id="cookie-title">
@@ -87,7 +87,7 @@ export default function CookieBanner() {
           <p>
             Używamy niezbędnych plików cookies: zapamiętują Twój wybór i chronią formularze przed spamem.
             Opcjonalne, czyli interaktywną mapę Google, a w przyszłości statystyki i reklamę, włączamy tylko za
-            Twoją zgodą. Wybór zmienisz w każdej chwili w stopce strony.
+            Twoją zgodą. <span className="cookie-extra">Wybór zmienisz w każdej chwili w stopce strony.</span>
             {/* [do uzupełnienia] link do polityki prywatności, gdy pracownia dostarczy treść */}
           </p>
           {detail && (

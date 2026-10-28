@@ -40,6 +40,12 @@ export const HERO_TRUST: readonly { text: string; confirmed: boolean }[] = [
  */
 export const COOKIE_BANNER_ENABLED = true
 
+/**
+ * Próba złota (np. „585”) na stronie. Wyłączona (zlecenie K, pkt 5): na karcie pierścionka w wierszu „Złoto” jest
+ * sam kolor. Dane (pole próby w CMS, gdy się pojawi) zostają, a ustawienie na `true` przywraca znacznik próby.
+ */
+export const SHOW_GOLD_FINENESS = false
+
 export const NAV = [
   { id: 'pierscionki', label: 'Pierścionki', href: '/pierscionki' },
   { id: 'obraczki', label: 'Obrączki', href: '/obraczki' },

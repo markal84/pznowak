@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
+  GOLD_COLORS,
+  GOLD_FILTERS,
   filterRings,
   formatMetal,
   formatStone,
+  goldColorLabel,
   goldGroup,
   pickByName,
   pluralRing,
@@ -52,21 +55,35 @@ describe('stoneGroup', () => {
   })
 })
 
-describe('goldGroup i formatMetal', () => {
+describe('goldGroup, goldColorLabel i formatMetal', () => {
   it.each([
-    ['Żółty', 'zolte', 'Żółte złoto'],
-    ['Żołty', 'zolte', 'Żółte złoto'],
-    ['Złoto', 'zolte', 'Złoto'],
-    ['Złoty', 'zolte', 'Złoty'],
-    ['Żółty i biały', 'dwa', 'Żółte i białe złoto'],
-    ['Biały', 'biale', 'Białe złoto'],
-  ])('%s', (metal, group, label) => {
+    ['Żółty', 'zolte', 'Żółte', 'Żółte złoto'],
+    ['Żołty', 'zolte', 'Żółte', 'Żółte złoto'],
+    ['Żółty i biały', 'zolte-biale', 'Żółte z białym', 'Żółte i białe złoto'],
+    ['Biały', 'biale', 'Białe', 'Białe złoto'],
+    // wartości z listy (po migracji pola na select) działają tak samo jak starsze zapisy tekstowe
+    ['zolte', 'zolte', 'Żółte', 'Żółte złoto'],
+    ['zolte-biale', 'zolte-biale', 'Żółte z białym', 'Żółte i białe złoto'],
+    ['biale', 'biale', 'Białe', 'Białe złoto'],
+  ])('%s', (metal, group, color, sentence) => {
     expect(goldGroup(metal)).toBe(group)
-    expect(formatMetal(metal)).toBe(label)
+    expect(goldColorLabel(metal)).toBe(color)
+    expect(formatMetal(metal)).toBe(sentence)
+  })
+  it('samo „Złoto” albo „Złoty” bez koloru nie jest zgadywane: brak grupy i nazwy koloru', () => {
+    for (const metal of ['Złoto', 'Złoty']) {
+      expect(goldGroup(metal)).toBeNull()
+      expect(goldColorLabel(metal)).toBe('')
+    }
+    expect(formatMetal('Złoto')).toBe('Złoto')
   })
   it('puste metale nie trafiają do żadnej grupy', () => {
     expect(goldGroup('')).toBeNull()
     expect(formatMetal('')).toBe('')
+    expect(goldColorLabel('  ')).toBe('')
+  })
+  it('filtr i lista kolorów mają te same nazwy', () => {
+    expect(GOLD_FILTERS.slice(1).map((f) => f.label)).toEqual(GOLD_COLORS.map((c) => c.label))
   })
 })
 
@@ -94,18 +111,18 @@ describe('pluralRing', () => {
 
 describe('filtrowanie katalogu', () => {
   const rings: CatalogRing[] = [
-    { id: 1, slug: 'a', name: 'A', stone: '', metal: '', stoneGroup: 'niebieskie', goldGroup: 'zolte', image: '', alt: '' },
-    { id: 2, slug: 'b', name: 'B', stone: '', metal: '', stoneGroup: 'niebieskie', goldGroup: 'dwa', image: '', alt: '' },
-    { id: 3, slug: 'c', name: 'C', stone: '', metal: '', stoneGroup: 'zielone', goldGroup: 'zolte', image: '', alt: '' },
-    { id: 4, slug: 'd', name: 'D', stone: '', metal: '', stoneGroup: null, goldGroup: null, image: '', alt: '' },
+    { id: 1, slug: 'a', name: 'A', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte', image: '', alt: '' },
+    { id: 2, slug: 'b', name: 'B', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte-biale', image: '', alt: '' },
+    { id: 3, slug: 'c', name: 'C', stone: '', metal: '', goldLabel: '', stoneGroup: 'zielone', goldGroup: 'zolte', image: '', alt: '' },
+    { id: 4, slug: 'd', name: 'D', stone: '', metal: '', goldLabel: '', stoneGroup: null, goldGroup: null, image: '', alt: '' },
   ]
   it('bez filtrów zwraca wszystko, także produkty bez grup', () => {
     expect(filterRings(rings, 'all', 'all')).toHaveLength(4)
   })
   it('łączy filtry kamienia i złota', () => {
     expect(filterRings(rings, 'niebieskie', 'all').map((r) => r.slug)).toEqual(['a', 'b'])
-    expect(filterRings(rings, 'niebieskie', 'dwa').map((r) => r.slug)).toEqual(['b'])
-    expect(filterRings(rings, 'zielone', 'dwa')).toEqual([])
+    expect(filterRings(rings, 'niebieskie', 'zolte-biale').map((r) => r.slug)).toEqual(['b'])
+    expect(filterRings(rings, 'zielone', 'zolte-biale')).toEqual([])
   })
 })
 

@@ -34,28 +34,32 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
             <span className="chip-label" id="f-kamien">
               Kolor kamienia
             </span>
-            {STONE_FILTERS.map((s) => (
-              <button
-                aria-pressed={stone === s.id}
-                className="chip"
-                key={s.id}
-                onClick={() => setStone(s.id)}
-                type="button"
-              >
-                {s.color ? <span aria-hidden="true" className="chip-dot" style={{ background: s.color }} /> : null}
-                {s.label}
-              </button>
-            ))}
+            <div className="chip-row">
+              {STONE_FILTERS.map((s) => (
+                <button
+                  aria-pressed={stone === s.id}
+                  className="chip"
+                  key={s.id}
+                  onClick={() => setStone(s.id)}
+                  type="button"
+                >
+                  {s.color ? <span aria-hidden="true" className="chip-dot" style={{ background: s.color }} /> : null}
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div aria-labelledby="f-zloto" className="chip-group" role="group">
             <span className="chip-label" id="f-zloto">
               Kolor złota
             </span>
-            {GOLD_FILTERS.map((g) => (
-              <button aria-pressed={gold === g.id} className="chip" key={g.id} onClick={() => setGold(g.id)} type="button">
-                {g.label}
-              </button>
-            ))}
+            <div className="chip-row">
+              {GOLD_FILTERS.map((g) => (
+                <button aria-pressed={gold === g.id} className="chip" key={g.id} onClick={() => setGold(g.id)} type="button">
+                  {g.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="row" style={{ justifyContent: 'space-between', gap: '8px 24px' }}>
@@ -79,7 +83,7 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
                 detailed
                 image={r.image}
                 key={r.slug}
-                metal={r.metal}
+                gold={r.goldLabel}
                 name={r.name}
                 sizes="(max-width: 720px) 50vw, (max-width: 1320px) 30vw, 300px"
                 slug={r.slug}

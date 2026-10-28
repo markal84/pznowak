@@ -11,11 +11,11 @@ type RingCardProps = {
   alt: string
   sizes: string
   /** wariant katalogowy: opis pod zdjęciem zamiast podpisu na przywieszce */
-  metal?: string
+  gold?: string
   detailed?: boolean
 }
 
-export default function RingCard({ slug, name, stone, image, alt, sizes, metal, detailed = false }: RingCardProps) {
+export default function RingCard({ slug, name, stone, image, alt, sizes, gold, detailed = false }: RingCardProps) {
   const href = `/pierscionki/${slug}`
   if (detailed) {
     return (
@@ -27,7 +27,7 @@ export default function RingCard({ slug, name, stone, image, alt, sizes, metal, 
           </span>
           <span className="card-meta">
             <span>{stone || 'Projekt pracowni'}</span>
-            {metal ? <span className="muted">{metal}</span> : null}
+            {gold ? <span className="muted">Złoto: {gold.toLowerCase()}</span> : null}
             <DoUzupelnienia>
               <span style={{ fontSize: 14, fontWeight: 500 }}>od [cena] zł</span>
             </DoUzupelnienia>
