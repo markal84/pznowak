@@ -55,6 +55,7 @@ next-env.d.ts
 !cms/docs/
 !cms/docs/**/*.md
 !data/legacy/README.md
+!scripts/facebook/FB_EXPORT.md
 /.playwright-cli/
 
 # Surowy eksport z fanpage FB (linki CDN wygasają, media duże)
