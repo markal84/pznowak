@@ -168,6 +168,46 @@ test.describe('Katalog i karta pierścionka', () => {
     await expect(thumbs.nth(0)).toHaveAttribute('aria-pressed', 'false')
   })
 
+  test('strzałki na głównym zdjęciu zmieniają zdjęcie, a klik otwiera podgląd (Esc, ← →, licznik)', async ({ page }) => {
+    await visit(page, '/pierscionki')
+    await page.locator('.ring-grid-lg > li:not(.cta-card) a').first().click()
+    const main = page.locator('.product-main')
+    const count = main.locator('.media-count')
+    if ((await count.count()) === 0) test.skip(true, 'Ten projekt ma jedno zdjęcie')
+    await expect(count).toHaveText(/^1 \/ \d+$/)
+    await main.getByRole('button', { name: 'Następne zdjęcie' }).click()
+    await expect(count).toHaveText(/^2 \/ \d+$/)
+    await main.getByRole('button', { name: 'Poprzednie zdjęcie' }).click()
+    await expect(count).toHaveText(/^1 \/ \d+$/)
+
+    await page.getByRole('button', { name: 'Powiększ zdjęcie' }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+    await expect(dialog).toContainText(/1 \/ \d+/)
+    await page.keyboard.press('ArrowRight')
+    await expect(dialog).toContainText(/2 \/ \d+/)
+    await page.keyboard.press('ArrowLeft')
+    await expect(dialog).toContainText(/1 \/ \d+/)
+    await page.keyboard.press('Escape')
+    await expect(dialog).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Powiększ zdjęcie' })).toBeFocused()
+  })
+
+  test('telefon: filtry w jednej linii, a pierwsza karta jest widoczna bez przewijania', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Układ telefonu')
+    await visit(page, '/pierscionki')
+    for (const group of ['Kolor kamienia', 'Kolor złota']) {
+      const row = page.getByRole('group', { name: group }).locator('.chip-row')
+      const chips = row.locator('.chip')
+      const first = await chips.first().boundingBox()
+      const last = await chips.last().boundingBox()
+      expect(Math.abs(first!.y - last!.y)).toBeLessThan(4)
+    }
+    const card = await page.locator('.ring-grid-lg > li:not(.cta-card)').first().boundingBox()
+    const viewport = page.viewportSize()!
+    expect(card!.y).toBeLessThan(viewport.height - 100)
+  })
+
   test('nieistniejący projekt daje 404', async ({ page }) => {
     const response = await visit(page, '/pierscionki/nie-ma-takiego')
     expect(response?.status()).toBe(404)

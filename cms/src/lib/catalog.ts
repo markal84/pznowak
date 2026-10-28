@@ -36,6 +36,7 @@ const STONE_RULES: [RegExp, StoneGroup][] = [
   [/rubin|morganit|czerwon/, 'rozowe'],
   [/ametyst|fiolet/, 'fioletowe'],
   [/cytryn|[żz][óo][łl]t/, 'zolte'],
+  [/bezbarw/, 'bezbarwne'],
 ]
 
 /** Kolor kamienia głównego z opisu "Szafir i Diament"; sam diament to "bezbarwne". */
