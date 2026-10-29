@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "stone": { "type": "string", "description": "kamień główny po polsku małymi literami, np. „turmalin różowy”; gdy nie da się pewnie nazwać kamienia, sam kolor, np. „kamień różowy”; „brak” gdy nie ma kamienia kolorowego ani diamentu" },
+    "stone_color": { "type": "string", "enum": ["niebieskie", "zielone", "rozowe", "fioletowe", "zolte", "bezbarwne", "brak"], "description": "kolor kamienia głównego wg listy filtra; rozowe = czerwone i różowe; bezbarwne = diament lub inny bezbarwny" },
+    "gold_color": { "type": "string", "enum": ["zolte", "zolte-biale", "biale", "rozowe", "nieznane"], "description": "kolor złota oprawy i obrączki: zolte, zolte-biale (dwa kolory na jednym pierścionku), biale; rozowe tylko gdy wyraźnie różowe; nieznane gdy nie da się ocenić" },
+    "confidence": { "type": "integer", "description": "pewność całej oceny w procentach, liczba całkowita 0-100" },
+    "reason": { "type": "string", "description": "jedno zdanie uzasadnienia po polsku" },
+    "looked": { "type": "array", "items": { "type": "string" }, "description": "na co patrzyłem: krótkie hasła po polsku" }
+  },
+  "required": ["stone", "stone_color", "gold_color", "confidence", "reason", "looked"]
+}

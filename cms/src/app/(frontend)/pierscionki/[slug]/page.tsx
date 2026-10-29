@@ -3,11 +3,11 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducts } from '@/lib/collection'
-import { formatMetal, formatStone, similarTo, toCatalogRing } from '@/lib/catalog'
+import { formatStone, goldColorLabel, similarTo, toCatalogRing } from '@/lib/catalog'
 import { productPath, productSeoDescription, productSeoTitle } from '@/lib/product-seo'
 import { pageMetadata } from '@/lib/seo'
 import { showPlaceholders } from '@/lib/placeholders'
-import { SITE } from '@/lib/site'
+import { SHOW_GOLD_FINENESS, SITE } from '@/lib/site'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import ProductMedia from '@/components/site/ProductMedia'
 import RingCard from '@/components/site/RingCard'
@@ -39,7 +39,7 @@ export default async function ProductPage({ params }: Params) {
   if (!product) notFound()
 
   const stone = formatStone(product.stone)
-  const metal = formatMetal(product.metal)
+  const metal = goldColorLabel(product.metal)
   const similar = similarTo(product, products, 4).map(toCatalogRing)
   // Pusty kamień albo metal: na produkcji wiersza nie ma, na podglądzie widać znacznik „do uzupełnienia”.
   const facts: [string, ReactNode][] = []
@@ -50,7 +50,7 @@ export default async function ProductPage({ params }: Params) {
       'Złoto',
       <>
         {metal}
-        <DoUzupelnienia>, [próba do uzupełnienia]</DoUzupelnienia>
+        {SHOW_GOLD_FINENESS ? <DoUzupelnienia>, [próba do uzupełnienia]</DoUzupelnienia> : null}
       </>,
     ])
   } else if (showPlaceholders()) facts.push(['Złoto', <DoUzupelnienia key="metal">[do uzupełnienia]</DoUzupelnienia>])

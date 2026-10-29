@@ -17,6 +17,7 @@
     "import:fb": "node --no-deprecation --import=tsx/esm scripts/import-fb-catalog.ts",
     "migrate:videos": "node --env-file=.env.local --import=tsx/esm scripts/migrate-legacy-videos.ts --apply",
     "migrate:videos:check": "node --env-file=.env.local --import=tsx/esm scripts/migrate-legacy-videos.ts",
+    "k:dane": "node --import=tsx/esm scripts/k-zastosuj-dane.ts",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",

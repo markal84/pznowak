@@ -13,8 +13,8 @@ export type LegacyRedirect = {
   from: string
   /** Nowy adres bez skośnika na końcu (`/` dla strony głównej). */
   to: string
-  /** `static`: eksport statyczny widoczny dla Google (mapa witryny); `wordpress`: zaplecze WordPress na tej samej domenie. */
-  origin: 'static' | 'wordpress'
+  /** `static`: eksport statyczny widoczny dla Google (mapa witryny); `wordpress`: zaplecze WordPress na tej samej domenie; `catalog`: adres z nowego serwisu sprzed zmiany nazwy adresu karty. */
+  origin: 'static' | 'wordpress' | 'catalog'
   reason: string
 }
 
@@ -82,11 +82,68 @@ const PAGES: LegacyRedirect[] = [
   { from: '/index.html', to: '/', origin: 'static', reason: 'Stary eksport statyczny serwował też ten adres; ta sama strona główna.' },
 ]
 
-/** `/katalog/<slug>` (eksport statyczny, to indeksuje Google) i `/ring/<slug>` (zaplecze WordPress, adresy publiczne na pznowak.pl, kanoniczne wskazują gdzie indziej). */
-const RINGS: LegacyRedirect[] = LEGACY_RING_SLUGS.flatMap((slug): LegacyRedirect[] => [
-  { from: `/katalog/${slug}`, to: `/pierscionki/${slug}`, origin: 'static', reason: 'Ten sam pierścionek, ten sam slug.' },
-  { from: `/ring/${slug}`, to: `/pierscionki/${slug}`, origin: 'wordpress', reason: 'Wpis WordPress „ring”; ten sam pierścionek.' },
-])
+/**
+ * Czyste adresy kart zamiast `merope-2` i `pierscionek-N` (zlecenie K, pkt 6): stary adres → adres z nazwy karty.
+ * Zmieniają się też slugi w CMS (`npm run k:dane`, plan z `scripts/pierscionki/przygotuj_zmiany.py`); kod i dane
+ * trzeba wdrożyć razem, bo przekierowanie na adres, którego jeszcze nie ma w bazie, kończy się 404.
+ */
+export const RENAMED_RING_SLUGS: Readonly<Record<string, string>> = {
+  'merope-2': 'merope',
+  'electra-2': 'electra',
+  'prometheus-2': 'prometheus',
+  'euterpe-2': 'euterpe',
+  'leto-2': 'leto',
+  'pierscionek-22': 'daphne',
+  'pierscionek-21': 'pyrrha',
+  'pierscionek-20': 'thalassa',
+  'pierscionek-19': 'urania',
+  'pierscionek-18': 'nyx',
+  'pierscionek-17': 'eirene',
+  'pierscionek-16': 'harmonia',
+  'pierscionek-15': 'cyane',
+  'pierscionek-14': 'hestia',
+  'pierscionek-13': 'dione',
+  'pierscionek-12': 'athena',
+  'pierscionek-11': 'chryse',
+  'pierscionek-10': 'phoebe',
+  'pierscionek-9': 'helios',
+  'pierscionek-8': 'pelagia',
+  'pierscionek-2': 'delos',
+  'pierscionek-1': 'egea',
+}
+
+/** Aktualny adres karty o slugu ze starego katalogu (po zmianie nazwy adresu albo ten sam). */
+export const currentRingSlug = (legacySlug: string): string => RENAMED_RING_SLUGS[legacySlug] ?? legacySlug
+
+/**
+ * `/katalog/<slug>` (eksport statyczny, to indeksuje Google) i `/ring/<slug>` (zaplecze WordPress, adresy publiczne
+ * na pznowak.pl, kanoniczne wskazują gdzie indziej). Cel to od razu nowy adres karty, bez przystanku na `merope-2`.
+ */
+const RINGS: LegacyRedirect[] = LEGACY_RING_SLUGS.flatMap((slug): LegacyRedirect[] => {
+  const renamed = currentRingSlug(slug) !== slug
+  return [
+    {
+      from: `/katalog/${slug}`,
+      to: `/pierscionki/${currentRingSlug(slug)}`,
+      origin: 'static',
+      reason: renamed ? 'Ten sam pierścionek; adres z nazwy karty zamiast numeru.' : 'Ten sam pierścionek, ten sam slug.',
+    },
+    {
+      from: `/ring/${slug}`,
+      to: `/pierscionki/${currentRingSlug(slug)}`,
+      origin: 'wordpress',
+      reason: renamed ? 'Wpis WordPress „ring”; adres z nazwy karty zamiast numeru.' : 'Wpis WordPress „ring”; ten sam pierścionek.',
+    },
+  ]
+})
+
+/** Adresy kart w nowym serwisie sprzed zmiany nazwy adresu (podglądy, linki wysłane klientom, zapisane zakładki). */
+const RENAMED: LegacyRedirect[] = Object.entries(RENAMED_RING_SLUGS).map(([from, to]) => ({
+  from: `/pierscionki/${from}`,
+  to: `/pierscionki/${to}`,
+  origin: 'catalog',
+  reason: 'Adres z nazwy karty zamiast numeru ze starej strony.',
+}))
 
 /** Elementy galerii WordPress (11 wpisów, w tym przykładowe) nie mają własnych stron w nowym układzie. */
 export const LEGACY_GALLERY_SLUGS = [
@@ -110,7 +167,7 @@ const GALLERY: LegacyRedirect[] = LEGACY_GALLERY_SLUGS.map((slug) => ({
   reason: 'Wpis galerii WordPress; najbliższa lista to „Realizacje”.',
 }))
 
-export const LEGACY_REDIRECTS: readonly LegacyRedirect[] = [...PAGES, ...RINGS, ...GALLERY]
+export const LEGACY_REDIRECTS: readonly LegacyRedirect[] = [...PAGES, ...RINGS, ...RENAMED, ...GALLERY]
 
 /**
  * Wbudowane przekierowanie skośnika na końcu (`/x/` → `/x`) w Next działa PRZED przekierowaniami z konfiguracji,

@@ -1,7 +1,17 @@
 import type { PublicProduct as Jewel } from './public-products'
 
 export type StoneGroup = 'niebieskie' | 'zielone' | 'rozowe' | 'fioletowe' | 'zolte' | 'bezbarwne'
-export type GoldGroup = 'zolte' | 'dwa' | 'biale'
+export type GoldGroup = 'zolte' | 'zolte-biale' | 'biale'
+
+/**
+ * Jedyna lista kolorów złota: z niej budowany jest filtr na liście, wiersz „Złoto” na karcie i (po migracji pola
+ * na select w CMS) lista wyboru w panelu. `id` to wartość zapisywana w danych, `label` widzi klient.
+ */
+export const GOLD_COLORS: readonly { id: GoldGroup; label: string; sentence: string }[] = [
+  { id: 'zolte', label: 'Żółte', sentence: 'Żółte złoto' },
+  { id: 'zolte-biale', label: 'Żółte z białym', sentence: 'Żółte i białe złoto' },
+  { id: 'biale', label: 'Białe', sentence: 'Białe złoto' },
+]
 
 export const STONE_FILTERS: { id: 'all' | StoneGroup; label: string; color?: string }[] = [
   { id: 'all', label: 'Wszystkie' },
@@ -15,35 +25,61 @@ export const STONE_FILTERS: { id: 'all' | StoneGroup; label: string; color?: str
 
 export const GOLD_FILTERS: { id: 'all' | GoldGroup; label: string }[] = [
   { id: 'all', label: 'Każde' },
-  { id: 'zolte', label: 'Żółte' },
-  { id: 'dwa', label: 'Żółte z białym' },
-  { id: 'biale', label: 'Białe' },
+  ...GOLD_COLORS.map(({ id, label }) => ({ id, label })),
 ]
 
 const STONE_RULES: [RegExp, StoneGroup][] = [
-  [/oliwk/, 'zielone'],
+  [/oliwk|oliwin/, 'zielone'],
   [/ró[żz]ow/, 'rozowe'],
   [/szafir|topaz|tanzanit|b[łl][ęe]kitn|london|niebiesk/, 'niebieskie'],
   [/szmaragd|zielon/, 'zielone'],
-  [/rubin|morganit|czerwon/, 'rozowe'],
+  [/rubin|morganit|granat|czerwon/, 'rozowe'],
   [/ametyst|fiolet/, 'fioletowe'],
   [/cytryn|[żz][óo][łl]t/, 'zolte'],
+  [/bezbarw/, 'bezbarwne'],
 ]
 
-/** Kolor kamienia głównego z opisu "Szafir i Diament"; sam diament to "bezbarwne". */
+/** Kamienie o wielu barwach: żaden kolor filtra nie jest prawdziwy, więc pierścionek zostaje tylko w „Wszystkie”. */
+const MULTICOLOR = /mystic|wielobarw|r[óo][żz]nokolor/
+
+/**
+ * Kolor kamienia głównego z opisu "Szafir i Diament"; sam diament to "bezbarwne". Kamień główny to ten wymieniony
+ * pierwszy („Szmaragd i szafiry kolorowe” → zielone), a nie pierwszy z listy reguł.
+ */
 export function stoneGroup(stone: string): StoneGroup | null {
   const text = stone.toLowerCase()
-  if (!text.trim()) return null
-  for (const [pattern, group] of STONE_RULES) if (pattern.test(text)) return group
+  if (!text.trim() || MULTICOLOR.test(text)) return null
+  let best: { at: number; group: StoneGroup } | null = null
+  for (const [pattern, group] of STONE_RULES) {
+    const at = text.search(pattern)
+    if (at !== -1 && (!best || at < best.at)) best = { at, group }
+  }
+  if (best) return best.group
   return /diament/.test(text) ? 'bezbarwne' : null
 }
 
+/**
+ * Kolor złota z wartości w danych: wartość z listy (`zolte`, `zolte-biale`, `biale`) albo starszy zapis tekstowy
+ * („Żółty”, „Żołty”, „Żółty i biały”, „Biały”). Samo „Złoto” albo „Złoty” bez koloru to `null`: nie zgadujemy,
+ * kolor trzeba ustalić (zlecenie K, pkt 4), do tego czasu pierścionek nie łapie się w filtr koloru złota.
+ */
 export function goldGroup(metal: string): GoldGroup | null {
-  const text = metal.toLowerCase()
-  if (!text.trim()) return null
-  if (/(żó|zo|żo|zó)łt.*bia|bia.*(żó|zo|żo|zó)łt/.test(text)) return 'dwa'
-  if (/bia[łl]/.test(text)) return 'biale'
-  return 'zolte'
+  const text = metal.toLowerCase().trim()
+  if (!text) return null
+  const known = GOLD_COLORS.find(({ id }) => id === text)
+  if (known) return known.id
+  const yellow = /(żó|zo|żo|zó)łt/.test(text)
+  const white = /bia[łl]/.test(text)
+  if (yellow && white) return 'zolte-biale'
+  if (white) return 'biale'
+  if (yellow) return 'zolte'
+  return null
+}
+
+/** Nazwa koloru złota z listy („Żółte z białym”), identyczna na karcie i w filtrze; pusta, gdy koloru nie znamy. */
+export function goldColorLabel(metal: string): string {
+  const group = goldGroup(metal)
+  return GOLD_COLORS.find(({ id }) => id === group)?.label ?? ''
 }
 
 const sentence = (value: string) => {
@@ -59,13 +95,11 @@ export function formatStone(stone: string): string {
     .replace(/\bdiamenty,\s*diamenty/g, 'diamenty')
 }
 
+/** Opis złota w zdaniu („Żółte i białe złoto”), także w tytułach SEO; bez koloru zostaje samo „Złoto”. */
 export function formatMetal(metal: string): string {
-  const text = metal.toLowerCase().trim()
-  if (!text) return ''
-  if (/(żó|zo|żo|zó)łt.*bia|bia.*(żó|zo|żo|zó)łt/.test(text)) return 'Żółte i białe złoto'
-  if (/bia[łl]/.test(text)) return 'Białe złoto'
-  if (/^(żó|zo|żo|zó)łt/.test(text)) return 'Żółte złoto'
-  return sentence(metal)
+  if (!metal.trim()) return ''
+  const group = goldGroup(metal)
+  return GOLD_COLORS.find(({ id }) => id === group)?.sentence ?? sentence(metal)
 }
 
 export function pluralRing(count: number): string {
@@ -80,7 +114,10 @@ export type CatalogRing = {
   slug: string
   name: string
   stone: string
+  /** opis w zdaniu („Żółte i białe złoto”), np. do podpisów */
   metal: string
+  /** nazwa koloru z listy („Żółte z białym”), jak w filtrze; pusta, gdy koloru nie znamy */
+  goldLabel: string
   stoneGroup: StoneGroup | null
   goldGroup: GoldGroup | null
   image: string
@@ -95,6 +132,7 @@ export function toCatalogRing(product: Jewel): CatalogRing {
     name: product.name,
     stone,
     metal: formatMetal(product.metal),
+    goldLabel: goldColorLabel(product.metal),
     stoneGroup: stoneGroup(product.stone),
     goldGroup: goldGroup(product.metal),
     image: product.images[0] ?? product.imagePath,

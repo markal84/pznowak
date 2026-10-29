@@ -11,6 +11,8 @@ import {
   LEGACY_RING_SLUGS,
   LEGACY_UNCHANGED_PAGES,
   LEGACY_WITHOUT_COUNTERPART,
+  RENAMED_RING_SLUGS,
+  currentRingSlug,
   legacyRedirectRules,
 } from '../../src/lib/legacy-redirects'
 
@@ -55,7 +57,7 @@ describe('przekierowania ze starej strony', () => {
   })
 
   it('każdy cel to istniejąca strona nowego serwisu', () => {
-    const slugs = new Set<string>(catalog.products.map((p) => p.slug))
+    const slugs = new Set<string>(catalog.products.map((p) => currentRingSlug(p.slug)))
     for (const { from, to } of LEGACY_REDIRECTS) {
       const product = /^\/pierscionki\/(.+)$/.exec(to)
       const valid = product ? slugs.has(product[1]) : NEW_PAGES.includes(to)
@@ -71,6 +73,28 @@ describe('przekierowania ze starej strony', () => {
       expect(sources.includes(to), `${from} → ${to} jest kolejnym przekierowaniem`).toBe(false)
       expect(to.endsWith('/') && to !== '/', `${to} kończy się skośnikiem`).toBe(false)
     }
+  })
+
+  it('zmiana adresów kart: 22 nowe, unikalne, bez kolizji z istniejącymi i bez łańcuchów', () => {
+    const entries = Object.entries(RENAMED_RING_SLUGS)
+    expect(entries).toHaveLength(22)
+    const olds = new Set(catalog.products.map((p) => p.slug))
+    const targets = entries.map(([, to]) => to)
+    expect(new Set(targets).size).toBe(targets.length)
+    for (const [from, to] of entries) {
+      expect(olds.has(from), `${from} nie jest slugiem ze starego katalogu`).toBe(true)
+      expect(olds.has(to), `${to} koliduje z istniejącym adresem`).toBe(false)
+      expect(to).toMatch(/^[a-z]+$/)
+    }
+  })
+
+  it('stare adresy kart (katalog, ring, nowy serwis) idą jednym skokiem na czysty adres', () => {
+    const to = (from: string) => LEGACY_REDIRECTS.find((r) => r.from === from)?.to
+    expect(to('/katalog/merope-2')).toBe('/pierscionki/merope')
+    expect(to('/ring/pierscionek-8')).toBe('/pierscionki/pelagia')
+    expect(to('/pierscionki/pierscionek-12')).toBe('/pierscionki/athena')
+    expect(to('/katalog/aria')).toBe('/pierscionki/aria')
+    expect(to('/pierscionki/aria')).toBeUndefined()
   })
 
   it('nie ma masowych przekierowań na stronę główną', () => {
