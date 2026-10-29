@@ -19,7 +19,7 @@ const BRAK_ODPOWIEDNIKA_START = '<!-- brak:start -->'
 const BRAK_ODPOWIEDNIKA_END = '<!-- brak:end -->'
 
 const gsc = new Set<string>(GSC_INDEXED_PATHS)
-const originLabel = { static: 'mapa witryny', wordpress: 'WordPress' } as const
+const originLabel = { static: 'mapa witryny', wordpress: 'WordPress', catalog: 'nowy serwis' } as const
 
 export function redirectsTable(): string {
   const rows = [

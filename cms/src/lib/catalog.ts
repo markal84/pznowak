@@ -29,21 +29,32 @@ export const GOLD_FILTERS: { id: 'all' | GoldGroup; label: string }[] = [
 ]
 
 const STONE_RULES: [RegExp, StoneGroup][] = [
-  [/oliwk/, 'zielone'],
+  [/oliwk|oliwin/, 'zielone'],
   [/ró[żz]ow/, 'rozowe'],
   [/szafir|topaz|tanzanit|b[łl][ęe]kitn|london|niebiesk/, 'niebieskie'],
   [/szmaragd|zielon/, 'zielone'],
-  [/rubin|morganit|czerwon/, 'rozowe'],
+  [/rubin|morganit|granat|czerwon/, 'rozowe'],
   [/ametyst|fiolet/, 'fioletowe'],
   [/cytryn|[żz][óo][łl]t/, 'zolte'],
   [/bezbarw/, 'bezbarwne'],
 ]
 
-/** Kolor kamienia głównego z opisu "Szafir i Diament"; sam diament to "bezbarwne". */
+/** Kamienie o wielu barwach: żaden kolor filtra nie jest prawdziwy, więc pierścionek zostaje tylko w „Wszystkie”. */
+const MULTICOLOR = /mystic|wielobarw|r[óo][żz]nokolor/
+
+/**
+ * Kolor kamienia głównego z opisu "Szafir i Diament"; sam diament to "bezbarwne". Kamień główny to ten wymieniony
+ * pierwszy („Szmaragd i szafiry kolorowe” → zielone), a nie pierwszy z listy reguł.
+ */
 export function stoneGroup(stone: string): StoneGroup | null {
   const text = stone.toLowerCase()
-  if (!text.trim()) return null
-  for (const [pattern, group] of STONE_RULES) if (pattern.test(text)) return group
+  if (!text.trim() || MULTICOLOR.test(text)) return null
+  let best: { at: number; group: StoneGroup } | null = null
+  for (const [pattern, group] of STONE_RULES) {
+    const at = text.search(pattern)
+    if (at !== -1 && (!best || at < best.at)) best = { at, group }
+  }
+  if (best) return best.group
   return /diament/.test(text) ? 'bezbarwne' : null
 }
 

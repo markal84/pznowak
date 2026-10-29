@@ -49,6 +49,12 @@ describe('stoneGroup', () => {
     ['Kamień bezbarwny', 'bezbarwne'],
     ['Kamień różowy', 'rozowe'],
     ['Kamień fioletowy', 'fioletowe'],
+    ['Oliwin i diamenty', 'zielone'],
+    ['Granat i diamenty', 'rozowe'],
+    ['Turmalin różowy i diamenty', 'rozowe'],
+    ['Szmaragd i szafiry kolorowe', 'zielone'],
+    ['Diamenty i czarne diamenty', 'bezbarwne'],
+    ['Mystic topaz i diamenty', null],
   ])('%s -> %s', (stone, group) => expect(stoneGroup(stone)).toBe(group))
 
   it('nie zgaduje dla pustego opisu ani nieznanego kamienia', () => {

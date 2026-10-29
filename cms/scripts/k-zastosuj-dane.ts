@@ -7,7 +7,8 @@
  *
  *   npm run k:dane -- ../data/pierscionki-k/plan.json            # podgląd
  *   npm run k:dane -- ../data/pierscionki-k/plan.json --apply    # zapis na stagingu
- *   --pola=metal,stone   tylko te pola (adresy `slug` osobno: wymagają przekierowań ze starych adresów)
+ *   --pola=metal,stone   tylko te pola (domyślnie też `slug`; zmiana adresów działa razem z przekierowaniami z
+ *                        `RENAMED_RING_SLUGS` w src/lib/legacy-redirects.ts, wdrażać razem)
  */
 import { readFile } from 'node:fs/promises'
 
