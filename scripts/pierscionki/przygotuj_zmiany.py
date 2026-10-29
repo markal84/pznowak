@@ -97,7 +97,7 @@ def gold_from_post(text):
 RECZNE = {
     "Electra": {"metal": "Żółte"},
     "Leto": {"metal": "Żółte z białym", "stone": "Kamień różowy"},
-    "Terpsichore": {"metal": "Żółte"},
+    "Terpsichore": {"metal": "Żółte z białym"},
 }
 
 
