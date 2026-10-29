@@ -93,6 +93,14 @@ def gold_from_post(text):
     return None
 
 
+# Decyzje Marcina z 29.10 dla kart „do rzutu oka” (Terra < 80%, brak posta): mają pierwszeństwo przed oceną i postem.
+RECZNE = {
+    "Electra": {"metal": "Żółte"},
+    "Leto": {"metal": "Żółte z białym", "stone": "Kamień różowy"},
+    "Terpsichore": {"metal": "Żółte"},
+}
+
+
 def slugify(name):
     t = unicodedata.normalize("NFKD", name.lower().replace("ł", "l")).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", "-", t).strip("-")
@@ -172,6 +180,13 @@ def main():
                 stone_rows.append((p["name"], "-", tstone, f"? ({st})", col, f"BRAK POSTA; Terra {c}%: DO RZUTU OKA"))
             else:
                 stone_rows.append((p["name"], "-", "-", "? (brak posta i oceny)", "-", "DO RZUTU OKA"))
+        # --- decyzje ręczne (nadpisują)
+        for field, value in RECZNE.get(p["name"], {}).items():
+            if p[field] != value:
+                change[field] = value
+                (gold_rows if field == "metal" else stone_rows).append((p["name"], p[field] or "-", *( ("-",) if field == "stone" else ()), value, *( ("-",) if field == "stone" else ()), "decyzja Marcina 29.10"))
+            else:
+                change.pop(field, None)
         # --- adres
         want = slugify(p["name"])
         if p["slug"] != want and names.count(want) == 1:

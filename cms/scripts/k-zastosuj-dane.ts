@@ -64,7 +64,16 @@ for (const item of plan) {
   if (Object.keys(data).length === 0) continue
   changed += 1
   if (apply) {
-    await payload.update({ collection: 'products', data, depth: 0, draft: false, id: doc.id, overrideAccess: true })
+    // poza serwerem Next odświeżenie pamięci podręcznej strony nie działa (hook rzuca błąd), więc je pomijamy
+    await payload.update({
+      collection: 'products',
+      context: { skipFrontendRevalidation: true },
+      data,
+      depth: 0,
+      draft: false,
+      id: doc.id,
+      overrideAccess: true,
+    })
   }
 }
 console.log(`\n${apply ? 'zapisano' : 'PODGLĄD, nic nie zapisano'}: kart ze zmianą ${changed}`)
