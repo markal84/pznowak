@@ -67,11 +67,11 @@ describe('przełączniki wyłączone (stan po 21.10.2026)', () => {
       )
     }
     expect(bands).toContain('Rodzaje obrączek')
-    for (const type of ['Płaskie', 'Półokrągłe', 'Klasyczne'])
+    for (const type of ['Płaskie', 'Półokrągłe'])
       expect(bands).toContain(`>${type}</h3>`)
-    expect(bands).toContain('[zdjęcie do uzupełnienia]')
+    expect(bands).not.toContain('>Klasyczne</h3>')
     expect(bands).toContain('href="/kontakt?temat=obraczki&amp;wybor=p%C5%82askie"')
-    expect(bands).toContain('od podstaw ręcznie, w każdej szerokości')
+    expect(bands).toContain('w dwóch fasonach – płaskim i półokrągłym – od podstaw ręcznie, w każdej szerokości')
   })
 
   it('/kreator odpowiada 404 i ma tylko noindex (Zlecenie D), bez własnego tytułu i opisu', () => {

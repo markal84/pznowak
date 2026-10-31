@@ -4,8 +4,8 @@ type PhotoProps = {
   src: string
   alt: string
   sizes: string
-  /** 45 = 4:5, 32 = 3:2, 11 = 1:1, 54 = 5:4 albo własna klasa przez className */
-  ratio?: '45' | '32' | '11' | '54' | 'none'
+  /** 45 = 4:5, 43 = 4:3, 32 = 3:2, 11 = 1:1, 54 = 5:4 albo własna klasa przez className */
+  ratio?: '45' | '43' | '32' | '11' | '54' | 'none'
   position?: string
   priority?: boolean
   className?: string

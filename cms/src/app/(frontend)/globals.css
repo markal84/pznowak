@@ -580,6 +580,9 @@ summary::-webkit-details-marker {
 .ph-45 {
   aspect-ratio: 4 / 5;
 }
+.ph-43 {
+  aspect-ratio: 4 / 3;
+}
 .ph-32 {
   aspect-ratio: 3 / 2;
 }
@@ -687,6 +690,9 @@ summary::-webkit-details-marker {
 }
 .cols-260 {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.cols-band-types {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
 }
 .cols-300 {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

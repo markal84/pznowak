@@ -519,13 +519,18 @@ test.describe('Obrączki bez konfiguratora (zlecenie A)', () => {
     await expect(page.getByText('Dobierzcie wstępnie parę')).toHaveCount(0)
     await expect(page.locator('.bands')).toHaveCount(0)
     const section = page.getByRole('region', { name: 'Rodzaje obrączek' })
-    await expect(section.getByRole('heading', { level: 3 })).toHaveText(['Płaskie', 'Półokrągłe', 'Klasyczne'])
+    await expect(section.getByRole('heading', { level: 3 })).toHaveText(['Płaskie', 'Półokrągłe'])
     await expect(section).toContainText('od podstaw ręcznie, w każdej szerokości')
-    // Każda karta ma zdjęcie z galerii CMS albo widoczny placeholder.
-    for (const card of await section.locator('.band-type').all()) {
-      const photos = await card.locator('img:not([src*="obraczki.svg"])').count()
-      if (photos === 0) await expect(card.getByText('[zdjęcie do uzupełnienia]')).toBeVisible()
-    }
+    // Dwie karty rodzajów, każda z prawdziwym zdjęciem (bez placeholderów).
+    await expect(section.locator('.band-type')).toHaveCount(2)
+    await expect(section.locator('.band-type img[src*="zdjecia"]')).toHaveCount(2)
+    await expect(section.getByText('[zdjęcie do uzupełnienia]')).toHaveCount(0)
+    // „Obrączki z pracowni”: 2 prawdziwe zdjęcia z podpisami i 1 placeholder graweru (tylko poza produkcją).
+    const workshop = page.locator('section', { has: page.getByRole('heading', { name: 'Obrączki z pracowni' }) })
+    await expect(workshop.locator('figure img')).toHaveCount(2)
+    await expect(workshop.getByText('Ostatni szlif przed odbiorem')).toBeVisible()
+    await expect(workshop.locator('.ph-empty')).toHaveCount(1)
+    await expect(workshop.getByText('[Zdjęcie graweru w środku obrączki]')).toBeVisible()
     await noHorizontalScroll(page)
 
     await section.getByRole('link', { name: 'Zapytaj o obrączki półokrągłe' }).click()
