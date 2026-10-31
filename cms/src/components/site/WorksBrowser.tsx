@@ -42,7 +42,7 @@ export default function WorksBrowser({ works }: { works: Work[] }) {
       ) : (
         <div className="row" style={{ gap: 24, justifyContent: 'space-between', padding: 40, background: 'var(--shade)' }}>
           <p style={{ maxWidth: '34em', fontSize: 16, lineHeight: 1.6 }}>
-            Zdjęcia napraw „przed i po” dopiero zbieramy. Do tego czasu zobacz, jak pracujemy z biżuterią z historią.
+            Zdjęcia napraw „przed i po” znajdziesz na stronie napraw.
           </p>
           <Link className="btn" href="/naprawy">Naprawy i przeróbki</Link>
         </div>
