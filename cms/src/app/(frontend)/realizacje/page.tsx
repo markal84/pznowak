@@ -11,8 +11,8 @@ import WorksBrowser, { type Work } from '@/components/site/WorksBrowser'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = pageMetadata({
-  title: 'Realizacje pracowni – przed i po',
-  description: 'Pierścionki, obrączki i naprawy wykonane w naszej pracowni w Busku-Zdroju.',
+  title: 'Realizacje pracowni',
+  description: 'Pierścionki i obrączki wykonane w naszej pracowni w Busku-Zdroju.',
   path: '/realizacje',
 })
 
@@ -37,9 +37,10 @@ export default async function WorksPage() {
         <SectionIntro
           as="h1"
           intro={byEnv(
-            'Biżuteria zrobiona dla konkretnych osób i rzeczy, które wróciły do życia po naprawie. Przy każdej piszemy krótko, co było zadaniem.',
-            'Biżuteria zrobiona dla konkretnych osób i rzeczy, które wróciły do życia po naprawie.',
+            'Biżuteria zrobiona dla konkretnych osób. Przy każdej piszemy krótko, co było zadaniem.',
+            'Biżuteria zrobiona dla konkretnych osób.',
           )}
+          action={<Link className="tl" href="/naprawy">Naprawy i przeróbki →</Link>}
           title="Realizacje"
         />
       </section>
@@ -69,25 +70,6 @@ export default async function WorksPage() {
       ) : null}
 
       <WorksBrowser works={works} />
-
-      <DoUzupelnienia as="div">
-      <section className="band">
-        <div className="wrap sec-tight stack" style={{ gap: 36 }}>
-          <SectionIntro title="Przed i po naprawie" />
-          <div className="cols-auto cols-300" style={{ gap: 32, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-            {['[np. Pierścionek po babci: nowe łapki, zmiana rozmiaru, polerowanie]', '[np. Dwie stare obrączki przetopione na nowy pierścionek]'].map((cap) => (
-              <figure className="stack" key={cap} style={{ gap: 12 }}>
-                <div className="before-after">
-                  <div aria-label="Miejsce na zdjęcie przed" className="ba-cell" role="img">[przed]</div>
-                  <div aria-label="Miejsce na zdjęcie po" className="ba-cell after" role="img">[po]</div>
-                </div>
-                <figcaption style={{ fontSize: 15, lineHeight: 1.5 }}>{cap}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
-      </DoUzupelnienia>
 
       <GoogleReviews title="Opinie klientów" />
 

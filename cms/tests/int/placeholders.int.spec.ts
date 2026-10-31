@@ -113,7 +113,13 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     // Opinii bez konfiguracji nie ma wcale, tak samo jak przedwczesnych sekcji ze zdjęciami.
     expect(p['/']).not.toContain('Opinie z Google')
     expect(p['/realizacje']).not.toContain('Opinie klientów')
-    expect(p['/obraczki']).not.toContain('Obrączki z pracowni')
+    // Obrączki z pracowni: prawdziwe zdjęcia zostają, placeholder graweru znika.
+    expect(p['/obraczki']).toContain('Obrączki z pracowni')
+    expect(p['/obraczki']).not.toContain('[Zdjęcie graweru')
+    expect(p['/naprawy']).toContain('ok. 20 minut pieszo od Parku Zdrojowego')
+    expect(p['/naprawy']).toContain('Przed i po')
+    expect(p['/']).toContain('Szkic albo gotowy wzór.')
+    expect(p['/']).not.toContain('model 3D')
     expect(p['/realizacje']).not.toContain('Przed i po naprawie')
     // Zaufanie w hero: tylko to, co potwierdzone.
     expect(p['/']).toContain('Zamówienia wysyłamy do klientów')
@@ -135,6 +141,8 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/pierscionki/phoebe']).toContain('od [X] zł w tej wersji')
     expect(p['/obraczki']).toContain('od [X] zł za parę')
     expect(p['/naprawy']).toContain('[czas]')
+    expect(p['/naprawy']).not.toContain('[ok. X minut')
+    expect(p['/realizacje']).not.toContain('Przed i po naprawie')
     expect(p['/pierscionki/bez-kamienia']).toContain('[do uzupełnienia]')
     expect(p['/kontakt?temat=nowy']).toContain('[przedział 1]')
     expect(p['/kontakt']).toContain('Polityka prywatności [wkrótce]')

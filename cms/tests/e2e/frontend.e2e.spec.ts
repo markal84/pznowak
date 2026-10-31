@@ -516,6 +516,17 @@ test.describe('Ukryty kreator i konfigurator (zlecenie A)', () => {
   })
 })
 
+test.describe('Naprawy: prawdziwe zdjęcia (zlecenie Q)', () => {
+  test('hero i „Przed i po” mają zdjęcia napraw, a przycisk prowadzi do formularza', async ({ page }) => {
+    await page.goto('/naprawy')
+    await expect(page.locator('img[src*="zdjecia%2Fnaprawy"]')).toHaveCount(4)
+    await expect(page.getByRole('heading', { name: 'Przed i po', exact: true })).toBeVisible()
+    await expect(page.getByText('ok. 20 minut pieszo od Parku Zdrojowego')).toBeVisible()
+    await expect(page.getByRole('main').getByRole('link', { name: 'Zapytaj o naprawę' })).toHaveAttribute('href', '/kontakt?temat=naprawa')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  })
+})
+
 test.describe('Obrączki bez konfiguratora (zlecenie A)', () => {
   test.skip(BAND_CONFIGURATOR_ENABLED, 'konfigurator włączony (BAND_CONFIGURATOR_ENABLED = true)')
 

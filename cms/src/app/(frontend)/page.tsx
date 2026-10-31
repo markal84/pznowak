@@ -184,7 +184,7 @@ export default async function HomePage() {
             />
             <ol className="steps">
               <li className="step"><span className="n">1</span><h3>Rozmowa</h3><p>W pracowni albo przez telefon. Mówisz, dla kogo jest pierścionek, na jaką okazję i jaki masz budżet.</p></li>
-              <li className="step"><span className="n">2</span><h3>Projekt i wycena</h3><p>Szkic i model 3D. Dobieramy kamień, kolor złota i proporcje, aż projekt będzie gotowy do wykonania.</p></li>
+              <li className="step"><span className="n">2</span><h3>Projekt i wycena</h3><p><DoUzupelnienia fallback="Szkic albo gotowy wzór.">Szkic albo gotowy wzór.</DoUzupelnienia> Dobieramy kamień, kolor złota i proporcje, aż projekt będzie gotowy do wykonania.</p></li>
               <li className="step"><span className="n">3</span><h3>Wykonanie</h3><p>Pierścionek powstaje w naszej pracowni. Oprawę kamieni, wykończenie i polerowanie robimy ręcznie.</p></li>
               <li className="step"><span className="n">4</span><h3>Odbiór i opieka</h3><p>Przymierzasz i odbierasz. Później zapraszamy na czyszczenie i przegląd oprawy.</p></li>
             </ol>

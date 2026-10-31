@@ -691,6 +691,21 @@ summary::-webkit-details-marker {
 .cols-260 {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
+.repairs-gallery {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 32px;
+}
+@media (max-width: 760px) {
+  .repairs-gallery {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .repairs-gallery .ph-fill {
+    flex: none;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+  }
+}
 .cols-band-types {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
 }
@@ -1828,24 +1843,6 @@ fieldset.plain legend {
 .quote span {
   font-size: 14px;
   color: var(--muted);
-}
-.before-after {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px;
-}
-.ba-cell {
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: flex-end;
-  padding: 14px;
-  background: var(--silver);
-  box-shadow: inset 0 0 0 1px var(--line-soft);
-  font-size: 14px;
-  color: var(--muted);
-}
-.ba-cell.after {
-  background: var(--paper);
 }
 .feature {
   display: flex;
