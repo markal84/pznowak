@@ -135,6 +135,51 @@ test.describe('Zgoda na cookies', () => {
   })
 })
 
+// Zlecenie N: niski pasek na telefonie (viewport zmieniany w teście, więc działa w każdym projekcie).
+test.describe('Pasek cookies na telefonie', () => {
+  test.skip(!COOKIE_BANNER_ENABLED, 'pasek wyłączony (COOKIE_BANNER_ENABLED = false)')
+
+  for (const [width, height] of [
+    [375, 812],
+    [390, 844],
+    [360, 740],
+  ]) {
+    test(`${width}×${height}: pasek jest niski, a przycisk „Zapytaj o pierścionek” widać bez przewijania`, async ({ page }) => {
+      await page.setViewportSize({ width, height })
+      await visit(page)
+      const box = await banner(page).boundingBox()
+      expect(box!.height).toBeLessThanOrEqual(130)
+      const cta = await page.getByRole('link', { name: 'Zapytaj o pierścionek' }).first().boundingBox()
+      // Przycisk kończy się nad górną krawędzią paska.
+      expect(cta!.y + cta!.height).toBeLessThanOrEqual(box!.y)
+    })
+  }
+
+  test('krótki tekst bez wzmianki o mapie; Odrzuć i Akceptuj obok siebie, równe i min. 44 px', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await visit(page)
+    await expect(banner(page).getByText('Używamy plików cookies. Opcjonalne włączamy tylko za Twoją zgodą.')).toBeVisible()
+    await expect(banner(page).getByText(/mapę Google/)).toBeHidden()
+    const reject = await banner(page).getByRole('button', { name: 'Odrzuć opcjonalne' }).boundingBox()
+    const accept = await banner(page).getByRole('button', { name: 'Akceptuj wszystkie' }).boundingBox()
+    expect(Math.abs(reject!.y - accept!.y)).toBeLessThanOrEqual(1)
+    expect(Math.abs(reject!.height - accept!.height)).toBeLessThanOrEqual(1)
+    expect(Math.abs(reject!.width - accept!.width)).toBeLessThanOrEqual(2)
+    expect(reject!.height).toBeGreaterThanOrEqual(44)
+  })
+
+  test('„Dostosuj” (link w zdaniu) otwiera panel z kategoriami, w tym z mapą, i przyciskiem „Zapisz wybór”', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await visit(page)
+    await banner(page).getByRole('button', { name: 'Dostosuj' }).click()
+    await expect(banner(page).getByRole('checkbox', { name: /Mapy/ })).toBeVisible()
+    await expect(banner(page).getByRole('button', { name: 'Zapisz wybór' })).toBeVisible()
+    await expect(banner(page).getByRole('button', { name: 'Dostosuj' })).toHaveCount(0)
+    const box = await banner(page).boundingBox()
+    expect(box!.height).toBeLessThanOrEqual(812)
+  })
+})
+
 // Ten sam ContactMap stoi na „Kontakt” i na „Pracownia”.
 for (const path of ['/kontakt', '/pracownia']) {
   test.describe(`Mapa na stronie ${path}`, () => {

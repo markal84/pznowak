@@ -84,7 +84,25 @@ export default function CookieBanner() {
           <h2 className="cookie-title" id="cookie-title">
             Pliki cookies
           </h2>
-          <p>
+          {/* Telefon (CSS, do 760 px): jedno krótkie zdanie; pełny opis kategorii jest w „Dostosuj”. */}
+          <p className="cookie-short">
+            Używamy plików cookies. Opcjonalne włączamy tylko za Twoją zgodą.
+            {!detail && (
+              <>
+                {' '}
+                <button
+                  aria-expanded={false}
+                  className="cookie-inline-link"
+                  onClick={() => setDetail(true)}
+                  type="button"
+                >
+                  Dostosuj
+                </button>
+              </>
+            )}
+            {/* [do uzupełnienia] link „Szczegóły” do polityki prywatności, gdy pracownia dostarczy treść */}
+          </p>
+          <p className="cookie-long">
             Używamy niezbędnych plików cookies: zapamiętują Twój wybór i chronią formularze przed spamem.
             Opcjonalne, czyli interaktywną mapę Google, a w przyszłości statystyki i reklamę, włączamy tylko za
             Twoją zgodą. <span className="cookie-extra">Wybór zmienisz w każdej chwili w stopce strony.</span>
@@ -132,7 +150,7 @@ export default function CookieBanner() {
           ) : (
             <button
               aria-expanded={false}
-              className="btn btn-line"
+              className="btn btn-line cookie-more"
               onClick={() => setDetail(true)}
               type="button"
             >
