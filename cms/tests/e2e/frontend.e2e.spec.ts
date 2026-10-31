@@ -42,6 +42,32 @@ test.describe('Nowy design: strony i nawigacja', () => {
     await noHorizontalScroll(page)
   })
 
+  test('hero na telefonie: zdjęcie nad tytułem, a zdjęcie, tytuł i przycisk mieszczą się na pierwszym ekranie', async ({ page }) => {
+    for (const [width, height] of [
+      [375, 812],
+      [390, 844],
+      [360, 740],
+    ]) {
+      await page.setViewportSize({ width, height })
+      await visit(page, '/')
+      const fig = (await page.locator('.hero-fig').boundingBox())!
+      const h1 = (await page.getByRole('heading', { level: 1 }).boundingBox())!
+      const btn = (await page.locator('.hero-home .btn').boundingBox())!
+      expect(fig.y + fig.height).toBeLessThanOrEqual(h1.y)
+      expect(fig.height).toBeGreaterThan(height * 0.35)
+      expect(btn.y + btn.height).toBeLessThanOrEqual(height)
+      await noHorizontalScroll(page)
+    }
+  })
+
+  test('hero na komputerze: tekst po lewej, zdjęcie po prawej (bez zmian)', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await visit(page, '/')
+    const fig = (await page.locator('.hero-fig').boundingBox())!
+    const h1 = (await page.getByRole('heading', { level: 1 }).boundingBox())!
+    expect(fig.x).toBeGreaterThan(h1.x + h1.width)
+  })
+
   test('całe zdjęcie w hero prowadzi do karty pierścionka (też dotykiem)', async ({ page }) => {
     await visit(page, '/')
     const link = page.locator('a.hero-link')

@@ -2069,13 +2069,8 @@ fieldset.plain legend {
   .lead {
     font-size: 16.5px;
   }
-  .hero-tag {
-    left: 14px;
-    bottom: 14px;
-  }
-  .hero-tag svg {
-    display: none;
-  }
+  /* Hero strony głównej na telefonie: jeden blok niżej („hero strony głównej – telefon”, max-width 760 px).
+     Reguły .hero powyżej zostają dla hero podstron (na zamówienie, naprawy). */
   .ring-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
@@ -2724,6 +2719,97 @@ fieldset.plain legend {
   margin: 0 10px;
 }
 
+/* ---------- hero strony głównej – telefon (zlecenie M) ----------
+   Jedyny blok z układem hero strony głównej na telefonie; desktop bez zmian.
+   Na pierwszym ekranie: zdjęcie pierścionka (pod nagłówkiem, od krawędzi do krawędzi), tytuł, opis i przycisk.
+   Wysokość zdjęcia w svh (mały widok przeglądarki), więc nie skacze przy chowaniu paska adresu (bez CLS). */
+@media (max-width: 760px) {
+  .hero-home {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: 20px;
+    padding: 0 20px 40px;
+  }
+  .hero-home .hero-fig {
+    order: -1;
+    flex: none;
+    margin: 0 -20px;
+  }
+  .hero-home .ph-hero {
+    aspect-ratio: auto;
+    height: 42vh;
+    height: min(42svh, 380px);
+  }
+  /* Kadr: kamień (prawa część zdjęcia) i obrączka zostają w kadrze. */
+  .hero-home .ph-hero img {
+    object-position: 62% 48% !important;
+  }
+  .hero-home .hero-tag {
+    left: 12px;
+    bottom: 12px;
+  }
+  .hero-home .hero-tag svg {
+    display: none;
+  }
+  .hero-home .hero-tag .tag-md {
+    --c: 11px;
+    gap: 1px;
+    padding: 7px 12px 7px 25px;
+  }
+  .hero-home .hero-tag .tag-md .hole {
+    left: 9px;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+  }
+  .hero-home .hero-tag .tag-md .nm {
+    font-size: 17px;
+  }
+  .hero-home .hero-tag .tag-md .sub {
+    font-size: 11.5px;
+  }
+  .hero-home .hero-copy {
+    flex: none;
+    gap: 14px;
+  }
+  .hero-home .h1-hero {
+    font-size: clamp(30px, 9vw, 40px);
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+  .hero-home .hero-copy p {
+    font-size: 15.5px;
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+  .hero-home .hero-copy > .stack {
+    gap: 14px !important;
+  }
+  .hero-home .gap-14-28 {
+    gap: 12px 24px;
+  }
+  /* Linia zaufania: jeden ciągły tekst z cienkim separatorem zamiast listy w punktach. */
+  .hero-home .hero-trust {
+    display: block;
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .hero-home .hero-trust li {
+    display: inline;
+  }
+  .hero-home .hero-trust li + li::before {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 0.9em;
+    margin: 0 8px;
+    vertical-align: -0.1em;
+    background: currentColor;
+    opacity: 0.4;
+  }
+}
+
 /* Cztery wybrane pierścionki: jeden rząd na komputerze, 2 × 2 na telefonie. */
 .ring-grid-4 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2837,14 +2923,6 @@ fieldset.plain legend {
   display: block;
   background: transparent;
   outline-offset: -1px;
-}
-@media (max-width: 720px) {
-  .hero-trust {
-    flex-direction: column;
-  }
-  .hero-trust li + li::before {
-    content: none;
-  }
 }
 .feature-copy .todo-block {
   display: flex;
