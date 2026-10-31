@@ -59,13 +59,12 @@ describe('przełączniki wyłączone (stan po 21.10.2026)', () => {
     expect(header).not.toContain('has-creator')
   })
 
-  it('zamiast kreatora: „Wyślij zdjęcie lub opis” do formularza, a obrączki jako rodzaje na zdjęciach', async () => {
+  it('zamiast kreatora: „Wyślij zdjęcie lub opis” do formularza na stronie głównej, a na /na-zamowienie tylko jeden przycisk; obrączki jako rodzaje na zdjęciach', async () => {
     const { home, onOrder, bands } = await pages()
-    for (const markup of [home, onOrder]) {
-      expect(markup).toContain(
-        '<a class="tl" href="/kontakt?temat=nowy">Wyślij zdjęcie lub opis</a>',
-      )
-    }
+    expect(home).toContain(
+      '<a class="tl" href="/kontakt?temat=nowy">Wyślij zdjęcie lub opis</a>',
+    )
+    expect(onOrder).not.toContain('Wyślij zdjęcie lub opis')
     expect(bands).toContain('Rodzaje obrączek')
     for (const type of ['Płaskie', 'Półokrągłe'])
       expect(bands).toContain(`>${type}</h3>`)

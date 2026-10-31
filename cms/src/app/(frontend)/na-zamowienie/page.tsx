@@ -11,25 +11,33 @@ import Photo from '@/components/site/Photo'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import { byEnv, showPlaceholders } from '@/lib/placeholders'
-import { CUSTOM_ORDER_LINK, FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
+import { FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = pageMetadata({
   title: 'Pierścionek zaręczynowy na zamówienie',
-  description: 'Rozmowa, szkic i model 3D, wycena przed rozpoczęciem pracy. Kamienie oprawiamy ręcznie w Busku-Zdroju.',
+  description: 'Rozmowa, szkic i wycena przed rozpoczęciem pracy. Kamienie oprawiamy ręcznie w Busku-Zdroju.',
   path: '/na-zamowienie',
 })
 
+/** Tekst do potwierdzenia przez Michała: na podglądzie w żółtej ramce, na produkcji zwykły tekst. */
+const toConfirm = (text: string) => <DoUzupelnienia fallback={text}>{text}</DoUzupelnienia>
+
+const HERO_LEAD = 'Zaczynamy od rozmowy o osobie, która będzie go nosić. Potem dobieramy fason i kamień, rysujemy szkic i wyceniamy. Pracę przy stole zaczynamy dopiero wtedy, gdy projekt i cena są dla Ciebie jasne.'
+
 const STEPS = [
-  { n: '1', title: 'Rozmowa', text: 'W pracowni albo przez telefon. Opowiadasz o osobie, okazji i stylu. Mówisz, jaki masz budżet i na kiedy potrzebujesz pierścionka.', result: 'Wspólny kierunek i wstępne widełki cenowe', ill: '1-rozmowa' },
-  { n: '2', title: 'Projekt', text: 'Rysujemy szkic i przygotowujemy model 3D. Dobieramy kamień, kolor złota i proporcje. Poprawiamy, dopóki nie powiesz, że to jest to.', result: 'Model 3D i wycenę do akceptacji', ill: '3-model-3d' },
-  { n: '3', title: 'Wykonanie', text: 'Pierścionek powstaje w naszej pracowni. Kamienie oprawiamy ręcznie, potem szlifujemy i polerujemy każdą powierzchnię.', result: 'Gotowy pierścionek do przymiarki', ill: '5-oprawa' },
-  { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz, a my poprawiamy drobiazgi. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek i opiekę pracowni na kolejne lata', ill: '6-odbior' },
+  { n: '1', title: 'Rozmowa', text: 'W pracowni albo przez telefon. Opowiadasz o osobie, okazji i stylu. Mówisz, jaki masz budżet i na kiedy potrzebujesz pierścionka.', result: 'Wspólny kierunek i wstępne widełki cenowe', ill: '1-rozmowa', toConfirm: false },
+  { n: '2', title: 'Projekt', text: 'Rysujemy szkic albo dobieramy gotowy wzór. Dobieramy kamień, kolor złota i proporcje. Poprawiamy, dopóki nie powiesz, że to jest to.', result: 'Szkic i wycenę do akceptacji', ill: '3-model-3d', toConfirm: true },
+  { n: '3', title: 'Wykonanie', text: 'Pierścionek powstaje w naszej pracowni. Kamienie oprawiamy ręcznie, potem szlifujemy i polerujemy każdą powierzchnię.', result: 'Gotowy pierścionek do przymiarki', ill: '5-oprawa', toConfirm: false },
+  { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz, a my poprawiamy drobiazgi. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek i opiekę pracowni na kolejne lata', ill: '6-odbior', toConfirm: false },
 ]
 
 /** Pytanie „Czy rozmowa o projekcie coś kosztuje?” nie ma jeszcze odpowiedzi od pracowni: na produkcji go nie ma. */
 const faq = (): FaqItem[] => [
-  { q: 'Czy mogę zobaczyć pierścionek przed wykonaniem?', a: 'Tak. Pokazujemy szkic i model 3D. Zmieniamy go, dopóki proporcje nie będą takie, jak chcesz.' },
+  {
+    q: 'Czy mogę zobaczyć pierścionek przed wykonaniem?',
+    a: toConfirm('Tak. Pokazujemy szkic albo zdjęcia podobnego wzoru. Zmieniamy go, dopóki proporcje nie będą takie, jak chcesz.'),
+  },
   ...(showPlaceholders()
     ? [
         {
@@ -67,8 +75,7 @@ export default async function OnOrderPage() {
         <div className="hero-copy" style={{ flex: '1 1 460px', gap: 28 }}>
           <h1 className="h1">Pierścionek na zamówienie</h1>
           <p className="lead" style={{ maxWidth: '32em' }}>
-            Zaczynamy od rozmowy o osobie, która będzie go nosić. Potem rysujemy, modelujemy w 3D i wyceniamy. Pracę
-            przy stole zaczynamy dopiero wtedy, gdy projekt i cena są dla Ciebie jasne.
+            {toConfirm(HERO_LEAD)}
           </p>
           <PriceOffer
             label="Pierścionek na zamówienie"
@@ -78,9 +85,7 @@ export default async function OnOrderPage() {
             <Link className="btn" href="/kontakt?temat=nowy">Umów rozmowę o projekcie</Link>
             {RING_CREATOR_ENABLED ? (
               <Link className="tl" href="/kreator">Zaprojektuj wstępnie online</Link>
-            ) : (
-              <Link className="tl" href={CUSTOM_ORDER_LINK.href}>{CUSTOM_ORDER_LINK.label}</Link>
-            )}
+            ) : null}
           </PriceOffer>
         </div>
         <figure className="stack" style={{ flex: '1 1 420px', minWidth: 0, gap: 12 }}>
@@ -128,10 +133,10 @@ export default async function OnOrderPage() {
                 <span className="timeline-num">{s.n}</span>
                 <h3 className="h3-serif">{s.title}</h3>
               </div>
-              <p style={{ fontSize: 16, lineHeight: 1.62, color: 'var(--graphite-2)' }}>{s.text}</p>
+              <p style={{ fontSize: 16, lineHeight: 1.62, color: 'var(--graphite-2)' }}>{s.toConfirm ? toConfirm(s.text) : s.text}</p>
               <div className="stack" style={{ gap: 6 }}>
                 <span style={{ fontSize: 13.5, color: 'var(--muted)' }}>Po tym etapie masz</span>
-                <span style={{ fontSize: 16, lineHeight: 1.5, fontWeight: 500 }}>{s.result}</span>
+                <span style={{ fontSize: 16, lineHeight: 1.5, fontWeight: 500 }}>{s.toConfirm ? toConfirm(s.result) : s.result}</span>
               </div>
               <Image alt="" height={165} src={`/grafiki/etapy/${s.ill}.svg`} style={{ width: '100%', maxWidth: 220, height: 'auto', justifySelf: 'end' }} width={220} />
             </li>
