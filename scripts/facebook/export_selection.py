@@ -17,6 +17,10 @@ selection.json, ale eksport ich nie widzi). Karty z polem sameAs (to ten sam pie
 do karty docelowej: liczy się tylko jej decyzja, nazwa i okładka, a zdjęcia, filmy i posty obu kart trafiają do jednego
 wpisu (mergedFrom). Decyzja pliku: najpierw zapisana w karcie docelowej, potem w karcie, z której plik pochodzi, na końcu
 dziedziczona z decyzji karty docelowej. Tak samo liczy to przegląd (review_template.html).
+
+Pliki oznaczone jako treść AI (ai-flags.json, zob. manual_media.py) nie trafiają do catalog ani galleryAdditions, dopóki
+w ai-flags.json nie ma "allow": true (jawna decyzja Marcina); w materials dostają "ai": true. Każde wykluczenie to ostrzeżenie.
+Posty ręczne (manual-<id>, media spoza FB) mają url null i pole source.
 """
 import json
 import sys
@@ -30,18 +34,29 @@ sel = json.loads(sel_path.read_text(encoding="utf-8")) if sel_path.exists() else
 cards, existing, skipped = sel.get("cards", {}), sel.get("existing", {}), sel.get("skipped", {})
 sim = data.get("sim") or {}
 
+sys.path.insert(0, str(Path(__file__).parent))
+import manual_media  # noqa: E402
+
+AI_BLOCKED = {f for sec in ("new", "maybe", "existing", "fresh") for g in data.get(sec, []) for f, a in g.get("ai", {}).items() if not a.get("allow")}
+AI_ALL = {f for sec in ("new", "maybe", "existing", "fresh") for g in data.get(sec, []) for f in g.get("ai", {})}
 INHERIT = {"catalog": "catalog", "material": "material", "reject": "skip"}
 warnings = []
 
 
+def post_out(p):
+    out = {"postId": p["post_id"], "date": p["date"], "url": None if manual_media.is_manual_post(p["post_id"]) else f"https://www.facebook.com/{p['post_id']}", "text": p["text"]}
+    if p.get("source"):
+        out["source"] = p["source"]
+    return out
+
+
 def post_of(group, file):
     pid = file.split("_")[0]
-    p = next((p for p in group["posts"] if p["post_id"] == pid), group["posts"][0])
-    return {"postId": p["post_id"], "date": p["date"], "url": f"https://www.facebook.com/{p['post_id']}", "text": p["text"]}
+    return post_out(next((p for p in group["posts"] if p["post_id"] == pid), group["posts"][0]))
 
 
 def posts_out(group):
-    return [{"postId": p["post_id"], "date": p["date"], "url": f"https://www.facebook.com/{p['post_id']}", "text": p["text"]} for p in group["posts"]]
+    return [post_out(p) for p in group["posts"]]
 
 
 CARDS = {g["key"]: g for sec in ("new", "maybe") for g in data[sec]}
@@ -82,7 +97,10 @@ def add_material(group, file, kind, origin, source):
     if file in seen:
         return
     seen.add(file)
-    materials.append({"file": f"media/{file}", "kind": kind, "origin": origin, "source": source, "post": post_of(group, file)})
+    m = {"file": f"media/{file}", "kind": kind, "origin": origin, "source": source, "post": post_of(group, file)}
+    if file in AI_ALL:
+        m["ai"] = True
+    materials.append(m)
 
 
 merged = 0
@@ -109,6 +127,9 @@ for k, g in CARDS.items():
                 owner[f] = gg
                 files.append((f, kind))
     cat = [(f, kind) for f, kind in files if card_eff(k, f) == "catalog"]
+    for f, _ in [c for c in cat if c[0] in AI_BLOCKED]:
+        warnings.append(f"„{label}”: {f} ma oznaczenie treści AI – wykluczone z katalogu (zgoda: \"allow\": true w ai-flags.json)")
+    cat = [c for c in cat if c[0] not in AI_BLOCKED]
     for f, kind in files:
         if card_eff(k, f) == "material":
             add_material(owner[f], f, kind, "karta", {"key": k, "title": label})
@@ -155,6 +176,9 @@ for g in data["existing"]:
     media = e.get("media", {})
     files = [(f, "photo") for f in g["photos"]] + [(v["file"], "video") for v in g["videos"]]
     add = [(f, k) for f, k in files if media.get(f) == "gallery"]
+    for f, _ in [a for a in add if a[0] in AI_BLOCKED]:
+        warnings.append(f"„{g['title']}”: {f} ma oznaczenie treści AI – wykluczone z galerii (zgoda: \"allow\": true w ai-flags.json)")
+    add = [a for a in add if a[0] not in AI_BLOCKED]
     for f, k in files:
         if media.get(f) == "material":
             add_material(g, f, k, "istniejący pierścionek", {"key": g["key"], "title": g["title"]})

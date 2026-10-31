@@ -4,6 +4,7 @@ Użycie: python3 build_review.py data/facebook
 Decyzje (selection.json) obsługuje review_server.py; ten skrypt ich nie dotyka.
 Przy okazji odświeża miniatury (make_thumbs.py) i podobieństwa zdjęć (hash_images.mjs, similarity.py).
 Propozycje połączeń kart („to ten sam pierścionek”) czyta z data/facebook/merge-proposals.json, jeśli plik jest.
+Media spoza FB (data/facebook/manual/*/manual.json) i znaczniki treści AI (ai-flags.json): zob. manual_media.py.
 """
 import json
 import re
@@ -12,7 +13,15 @@ import sys
 import unicodedata
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+import manual_media  # noqa: E402
+
 root = Path(sys.argv[1])
+# Media spoza FB trafiają do media/ przed wszystkim innym, żeby miniatury i hashe podobieństwa objęły je jak zdjęcia z FB.
+MANUAL = manual_media.load_manual(root)
+if MANUAL:
+    print(f"media spoza FB: {len(MANUAL)} kart, skopiowano {manual_media.sync_media(root, MANUAL)} plików do media/")
+MANUAL_EXTRA = manual_media.extras_by_post(MANUAL)
 posts = json.loads((root / "posts.json").read_text())["posts"]
 posts.sort(key=lambda p: p["time"] or 0)
 media = sorted(p.name for p in (root / "media").iterdir())
@@ -45,6 +54,7 @@ def files_for(idx, pick=None):
     photos.sort(key=lambda f: order.index(f.split("_")[1].split(".")[0]) if f.split("_")[1].split(".")[0] in order else 99)
     if pick is not None:
         photos = [photos[i] for i in pick if i < len(photos)]
+    photos = photos + [f for f in MANUAL_EXTRA.get(p["post_id"], []) if f in media]
     videos = [f for f in media if f.startswith(p["post_id"] + "_") and f.endswith(".mp4")]
     return photos, videos
 
@@ -153,6 +163,11 @@ page_data = {
 if FRESH:
     page_data["freshSince"] = ddmm(min(post_info(i)["date"] for i in FRESH))
     page_data["fresh"] = [with_key(r) for r in proposal["fresh"]]
+for card in manual_media.standalone_cards(MANUAL):
+    # Osobna karta ze źródła ręcznego: na końcu „Nowych pierścionków”, więc numery wcześniejszych kart się nie zmieniają.
+    g = {"key": f"{slug(card['title'])}@{manual_media.pseudo_post_id(card['id'])}", "title": card["title"],
+         "posts": [manual_media.pseudo_post(card)], "photos": [n for _, n in card["files"]], "videos": [], "manualCard": card["source"]}
+    page_data["new"].append(g)
 for r in proposal["existing"]:
     photos, videos = [], []
     for p in r["posts"]:
@@ -195,6 +210,9 @@ if prop_path.exists():
 # Weryfikacja modelem (etap B, vision/results.json): plakietki i propozycje; osobny moduł, tu tylko wywołanie.
 sys.path.insert(0, str(Path(__file__).parent))
 __import__("vision_merge").add(root, page_data)
+manual_media.annotate_manual(page_data, MANUAL)
+for w in manual_media.annotate_ai(page_data, manual_media.load_ai(root)):
+    print("UWAGA:", w)
 (root / "review-data.json").write_text(json.dumps(page_data, ensure_ascii=False, indent=1))
 
 # Miniatury (thumbs/) do szybkiego przeglądu; oryginały w media/ zostają nietknięte.
