@@ -35,6 +35,7 @@ const nextConfig: NextConfig = {
       { pathname: '/*.png' },
       { pathname: '/*.webp' },
       { pathname: '/grafiki/**' },
+      { pathname: '/zdjecia/**' },
     ],
   },
   // Wbudowane przekierowanie skośnika (`/x/` → `/x`) działałoby przed poniższymi i robiło łańcuch dla starych

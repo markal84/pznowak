@@ -8,14 +8,14 @@ import Faq, { type FaqItem } from '@/components/site/Faq'
 import Icon from '@/components/site/Icon'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
-import { getGallery } from '@/lib/collection'
+import Photo from '@/components/site/Photo'
 import { byEnv } from '@/lib/placeholders'
 import { BAND_CONFIGURATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = pageMetadata({
   title: 'Obrączki ślubne – Busko-Zdrój',
-  description: 'Obrączki płaskie, półokrągłe i klasyczne z żółtego, białego i różowego złota. Przymiarka i grawer w pracowni.',
+  description: 'Klasyczne obrączki ślubne, płaskie i półokrągłe, z żółtego, białego i różowego złota. Przymiarka i grawer w pracowni.',
   path: '/obraczki',
 })
 
@@ -34,9 +34,22 @@ const faq = (): FaqItem[] => [
   { q: 'Czy obrączki mogą być różne?', a: 'Tak. Często są tego samego wzoru, ale w innej szerokości, albo jedna ma kamień, a druga nie.' },
 ]
 
-export default async function BandsPage() {
-  // Bez konfiguratora rodzaje obrączek pokazujemy na zdjęciach z galerii CMS.
-  const gallery = BAND_CONFIGURATOR_ENABLED ? [] : await getGallery()
+const WORKSHOP_PHOTOS = [
+  {
+    src: '/zdjecia/obraczki/polerowanie.webp',
+    alt: 'Cztery złote obrączki na szlifierce podczas polerowania w pracowni',
+    position: '50% 100%',
+    caption: 'Ostatni szlif przed odbiorem',
+  },
+  {
+    src: '/zdjecia/obraczki/zareczynowy-pave.webp',
+    alt: 'Pierścionek zaręczynowy z brylantem i dwie obrączki pavé z drobnymi kamieniami',
+    position: '50% 50%',
+    caption: 'Obrączki pavé dopasowane do pierścionka zaręczynowego',
+  },
+] as const
+
+export default function BandsPage() {
   return (
     <>
       <section className="wrap stack" style={{ paddingTop: 64, paddingBottom: 40, gap: 32 }}>
@@ -62,7 +75,7 @@ export default async function BandsPage() {
         </section>
       ) : (
         <section aria-labelledby="rodzaje-obraczek" className="wrap" style={{ paddingTop: 24, paddingBottom: 104 }}>
-          <BandTypes gallery={gallery} />
+          <BandTypes />
         </section>
       )}
 
@@ -79,19 +92,23 @@ export default async function BandsPage() {
         </div>
       </section>
 
-      <DoUzupelnienia as="div">
-        <section className="wrap sec stack" style={{ gap: 40 }}>
-          <h2 className="h2">Obrączki z pracowni</h2>
-          <div className="cols-auto cols-300" style={{ gap: 24, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-            {['[Zdjęcie pary obrączek z pracowni]', '[Zdjęcie graweru w środku obrączki]', '[Zdjęcie obrączki obok pierścionka zaręczynowego]'].map((t) => (
-              <div aria-label="Miejsce na zdjęcie obrączek" className="ph-empty" key={t} role="img" style={{ aspectRatio: '4 / 3' }}>
-                <Icon name="obraczki" />
-                {t}
-              </div>
-            ))}
-          </div>
-        </section>
-      </DoUzupelnienia>
+      <section className="wrap sec stack" style={{ gap: 40 }}>
+        <h2 className="h2">Obrączki z pracowni</h2>
+        <div className="cols-auto cols-300" data-reveal="" style={{ gap: 24 }}>
+          {WORKSHOP_PHOTOS.map((p) => (
+            <figure className="stack" key={p.src} style={{ gap: 12, margin: 0 }}>
+              <Photo alt={p.alt} position={p.position} ratio="43" sizes="(max-width: 720px) 100vw, 380px" src={p.src} />
+              <figcaption className="small">{p.caption}</figcaption>
+            </figure>
+          ))}
+          <DoUzupelnienia as="div">
+            <div aria-label="Miejsce na zdjęcie obrączek" className="ph-empty" role="img" style={{ aspectRatio: '4 / 3' }}>
+              <Icon name="obraczki" />
+              [Zdjęcie graweru w środku obrączki]
+            </div>
+          </DoUzupelnienia>
+        </div>
+      </section>
 
       <section className="ruled">
         <div className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '48px 96px' }}>
