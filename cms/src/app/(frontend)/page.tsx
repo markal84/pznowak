@@ -85,7 +85,7 @@ export default async function HomePage() {
   return (
     <>
       <JsonLd data={jewelryStoreJsonLd()} />
-      <section className="wrap hero">
+      <section className="wrap hero hero-home">
         <div className="hero-copy">
           <h1 className="h1 h1-hero">Pierścionek zrobiony dla jednej osoby.</h1>
           <p className="lead">
