@@ -3005,15 +3005,58 @@ fieldset.plain legend {
 .cookie-settings-btn:hover {
   color: #eef0ea;
 }
+.cookie-short,
+.cookie-inline-link {
+  display: none;
+}
 @media (max-width: 900px) {
   .cookie-in {
     flex-direction: column;
     align-items: stretch;
   }
 }
-@media (max-width: 720px) {
+/* Telefon (zlecenie N): niski pasek – jedno zdanie, Odrzuć i Akceptuj obok siebie, „Dostosuj” jako link w zdaniu.
+   Pełny opis kategorii i mapy zostaje w panelu „Dostosuj”. Desktop (> 760 px) bez zmian. */
+@media (max-width: 760px) {
   .cookie-in {
-    padding: 18px 20px calc(18px + env(safe-area-inset-bottom));
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+  .cookie-banner .cookie-copy {
+    font-size: 13px;
+    line-height: 1.4;
+    gap: 6px;
+  }
+  /* Nagłówek zostaje dla czytników ekranu (aria-labelledby), ale nie zajmuje miejsca. */
+  .cookie-banner .cookie-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .cookie-banner .cookie-short {
+    display: block;
+    margin: 0;
+  }
+  .cookie-banner .cookie-long,
+  .cookie-actions .cookie-more {
+    display: none;
+  }
+  .cookie-inline-link {
+    display: inline;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--graphite);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    cursor: pointer;
   }
   .cookie-actions {
     display: grid;
@@ -3021,34 +3064,17 @@ fieldset.plain legend {
     gap: 8px;
   }
   .cookie-actions .btn {
+    min-height: 44px;
     padding: 0 10px;
     font-size: 14px;
   }
   .cookie-actions .btn-line {
     grid-column: 1 / -1;
-    min-height: 42px;
   }
-  .cookie-banner .cookie-copy {
-    font-size: 13.5px;
-    line-height: 1.45;
-    gap: 4px;
-  }
-  .cookie-banner .cookie-title {
-    font-size: 18px;
-  }
-  .cookie-in {
-    padding-top: 14px;
+  .cookie-cats {
+    margin-top: 4px;
+    padding-top: 10px;
     gap: 12px;
-  }
-  /* Zwinięty opis: pełny tekst zostaje na większych ekranach, a opcje i wybór są w „Dostosuj”. */
-  .cookie-banner:not(.cookie-open) .cookie-extra {
-    display: none;
-  }
-  .cookie-actions .btn {
-    min-height: 42px;
-  }
-  .cookie-actions .btn-line {
-    min-height: 38px;
   }
 }
 
