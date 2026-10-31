@@ -460,19 +460,24 @@ test.describe('Ukryty kreator i konfigurator (zlecenie A)', () => {
     ])
   })
 
-  for (const path of ['/', '/na-zamowienie']) {
-    test(`${path}: zamiast „Zaprojektuj wstępnie online” jest „Wyślij zdjęcie lub opis” do formularza`, async ({ page }) => {
-      await visit(page, path)
-      await expect(page.getByText(/Zaprojektuj (pierścionek|wstępnie)/)).toHaveCount(0)
-      const link = page.locator('main').getByRole('link', { name: 'Wyślij zdjęcie lub opis' })
-      await expect(link).toHaveAttribute('href', '/kontakt?temat=nowy')
-      await link.click()
-      await expect(page).toHaveURL(/\/kontakt\?temat=nowy$/)
-      await page.waitForSelector('html[data-hydrated="true"]')
-      await expect(page.getByRole('radio', { name: /Pierścionek lub obrączki na zamówienie/ })).toBeChecked()
-      await expect(page.getByLabel('Co Ci się podoba?')).toBeVisible()
-    })
-  }
+  test('/: zamiast „Zaprojektuj wstępnie online” jest „Wyślij zdjęcie lub opis” do formularza', async ({ page }) => {
+    await visit(page, '/')
+    await expect(page.getByText(/Zaprojektuj (pierścionek|wstępnie)/)).toHaveCount(0)
+    const link = page.locator('main').getByRole('link', { name: 'Wyślij zdjęcie lub opis' })
+    await expect(link).toHaveAttribute('href', '/kontakt?temat=nowy')
+    await link.click()
+    await expect(page).toHaveURL(/\/kontakt\?temat=nowy$/)
+    await page.waitForSelector('html[data-hydrated="true"]')
+    await expect(page.getByRole('radio', { name: /Pierścionek lub obrączki na zamówienie/ })).toBeChecked()
+    await expect(page.getByLabel('Co Ci się podoba?')).toBeVisible()
+  })
+
+  test('/na-zamowienie: jeden przycisk „Umów rozmowę o projekcie”, bez drugiego linku do tego samego formularza', async ({ page }) => {
+    await visit(page, '/na-zamowienie')
+    await expect(page.getByText(/Zaprojektuj (pierścionek|wstępnie)/)).toHaveCount(0)
+    await expect(page.locator('main').getByRole('link', { name: 'Wyślij zdjęcie lub opis' })).toHaveCount(0)
+    await expect(page.locator('main').getByRole('link', { name: 'Umów rozmowę o projekcie' })).toHaveAttribute('href', '/kontakt?temat=nowy')
+  })
 
   test('/kreator odpowiada 404 ze stroną „Tej strony nie znaleźliśmy”', async ({ page }) => {
     const response = await visit(page, '/kreator')
