@@ -76,3 +76,16 @@ Folder `data/facebook/` jest poza gitem.
 - Strona zamarza podczas przewijania – zamknij kartę, odczekaj kilka minut, zacznij od nowa (przyrostowo od daty).
 - Facebook pokazuje ostrzeżenie o nietypowej aktywności – przerwij na dłużej i nie powtarzaj tego dnia.
 - Wylogowało Cię – zaloguj się i zacznij od początku kroku.
+
+## Zdjęcia spoza Facebooka i treści AI
+
+**Media spoza FB** (np. zdjęcia od Kamili na Messengerze): wrzuć je do `data/facebook/manual/<data>_<źródło>/` i dodaj tam
+`manual.json` (format w nagłówku `scripts/facebook/manual_media.py`). Karta bez `post_id` to osobna karta w „Nowych
+pierścionkach”; z `post_id` zdjęcia dołączają do karty tego posta. Potem `python3 scripts/facebook/build_review.py data/facebook`.
+Zdjęcia dostają plakietkę „spoza FB”, oryginały zostają tam, gdzie były (do `media/` idą kopie `manual-<id>_<nazwa>.jpg`).
+Gdy później przyjdzie post FB z filmem tego samego pierścionka: w przeglądzie „połącz z kartą…” (albo wpisz jego `post_id`
+w `manual.json`, a karta spoza FB rozpłynie się w karcie posta). Podpowiedź połączenia można dodać w `merge-proposals.json`.
+
+**Treści AI**: Facebook oznacza je w interfejsie, ale `fb_export.js` nie zapisuje takiej etykiety (w zapisanych danych jej nie
+ma), więc znaczniki trzyma ręcznie `data/facebook/ai-flags.json`. Oznaczone pliki mają w przeglądzie czerwoną plakietkę „AI”, a
+`export_selection.py` nie wpuszcza ich do katalogu ani galerii, dopóki w pliku nie ma `"allow": true` (decyzja Marcina).

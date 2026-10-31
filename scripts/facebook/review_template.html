@@ -76,6 +76,12 @@ figure.m .seg button{padding:0 6px;font-size:12px}
 figure.m .ov{font-size:11px;color:var(--muted);text-align:center}
 figure.m .ovf{font-size:11px;color:var(--mat);text-align:center}
 .seg.post button{font-size:13px}
+figure.m .badges{position:absolute;left:4px;bottom:4px;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:3px;pointer-events:none}
+.nofb,.aib{font-size:11px;line-height:1.5;padding:0 7px;border-radius:10px;font-weight:600;color:#fff}
+.nofb{background:#455a64}
+.aib{background:#d32f2f}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0;font-size:13px}
+.tags .nofb,.tags .aib{font-size:12px;padding:1px 9px}
 .site{position:absolute;top:7px;left:7px;z-index:3;font-size:11px;line-height:1.5;padding:0 7px;border-radius:10px;color:#fff;background:var(--ok);cursor:default}
 .site.similar{background:#f9a825;color:#000}
 .site .tip{display:none;position:absolute;top:100%;left:0;margin-top:4px;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:6px;font-size:12px;line-height:1.3;width:max-content;max-width:240px;box-shadow:0 4px 14px #0005}
@@ -521,6 +527,22 @@ function seg(cls, opts, attrs) {
   return `<span class="seg ${cls}" ${attrs || ''}>${opts.map(([v, l]) => `<button type="button" data-v="${esc(v)}" aria-pressed="false">${esc(l)}</button>`).join('')}</span>`;
 }
 const SIM = D.sim || null;
+// Media spoza FB (manualFiles) i treści AI (ai) per plik; nazwy plików są unikalne w całym media/.
+const MANF = {}, AIF = {};
+for (const sec of ['new', 'maybe', 'existing', 'fresh']) for (const it of D[sec] || []) { Object.assign(MANF, it.manualFiles || {}); Object.assign(AIF, it.ai || {}); }
+function fileBadges(file) {
+  const a = AIF[file], m = MANF[file];
+  if (!a && !m) return '';
+  return `<span class="badges">${a ? `<span class="aib" title="${esc(a.label + (a.source ? ' · ' + a.source : '') + (a.allow ? ' · dopuszczone' : ' · wykluczone z katalogu'))}">AI${a.allow ? ' (dopuszczone)' : ''}</span>` : ''}` +
+    `${m ? `<span class="nofb" title="${esc(m)}">spoza FB</span>` : ''}</span>`;
+}
+function cardTags(it) {
+  const ai = Object.keys(it.ai || {}).length, man = Object.keys(it.manualFiles || {}).length;
+  if (!it.manualCard && !man && !ai) return '';
+  return `<div class="tags">` + (it.manualCard ? `<span class="nofb" title="${esc(it.manualCard)}">karta spoza FB · ${esc(it.manualCard)}</span>` : '') +
+    (man && !it.manualCard ? `<span class="nofb">${man} zdj. spoza FB · ${esc(Object.values(it.manualFiles)[0])}</span>` : '') +
+    (ai ? `<span class="aib">AI: ${ai} plik(i) z oznaczeniem treści AI – eksport nie wpuści ich do katalogu bez zgody Marcina (ai-flags.json)</span>` : '') + `</div>`;
+}
 const GKEY = {};
 for (const g of G) GKEY[g.key] = g;
 const thumbOf = f => (f.startsWith('frames/') ? f : 'thumbs/' + encodeURI(f));
@@ -546,11 +568,12 @@ function figure(g, f) {
   const cover = g.type === 'card' && f.kind === 'photo' ? `<button type="button" class="cover" data-act="cover" aria-pressed="false" title="Okładka (c)">★</button>` : '';
   const ctrl = g.type === 'skipped' ? '' : seg('sm', g.opts, 'data-act="media"');
   const from = f.from ? `<div class="ovf">z karty ${esc(LBL[f.from])}</div>` : '';
-  return `<figure class="m" data-file="${esc(f.file)}" data-d="?">${siteBadge(g, f)}<div class="th">${th}${f.kind === 'photo' ? cover : ''}</div>${ctrl}<div class="ov"></div>${from}</figure>`;
+  return `<figure class="m" data-file="${esc(f.file)}" data-d="?">${siteBadge(g, f)}<div class="th">${th}${f.kind === 'photo' ? cover : ''}${fileBadges(f.file)}</div>${ctrl}<div class="ov"></div>${from}</figure>`;
 }
 function posts(it) {
   const ps = it.posts || [it];
-  return ps.map(p => `<details><summary>#${p.idx} · ${esc(p.date || 'brak daty')} · <a href="https://www.facebook.com/${esc(p.post_id)}" target="_blank" rel="noopener">post</a></summary><p>${p.text ? esc(p.text) : '<i>bez tekstu</i>'}</p></details>`).join('');
+  return ps.map(p => p.manual ? `<details><summary>spoza FB · ${esc(p.date || 'brak daty')} · ${esc(p.source || '')}</summary><p>${p.text ? esc(p.text) : '<i>bez opisu</i>'}</p></details>`
+    : `<details><summary>#${p.idx} · ${esc(p.date || 'brak daty')} · <a href="https://www.facebook.com/${esc(p.post_id)}" target="_blank" rel="noopener">post</a></summary><p>${p.text ? esc(p.text) : '<i>bez tekstu</i>'}</p></details>`).join('');
 }
 function snippet(t) { t = (t || '').replace(/\s+/g, ' ').trim(); return t.length > 140 ? t.slice(0, 140) + '…' : t; }
 function existingSummary(g) {
@@ -667,7 +690,7 @@ function itemHTML(g, n, label) {
     extra = `<div class="bulk">${esc(snippet(it.text)) || '<i>bez tekstu</i>'}</div>`;
   }
   const reset = g.type === 'card' && g.files.length ? `<div class="bulk"><button type="button" data-act="reset">wyczyść ręczne nadpisania zdjęć</button></div>` : '';
-  return `<section class="item" id="i-${esc(g.gid)}" data-g="${esc(g.gid)}"><div class="head">${head}</div>${dupsHTML(g)}${extra}` +
+  return `<section class="item" id="i-${esc(g.gid)}" data-g="${esc(g.gid)}"><div class="head">${head}</div>${cardTags(it)}${dupsHTML(g)}${extra}` +
     `<div class="media">${g.files.map(f => figure(g, f)).join('')}</div>${reset}${posts(it)}</section>`;
 }
 function renderAll() {
