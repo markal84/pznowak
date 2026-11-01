@@ -6,6 +6,8 @@
  *
  * Idempotentne: zdjęcia rozpoznaje po `legacySourceUrl` (`seed://realizacje/<plik>`), realizacje po adresie (slug).
  * Istniejącej realizacji nie nadpisuje, bo Michał mógł już poprawić teksty w panelu; drugie uruchomienie niczego nie dubluje.
+ * Wyjątki (tylko gdy nikt tego ręcznie nie zmieniał): dopina brakujący link do karty katalogu i poprawia układ zdjęć
+ * wprowadzony błędnie przez pierwszą wersję seeda (patrz `previousPhotos` w `realizacje-data.ts`).
  * Dane nie mają prawa trafić na produkcję: skrypt działa tylko z NEON_BRANCH=staging (jak `seed-staging.ts`).
  */
 import { readFile } from 'node:fs/promises'
@@ -16,7 +18,8 @@ import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import type { Media } from '../src/payload-types'
-import { SEED_WORKS } from './realizacje-data'
+import { SEED_WORKS, type SeedWork } from './realizacje-data'
+import { matchProduct, planPhotos, type CatalogProduct, type ProductMatch } from './realizacje-logic'
 
 const applyChanges = process.argv.includes('--apply')
 const photosDir = fileURLToPath(new URL('../seed/realizacje', import.meta.url))
@@ -53,23 +56,32 @@ try {
 
   const existingWorks = await payload.find({
     collection: 'works',
-    depth: 0,
+    depth: 1,
     limit: 100,
     overrideAccess: true,
     pagination: false,
-    select: { slug: true },
   })
-  const existingSlugs = new Set(existingWorks.docs.map((work) => work.slug))
+  const existingBySlug = new Map(existingWorks.docs.map((work) => [work.slug, work]))
 
-  const findProductId = async (name: string): Promise<number | null> => {
-    const found = await payload.find({
-      collection: 'products',
-      depth: 0,
-      limit: 1,
-      overrideAccess: true,
-      where: { name: { equals: name } },
-    })
-    return found.docs[0]?.id ?? null
+  // Karty katalogu raz: dopasowanie po id posta z Facebooka siedzi w JSON-ie, więc filtrujemy tu, nie w zapytaniu.
+  const catalog = await payload.find({
+    collection: 'products',
+    depth: 0,
+    limit: 1000,
+    overrideAccess: true,
+    pagination: false,
+  })
+  const catalogProducts: CatalogProduct[] = catalog.docs.map((product) => ({
+    id: product.id,
+    name: product.name,
+    status: product._status,
+    archived: product.archived,
+    facebookPayload: product.source?.facebookPayload,
+  }))
+  const describeProduct = (work: SeedWork, match: ProductMatch) => {
+    if (!work.product) return 'bez linku do katalogu'
+    if (match) return `link do „${match.product.name}” (po ${match.by === 'post' ? 'poście z Facebooka' : 'nazwie'})`
+    return `BEZ linku: nie ma opublikowanej karty (${work.product.postIds?.length ? 'post ' + work.product.postIds.join(' / ') + ', ' : ''}nazwa „${work.product.name ?? '-'}”)`
   }
 
   const ensureMedia = async (file: string, alt: string): Promise<Media> => {
@@ -89,54 +101,97 @@ try {
       overrideAccess: true,
     })
   }
+  const buildPhotos = async (photos: SeedWork['photos']) => {
+    const result = []
+    for (const photo of photos) {
+      const media = await ensureMedia(photo.file, photo.alt)
+      result.push({ image: media.id, alt: photo.alt })
+    }
+    return result
+  }
+  // Skrypt działa poza Next.js: odświeżanie strony (revalidateTag) rzuciłoby tu błąd.
+  const context = { skipFrontendRevalidation: true }
 
   let created = 0
+  let updated = 0
   for (const [position, work] of SEED_WORKS.entries()) {
-    if (existingSlugs.has(work.slug)) {
-      console.log(`= ${work.slug}: już istnieje, bez zmian`)
+    const match = matchProduct(catalogProducts, work.product)
+    const productNote = describeProduct(work, match)
+    const existing = existingBySlug.get(work.slug)
+
+    if (!existing) {
+      if (!applyChanges) {
+        console.log(`+ ${work.slug}: zdjęcia: ${work.photos.length}, ${productNote}`)
+        continue
+      }
+      await payload.create({
+        collection: 'works',
+        data: {
+          title: work.title,
+          generateSlug: false,
+          slug: work.slug,
+          kind: work.kind,
+          jewelryType: work.jewelryType,
+          year: work.year,
+          task: work.task,
+          whatWeDid: work.whatWeDid,
+          photos: await buildPhotos(work.photos),
+          product: match?.product.id ?? null,
+          needsConfirmation: true,
+          featured: Boolean(work.featured),
+          position,
+          _status: 'published',
+        },
+        draft: false,
+        overrideAccess: true,
+        context,
+      })
+      created += 1
+      console.log(`+ ${work.slug}: utworzona (zdjęcia: ${work.photos.length}, ${productNote})`)
       continue
     }
-    const productId = work.productName ? await findProductId(work.productName) : null
-    const productNote = work.productName ? (productId ? `link do „${work.productName}”` : `BRAK karty „${work.productName}”, bez linku`) : 'bez linku do katalogu'
-    if (!applyChanges) {
-      console.log(`+ ${work.slug}: zdjęcia: ${work.photos.length}, ${productNote}`)
-      continue
+
+    // Istniejącej realizacji nie nadpisujemy. Wyjątki, oba tylko wtedy, gdy nikt nie zmieniał tego ręcznie:
+    // (1) puste „Powiązany pierścionek” uzupełniamy znalezioną kartą, (2) zdjęcia ułożone jak w pierwszej wersji seeda
+    // przestawiamy na obecny układ (tanzanit: okładką są zdjęcia „po”).
+    const changes: Record<string, unknown> = {}
+    const notes: string[] = []
+    let willChange = false
+    if (!existing.product && match) {
+      changes.product = match.product.id
+      willChange = true
+      notes.push(`dopięty link do „${match.product.name}” (po ${match.by === 'post' ? 'poście z Facebooka' : 'nazwie'})`)
     }
-    const photos = []
-    for (const photo of work.photos) {
-      const media = await ensureMedia(photo.file, photo.alt)
-      photos.push({ image: media.id, alt: photo.alt })
-    }
-    await payload.create({
-      collection: 'works',
-      data: {
-        title: work.title,
-        generateSlug: false,
-        slug: work.slug,
-        kind: work.kind,
-        jewelryType: work.jewelryType,
-        year: work.year,
-        task: work.task,
-        whatWeDid: work.whatWeDid,
-        photos,
-        product: productId,
-        needsConfirmation: true,
-        featured: Boolean(work.featured),
-        position,
-        _status: 'published',
-      },
-      draft: false,
-      overrideAccess: true,
-      // Skrypt działa poza Next.js: odświeżanie strony (revalidateTag) rzuciłoby tu błąd.
-      context: { skipFrontendRevalidation: true },
+    const current = (existing.photos ?? []).map((photo) => {
+      const media = typeof photo.image === 'object' ? photo.image : null
+      const file = media?.legacySourceUrl?.startsWith('seed://realizacje/') ? media.legacySourceUrl.slice('seed://realizacje/'.length) : null
+      return { file, alt: photo.alt }
     })
-    created += 1
-    console.log(`+ ${work.slug}: utworzona (zdjęcia: ${work.photos.length}, ${productNote})`)
+    const plan = planPhotos(current, work)
+    if (plan === 'przestaw') {
+      willChange = true
+      if (applyChanges) changes.photos = await buildPhotos(work.photos)
+      notes.push('zdjęcia przestawione na nowy układ')
+    } else if (plan === 'reczne' && work.previousPhotos) {
+      notes.push('zdjęcia zmienione ręcznie w panelu, zostawiam (nowy układ z seeda: okładką zdjęcia „po”)')
+    }
+
+    if (!willChange) {
+      console.log(`= ${work.slug}: już istnieje${notes.length ? ', ' + notes.join('; ') : ', bez zmian'}`)
+      continue
+    }
+    if (!applyChanges) {
+      console.log(`~ ${work.slug}: ${notes.join('; ')}`)
+      continue
+    }
+    await payload.update({ collection: 'works', id: existing.id, data: changes, draft: false, overrideAccess: true, context })
+    updated += 1
+    console.log(`~ ${work.slug}: ${notes.join('; ')}`)
   }
 
   if (applyChanges) {
     const total = await payload.count({ collection: 'works', overrideAccess: true, where: { _status: { equals: 'published' } } })
-    console.log(`Gotowe: utworzono ${created}, opublikowanych realizacji na stagingu: ${total.totalDocs}.`)
+    console.log(`Gotowe: utworzono ${created}, poprawiono ${updated}, opublikowanych realizacji na stagingu: ${total.totalDocs}.`)
     console.log('Strona trzyma listę realizacji w pamięci do godziny; zapis dowolnej realizacji w panelu odświeża ją od razu.')
   } else {
     console.log('To było sprawdzenie. Zapis: npm run staging:realizacje -- --apply')

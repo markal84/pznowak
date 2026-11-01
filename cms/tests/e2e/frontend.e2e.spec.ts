@@ -602,6 +602,18 @@ test.describe('Realizacje: historie prawdziwych zleceń (zlecenie R)', () => {
     await expect(tiles).toHaveCount(all)
   })
 
+  test('na telefonie miniatury są w jednym rzędzie, a strona nie przewija się poziomo', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'tylko telefon')
+    await openWorks(page)
+    const thumbs = page.locator('.work-thumb')
+    test.skip((await thumbs.count()) < 6, 'wyróżniona realizacja ma mało zdjęć, żeby miniatury się nie mieściły')
+    const tops = await thumbs.evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)))
+    expect(new Set(tops).size).toBe(1)
+    // rząd przewija się w poziomie sam, bez poszerzania strony
+    expect(await page.locator('.work-thumbs').evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true)
+    await noHorizontalScroll(page)
+  })
+
   test('na telefonie kliknięcie kafelka przewija do górnego okna', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'tylko telefon')
     const tiles = await openWorks(page)

@@ -3300,3 +3300,24 @@ fieldset.plain legend {
     bottom: 8px;
   }
 }
+/* Telefon: miniatury w jednym rzędzie z przewijaniem w poziomie (tylko rząd, nie cała strona); zatrzaski przy krawędzi. */
+@media (max-width: 720px) {
+  .work-thumbs {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    min-width: 0;
+    padding: 4px 4px 6px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .work-thumbs::-webkit-scrollbar {
+    display: none;
+  }
+  .work-thumbs li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+}

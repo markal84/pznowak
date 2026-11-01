@@ -14,10 +14,16 @@ export type SeedWork = {
   task: string
   whatWeDid: string
   featured?: boolean
-  /** Nazwa karty w katalogu (`products.name`); gdy takiej nie ma, realizacja zostaje bez linku „Zobacz w katalogu”. */
-  productName?: string
+  /**
+   * Karta w katalogu, do której prowadzi „Zobacz w katalogu”. Najpierw szukamy po id posta z Facebooka, z którego powstał
+   * szkic karty (`source.facebookPayload.posts[].postId`), a nazwa jest zapasem. Gdy karty nie ma albo nie jest opublikowana,
+   * realizacja zostaje bez linku.
+   */
+  product?: { postIds?: string[]; name?: string }
   /** Pliki z `cms/seed/realizacje` w kolejności wyświetlania; pierwszy to okładka. */
   photos: { file: string; alt: string }[]
+  /** Poprzedni układ zdjęć z wcześniejszej wersji seeda (do jednorazowej, bezpiecznej poprawki istniejącej realizacji). */
+  previousPhotos?: { file: string; alt: string }[]
 }
 
 export const SEED_WORKS: SeedWork[] = [
@@ -30,7 +36,7 @@ export const SEED_WORKS: SeedWork[] = [
     featured: true,
     task: 'Przyszły narzeczony zaprojektował pierścionek razem z Michałem. Chciał niebieski diament z białymi kamieniami, w białym złocie.',
     whatWeDid: 'Pierścionek zrobiliśmy ręcznie od podstaw. Zaręczyny odbyły się na wyspie.',
-    productName: 'Pierścionek zaręczynowy klienta (wyspa)',
+    product: { name: 'Pierścionek zaręczynowy klienta (wyspa)' },
     photos: [
       { file: '1-wyspa_01_dlonie-z-pierscionkiem.webp', alt: 'Splecione dłonie pary, na palcu narzeczonej pierścionek z niebieskim diamentem' },
       { file: '1-wyspa_02_narzeczona-nad-morzem.webp', alt: 'Narzeczona nad morzem o zachodzie słońca wyciąga dłoń z pierścionkiem zaręczynowym' },
@@ -49,7 +55,7 @@ export const SEED_WORKS: SeedWork[] = [
     year: 2024,
     task: 'Klientka wymarzyła sobie kamień o dokładnie takim kształcie i szlifie.',
     whatWeDid: 'Brylant w szlifie szmaragdowym, z certyfikatem GIA, oprawiliśmy w pierścionek wykonany ręcznie od podstaw.',
-    productName: 'Brylant w szlifie szmaragdowym 0,41 ct',
+    product: { name: 'Brylant w szlifie szmaragdowym 0,41 ct' },
     photos: [
       { file: '2-gia_01.webp', alt: 'Pierścionek z brylantem w szlifie szmaragdowym i drobnymi kamieniami w obrączce, na kamiennym podłożu' },
       { file: '2-gia_02_certyfikat.webp', alt: 'Pierścionek z brylantem w szlifie szmaragdowym obok certyfikatu GIA' },
@@ -81,7 +87,7 @@ export const SEED_WORKS: SeedWork[] = [
     year: 2026,
     task: 'Klientka chciała odtworzyć obrączkę eternity, tak żeby pasowała do jej pierścionka zaręczynowego.',
     whatWeDid: 'Dobraliśmy proporcje i rozmiar. Diamenty osadziliśmy w mikropavé.',
-    productName: 'Obrączka eternity odtworzona dla klientki',
+    product: { postIds: ['122171835092616875'], name: 'Obrączka eternity odtworzona dla klientki' },
     photos: [
       { file: '4-eternity_01_komplet.webp', alt: 'Pierścionek zaręczynowy z kwadratowym brylantem i dwie obrączki eternity, ułożone jako komplet' },
       { file: '4-eternity_02_stos.webp', alt: 'Stos obrączek eternity z pierścionkiem zaręczynowym na górze' },
@@ -96,7 +102,7 @@ export const SEED_WORKS: SeedWork[] = [
     year: 2026,
     task: 'Klient zainspirował się fasonem z naszej pracowni. Chciał wersję w innym kolorze, właśnie dla niej.',
     whatWeDid: 'Zrobiliśmy ten sam fason, ale z morganitem w innym kolorze niż w pracowni.',
-    productName: 'Morganit w oprawie halo',
+    product: { postIds: ['122194033982616875', '122195486114616875'], name: 'Morganit w oprawie halo' },
     photos: [
       { file: '5-morganit_01-kolaz.webp', alt: 'Kolaż trzech ujęć pierścionka z morganitem w oprawie halo: na dłoni i w pudełku' },
     ],
@@ -109,7 +115,15 @@ export const SEED_WORKS: SeedWork[] = [
     year: 2026,
     task: 'Klientce znudził się wisiorek i kolczyki w kształcie piór.',
     whatWeDid: 'Michał zaproponował pierścionek. Z biżuterii, którą klientka już miała, powstał pierścionek z wymarzonym tanzanitem w centrum.',
+    // Okładką są zdjęcia „po”: na liście kafelków zdjęcie samego pióra wyglądało jak wisiorek, nie pierścionek.
     photos: [
+      { file: '6-tanzanit_02_po.webp', alt: 'Pierścionek z tanzanitem w zielonym, aksamitnym pudełku, po przeróbce' },
+      { file: '6-tanzanit_03_po.webp', alt: 'Pierścionek z tanzanitem w pudełku trzymanym w dłoni, po przeróbce' },
+      { file: '6-tanzanit_01_przed-wisiorek-pioro.webp', alt: 'Przed: złoty wisiorek w kształcie pióra widziany przez lupę' },
+    ],
+    // Pierwsza wersja seeda (kolejność „przed” na początku). Realizację z dokładnie tym układem przestawiamy na nowy,
+    // a ręcznie zmienioną zostawiamy w spokoju.
+    previousPhotos: [
       { file: '6-tanzanit_01_przed-wisiorek-pioro.webp', alt: 'Złoty wisiorek w kształcie pióra widziany przez lupę, przed przeróbką' },
       { file: '6-tanzanit_02_po.webp', alt: 'Pierścionek z tanzanitem w zielonym, aksamitnym pudełku, po przeróbce' },
       { file: '6-tanzanit_03_po.webp', alt: 'Pierścionek z tanzanitem w pudełku trzymanym w dłoni, po przeróbce' },

@@ -47,6 +47,7 @@ Otwarte po K: mystic topaz bez koloru w filtrze.
 - Para 2↔D1 = karta mieszana (pierścionek + sygnet z awenturynem) – odłożone przez Marcina.
 
 ## Przed startem produkcji (Marcin, przed 21.11 – wygasa home.pl)
+- Realizacje (R): dane na produkcję – tym samym seedem z flagą dla produkcji albo ręcznie w panelu; decyzja Marcina.
 - Zlecenie R: `npx payload migrate` na produkcji (migracja `20261101_101210_realizacje`, tylko nowe tabele „Realizacje”) przed wdrożeniem kodu; potem Michał dodaje realizacje w panelu (na produkcji do czasu dodania strona pokazuje krótki pusty stan, seed jest tylko na staging).
 - `npx payload migrate` na produkcji (migracje z I i H-C) – przed wdrożeniem kodu. Szczegóły: `archiwum/2026-10-26_zlecenie-I-raport.md`.
 - Kod K + dane razem (22 adresy, przekierowania 308) – `archiwum/2026-10-28_zlecenie-K-raport.md`.
