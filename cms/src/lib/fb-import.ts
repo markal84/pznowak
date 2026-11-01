@@ -300,7 +300,8 @@ export function buildImportPlan(selection: FbCatalogSelection, state: ImportStat
     const parsed = extractDetails(
       item.name,
       texts,
-      (item.mergedFrom ?? []).map((m) => m.name),
+      // Opisowy tytuł karty (np. „Moissanit 2 ct …”) pomaga rozpoznać kamień, gdy nazwa to samo imię (zlecenie S).
+      [...(item.mergedFrom ?? []).map((m) => m.name), ...(item.titleOpus && item.titleOpus !== item.name ? [item.titleOpus] : [])],
     )
     const existing = byKey.get(item.key)
     const baseSlug = slugify(item.name)

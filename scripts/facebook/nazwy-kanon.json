@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "comment": "Imiona z kanonu dla kart, które Marcin nie nazwał w przeglądzie (export_selection.py). Własna nazwa z selection.json ma pierwszeństwo. match = wyrażenie regularne na tytule karty (bez wielkości liter).",
+  "rules": [
+    {"match": "moissanit.*\\b2 ct", "name": "Aethra"},
+    {"match": "moissanit.*\\b1 ct", "name": "Hesperia"}
+  ]
+}

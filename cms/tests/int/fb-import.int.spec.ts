@@ -197,4 +197,15 @@ describe('fb-import: plan', () => {
     expect(unknown.action).toBe('skip')
     expect(unknown.warnings[0]).toContain('nie znaleziono')
   })
+
+  it('rozpoznaje kamień z opisowego tytułu, gdy nazwa karty to samo imię (zlecenie S)', () => {
+    const plan = buildImportPlan(
+      selection({
+        catalog: [{ ...selection().catalog[0], name: 'Eos', titleOpus: 'Morganit z diamentami na szynie pavé', posts: [] }],
+      }),
+      { mediaBySource: new Map(), products: [] },
+    )
+    expect(plan.products[0].data).toMatchObject({ name: 'Eos', slug: 'eos', stone: 'Morganit, Diament' })
+  })
+
 })

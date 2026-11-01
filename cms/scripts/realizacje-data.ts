@@ -19,7 +19,7 @@ export type SeedWork = {
    * szkic karty (`source.facebookPayload.posts[].postId`), a nazwa jest zapasem. Gdy karty nie ma albo nie jest opublikowana,
    * realizacja zostaje bez linku.
    */
-  product?: { postIds?: string[]; name?: string }
+  product?: { postIds?: string[]; name?: string; /** Inne nazwy tej samej karty (np. imię po zleceniu S); dopasowanie jak do `name`. */ altNames?: string[] }
   /** Pliki z `cms/seed/realizacje` w kolejności wyświetlania; pierwszy to okładka. */
   photos: { file: string; alt: string }[]
   /** Poprzedni układ zdjęć z wcześniejszej wersji seeda (do jednorazowej, bezpiecznej poprawki istniejącej realizacji). */
@@ -36,7 +36,7 @@ export const SEED_WORKS: SeedWork[] = [
     featured: true,
     task: 'Przyszły narzeczony zaprojektował pierścionek razem z Michałem. Chciał niebieski diament z białymi kamieniami, w białym złocie.',
     whatWeDid: 'Pierścionek zrobiliśmy ręcznie od podstaw. Zaręczyny odbyły się na wyspie.',
-    product: { name: 'Pierścionek zaręczynowy klienta (wyspa)' },
+    product: { name: 'Pierścionek zaręczynowy klienta (wyspa)', altNames: ['Calypso'] },
     photos: [
       { file: '1-wyspa_01_dlonie-z-pierscionkiem.webp', alt: 'Splecione dłonie pary, na palcu narzeczonej pierścionek z niebieskim diamentem' },
       { file: '1-wyspa_02_narzeczona-nad-morzem.webp', alt: 'Narzeczona nad morzem o zachodzie słońca wyciąga dłoń z pierścionkiem zaręczynowym' },
@@ -55,7 +55,7 @@ export const SEED_WORKS: SeedWork[] = [
     year: 2024,
     task: 'Klientka wymarzyła sobie kamień o dokładnie takim kształcie i szlifie.',
     whatWeDid: 'Brylant w szlifie szmaragdowym, z certyfikatem GIA, oprawiliśmy w pierścionek wykonany ręcznie od podstaw.',
-    product: { name: 'Brylant w szlifie szmaragdowym 0,41 ct' },
+    product: { name: 'Brylant w szlifie szmaragdowym 0,41 ct', altNames: ['Leucothea'] },
     photos: [
       { file: '2-gia_01.webp', alt: 'Pierścionek z brylantem w szlifie szmaragdowym i drobnymi kamieniami w obrączce, na kamiennym podłożu' },
       { file: '2-gia_02_certyfikat.webp', alt: 'Pierścionek z brylantem w szlifie szmaragdowym obok certyfikatu GIA' },
