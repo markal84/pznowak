@@ -60,3 +60,11 @@ next-env.d.ts
 
 # Surowy eksport z fanpage FB (linki CDN wygasają, media duże)
 /data/facebook/
+
+# Zlecenia dla agentów (także w chmurze) – w gicie tylko zlecenia i zasady; raporty i zrzuty zostają lokalnie
+!docs/zlecenia/*_zlecenie-*.md
+!docs/zlecenia/KOLEJKA.md
+!docs/zlecenia/_ZASADY-GIT.md
+!docs/zlecenia/_KIEROWNIK.md
+!docs/zlecenia/2026-10-25_design-fundament.md
+docs/zlecenia/*raport*.md
