@@ -1,0 +1,253 @@
+{
+ "model": "gpt-6.1-terra",
+ "effort": "medium",
+ "calls": 12,
+ "results": [
+  {
+   "stone": "kamień różowy",
+   "stone_color": "rozowe",
+   "gold_color": "zolte",
+   "confidence": 95,
+   "reason": "Główny kamień jest różowy, a oprawa i obrączka wyglądają na żółte złoto; gatunku kamienia nie można pewnie określić ze zdjęć.",
+   "looked": [
+    "kamień główny",
+    "oprawa",
+    "obrączka",
+    "kamienie boczne"
+   ],
+   "slug": "merope-2",
+   "name": "Merope",
+   "seconds": 10.7,
+   "files": [
+    "1-57-1024x683.jpg",
+    "2-58-1024x683.jpg",
+    "3-54-1024x683.jpg"
+   ]
+  },
+  {
+   "stone": "topaz",
+   "stone_color": "zielone",
+   "gold_color": "zolte",
+   "confidence": 75,
+   "reason": "Kamień główny, opisany w danych jako topaz, ma wielobarwne refleksy z widoczną zielenią, a oprawa i obrączka wyglądają na żółte złoto.",
+   "looked": [
+    "kamień główny",
+    "zielone i fioletowe refleksy",
+    "oprawa",
+    "obrączka"
+   ],
+   "slug": "electra-2",
+   "name": "Electra",
+   "seconds": 17.7,
+   "files": [
+    "1-54-1024x683.jpg",
+    "2-55-1024x683.jpg",
+    "3-51-1024x683.jpg"
+   ]
+  },
+  {
+   "stone": "kamień zielony",
+   "stone_color": "zielone",
+   "gold_color": "zolte",
+   "confidence": 88,
+   "reason": "Największy kamień jest zielony, a oprawa i obrączka mają żółty kolor; gatunku kamienia nie da się pewnie ustalić ze zdjęć.",
+   "looked": [
+    "największy kamień",
+    "barwa oprawy",
+    "barwa obrączki"
+   ],
+   "slug": "prometheus-2",
+   "name": "Prometheus",
+   "seconds": 13.8,
+   "files": [
+    "1-51-1024x683.jpg",
+    "2-52-1024x683.jpg",
+    "3-48-683x1024.jpg"
+   ]
+  },
+  {
+   "stone": "szmaragd",
+   "stone_color": "zielone",
+   "gold_color": "zolte",
+   "confidence": 95,
+   "reason": "Centralny kamień jest zielony, a oprawa i obrączka mają żółty kolor; podany w danych szmaragd odpowiada wyglądowi kamienia.",
+   "looked": [
+    "kamień centralny",
+    "kamienie boczne",
+    "oprawa",
+    "obrączka"
+   ],
+   "slug": "euterpe-2",
+   "name": "Euterpe",
+   "seconds": 12.7,
+   "files": [
+    "1-50-1024x683.jpg",
+    "2-51-683x1024.jpg",
+    "3-47-1024x683.jpg"
+   ]
+  },
+  {
+   "stone": "kamień różowy",
+   "stone_color": "rozowe",
+   "gold_color": "zolte-biale",
+   "confidence": 75,
+   "reason": "Kamień główny ma delikatny różowy odcień, a obrączka wygląda na żółtą i oprawa na białą; gatunku kamienia nie da się pewnie ustalić ze zdjęć.",
+   "looked": [
+    "kamień główny",
+    "boczne kamienie",
+    "oprawa",
+    "obrączka"
+   ],
+   "slug": "leto-2",
+   "name": "Leto",
+   "seconds": 15.0,
+   "files": [
+    "1-41-683x1024.jpg",
+    "2-42-1024x683.jpg",
+    "3-39-683x1024.jpg"
+   ]
+  },
+  {
+   "stone": "kamień bezbarwny",
+   "stone_color": "bezbarwne",
+   "gold_color": "zolte",
+   "confidence": 85,
+   "reason": "Pierścionek zdobią drobne bezbarwne kamienie, których gatunku nie można pewnie rozpoznać ze zdjęć, a oprawa i obrączka mają żółty odcień.",
+   "looked": [
+    "drobne kamienie",
+    "oprawa",
+    "obrączka",
+    "zdjęcia z trzech stron"
+   ],
+   "slug": "celaeno",
+   "name": "Celaeno",
+   "seconds": 18.1,
+   "files": [
+    "1-28-1024x683.jpg",
+    "2-29-1024x683.jpg",
+    "3-27-1024x683.jpg"
+   ]
+  },
+  {
+   "stone": "kamień zielony",
+   "stone_color": "zielone",
+   "gold_color": "zolte-biale",
+   "confidence": 85,
+   "reason": "Kamień główny jest oliwkowozielony, lecz jego gatunku nie da się pewnie ustalić ze zdjęć; obrączka i boki oprawy są żółte, a dekoracyjny front wygląda na biały.",
+   "looked": [
+    "kamień centralny",
+    "front i boki oprawy",
+    "obrączka",
+    "oba zdjęcia"
+   ],
+   "slug": "taygete",
+   "name": "Taygete",
+   "seconds": 14.6,
+   "files": [
+    "1-27-683x1024.jpg",
+    "2-28-1024x683.jpg"
+   ]
+  },
+  {
+   "stone": "kamień fioletowy",
+   "stone_color": "fioletowe",
+   "gold_color": "zolte",
+   "confidence": 80,
+   "reason": "Kamień główny ma niebieskofioletową barwę, a oprawa i obrączka wyglądają na żółte złoto; gatunku kamienia nie da się pewnie określić ze zdjęć.",
+   "looked": [
+    "kamień główny",
+    "barwa oprawy i obrączki",
+    "zdjęcia z trzech stron"
+   ],
+   "slug": "maia",
+   "name": "Maia",
+   "seconds": 18.0,
+   "files": [
+    "1-25-1024x683.jpg",
+    "2-26-1024x683.jpg",
+    "3-25-1024x683.jpg"
+   ]
+  },
+  {
+   "stone": "kamień czerwony",
+   "stone_color": "rozowe",
+   "gold_color": "zolte-biale",
+   "confidence": 85,
+   "reason": "Główny kamień jest czerwony, lecz jego gatunku nie da się pewnie rozpoznać ze zdjęć; obrączka jest żółta, a widoczne części oprawy mają biały kolor.",
+   "looked": [
+    "kamień centralny",
+    "oprawa kamieni",
+    "obrączka"
+   ],
+   "slug": "cassiopeia",
+   "name": "Cassiopeia",
+   "seconds": 14.1,
+   "files": [
+    "1-22-1024x682.jpg",
+    "2-23-1024x682.jpg",
+    "3-22-1024x682.jpg"
+   ]
+  },
+  {
+   "stone": "kamień niebieski",
+   "stone_color": "niebieskie",
+   "gold_color": "zolte",
+   "confidence": 95,
+   "reason": "Kamień centralny jest wyraźnie niebieski, a oprawa i obrączka mają żółty kolor; same zdjęcia nie pozwalają pewnie ustalić gatunku kamienia.",
+   "looked": [
+    "kamień centralny",
+    "oprawa",
+    "obrączka",
+    "kamienie boczne"
+   ],
+   "slug": "thalia",
+   "name": "Thalia",
+   "seconds": 15.1,
+   "files": [
+    "1-16-1024x683.jpg",
+    "2-17-683x1024.jpg",
+    "3-16-1024x683.jpg"
+   ]
+  },
+  {
+   "stone": "kamień bezbarwny",
+   "stone_color": "bezbarwne",
+   "gold_color": "biale",
+   "confidence": 75,
+   "reason": "Pierścionek zdobią głównie bezbarwne kamienie, których gatunku nie da się pewnie ustalić ze zdjęć, a oprawa i obrączka mają kolor białego metalu.",
+   "looked": [
+    "bezbarwne kamienie",
+    "ciemne oczy węża",
+    "kolor oprawy i obrączki"
+   ],
+   "slug": "terpsichore",
+   "name": "Terpsichore",
+   "seconds": 15.6,
+   "files": [
+    "1-13-682x1024.jpg",
+    "2-14-682x1024.jpg",
+    "3-13-1024x682.jpg"
+   ]
+  },
+  {
+   "stone": "szafir",
+   "stone_color": "niebieskie",
+   "gold_color": "zolte-biale",
+   "confidence": 95,
+   "reason": "Centralny kamień jest niebieski i według podanych danych to szafir, a pierścionek ma żółtą obrączkę oraz białą oprawę.",
+   "looked": [
+    "centralny niebieski kamień",
+    "jasna oprawa",
+    "żółta obrączka",
+    "bezbarwne kamienie boczne"
+   ],
+   "slug": "asteria",
+   "name": "Asteria",
+   "seconds": 13.5,
+   "files": [
+    "Michalnowak.com_.pl-16-1024x683.jpg",
+    "Michalnowak.com_.pl-17-1024x683.jpg"
+   ]
+  }
+ ]
+}

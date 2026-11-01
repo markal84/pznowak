@@ -68,3 +68,8 @@ next-env.d.ts
 !docs/zlecenia/_KIEROWNIK.md
 !docs/zlecenia/2026-10-25_design-fundament.md
 docs/zlecenia/*raport*.md
+
+# Lokalne: archiwum zleceń (raporty i zrzuty zostają na dysku), store pnpm, ustawienia Claude
+docs/zlecenia/archiwum/
+.pnpm-store/
+.claude/settings.local.json
