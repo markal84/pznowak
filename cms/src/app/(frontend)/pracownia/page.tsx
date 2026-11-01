@@ -10,7 +10,7 @@ import SectionIntro from '@/components/site/SectionIntro'
 import StudioFilm from '@/components/site/StudioFilm'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Pracownia i historia rodziny Nowaków od 1890',
+  title: 'Pracownia i historia rodziny Nowaków od 1920',
   description: 'Cztery pokolenia złotników: od kuźni w Szańcu do stołu złotniczego w Busku-Zdroju.',
   path: '/pracownia',
 })

@@ -24,9 +24,12 @@ export default function SiteFooter() {
               {SITE.city}
             </address>
             <span className="footer-muted">
-              Pon.–pt. 8:00–16:00
-              <br />
-              Sobota 10:00–16:00
+              {SITE.hours.map((h, i) => (
+                <span key={h.days}>
+                  {i > 0 ? <br /> : null}
+                  {h.days} {h.time}
+                </span>
+              ))}
             </span>
           </div>
           <div className="footer-col">

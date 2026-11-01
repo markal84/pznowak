@@ -19,7 +19,7 @@ import Tag from '@/components/site/Tag'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = pageMetadata({
-  title: 'Złotnik w Busku-Zdroju – pracownia rodzinna od 1890',
+  title: 'Złotnik w Busku-Zdroju – pracownia rodzinna od 1920',
   description:
     'Pracownia złotnicza przy Kilińskiego 12 w Busku-Zdroju. Pierścionki z kamieniami szlachetnymi, obrączki, naprawy biżuterii. Pon.–pt. 8–16, sob. 10–16.',
   path: '/',
@@ -218,8 +218,8 @@ export default async function HomePage() {
           </figure>
           <div className="stack pracownia-copy" style={{ gap: 28 }}>
             <SectionIntro
-              intro="Od 1890 roku fach przechodzi w rodzinie Nowaków z ojca na syna: od kowala z Szańca, przez Stanisława i Mieczysława, po Michała. Pierścionki, które Mieczysław projektował w latach 80., do dziś wracają do nas na renowację. Z tą samą uwagą zajmiemy się pierścionkiem po babci."
-              title="Pracownia od 1890"
+              intro="Od 1920 roku fach przechodzi w rodzinie Nowaków z ojca na syna: od kowala z Szańca, przez Stanisława i Mieczysława, po Michała. Pierścionki, które Mieczysław projektował w latach 80., do dziś wracają do nas na renowację. Z tą samą uwagą zajmiemy się pierścionkiem po babci."
+              title="Pracownia od 1920"
             />
             <div className="row gap-14-28">
               <Link className="btn btn-line" href="/pracownia">Poznaj historię pracowni</Link>

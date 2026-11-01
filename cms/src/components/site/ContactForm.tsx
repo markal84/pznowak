@@ -190,7 +190,7 @@ export default function ContactForm({
 
       {topic === 'naprawa' ? (
         <p className="notice">
-          Z naprawą możesz przyjść w godzinach otwarcia: od poniedziałku do piątku 8:00–16:00, w soboty 10:00–16:00.
+          Z naprawą możesz przyjść w godzinach otwarcia: od poniedziałku do piątku {SITE.hours[0].time}, w soboty {SITE.hours[1].time}.
           Formularz przyda się, jeśli chcesz najpierw zapytać o wycenę.
         </p>
       ) : null}

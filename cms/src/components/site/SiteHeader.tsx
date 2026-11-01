@@ -106,7 +106,7 @@ export default function SiteHeader() {
           <span>
             {SITE.street}, Busko-Zdrój
           </span>
-          <span>Pon.–pt. 8:00–16:00, sob. 10:00–16:00</span>
+          <span>{SITE.hours.map((h) => `${h.days} ${h.time}`).join(', ')}</span>
         </div>
       </nav>
     </header>
