@@ -26,7 +26,8 @@ export function matchProduct(products: readonly CatalogProduct[], wanted: SeedWo
     const found = usable.find((product) => JSON.stringify(product.facebookPayload ?? null).includes(postId))
     if (found) return { product: found, by: 'post' }
   }
-  const byName = wanted.name ? usable.find((product) => product.name === wanted.name) : undefined
+  const names = [wanted.name, ...(wanted.altNames ?? [])].filter((name): name is string => Boolean(name))
+  const byName = names.length ? usable.find((product) => names.includes(product.name)) : undefined
   return byName ? { product: byName, by: 'nazwa' } : null
 }
 
