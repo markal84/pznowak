@@ -17,6 +17,7 @@ Statusy: `gotowe do startu` · `w toku` · `czeka na Marcina` · `do przeglądu 
 | # | Zlecenie | Plik | Gałąź / PR | Status | Co dalej |
 |---|---|---|---|---|---|
 | R | /realizacje: kolekcja „Realizacje” z historiami zleceń; górne okno podmieniane kliknięciem kafelka (`?r=slug`), 6 historii z FB na start; stara galeria znika ze strony | `2026-11-01_zlecenie-R_realizacje-historie.md` | `claude/eloquent-noether-v7ijrt` / [#34](https://github.com/markal84/pznowak/pull/34) | do przeglądu Klaudii | opis PR; na Macu: `cd cms && npm run staging:realizacje -- --apply` |
+| S | Nowe pierścionki z FB: imiona z mitologii (Leucothea, Calypso…) + publikacja na stagingu | `2026-11-01_zlecenie-S_nazwy-nowych-pierscionkow.md` | `feat/nazwy-nowych-pierscionkow` / [#36](https://github.com/markal84/pznowak/pull/36) | do przeglądu Klaudii | opis PR; na Macu: `cd cms && npm run staging:nazwy -- --apply` |
 | H-D1 | Sync przez Meta Graph API | `2026-10-26_zlecenie-H_proces-katalogu-z-fb-ig.md` (etap D) | – | wstrzymane | brak dostępu w Meta Business Suite |
 | H-D2 | Eksport przyrostowy (dalszy ciąg) | jw., etap D | – | czeka na zlecenie Klaudii | ustalenia niżej („Na D2”) |
 | H-E | Zakładka „Proces” + panel pod człowieka | jw., etap E + `2026-10-26_NOTATKA_panel-katalogu-dla-czlowieka.md` | – | wstrzymane | czeka na zlecenie Klaudii |
@@ -56,7 +57,6 @@ Otwarte po K: mystic topaz bez koloru w filtrze.
 - Hosting MyDevil, skrzynki, SEO/przekierowania/mapa strony, rekord TXT Google – `pznowak-marketing/home-pl-inwentaryzacja.md`.
 
 ## Od Michała / Kamili (otwarte)
-- Nazwa dla szkicu #47 „pierścionek klienta (wyspa)”.
 - Zatwierdzenie i redakcja 11 szkiców z FB (po przeglądzie Marcina).
 - Ceny „od”, godziny, plan opinii Google – rozmowa Marcina z Michałem 01.11.
 

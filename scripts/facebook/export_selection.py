@@ -23,6 +23,7 @@ w ai-flags.json nie ma "allow": true (jawna decyzja Marcina); w materials dostaj
 Posty ręczne (manual-<id>, media spoza FB) mają url null i pole source.
 """
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -36,6 +37,17 @@ sim = data.get("sim") or {}
 
 sys.path.insert(0, str(Path(__file__).parent))
 import manual_media  # noqa: E402
+
+# Imiona z kanonu (zlecenie S): karta bez własnej nazwy z przeglądu dostaje imię, gdy tytuł pasuje do wzorca z nazwy-kanon.json.
+CANON = json.loads((Path(__file__).parent / "nazwy-kanon.json").read_text(encoding="utf-8"))["rules"]
+
+
+def canon_name(title):
+    for rule in CANON:
+        if re.search(rule["match"], title, re.IGNORECASE):
+            return rule["name"]
+    return ""
+
 
 AI_BLOCKED = {f for sec in ("new", "maybe", "existing", "fresh") for g in data.get(sec, []) for f, a in g.get("ai", {}).items() if not a.get("allow")}
 AI_ALL = {f for sec in ("new", "maybe", "existing", "fresh") for g in data.get(sec, []) for f in g.get("ai", {})}
@@ -153,7 +165,7 @@ for k, g in CARDS.items():
                     have.add(p["postId"])
                     posts.append(p)
         item = {
-            "key": k, "name": (e.get("name") or "").strip() or label, "titleOpus": label, "note": note,
+            "key": k, "name": (e.get("name") or "").strip() or canon_name(label) or label, "titleOpus": label, "note": note,
             "section": sec, "cover": f"media/{cover}" if cover else None,
             "photos": [f"media/{p}" for p in photos], "videos": [f"media/{v}" for v in videos], "posts": posts,
         }
