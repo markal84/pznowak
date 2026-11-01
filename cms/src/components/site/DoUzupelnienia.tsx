@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { showPlaceholders } from '@/lib/placeholders'
 
 type DoUzupelnieniaProps = {
@@ -8,16 +8,18 @@ type DoUzupelnieniaProps = {
   fallback?: ReactNode
   /** `div` dla bloków i całych sekcji, `span` (domyślnie) dla fragmentów zdania. */
   as?: 'span' | 'div'
+  /** Styl ramki na podglądzie, np. gdy ramka jest elementem flex (na produkcji ramki nie ma). */
+  style?: CSSProperties
 }
 
 /**
  * Jeden mechanizm dla wszystkich miejsc „do uzupełnienia” (zlecenie I, pkt 7): na podglądzie wyróżniony znacznik,
  * na produkcji `fallback` (domyślnie nic). Szczegóły i lista miejsc: `src/lib/placeholders.ts`.
  */
-export default function DoUzupelnienia({ children, fallback = null, as: Tag = 'span' }: DoUzupelnieniaProps) {
+export default function DoUzupelnienia({ children, fallback = null, as: Tag = 'span', style }: DoUzupelnieniaProps) {
   if (!showPlaceholders()) return <>{fallback}</>
   return (
-    <Tag className={Tag === 'div' ? 'todo todo-block' : 'todo'} data-todo="">
+    <Tag className={Tag === 'div' ? 'todo todo-block' : 'todo'} data-todo="" style={style}>
       {children}
     </Tag>
   )

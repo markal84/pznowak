@@ -527,6 +527,56 @@ test.describe('Naprawy: prawdziwe zdjęcia (zlecenie Q)', () => {
   })
 })
 
+test.describe('Pracownia: film z pracowni z napisami etapów (zlecenie T)', () => {
+  const film = (page: Page) => page.locator('.studio-film video')
+
+  test('film jest wyciszony, w pętli, z okładką i ścieżką etapów; napis pokazuje bieżący etap', async ({ page }) => {
+    await visit(page, '/pracownia')
+    const video = film(page)
+    await expect(video).toHaveAttribute('aria-label', /^Film z pracowni: topienie złota/)
+    await expect(video).toHaveAttribute('poster', '/filmy/pracownia-poster.jpg')
+    await expect(video).toHaveAttribute('loop', '')
+    await expect(video).toHaveAttribute('playsinline', '')
+    expect(await video.evaluate((v: HTMLVideoElement) => v.muted && v.hasAttribute('muted'))).toBe(true)
+    // Proporcje 4:5 zarezerwowane w CSS, więc bez przeskoku układu po wczytaniu filmu.
+    const box = (await page.locator('.studio-film').boundingBox())!
+    expect(box.height / box.width).toBeCloseTo(1.25, 1)
+
+    const track = page.locator('.studio-film track')
+    await expect(track).toHaveAttribute('src', '/filmy/pracownia-etapy.vtt')
+    await expect(track).toHaveAttribute('kind', 'captions')
+    await expect(track).toHaveAttribute('srclang', 'pl')
+    await expect
+      .poll(() => track.evaluate((t: HTMLTrackElement) => [t.readyState, t.track.mode, t.track.cues?.length ?? 0]))
+      .toEqual([2, 'hidden', 7])
+
+    await video.scrollIntoViewIfNeeded()
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.autoplay)).toBe(true)
+    const caption = page.locator('.studio-film-caption')
+    await video.evaluate((v: HTMLVideoElement) => (v.currentTime = 8))
+    await expect(caption).toHaveText('Kształtowanie przy stole złotniczym')
+    await expect(caption).toHaveAttribute('data-visible', '')
+    await video.evaluate((v: HTMLVideoElement) => (v.currentTime = 17))
+    await expect(caption).toHaveText('Ręczna oprawa kamieni')
+
+    await page.getByRole('button', { name: 'Zatrzymaj film' }).click()
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+    await expect(page.getByRole('button', { name: 'Odtwórz film' })).toBeVisible()
+    await noHorizontalScroll(page)
+  })
+
+  test('przy prefers-reduced-motion film nie rusza sam: okładka i przycisk odtwarzania', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await visit(page, '/pracownia')
+    const video = film(page)
+    await video.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(1000)
+    expect(await video.evaluate((v: HTMLVideoElement) => [v.paused, v.autoplay, v.currentTime])).toEqual([true, false, 0])
+    await page.getByRole('button', { name: 'Odtwórz film' }).click()
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false)
+  })
+})
+
 test.describe('Realizacje: historie prawdziwych zleceń (zlecenie R)', () => {
   // Dane to realizacje z `npm run staging:realizacje`; na bazie bez nich strona pokazuje tylko pusty stan.
   async function openWorks(page: Page, path = '/realizacje') {

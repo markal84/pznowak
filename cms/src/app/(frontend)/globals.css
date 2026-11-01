@@ -1787,17 +1787,87 @@ fieldset.plain legend {
 .service dd.p {
   font-weight: 500;
 }
-.video-ph {
-  aspect-ratio: 16 / 9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
+/* ---------- film z pracowni (/pracownia, zlecenie T) ---------- */
+.studio-film {
+  position: relative;
+  aspect-ratio: 4 / 5;
   background: var(--graphite);
+  overflow: hidden;
+}
+.studio-film video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Napis etapu: przywieszka jak `.tag-corner` na kafelkach, półprzezroczysta, żeby była czytelna na jasnym i ciemnym kadrze. */
+.studio-film-caption {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  max-width: calc(100% - 32px);
+  background: rgba(251, 251, 248, 0.88);
+  color: var(--graphite);
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+.studio-film-caption[data-visible] {
+  opacity: 1;
+}
+.studio-film-caption .nm {
+  font-size: 18px;
+}
+/* Mały przycisk pauzy/odtwarzania: nad nakładką, zawsze klikalny. */
+.studio-film-btn {
+  position: absolute;
+  z-index: 1;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(34, 38, 42, 0.55);
   color: var(--on-velvet);
-  font-size: 15px;
-  text-align: center;
-  padding: 16px;
+  cursor: pointer;
+}
+.studio-film-btn:hover {
+  background: rgba(34, 38, 42, 0.8);
+}
+.studio-film-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: rgba(34, 38, 42, 0.18);
+  color: var(--on-velvet);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 220ms ease,
+    visibility 0s linear 220ms;
+}
+.studio-film-play[data-shown] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 220ms ease;
+}
+.studio-film-play:hover {
+  background: rgba(34, 38, 42, 0.3);
+}
+@media (max-width: 560px) {
+  .studio-film-caption {
+    left: 12px;
+    bottom: 12px;
+  }
+  .studio-film-caption .nm {
+    font-size: 16px;
+  }
 }
 .map-ph {
   aspect-ratio: 16 / 10;
