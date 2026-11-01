@@ -1,5 +1,6 @@
 /**
- * Jednolite opisy pierścionków na staging (zlecenie U): lead, opis i parametry z `seed/opisy/opisy-u.json`.
+ * Jednolite opisy pierścionków na staging (zlecenie U): lead, opis i parametry z `seed/opisy/opisy-u.json`
+ * (w dwóch kartach także `stone` – Thalassa i Rhea, po przeglądzie Klaudii).
  *
  *   npm run staging:opisy              sprawdzenie: nic nie zapisuje, pokazuje plan (ile kart, które pola)
  *   npm run staging:opisy -- --apply   zapis zmienionych pól; karta opublikowana zostaje opublikowana, szkic – szkicem
@@ -55,6 +56,7 @@ try {
       metal: doc.metal,
       name: doc.name,
       status: doc._status,
+      stone: doc.stone,
       updatedAt: doc.updatedAt,
     }
     const plan = planCard(state, spec, EXPORT_CUTOFF)

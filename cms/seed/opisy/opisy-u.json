@@ -60,6 +60,7 @@
     "name": "Thalassa",
     "lead": "Niebieskie diamenty i brylanty w żółtym złocie – lekki pierścionek w chłodnym błękicie.",
     "description": "Siedem brylantów o łącznej masie 0,15 ct i sześć niebieskich diamentów o łącznej masie 0,12 ct, oprawionych w żółtym złocie. Pierścionek jest lekki – waży około 1,94 g.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni. Diament to najtwardszy kamień szlachetny – ma twardość 10 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze.",
+    "stone": "Diament niebieski, Diament",
     "carats": "brylanty 0,15 ct + diamenty niebieskie 0,12 ct"
   },
   {
@@ -196,7 +197,8 @@
     "id": 37,
     "name": "Leucothea",
     "lead": "Diament w szlifie szmaragdowym w klasycznej oprawie z dwunastoma mniejszymi diamentami – czysta geometria.",
-    "description": "Diament w szlifie szmaragdowym o masie 0,41 ct, czystości VS2 i barwie F, przebadany w laboratorium GIA. W klasycznej oprawie otacza go dwanaście mniejszych diamentów.\n\nPierścionek wykonaliśmy ręcznie od podstaw w naszej pracowni, dla klientki, która wymarzyła sobie kamień właśnie w tym kształcie i szlifie.\n\nPodobny pierścionek wykonamy z kamieniem dobranym do Twojego projektu."
+    "description": "Diament w szlifie szmaragdowym o masie 0,41 ct, czystości VS2 i barwie F, przebadany w laboratorium GIA. W klasycznej oprawie otacza go dwanaście mniejszych diamentów.\n\nPierścionek wykonaliśmy ręcznie od podstaw w naszej pracowni, dla klientki, która wymarzyła sobie kamień właśnie w tym kształcie i szlifie.\n\nPodobny pierścionek wykonamy z kamieniem dobranym do Twojego projektu.",
+    "metal": "Żółte"
   },
   {
     "id": 38,
@@ -217,43 +219,51 @@
     "id": 40,
     "name": "Erythea",
     "lead": "Malinowy turmalin w oprawie halo z diamentów – kobiecy, zmysłowy i wyrazisty.",
-    "description": "Turmalin w intensywnym, malinowym kolorze w oprawie halo z diamentów. Jasny pierścień drobnych kamieni wokół podkreśla nasycenie barwy.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Turmalin ma twardość 7–7,5 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+    "description": "Turmalin w intensywnym, malinowym kolorze w oprawie halo z diamentów. Jasny pierścień drobnych kamieni wokół podkreśla nasycenie barwy.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Turmalin ma twardość 7–7,5 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "metal": "Żółte"
   },
   {
     "id": 41,
     "name": "Rhodope",
     "lead": "Turmalin w delikatnym różu, otoczony diamentami w oprawie halo – subtelny i jasny.",
-    "description": "Różowy turmalin w delikatnym odcieniu, otoczony diamentami w oprawie halo. Delikatny róż kamienia i jasny blask diamentów tworzą subtelną, świetlistą całość.\n\nKamienie oprawiamy ręcznie w naszej pracowni.\n\nFason wykonamy na zamówienie w wybranym rozmiarze i z naturalnym kamieniem w dowolnym kolorze."
+    "description": "Różowy turmalin w delikatnym odcieniu, otoczony diamentami w oprawie halo. Delikatny róż kamienia i jasny blask diamentów tworzą subtelną, świetlistą całość.\n\nKamienie oprawiamy ręcznie w naszej pracowni.\n\nFason wykonamy na zamówienie w wybranym rozmiarze i z naturalnym kamieniem w dowolnym kolorze.",
+    "metal": "Żółte"
   },
   {
     "id": 42,
     "name": "Ianthe",
     "lead": "Owalny ametyst z diamentami – szlachetny fiolet i ponadczasowa klasa z nutą tajemnicy.",
-    "description": "Owalny ametyst z diamentami, które dodatkowo podkreślają jego kolor. W kamieniu widać naturalne inkluzje – dzięki nim każdy egzemplarz jest niepowtarzalny.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Model powstał w dwóch wersjach – z ametystem owalnym i w szlifie oktagon.\n\nModel wykonamy w wybranym rozmiarze i z kamieniem centralnym w dowolnym kolorze."
+    "description": "Owalny ametyst z diamentami, które dodatkowo podkreślają jego kolor. W kamieniu widać naturalne inkluzje – dzięki nim każdy egzemplarz jest niepowtarzalny.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Model powstał w dwóch wersjach – z ametystem owalnym i w szlifie oktagon.\n\nModel wykonamy w wybranym rozmiarze i z kamieniem centralnym w dowolnym kolorze.",
+    "metal": "Żółte"
   },
   {
     "id": 43,
     "name": "Iole",
     "lead": "Ametyst w szlifie oktagon w delikatnej oprawie z diamentów – głęboki kolor i luksusowy blask.",
-    "description": "Ametyst w szlifie oktagon, który wydobywa głębię jego koloru, w delikatnej oprawie z diamentów. Model powstał w dwóch wersjach – z ametystem w szlifie oktagon i owalnym.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Ametyst to fioletowa odmiana kwarcu o twardości 7 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze i z kamieniem centralnym w dowolnym kolorze."
+    "description": "Ametyst w szlifie oktagon, który wydobywa głębię jego koloru, w delikatnej oprawie z diamentów. Model powstał w dwóch wersjach – z ametystem w szlifie oktagon i owalnym.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Ametyst to fioletowa odmiana kwarcu o twardości 7 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze i z kamieniem centralnym w dowolnym kolorze.",
+    "metal": "Żółte"
   },
   {
     "id": 44,
     "name": "Rhea",
     "lead": "Owalny agat w intensywnej zieleni o jedwabistym połysku, rozświetlony delikatnymi diamentami.",
-    "description": "Owalny agat w intensywnej zieleni o jedwabistym połysku – spokojny, soczysty kolor natury. Towarzyszą mu delikatne diamenty, które podkreślają blask kamienia.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Agat to odmiana chalcedonu o twardości 6,5–7 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+    "description": "Owalny agat w intensywnej zieleni o jedwabistym połysku – spokojny, soczysty kolor natury. Towarzyszą mu delikatne diamenty, które podkreślają blask kamienia.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Agat to odmiana chalcedonu o twardości 6,5–7 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "metal": "Żółte",
+    "stone": "Agat zielony, Diament"
   },
   {
     "id": 45,
     "name": "Eos",
     "lead": "Morganit o brzoskwiniowo-złotej barwie na szynie pavé z diamentami – ciepły, miękki blask.",
-    "description": "Morganit w brzoskwiniowo-złotym odcieniu, osadzony na szynie pavé wysadzanej diamentami. Ciepła barwa morganitu łagodnie kontrastuje z jasnym blaskiem drobnych kamieni.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Morganit, podobnie jak szmaragd, należy do rodziny berylu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+    "description": "Morganit w brzoskwiniowo-złotym odcieniu, osadzony na szynie pavé wysadzanej diamentami. Ciepła barwa morganitu łagodnie kontrastuje z jasnym blaskiem drobnych kamieni.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Morganit, podobnie jak szmaragd, należy do rodziny berylu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "metal": "Żółte"
   },
   {
     "id": 46,
     "name": "Aion",
-    "lead": "Pierścionek eternity w czterech odsłonach – kolorowe kamienie albo same brylanty w nieprzerwanym rzędzie.",
-    "description": "Złoty pierścionek typu eternity, w którym kamienie tworzą nieprzerwany rząd. Fason wykonujemy w czterech wariantach: szmaragdy z białymi brylantami, różowe turmaliny z białymi brylantami, niebieskie i białe brylanty albo same białe brylanty.\n\nKamienie oprawiamy ręcznie w naszej pracowni.\n\nKażdy wariant wykonamy na zamówienie w wybranym rozmiarze."
+    "lead": "Obrączka eternity z różowymi szafirami i diamentami w różowym złocie – nieprzerwany, ciepły blask.",
+    "description": "Obrączka typu eternity, w której różowe szafiry i diamenty tworzą nieprzerwany rząd. Wykonana z różowego złota 14k, czyli próby 585.\n\nObrączkę wykonaliśmy ręcznie od podstaw, na zamówienie złożone online – bez przymiarek w pracowni. Szafir to odmiana korundu o twardości 9 w skali Mohsa.\n\nTen fason wykonamy w wybranym rozmiarze, także z kamieniami w innym kolorze.",
+    "metal": "Różowe"
   },
   {
     "id": 47,

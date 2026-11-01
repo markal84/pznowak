@@ -9,7 +9,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Merope (#3, /pierscionki/merope)
 
-**Kamień (pole `stone`, bez zmian):** Turmalin różowy i diamenty
+**Kamień (pole `stone`):** Turmalin różowy i diamenty *(bez zmian)*
 
 **Lead:** Różowy turmalin w towarzystwie diamentów i ciepło żółtego złota – kobieco i świeżo.
 
@@ -23,7 +23,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Electra (#4, /pierscionki/electra)
 
-**Kamień (pole `stone`, bez zmian):** Mystic topaz i diamenty
+**Kamień (pole `stone`):** Mystic topaz i diamenty *(bez zmian)*
 
 **Lead:** Tęczowe refleksy mystic topazu i iskry diamentów w żółtym złocie – kolor w ruchu.
 
@@ -37,7 +37,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Prometheus (#5, /pierscionki/prometheus)
 
-**Kamień (pole `stone`, bez zmian):** Szmaragd i szafiry kolorowe
+**Kamień (pole `stone`):** Szmaragd i szafiry kolorowe *(bez zmian)*
 
 **Lead:** Szmaragd i trzy naturalne szafiry w różu, fiolecie i czerwieni – paleta barw w złocie.
 
@@ -51,7 +51,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Leto (#7, /pierscionki/leto)
 
-**Kamień (pole `stone`, bez zmian):** Kamień różowy
+**Kamień (pole `stone`):** Kamień różowy *(bez zmian)*
 
 **Lead:** Różowy kamień w oprawie z żółtego i białego złota – ciepło i chłód w równowadze.
 
@@ -65,7 +65,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Celaeno (#8, /pierscionki/celaeno)
 
-**Kamień (pole `stone`, bez zmian):** Diamenty
+**Kamień (pole `stone`):** Diamenty *(bez zmian)*
 
 **Lead:** Ażurowy liść z żółtego złota, gęsto wysadzany drobnymi diamentami – bogaty, świetlisty ornament.
 
@@ -79,7 +79,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Maia (#10, /pierscionki/maia)
 
-**Kamień (pole `stone`, bez zmian):** Tanzanit i diamenty
+**Kamień (pole `stone`):** Tanzanit i diamenty *(bez zmian)*
 
 **Lead:** Fioletowo-niebieski tanzanit z diamentami w ciepłym żółtym złocie – głęboki, nasycony kolor.
 
@@ -93,7 +93,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Terpsichore (#13, /pierscionki/terpsichore)
 
-**Kamień (pole `stone`, bez zmian):** Diamenty i czarne diamenty
+**Kamień (pole `stone`):** Diamenty i czarne diamenty *(bez zmian)*
 
 **Lead:** Wąż z żółtego i białego złota, wysadzany diamentami jasnymi i czarnymi – wyrazisty motyw.
 
@@ -107,7 +107,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Daphne (#14, /pierscionki/daphne)
 
-**Kamień (pole `stone`, bez zmian):** Turmalin oliwkowy
+**Kamień (pole `stone`):** Turmalin oliwkowy *(bez zmian)*
 
 **Lead:** Oliwkowy turmalin w szlifie oktagon i roślinny detal – poetycka kompozycja.
 
@@ -124,7 +124,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Pyrrha (#15, /pierscionki/pyrrha)
 
-**Kamień (pole `stone`, bez zmian):** Rubin, Diament
+**Kamień (pole `stone`):** Rubin, Diament *(bez zmian)*
 
 **Lead:** Rubin w towarzystwie brylantów – klasyka, która płonie głęboką czerwienią.
 
@@ -141,7 +141,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Thalassa (#16, /pierscionki/thalassa)
 
-**Kamień (pole `stone`, bez zmian):** Rubin, Diament
+**Kamień (pole `stone`):** Diament niebieski, Diament *(poprawione po przeglądzie Klaudii)*
 
 **Lead:** Niebieskie diamenty i brylanty w żółtym złocie – lekki pierścionek w chłodnym błękicie.
 
@@ -153,12 +153,12 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 >
 > Model wykonamy w wybranym rozmiarze.
 
-**Parametry:** carats: „” → „brylanty 0,15 ct + diamenty niebieskie 0,12 ct”
+**Parametry:** stone: „Rubin, Diament” → „Diament niebieski, Diament”; carats: „” → „brylanty 0,15 ct + diamenty niebieskie 0,12 ct”
 
 
 ## Urania (#17, /pierscionki/urania)
 
-**Kamień (pole `stone`, bez zmian):** Topaz błękitny, Diament
+**Kamień (pole `stone`):** Topaz błękitny, Diament *(bez zmian)*
 
 **Lead:** Błękit nieba i iskrzące akcenty – topaz z diamentami.
 
@@ -172,7 +172,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Nyx (#18, /pierscionki/nyx)
 
-**Kamień (pole `stone`, bez zmian):** Topaz London Blue, Diament
+**Kamień (pole `stone`):** Topaz London Blue, Diament *(bez zmian)*
 
 **Lead:** Głęboki London Blue – nocny odcień topazu w towarzystwie diamentów.
 
@@ -186,7 +186,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Eirene (#19, /pierscionki/eirene)
 
-**Kamień (pole `stone`, bez zmian):** Turmalin różowy, Diament
+**Kamień (pole `stone`):** Turmalin różowy, Diament *(bez zmian)*
 
 **Lead:** Malinowy turmalin i dwa diamenty – subtelna równowaga i spokój.
 
@@ -200,7 +200,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Harmonia (#20, /pierscionki/harmonia)
 
-**Kamień (pole `stone`, bez zmian):** Morganit, Diament
+**Kamień (pole `stone`):** Morganit, Diament *(bez zmian)*
 
 **Lead:** Morganit w układzie trilogy – miękki róż i blask diamentów w żółtym złocie.
 
@@ -214,7 +214,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Cyane (#21, /pierscionki/cyane)
 
-**Kamień (pole `stone`, bez zmian):** Diament niebieski, Diament
+**Kamień (pole `stone`):** Diament niebieski, Diament *(bez zmian)*
 
 **Lead:** Niebieski diament w halo – głębia barwy otoczona świetlistą aureolą.
 
@@ -231,7 +231,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Hestia (#22, /pierscionki/hestia)
 
-**Kamień (pole `stone`, bez zmian):** Diament
+**Kamień (pole `stone`):** Diament *(bez zmian)*
 
 **Lead:** Klasyka, która broni się sama – sześć łap trzyma diament w czystym, eleganckim kształcie.
 
@@ -245,7 +245,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Dione (#23, /pierscionki/dione)
 
-**Kamień (pole `stone`, bez zmian):** Diament
+**Kamień (pole `stone`):** Diament *(bez zmian)*
 
 **Lead:** Ponadczasowy solitaire w dwukolorowej koronie na sześciu łapkach. *(bez zmian)*
 
@@ -262,7 +262,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Athena (#24, /pierscionki/athena)
 
-**Kamień (pole `stone`, bez zmian):** Szmaragd, Diament
+**Kamień (pole `stone`):** Szmaragd, Diament *(bez zmian)*
 
 **Lead:** Art déco w zielonej odsłonie – geometryczna elegancja i bogactwo szmaragdu.
 
@@ -279,7 +279,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Chryse (#25, /pierscionki/chryse)
 
-**Kamień (pole `stone`, bez zmian):** Cytryn, Diament
+**Kamień (pole `stone`):** Cytryn, Diament *(bez zmian)*
 
 **Lead:** Słoneczny cytryn i świetlista oprawa – ciepło w szlachetnej formie.
 
@@ -296,7 +296,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Phoebe (#26, /pierscionki/phoebe)
 
-**Kamień (pole `stone`, bez zmian):** Tanzanit, Diament
+**Kamień (pole `stone`):** Tanzanit, Diament *(bez zmian)*
 
 **Lead:** Wiktoriański charakter i fioletowo-niebieski ogień tanzanitu, otulony koroną diamentów. *(bez zmian)*
 
@@ -313,7 +313,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Aria (#27, /pierscionki/aria)
 
-**Kamień (pole `stone`, bez zmian):** Ametyst, Diament
+**Kamień (pole `stone`):** Ametyst, Diament *(bez zmian)*
 
 **Lead:** Delikatny fiolet ametystu i migot diamentów – lekki jak oddech, wyrazisty jak emocje.
 
@@ -330,7 +330,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Helios (#28, /pierscionki/helios)
 
-**Kamień (pole `stone`, bez zmian):** Topaz i Diament
+**Kamień (pole `stone`):** Topaz i Diament *(bez zmian)*
 
 **Lead:** Topaz w otoczeniu dwudziestu czterech diamentów, w żółtym i białym złocie – pełen światła.
 
@@ -347,7 +347,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Pelagia (#29, /pierscionki/pelagia)
 
-**Kamień (pole `stone`, bez zmian):** Szafir i Diament
+**Kamień (pole `stone`):** Szafir i Diament *(bez zmian)*
 
 **Lead:** Szafir w towarzystwie dwunastu diamentów, w żółtym i białym złocie – szlachetna prostota.
 
@@ -364,7 +364,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Iris (#30, /pierscionki/iris)
 
-**Kamień (pole `stone`, bez zmian):** Tanzanit i Diament
+**Kamień (pole `stone`):** Tanzanit i Diament *(bez zmian)*
 
 **Lead:** Tanzanit w otoczeniu diamentów, w żółtym i białym złocie – fiolet przechodzący w błękit.
 
@@ -381,7 +381,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Ione (#31, /pierscionki/ione)
 
-**Kamień (pole `stone`, bez zmian):** Tanzanit i Diament
+**Kamień (pole `stone`):** Tanzanit i Diament *(bez zmian)*
 
 **Lead:** Naturalny tanzanit w fioletowo-niebieskiej barwie, w geometrycznej oprawie art déco z diamentami.
 
@@ -398,7 +398,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Gaia (#32, /pierscionki/gaia)
 
-**Kamień (pole `stone`, bez zmian):** Szmaragd i Diamenty
+**Kamień (pole `stone`):** Szmaragd i Diamenty *(bez zmian)*
 
 **Lead:** Niebieskawozielony szmaragd w sercu oprawy art déco, otoczony blaskiem diamentów.
 
@@ -415,7 +415,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Adamas (#33, /pierscionki/adamas)
 
-**Kamień (pole `stone`, bez zmian):** Diamenty
+**Kamień (pole `stone`):** Diamenty *(bez zmian)*
 
 **Lead:** Trzynaście diamentów w geometrycznej oprawie art déco – czysty blask w dwóch kolorach złota.
 
@@ -432,7 +432,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Asteria (#34, /pierscionki/asteria)
 
-**Kamień (pole `stone`, bez zmian):** Szafir i Diamenty
+**Kamień (pole `stone`):** Szafir i Diamenty *(bez zmian)*
 
 **Lead:** Naturalny szafir w bogatej oprawie z dwudziestu jeden diamentów, w żółtym i białym złocie.
 
@@ -449,7 +449,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Delos (#35, /pierscionki/delos)
 
-**Kamień (pole `stone`, bez zmian):** Szafir i Diamenty
+**Kamień (pole `stone`):** Szafir i Diamenty *(bez zmian)*
 
 **Lead:** Naturalny szafir w ponadczasowej oprawie art déco, otoczony dwunastoma diamentami.
 
@@ -466,7 +466,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Leucothea (#37, /pierscionki/leucothea)
 
-**Kamień (pole `stone`, bez zmian):** Diament
+**Kamień (pole `stone`):** Diament *(bez zmian)*
 
 **Lead:** Diament w szlifie szmaragdowym w klasycznej oprawie z dwunastoma mniejszymi diamentami – czysta geometria.
 
@@ -478,9 +478,12 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 >
 > Podobny pierścionek wykonamy z kamieniem dobranym do Twojego projektu.
 
+**Parametry:** metal: „” → „Żółte”
+
+
 ## Amphitrite (#38, /pierscionki/amphitrite)
 
-**Kamień (pole `stone`, bez zmian):** Diament niebieski
+**Kamień (pole `stone`):** Diament niebieski *(bez zmian)*
 
 **Lead:** Niebieski diament w oprawie art déco z białego złota, otoczony dwunastoma brylantami.
 
@@ -497,7 +500,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Chloris (#39, /pierscionki/chloris)
 
-**Kamień (pole `stone`, bez zmian):** Oliwin, Diament
+**Kamień (pole `stone`):** Oliwin, Diament *(bez zmian)*
 
 **Lead:** Zielony oliwin w szlifie emerald, flankowany brylantami – spokojny połysk w żółtym złocie.
 
@@ -514,7 +517,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Erythea (#40, /pierscionki/erythea)
 
-**Kamień (pole `stone`, bez zmian):** Turmalin różowy, Diament
+**Kamień (pole `stone`):** Turmalin różowy, Diament *(bez zmian)*
 
 **Lead:** Malinowy turmalin w oprawie halo z diamentów – kobiecy, zmysłowy i wyrazisty.
 
@@ -526,9 +529,12 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 >
 > Model wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.
 
+**Parametry:** metal: „” → „Żółte”
+
+
 ## Rhodope (#41, /pierscionki/rhodope)
 
-**Kamień (pole `stone`, bez zmian):** Turmalin różowy, Diament
+**Kamień (pole `stone`):** Turmalin różowy, Diament *(bez zmian)*
 
 **Lead:** Turmalin w delikatnym różu, otoczony diamentami w oprawie halo – subtelny i jasny.
 
@@ -540,9 +546,12 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 >
 > Fason wykonamy na zamówienie w wybranym rozmiarze i z naturalnym kamieniem w dowolnym kolorze.
 
+**Parametry:** metal: „” → „Żółte”
+
+
 ## Ianthe (#42, /pierscionki/ianthe)
 
-**Kamień (pole `stone`, bez zmian):** Ametyst, Diament
+**Kamień (pole `stone`):** Ametyst, Diament *(bez zmian)*
 
 **Lead:** Owalny ametyst z diamentami – szlachetny fiolet i ponadczasowa klasa z nutą tajemnicy.
 
@@ -554,9 +563,12 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 >
 > Model wykonamy w wybranym rozmiarze i z kamieniem centralnym w dowolnym kolorze.
 
+**Parametry:** metal: „” → „Żółte”
+
+
 ## Iole (#43, /pierscionki/iole)
 
-**Kamień (pole `stone`, bez zmian):** Ametyst, Diament
+**Kamień (pole `stone`):** Ametyst, Diament *(bez zmian)*
 
 **Lead:** Ametyst w szlifie oktagon w delikatnej oprawie z diamentów – głęboki kolor i luksusowy blask.
 
@@ -568,9 +580,12 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 >
 > Model wykonamy w wybranym rozmiarze i z kamieniem centralnym w dowolnym kolorze.
 
+**Parametry:** metal: „” → „Żółte”
+
+
 ## Rhea (#44, /pierscionki/rhea)
 
-**Kamień (pole `stone`, bez zmian):** Agat, Diament
+**Kamień (pole `stone`):** Agat zielony, Diament *(poprawione po przeglądzie Klaudii)*
 
 **Lead:** Owalny agat w intensywnej zieleni o jedwabistym połysku, rozświetlony delikatnymi diamentami.
 
@@ -582,9 +597,12 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 >
 > Model wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.
 
+**Parametry:** metal: „” → „Żółte”; stone: „Agat, Diament” → „Agat zielony, Diament”
+
+
 ## Eos (#45, /pierscionki/eos)
 
-**Kamień (pole `stone`, bez zmian):** Morganit, Diament
+**Kamień (pole `stone`):** Morganit, Diament *(bez zmian)*
 
 **Lead:** Morganit o brzoskwiniowo-złotej barwie na szynie pavé z diamentami – ciepły, miękki blask.
 
@@ -596,23 +614,29 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 >
 > Model wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.
 
+**Parametry:** metal: „” → „Żółte”
+
+
 ## Aion (#46, /pierscionki/aion)
 
-**Kamień (pole `stone`, bez zmian):** Szafir różowy, Diament
+**Kamień (pole `stone`):** Szafir różowy, Diament *(bez zmian)*
 
-**Lead:** Pierścionek eternity w czterech odsłonach – kolorowe kamienie albo same brylanty w nieprzerwanym rzędzie.
+**Lead:** Obrączka eternity z różowymi szafirami i diamentami w różowym złocie – nieprzerwany, ciepły blask.
 
 **Opis:**
 
-> Złoty pierścionek typu eternity, w którym kamienie tworzą nieprzerwany rząd. Fason wykonujemy w czterech wariantach: szmaragdy z białymi brylantami, różowe turmaliny z białymi brylantami, niebieskie i białe brylanty albo same białe brylanty.
+> Obrączka typu eternity, w której różowe szafiry i diamenty tworzą nieprzerwany rząd. Wykonana z różowego złota 14k, czyli próby 585.
 >
-> Kamienie oprawiamy ręcznie w naszej pracowni.
+> Obrączkę wykonaliśmy ręcznie od podstaw, na zamówienie złożone online – bez przymiarek w pracowni. Szafir to odmiana korundu o twardości 9 w skali Mohsa.
 >
-> Każdy wariant wykonamy na zamówienie w wybranym rozmiarze.
+> Ten fason wykonamy w wybranym rozmiarze, także z kamieniami w innym kolorze.
+
+**Parametry:** metal: „” → „Różowe”
+
 
 ## Calypso (#47, /pierscionki/calypso)
 
-**Kamień (pole `stone`, bez zmian):** Diament niebieski
+**Kamień (pole `stone`):** Diament niebieski *(bez zmian)*
 
 **Lead:** Niebieski diament w towarzystwie białych, oprawiony w białe złoto – chłodny, głęboki blask.
 
@@ -631,27 +655,9 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Do potwierdzenia przez Michała
 
-Sprzeczności i braki w danych. W opisach jest tylko to, co pewne; pole `stone` celowo bez zmian.
+Lista skrócona po przeglądzie Klaudii (01.11). Pozostałe pytania rozstrzygnęła na podstawie zdjęć kart na stagingu.
 
-**Kamień (pole `stone`) – wątpliwe wartości**
-1. **Thalassa (#16)** – `stone` = „Rubin, Diament”, a opis z eksportu mówi o 7 brylantach (0,15 ct) i 6 niebieskich diamentach (0,12 ct). Rubin jest w tym pierścionku czy to pomyłka przy imporcie? Do tego próba „586” – chodzi o 585? (W nowym opisie nie ma ani rubinu, ani próby.)
-2. **Aion (#46)** – `stone` = „Szafir różowy, Diament” pochodzi pewnie z dopisanego akapitu o *obrączce* eternity z różowymi szafirami w różowym złocie (inna rzecz, usunięta z opisu). Pierścionek ma cztery warianty: szmaragdy, różowe turmaliny, niebieskie diamenty, same białe brylanty. Co wpisać jako kamień? Dziś filtr pokazuje go w „Niebieskich”.
-3. **Leto (#7)** – `stone` = „Kamień różowy”. Jaki to kamień (turmalin, morganit, szafir…)? Masa?
-4. **Rhea (#44)** – `stone` = „Agat, Diament”: filtr kolorów nie zna agatu, więc zielony agat trafia do „Bezbarwnych”. Wystarczy „Agat zielony, Diament”.
-5. **Helios (#28)** – „Topaz i Diament”: jaki kolor topazu? Filtr zakłada niebieski.
-6. **Pelagia (#29)**, **Asteria (#34)**, **Delos (#35)** – szafir bez koloru; filtr zakłada niebieski. Zgadza się?
-
-**Kolor złota (pole `metal`) – puste, opis nie mówi, jakie złoto**
-7. Leucothea (#37), Erythea (#40), Rhodope (#41), Ianthe (#42), Iole (#43), Rhea (#44), Eos (#45), Aion (#46). Bez koloru złota karta nie ma wiersza „Złoto” i nie łapie się w filtr.
-
-**Parametry do sprawdzenia**
-8. **Adamas (#33)** – „czystość SI, barwa H” stoi w poście przy diamentach bocznych; dotyczy też centralnego 0,13 ct? Dziś w polu: „diamenty boczne SI, barwa H”.
-9. **Athena (#24)** – w poście „ta 2,5 cm piękność”: co ma 2,5 cm (długość głowy pierścionka)? Pominięte w opisie.
-10. **Pyrrha (#15)** – rubin „0,5 ct” – dokładnie 0,50 ct?
-11. **Próba 585** – podana tylko w części kart. Czy wszystkie pierścionki z kolekcji są w próbie 585? Jeśli tak, można ją dopisać wszędzie.
-12. **Masy kamieni** brakuje w: Merope, Electra, Prometheus, Leto, Celaeno, Maia, Terpsichore, Urania, Nyx, Eirene, Harmonia, Hestia, Erythea, Rhodope, Ianthe, Iole, Rhea, Eos, Aion, Calypso. Gdy Michał je poda, wejdą do pola „Masa / karaty” i jednego zdania opisu.
-13. **Leucothea (#37)** – nazwa w danych „brylant w szlifie szmaragdowym”; w opisie jest „diament w szlifie szmaragdowym” (brylant to szlif okrągły). Badanie GIA wynika z posta – czy klient dostaje certyfikat GIA?
-14. **Leucothea (#37)** i **Calypso (#47)** to pierścionki wykonane dla konkretnych klientów. Opisy mówią „podobny pierścionek / projekt wykonamy” – czy obie karty mają zostać w kolekcji?
-
-**Do sprawdzenia na zdjęciach (bez danych, nie zgadywane)**
-15. Prometheus – układ kamieni; Maia, Merope, Electra – czy oprawa to halo; Eirene – czy diamenty są po bokach kamienia.
+1. **Leto (#7)** – `stone` = „Kamień różowy”. Jaki to kamień (turmalin, morganit, szafir…)?
+2. **Próba 585** – czy wszystkie pierścionki z kolekcji są w próbie 585? Dziś podajemy ją tylko tam, gdzie była w poście. Jeśli tak, można ją dopisać wszędzie.
+3. **Thalassa (#16)** – w poście była próba „586”. Chodzi o 585? Dziś opis nie podaje próby.
+4. **Masy kamieni** (kiedyś, nie blokuje) – brakuje ich w: Merope, Electra, Prometheus, Leto, Celaeno, Maia, Terpsichore, Urania, Nyx, Eirene, Harmonia, Hestia, Erythea, Rhodope, Ianthe, Iole, Rhea, Eos, Calypso. Gdy będą, trafią do pola „Masa / karaty” i jednego zdania opisu.

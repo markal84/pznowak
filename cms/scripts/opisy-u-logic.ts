@@ -7,8 +7,11 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-/** Pola karty, które zlecenie U może zmienić. `stone` celowo poza listą (wątpliwe wartości są w raporcie). */
-export const TEXT_FIELDS = ['lead', 'description', 'metal', 'carats', 'clarity'] as const
+/**
+ * Pola karty, które zlecenie U może zmienić. `stone` tylko tam, gdzie rozstrzygnęła to Klaudia po zdjęciach
+ * (przegląd PR #38: Thalassa i Rhea); pilnuje tego test.
+ */
+export const TEXT_FIELDS = ['lead', 'description', 'metal', 'stone', 'carats', 'clarity'] as const
 export type TextField = (typeof TEXT_FIELDS)[number]
 
 /** Jeden wpis z `opisy-u.json`: `id` i `name` do dopasowania, reszta to tylko pola zmienione względem eksportu. */

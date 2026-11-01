@@ -71,14 +71,25 @@ describe('opisy-u.json – dane', () => {
 
   it('metal tylko z listy kolorów złota, masy i czystość w polskim zapisie', () => {
     for (const spec of specs) {
-      if (spec.metal !== undefined) expect(['Żółte', 'Białe', 'Żółte z białym']).toContain(spec.metal)
+      // „Różowe” tylko Aion (obrączka z różowego złota 14k, przegląd Klaudii).
+      if (spec.metal !== undefined) expect(['Żółte', 'Białe', 'Żółte z białym', 'Różowe']).toContain(spec.metal)
+      if (spec.metal === 'Różowe') expect(spec.name).toBe('Aion')
       if (spec.carats !== undefined) expect(spec.carats, spec.name).toMatch(/^[^.]*\d,\d+ ct/u)
       if (spec.clarity !== undefined) expect(spec.clarity, spec.name).toMatch(/barwa [D-Z]$/u)
     }
   })
 
-  it('nie rusza pola „stone”', () => {
-    for (const spec of specs) expect(spec).not.toHaveProperty('stone')
+  it('pole „stone” zmienia tylko w Thalassie i Rhei (decyzja Klaudii po zdjęciach)', () => {
+    const changed = Object.fromEntries(specs.filter((s) => s.stone !== undefined).map((s) => [s.name, s.stone]))
+    expect(changed).toEqual({ Thalassa: 'Diament niebieski, Diament', Rhea: 'Agat zielony, Diament' })
+  })
+
+  it('kolor złota ze zdjęć: karty bez metalu w eksporcie dostają kolor', () => {
+    const byName = new Map(specs.map((s) => [s.name, s]))
+    for (const name of ['Leucothea', 'Erythea', 'Rhodope', 'Ianthe', 'Iole', 'Rhea', 'Eos']) {
+      expect(byName.get(name)?.metal, name).toBe('Żółte')
+    }
+    expect(byName.get('Aion')?.metal).toBe('Różowe')
   })
 })
 
@@ -94,12 +105,21 @@ describe('opisy-u.json – linter treści', () => {
     expect(issues.map((i) => `#${i.id} ${i.name}: ${i.problem}`)).toEqual([])
   })
 
-  it('Aion: eternity w czterech wariantach, bez akapitu o obrączce z różowymi szafirami', () => {
+  it('Aion: obrączka eternity z różowymi szafirami (jedyne zdjęcie karty), bez czterech wariantów pierścionka', () => {
     const aion = specs.find((s) => s.name === 'Aion') as OpisSpec
     expect(aion.lead).toMatch(/eternity/u)
-    expect(aion.description).toMatch(/czterech wariantach/u)
-    for (const word of ['szmaragd', 'różowe turmaliny', 'niebieskie', 'białe brylanty']) expect(aion.description).toContain(word)
-    expect(aion.description).not.toMatch(/obrączk|szafir|różowym złocie/iu)
+    for (const text of ['Obrączka', 'różowe szafiry', 'różowego złota 14k', 'od podstaw', 'online', 'bez przymiarek']) {
+      expect(aion.description).toContain(text)
+    }
+    expect(aion.description).not.toMatch(/czterech|turmalin|szmaragd|zaufani/iu)
+    expect(aion).not.toHaveProperty('stone')
+  })
+
+  it('Leucothea: GIA tylko przy tym egzemplarzu, bez obietnicy certyfikatu dla nowego zamówienia', () => {
+    const leucothea = specs.find((s) => s.name === 'Leucothea') as OpisSpec
+    const paragraphs = (leucothea.description ?? '').split(/\n\s*\n/u)
+    expect(paragraphs[0]).toMatch(/GIA/u)
+    expect(paragraphs.slice(1).join(' ')).not.toMatch(/GIA|certyfikat/iu)
   })
 
   it('Calypso: model bez historii pary i wyspy, bez dawnego pierwszego zdania', () => {
