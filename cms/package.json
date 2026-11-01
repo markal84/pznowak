@@ -23,6 +23,7 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "staging:check": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-staging.ts",
     "staging:nazwy": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-nazwy-s.ts",
+    "staging:opisy": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-opisy-u.ts",
     "staging:realizacje": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-realizacje.ts",
     "staging:seed": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-staging.ts --apply",
     "test": "pnpm run test:int && pnpm run test:e2e",
