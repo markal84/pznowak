@@ -47,15 +47,31 @@ export default function StudioPage() {
       <section aria-label="Film z pracowni" className="band" style={{ borderBottom: 0 }}>
         <div className="wrap" style={{ paddingTop: 96, paddingBottom: 96, display: 'flex', flexWrap: 'wrap', gap: '48px 80px', alignItems: 'center', justifyContent: 'center' }}>
           <StudioFilm style={{ flex: '1 1 340px', maxWidth: 480, minWidth: 0 }} />
-          <DoUzupelnienia as="div" style={{ flex: '1 1 400px', minWidth: 0 }}>
+          <div style={{ flex: '1 1 400px', minWidth: 0, maxWidth: 620 }}>
             <div className="stack" style={{ gap: 20 }}>
               <h2 className="h2">Od Michała</h2>
-              <p style={{ fontFamily: 'var(--serif)', fontSize: 23, lineHeight: 1.45 }}>
-                [Kilka zdań od Michała, jego słowami: co lubi w tej pracy, czego nauczył się od ojca, na co patrzy, kiedy oprawia kamień]
+              <blockquote style={{ margin: 0, fontFamily: 'var(--serif)', fontSize: 23, lineHeight: 1.45 }}>
+                Nie wszystkiego można nauczyć się z książek. Niektóre rzeczy dziedziczy się, patrząc na ręce ojca.
+              </blockquote>
+              <p className="text">
+                Dorastałem, obserwując tatę przy pracy. Patrzyłem, jak z kawałka złota tworzy coś wyjątkowego, jak cierpliwie
+                nadaje mu kształt, jak z niezwykłą precyzją oprawia kamienie. Z czasem samo patrzenie przestało wystarczać.
+                Zacząłem próbować, pytać, pomagać. Tak rodziła się moja pasja.
+              </p>
+              <p className="text">
+                Mojego dziadka nie zdążyłem poznać. Tatę mogę dziś już tylko wspominać, ale ich rzemiosło wciąż jest ze mną.
+                W każdym pierścionku, w każdym detalu, w szacunku do pracy, której nie da się wykonać na skróty.
+              </p>
+              <p className="text">
+                Dziś tworzę biżuterię po swojemu, łącząc to, czego nauczył mnie ojciec, z własnym doświadczeniem i spojrzeniem
+                na piękno.
+              </p>
+              <p className="text">
+                Bo dla mnie złotnictwo to nie tylko zawód. To sposób, by historia naszej rodziny trwała dalej.
               </p>
               <span style={{ fontSize: 15, color: 'var(--muted)' }}>Michał Nowak, złotnik</span>
             </div>
-          </DoUzupelnienia>
+          </div>
         </div>
       </section>
 
