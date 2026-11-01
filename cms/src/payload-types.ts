@@ -70,6 +70,7 @@ export interface Config {
     products: Product;
     media: Media;
     'gallery-items': GalleryItem;
+    works: Work;
     submissions: Submission;
     users: User;
     'payload-kv': PayloadKv;
@@ -82,6 +83,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'gallery-items': GalleryItemsSelect<false> | GalleryItemsSelect<true>;
+    works: WorksSelect<false> | WorksSelect<true>;
     submissions: SubmissionsSelect<false> | SubmissionsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -256,6 +258,79 @@ export interface GalleryItem {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Biżuteria zrobiona dla konkretnych osób, z krótką historią. Każda realizacja to jeden kafelek na stronie „Realizacje”.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "works".
+ */
+export interface Work {
+  id: number;
+  /**
+   * Krótko, np. „Pierścionek z morganitem”. Widać go nad opisem i pod zdjęciem na kafelku.
+   */
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * „Na zamówienie”: zrobione od podstaw dla klienta. „Przeróbka”: z biżuterii, którą klient już miał.
+   */
+  kind: 'zamowienie' | 'przerobka';
+  /**
+   * Od tego zależy napis na przycisku, np. „Chcę podobny pierścionek”.
+   */
+  jewelryType: 'pierscionek' | 'obraczka' | 'kolczyki' | 'inne';
+  /**
+   * Rok wykonania, np. 2026. Można zostawić puste.
+   */
+  year?: number | null;
+  /**
+   * Dla kogo i z jaką prośbą przyszedł klient. 1–2 zdania.
+   */
+  task?: string | null;
+  /**
+   * Kamień, oprawa, technika, na co zwróciliśmy uwagę. 1–3 zdania.
+   */
+  whatWeDid?: string | null;
+  /**
+   * Np. „5 tygodni od pierwszej rozmowy”. Można zostawić puste: wtedy wiersza nie ma na stronie.
+   */
+  duration?: string | null;
+  /**
+   * Pierwsze zdjęcie jest okładką kafelka i dużym zdjęciem w oknie. Kolejność zmienisz przeciągając.
+   */
+  photos: {
+    image: number | Media;
+    /**
+     * Co widać na zdjęciu, jednym zdaniem. Czytają to osoby niewidzące i wyszukiwarki.
+     */
+    alt: string;
+    id?: string | null;
+  }[];
+  /**
+   * Jeśli taki pierścionek jest też w katalogu, przy realizacji pojawi się link „Zobacz w katalogu”. Można zostawić puste.
+   */
+  product?: (number | null) | Product;
+  /**
+   * Zaznaczone: na podglądach (nie na stronie publicznej) opisy mają żółtą ramkę, a brakujący czas wyświetla się jako „do uzupełnienia”. Odznacz po sprawdzeniu.
+   */
+  needsConfirmation?: boolean | null;
+  /**
+   * Pokazuje się w górnym oknie, zanim ktoś kliknie kafelek. Gdy zaznaczonych jest kilka albo żadna, wygrywa pierwsza wg kolejności.
+   */
+  featured?: boolean | null;
+  /**
+   * Mniejsza liczba = wcześniej na liście kafelków.
+   */
+  position?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * Zgłoszenia z kreatora i formularza kontaktowego. Każde zapisuje się jako szkic; do klienta nic nie wychodzi automatycznie. Wizualizację uruchamia pomocnik dopiero po zatwierdzeniu, w granicach dziennego limitu.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -398,6 +473,10 @@ export interface PayloadLockedDocument {
         value: number | GalleryItem;
       } | null)
     | ({
+        relationTo: 'works';
+        value: number | Work;
+      } | null)
+    | ({
         relationTo: 'submissions';
         value: number | Submission;
       } | null)
@@ -529,6 +608,36 @@ export interface GalleryItemsSelect<T extends boolean = true> {
   alt?: T;
   position?: T;
   wordpressId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "works_select".
+ */
+export interface WorksSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  kind?: T;
+  jewelryType?: T;
+  year?: T;
+  task?: T;
+  whatWeDid?: T;
+  duration?: T;
+  photos?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        id?: T;
+      };
+  product?: T;
+  needsConfirmation?: T;
+  featured?: T;
+  position?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

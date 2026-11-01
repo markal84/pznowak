@@ -20,21 +20,29 @@ function revalidateProductSlugs(...slugs: (null | string | undefined)[]) {
 }
 
 export function revalidateFrontend(
-  kind: 'product' | 'gallery' | 'site-content',
+  kind: 'product' | 'gallery' | 'work' | 'site-content',
   doc?: PublicationDocument,
   previousDoc?: null | PublicationDocument,
 ): void {
   if (kind === 'product') {
     revalidateTag('products', { expire: 0 })
+    // Realizacje linkują do pierścionków z katalogu („Zobacz w katalogu”), więc zmiana pierścionka odświeża też je.
+    revalidateTag('works', { expire: 0 })
     revalidatePath('/')
     revalidatePath('/pierscionki')
     revalidatePath('/na-zamowienie')
     revalidatePath('/naprawy')
+    revalidatePath('/realizacje')
     revalidateProductSlugs(doc?.slug, previousDoc?.slug)
     return
   }
   if (kind === 'gallery') {
     revalidateTag('gallery', { expire: 0 })
+    revalidatePath('/realizacje')
+    return
+  }
+  if (kind === 'work') {
+    revalidateTag('works', { expire: 0 })
     revalidatePath('/realizacje')
     return
   }
@@ -46,7 +54,7 @@ export function revalidateFrontend(
 }
 
 export function revalidateAfterChange(
-  kind: 'product' | 'gallery' | 'site-content',
+  kind: 'product' | 'gallery' | 'work' | 'site-content',
   doc: PublicationDocument,
   previousDoc: null | PublicationDocument | undefined,
   req: PayloadRequest,
@@ -58,7 +66,7 @@ export function revalidateAfterChange(
 }
 
 export function revalidateAfterDelete(
-  kind: 'product' | 'gallery',
+  kind: 'product' | 'gallery' | 'work',
   doc: PublicationDocument,
   req: PayloadRequest,
 ): void {

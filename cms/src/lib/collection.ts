@@ -2,6 +2,7 @@ import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 
+import { serializePublicWork, type PublicWork } from './works'
 import {
   serializePublicGalleryItem,
   serializePublicSiteContent,
@@ -51,6 +52,23 @@ export const getGallery = unstable_cache(
   },
   ['published-gallery'],
   { tags: ['gallery'], revalidate: 3600 },
+)
+
+export const getWorks = unstable_cache(
+  async (): Promise<PublicWork[]> => {
+    const payload = await getPayload({ config })
+    const result = await payload.find({
+      collection: 'works',
+      depth: 1,
+      limit: 100,
+      overrideAccess: false,
+      sort: 'position',
+      where: { _status: { equals: 'published' } },
+    })
+    return result.docs.flatMap((work) => serializePublicWork(work) ?? [])
+  },
+  ['published-works'],
+  { tags: ['works'], revalidate: 3600 },
 )
 
 export const getSiteContent = unstable_cache(

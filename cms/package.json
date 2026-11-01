@@ -22,6 +22,7 @@
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "staging:check": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-staging.ts",
+    "staging:realizacje": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-realizacje.ts",
     "staging:seed": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-staging.ts --apply",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
