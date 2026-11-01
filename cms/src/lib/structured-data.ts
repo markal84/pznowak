@@ -14,7 +14,7 @@ const DAYS: Record<string, string[]> = {
 
 const pad = (time: string) => time.padStart(5, '0')
 
-/** Godziny otwarcia zapisane w `SITE.hours` („8:00–16:00”) jako OpeningHoursSpecification; nieznane etykiety dni są pomijane. */
+/** Godziny otwarcia zapisane w `SITE.hours` („9:00–16:30”) jako OpeningHoursSpecification; nieznane etykiety dni są pomijane. */
 export function openingHoursSpecification(hours: readonly { days: string; time: string }[] = SITE.hours) {
   return hours.flatMap(({ days, time }) => {
     const dayOfWeek = DAYS[days]

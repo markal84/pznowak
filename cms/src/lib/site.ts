@@ -1,7 +1,7 @@
 export const SITE = {
   name: 'Michał Nowak',
   tagline: 'Pracownia złotnicza',
-  since: 1890,
+  since: 1920,
   phone: '+48 501 321 347',
   phoneHref: 'tel:+48501321347',
   phoneShort: '501 321 347',
@@ -16,8 +16,8 @@ export const SITE = {
   instagram: 'https://www.instagram.com/nowak_pracownia_zlotnicza/',
   facebook: 'https://www.facebook.com/profile.php?id=61568506251939',
   hours: [
-    { days: 'Pon.–pt.', time: '8:00–16:00' },
-    { days: 'Sobota', time: '10:00–16:00' },
+    { days: 'Pon.–pt.', time: '9:00–16:30' },
+    { days: 'Sobota', time: '9:00–13:00' },
   ],
 } as const
 
@@ -94,7 +94,7 @@ export const PREVIEW_NOTICE =
 
 export const FAMILY = [
   {
-    year: '1890',
+    year: '1920',
     name: 'Wiktor Nowak',
     role: 'Kowal z Szańca',
     short: 'Kowal z Szańca. Sprowadzał narzędzia z Francji i robił pierwsze projekty biżuterii.',

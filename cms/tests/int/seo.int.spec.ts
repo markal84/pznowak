@@ -142,8 +142,8 @@ describe('dane strukturalne JewelryStore', () => {
   it('godziny otwarcia zgadzają się z SITE.hours', () => {
     expect(openingHoursSpecification()).toEqual(data.openingHoursSpecification)
     expect(data.openingHoursSpecification).toHaveLength(SITE.hours.length)
-    expect(data.openingHoursSpecification[0]).toMatchObject({ opens: '08:00', closes: '16:00' })
-    expect(data.openingHoursSpecification[1]).toMatchObject({ dayOfWeek: ['Saturday'], opens: '10:00', closes: '16:00' })
+    expect(data.openingHoursSpecification[0]).toMatchObject({ opens: '09:00', closes: '16:30' })
+    expect(data.openingHoursSpecification[1]).toMatchObject({ dayOfWeek: ['Saturday'], opens: '09:00', closes: '13:00' })
   })
 
   it('zapis do <script> zamienia znak < i jest poprawnym JSON-em', () => {
