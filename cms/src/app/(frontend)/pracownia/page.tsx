@@ -7,6 +7,7 @@ import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
 import SectionIntro from '@/components/site/SectionIntro'
+import StudioFilm from '@/components/site/StudioFilm'
 
 export const metadata: Metadata = pageMetadata({
   title: 'Pracownia i historia rodziny Nowaków od 1890',
@@ -43,26 +44,20 @@ export default function StudioPage() {
         </ol>
       </section>
 
-      <DoUzupelnienia as="div">
-      <section className="band" style={{ borderBottom: 0 }}>
-        <div className="wrap" style={{ paddingTop: 96, paddingBottom: 96, display: 'flex', flexWrap: 'wrap', gap: '48px 80px', alignItems: 'center' }}>
-          <div className="video-ph" role="img" aria-label="Miejsce na krótki film z pracowni" style={{ flex: '1 1 520px', minWidth: 0 }}>
-            <svg aria-hidden="true" height="44" viewBox="0 0 44 44" width="44">
-              <circle cx="22" cy="22" fill="none" r="20.5" stroke="#EEF0EA" strokeWidth="1.4" />
-              <path d="M18 14 L30 22 L18 30 Z" fill="#EEF0EA" />
-            </svg>
-            [Film z pracowni, 60–90 s: Michał przy pracy]
-          </div>
-          <div className="stack" style={{ flex: '1 1 400px', minWidth: 0, gap: 20 }}>
-            <h2 className="h2">Od Michała</h2>
-            <p style={{ fontFamily: 'var(--serif)', fontSize: 23, lineHeight: 1.45 }}>
-              [Kilka zdań od Michała, jego słowami: co lubi w tej pracy, czego nauczył się od ojca, na co patrzy, kiedy oprawia kamień]
-            </p>
-            <span style={{ fontSize: 15, color: 'var(--muted)' }}>Michał Nowak, złotnik</span>
-          </div>
+      <section aria-label="Film z pracowni" className="band" style={{ borderBottom: 0 }}>
+        <div className="wrap" style={{ paddingTop: 96, paddingBottom: 96, display: 'flex', flexWrap: 'wrap', gap: '48px 80px', alignItems: 'center', justifyContent: 'center' }}>
+          <StudioFilm style={{ flex: '1 1 340px', maxWidth: 480, minWidth: 0 }} />
+          <DoUzupelnienia as="div" style={{ flex: '1 1 400px', minWidth: 0 }}>
+            <div className="stack" style={{ gap: 20 }}>
+              <h2 className="h2">Od Michała</h2>
+              <p style={{ fontFamily: 'var(--serif)', fontSize: 23, lineHeight: 1.45 }}>
+                [Kilka zdań od Michała, jego słowami: co lubi w tej pracy, czego nauczył się od ojca, na co patrzy, kiedy oprawia kamień]
+              </p>
+              <span style={{ fontSize: 15, color: 'var(--muted)' }}>Michał Nowak, złotnik</span>
+            </div>
+          </DoUzupelnienia>
         </div>
       </section>
-      </DoUzupelnienia>
 
       <section className="dark">
         <div className="wrap sec stack" style={{ gap: 48 }}>
