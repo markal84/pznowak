@@ -30,9 +30,19 @@ describe('frontend publication', () => {
       '/pierscionki',
       '/na-zamowienie',
       '/naprawy',
+      '/realizacje',
       '/pierscionki/new-slug',
       '/pierscionki/old-slug',
     ])
+  })
+
+  it('refreshes the products linked from realizacje and the realizacje themselves', () => {
+    revalidateFrontend('product', { slug: 'aria' })
+    expect(revalidateTag).toHaveBeenCalledWith('works', { expire: 0 })
+    vi.clearAllMocks()
+    revalidateFrontend('work')
+    expect(revalidateTag).toHaveBeenCalledWith('works', { expire: 0 })
+    expect(vi.mocked(revalidatePath).mock.calls).toEqual([['/realizacje']])
   })
 
   it('targets gallery and shared site content separately', () => {

@@ -527,6 +527,99 @@ test.describe('Naprawy: prawdziwe zdjęcia (zlecenie Q)', () => {
   })
 })
 
+test.describe('Realizacje: historie prawdziwych zleceń (zlecenie R)', () => {
+  // Dane to realizacje z `npm run staging:realizacje`; na bazie bez nich strona pokazuje tylko pusty stan.
+  async function openWorks(page: Page, path = '/realizacje') {
+    await visit(page, path)
+    const tiles = page.locator('a.work-tile')
+    test.skip((await tiles.count()) < 2, 'brak realizacji w bazie (uruchom npm run staging:realizacje -- --apply)')
+    return tiles
+  }
+  const windowTitle = (page: Page) => page.locator('.work-window h2')
+
+  test('domyślnie górne okno pokazuje wyróżnioną realizację, jej kafelek jest zaznaczony', async ({ page }) => {
+    const tiles = await openWorks(page)
+    await expect(windowTitle(page)).toBeVisible()
+    await expect(page.locator('.work-window img.work-main')).toBeVisible()
+    await expect(page.locator('a.work-tile[aria-current="true"]')).toHaveCount(1)
+    await expect(page.locator('a.work-tile[aria-current="true"] h3')).toHaveText(await windowTitle(page).innerText())
+    await expect(page.locator('.work-window').getByRole('link', { name: /^Chcę (podobn|coś)/ })).toHaveAttribute('href', '/kontakt?temat=nowy')
+    expect(await tiles.count()).toBeGreaterThan(1)
+    await noHorizontalScroll(page)
+  })
+
+  test('kliknięcie kafelka podmienia okno i adres, „wstecz” wraca do poprzedniej realizacji', async ({ page }) => {
+    const tiles = await openWorks(page)
+    const first = await windowTitle(page).innerText()
+    const other = tiles.locator('xpath=self::a[not(@aria-current)]').first()
+    const otherTitle = await other.locator('h3').innerText()
+    const href = await other.getAttribute('href')
+    await other.click()
+    await expect(windowTitle(page)).toHaveText(otherTitle)
+    await expect(page).toHaveURL(new RegExp(`${href}$`.replace('?', '\\?')))
+    await expect(page.locator('a.work-tile[aria-current="true"] h3')).toHaveText(otherTitle)
+    await page.goBack()
+    await expect(windowTitle(page)).toHaveText(first)
+    await expect(page).toHaveURL(/\/realizacje$/)
+  })
+
+  test('miniatura zmienia duże zdjęcie, a po zmianie realizacji okno wraca do okładki', async ({ page }) => {
+    const tiles = await openWorks(page)
+    const thumbs = page.locator('.work-thumb')
+    test.skip((await thumbs.count()) < 2, 'wyróżniona realizacja ma jedno zdjęcie')
+    const main = page.locator('.work-window img.work-main')
+    const before = await main.getAttribute('src')
+    await thumbs.nth(1).click()
+    await expect(thumbs.nth(1)).toHaveAttribute('aria-current', 'true')
+    await expect(main).not.toHaveAttribute('src', before!)
+    await tiles.locator('xpath=self::a[not(@aria-current)]').first().click()
+    await expect(thumbs.first()).toHaveAttribute('aria-current', 'true')
+  })
+
+  test('adres z ?r= jest renderowany po stronie serwera (bez JavaScriptu)', async ({ page, request }) => {
+    const tiles = await openWorks(page)
+    const other = tiles.locator('xpath=self::a[not(@aria-current)]').first()
+    const title = await other.locator('h3').innerText()
+    const href = (await other.getAttribute('href'))!
+    const html = await (await request.get(href)).text()
+    expect(html).toMatch(new RegExp(`<h2[^>]*>${title.replace(/[.*+?^${}()|[\]\\„”]/g, '.')}</h2>`))
+    // nieznany adres: wyróżniona realizacja, bez błędu
+    const unknown = await request.get('/realizacje?r=takiej-nie-ma')
+    expect(unknown.status()).toBe(200)
+    await visit(page, '/realizacje?r=takiej-nie-ma')
+    await expect(page.locator('a.work-tile[aria-current="true"]')).toHaveCount(1)
+  })
+
+  test('filtr „Przeróbki” zawęża kafelki, ale nie zmienia okna', async ({ page }) => {
+    const tiles = await openWorks(page)
+    const all = await tiles.count()
+    const title = await windowTitle(page).innerText()
+    await page.getByRole('button', { name: 'Przeróbki' }).click()
+    await expect(page.getByRole('button', { name: 'Przeróbki' })).toHaveAttribute('aria-pressed', 'true')
+    expect(await tiles.count()).toBeLessThan(all)
+    await expect(windowTitle(page)).toHaveText(title)
+    await page.getByRole('button', { name: 'Wszystkie' }).click()
+    await expect(tiles).toHaveCount(all)
+  })
+
+  test('na telefonie kliknięcie kafelka przewija do górnego okna', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'tylko telefon')
+    const tiles = await openWorks(page)
+    const target = tiles.locator('xpath=self::a[not(@aria-current)]').last()
+    await target.scrollIntoViewIfNeeded()
+    const title = await target.locator('h3').innerText()
+    await target.click()
+    await expect(windowTitle(page)).toHaveText(title)
+    // Przewijanie jest płynne, więc czekamy, aż okno zatrzyma się tuż pod przyklejonym nagłówkiem.
+    await expect
+      .poll(async () => {
+        const y = (await page.locator('.work-window').boundingBox())!.y
+        return y > -5 && y < 200
+      }, { timeout: 5000 })
+      .toBe(true)
+  })
+})
+
 test.describe('Obrączki bez konfiguratora (zlecenie A)', () => {
   test.skip(BAND_CONFIGURATOR_ENABLED, 'konfigurator włączony (BAND_CONFIGURATOR_ENABLED = true)')
 

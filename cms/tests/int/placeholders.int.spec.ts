@@ -50,6 +50,25 @@ vi.mock('@/lib/collection', () => ({
     { id: 2, name: 'Realizacja', image: '/media/g2.jpg' },
     { id: 3, name: 'Realizacja', image: '/media/g3.jpg' },
   ],
+  getWorks: async () => [
+    {
+      id: 1,
+      slug: 'wyspa',
+      title: 'Pierścionek zaręczynowy z niebieskim diamentem',
+      kind: 'zamowienie',
+      kindLabel: 'Na zamówienie',
+      jewelryType: 'pierscionek',
+      ctaLabel: 'Chcę podobny pierścionek',
+      year: 2026,
+      task: 'Przyszły narzeczony zaprojektował pierścionek razem z Michałem.',
+      whatWeDid: 'Pierścionek zrobiliśmy ręcznie od podstaw.',
+      duration: '',
+      featured: true,
+      needsConfirmation: true,
+      photos: [{ src: '/media/w1.jpg', alt: 'Dłonie pary z pierścionkiem', width: 1200, height: 1600 }],
+      product: null,
+    },
+  ],
 }))
 
 const { default: HomePage } = await import('@/app/(frontend)/page')
@@ -74,7 +93,7 @@ const pages = async () => ({
   '/obraczki': html(await BandsPage()),
   '/na-zamowienie': html(await OnOrderPage()),
   '/naprawy': html(await RepairsPage()),
-  '/realizacje': html(await WorksPage()),
+  '/realizacje': html(await WorksPage({ searchParams: Promise.resolve({}) })),
   '/pracownia': html(createElement(StudioPage)),
   '/kontakt': html(await ContactPage({ searchParams: Promise.resolve({}) })),
   '/kontakt?temat=nowy': html(await ContactPage({ searchParams: Promise.resolve({ temat: 'nowy' }) })),
@@ -111,6 +130,10 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/naprawy']).toContain('po wycenie')
     expect(p['/na-zamowienie']).not.toContain('Czy rozmowa o projekcie coś kosztuje?')
     // Opinii bez konfiguracji nie ma wcale, tak samo jak przedwczesnych sekcji ze zdjęciami.
+    // Teksty realizacji „do potwierdzenia” na produkcji wyglądają zwyczajnie: bez ramki i bez znacznika czasu.
+    expect(p['/realizacje']).toContain('Pierścionek zrobiliśmy ręcznie od podstaw.')
+    expect(p['/realizacje']).not.toContain('data-todo')
+    expect(p['/realizacje']).not.toContain('[czas do uzupełnienia]')
     expect(p['/']).not.toContain('Opinie z Google')
     expect(p['/realizacje']).not.toContain('Opinie klientów')
     // Obrączki z pracowni: prawdziwe zdjęcia zostają, placeholder graweru znika.
@@ -141,6 +164,7 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/pierscionki/phoebe']).toContain('od [X] zł w tej wersji')
     expect(p['/obraczki']).toContain('od [X] zł za parę')
     expect(p['/naprawy']).toContain('[czas]')
+    expect(p['/realizacje']).toContain('[czas do uzupełnienia]')
     expect(p['/naprawy']).not.toContain('[ok. X minut')
     expect(p['/realizacje']).not.toContain('Przed i po naprawie')
     expect(p['/pierscionki/bez-kamienia']).toContain('[do uzupełnienia]')
