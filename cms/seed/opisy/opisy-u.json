@@ -1,0 +1,265 @@
+[
+  {
+    "id": 3,
+    "name": "Merope",
+    "lead": "Różowy turmalin w towarzystwie diamentów i ciepło żółtego złota – kobieco i świeżo.",
+    "description": "Pierścionek z żółtego złota z różowym turmalinem w roli głównej i diamentami, które rozświetlają kompozycję.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Turmalin ma twardość 7–7,5 w skali Mohsa, więc dobrze sprawdza się w biżuterii noszonej na co dzień.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 4,
+    "name": "Electra",
+    "lead": "Tęczowe refleksy mystic topazu i iskry diamentów w żółtym złocie – kolor w ruchu.",
+    "description": "Mystic topaz mieni się tęczowymi barwami, które zmieniają się wraz z kątem padania światła. Towarzyszą mu diamenty, a całość oprawiona jest w żółtym złocie.\n\nKamienie oprawiamy ręcznie w naszej pracowni.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 5,
+    "name": "Prometheus",
+    "lead": "Szmaragd i trzy naturalne szafiry w różu, fiolecie i czerwieni – paleta barw w złocie.",
+    "description": "Pierścionek z żółtego złota łączy szmaragd z trzema naturalnymi szafirami w barwach różowej, fioletowej i czerwonej. Subtelna oprawa zostawia kamieniom pierwszy plan.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni. Szafir, odmiana korundu, ma twardość 9 w skali Mohsa – ustępuje tylko diamentowi.\n\nModel wykonamy w wybranym rozmiarze, także z innym doborem kolorów."
+  },
+  {
+    "id": 7,
+    "name": "Leto",
+    "lead": "Różowy kamień w oprawie z żółtego i białego złota – ciepło i chłód w równowadze.",
+    "description": "Pierścionek łączy żółte i białe złoto, a jego akcentem jest różowy kamień. Zestawienie dwóch kolorów metalu podkreśla barwę kamienia i nadaje całości lekkości.\n\nKamień oprawiamy ręcznie w naszej pracowni, dbając o jego trwałe osadzenie.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem."
+  },
+  {
+    "id": 8,
+    "name": "Celaeno",
+    "lead": "Ażurowy liść z żółtego złota, gęsto wysadzany drobnymi diamentami – bogaty, świetlisty ornament.",
+    "description": "Ażurowy pierścionek z żółtego złota w formie liścia. Konstrukcję tworzą cienkie, wygięte żebra, które układają się w dekoracyjny rysunek, a obwód i przekątne są gęsto wysadzone drobnymi diamentami.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni – przy tak gęstym układzie to praca wymagająca dużej precyzji.\n\nModel wykonamy w wybranym rozmiarze."
+  },
+  {
+    "id": 10,
+    "name": "Maia",
+    "lead": "Fioletowo-niebieski tanzanit z diamentami w ciepłym żółtym złocie – głęboki, nasycony kolor.",
+    "description": "Pierścionek z żółtego złota z tanzanitem i diamentami. Tanzanit zmienia odcień od fioletu po błękit zależnie od światła, a diamenty dodają kompozycji blasku.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Tanzanit ma twardość 6–7 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 13,
+    "name": "Terpsichore",
+    "lead": "Wąż z żółtego i białego złota, wysadzany diamentami jasnymi i czarnymi – wyrazisty motyw.",
+    "description": "Pierścionek w formie węża, wykonany z żółtego i białego złota. Kontrast jasnych i czarnych diamentów podkreśla rysunek motywu i nadaje mu wyrazistości.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni. Diament to najtwardszy kamień szlachetny – ma twardość 10 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także w innym zestawieniu kolorów złota."
+  },
+  {
+    "id": 14,
+    "name": "Daphne",
+    "lead": "Oliwkowy turmalin w szlifie oktagon i roślinny detal – poetycka kompozycja.",
+    "description": "Oliwkowy turmalin o masie 0,93 ct w szlifie oktagon, oprawiony w żółtym złocie próby 585. Motyw liści nadaje pierścionkowi miękkości i roślinnego charakteru.\n\nKamień oprawiamy ręcznie w naszej pracowni. Turmalin ma twardość 7–7,5 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,93 ct"
+  },
+  {
+    "id": 15,
+    "name": "Pyrrha",
+    "lead": "Rubin w towarzystwie brylantów – klasyka, która płonie głęboką czerwienią.",
+    "description": "Rubin o masie 0,5 ct z dziesięcioma brylantami o łącznej masie 0,15 ct, w żółtym złocie próby 585.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni. Rubin, podobnie jak szafir, jest odmianą korundu o twardości 9 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,5 ct + brylanty 0,15 ct"
+  },
+  {
+    "id": 16,
+    "name": "Thalassa",
+    "lead": "Niebieskie diamenty i brylanty w żółtym złocie – lekki pierścionek w chłodnym błękicie.",
+    "description": "Siedem brylantów o łącznej masie 0,15 ct i sześć niebieskich diamentów o łącznej masie 0,12 ct, oprawionych w żółtym złocie. Pierścionek jest lekki – waży około 1,94 g.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni. Diament to najtwardszy kamień szlachetny – ma twardość 10 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze.",
+    "carats": "brylanty 0,15 ct + diamenty niebieskie 0,12 ct"
+  },
+  {
+    "id": 17,
+    "name": "Urania",
+    "lead": "Błękit nieba i iskrzące akcenty – topaz z diamentami.",
+    "description": "Błękitny topaz w oprawie z żółtego złota, rozświetlony drobnymi diamentami. Pierścionek ma lekki, świetlisty charakter, a jasny błękit kamienia dobrze współgra z ciepłym kolorem złota.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Topaz ma twardość 8 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 18,
+    "name": "Nyx",
+    "lead": "Głęboki London Blue – nocny odcień topazu w towarzystwie diamentów.",
+    "description": "Topaz London Blue w oprawie z żółtego złota, w towarzystwie diamentów. To najciemniejsza odmiana niebieskiego topazu, o głębokim, granatowym odcieniu.\n\nCiepłe złoto i chłodny kamień tworzą klasyczny kontrast. Kamienie oprawiamy ręcznie w naszej pracowni.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 19,
+    "name": "Eirene",
+    "lead": "Malinowy turmalin i dwa diamenty – subtelna równowaga i spokój.",
+    "description": "Malinowy turmalin w żółtym złocie z dwoma drobnymi diamentami. Ich chłodny blask kontrastuje z głębokim odcieniem turmalinu i podkreśla jego kolor.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Turmalin ma twardość 7–7,5 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 20,
+    "name": "Harmonia",
+    "lead": "Morganit w układzie trilogy – miękki róż i blask diamentów w żółtym złocie.",
+    "description": "Pierścionek w układzie trzech kamieni: morganit w miękkim odcieniu różu i diamenty, oprawione w żółtym złocie. Smukła linia szyny utrzymuje lekki charakter całości.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni. Morganit, podobnie jak szmaragd, należy do rodziny berylu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 21,
+    "name": "Cyane",
+    "lead": "Niebieski diament w halo – głębia barwy otoczona świetlistą aureolą.",
+    "description": "Niebieski diament o masie 0,16 ct w oprawie halo z szesnastu diamentów o łącznej masie 0,25 ct, w żółtym złocie. Jasne kamienie wokół potęgują blask i głębię barwy kamienia głównego.\n\nKażdy diament oprawiamy ręcznie w naszej pracowni.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,16 ct + diamenty 0,25 ct"
+  },
+  {
+    "id": 22,
+    "name": "Hestia",
+    "lead": "Klasyka, która broni się sama – sześć łap trzyma diament w czystym, eleganckim kształcie.",
+    "description": "Pierścionek z żółtego złota z diamentem osadzonym w sześciu łapkach. Taka oprawa pewnie trzyma kamień i odsłania go z każdej strony, dzięki czemu w pełni widać jego brylancję.\n\nKamień oprawiamy ręcznie w naszej pracowni.\n\nModel wykonamy w wybranym rozmiarze, także z diamentem o innej masie."
+  },
+  {
+    "id": 23,
+    "name": "Dione",
+    "description": "Klasyczny pierścionek zaręczynowy typu solitaire z diamentem o masie 0,23 ct w koronie na sześciu łapkach. Zwężana szyna z żółtego złota i koszyk z białego złota eksponują kamień.\n\nKamień oprawiamy ręcznie w naszej pracowni.\n\nModel wykonamy w wybranym rozmiarze, także z diamentem o innej masie.",
+    "carats": "0,23 ct"
+  },
+  {
+    "id": 24,
+    "name": "Athena",
+    "lead": "Art déco w zielonej odsłonie – geometryczna elegancja i bogactwo szmaragdu.",
+    "description": "Pierścionek w stylu art déco z jasnozielonym szmaragdem z Zambii o masie 0,90 ct i diamentami o łącznej masie 0,50 ct. Oprawa łączy żółte i białe złoto próby 585, szyna jest solidna, a pierścionek waży około 5,05 g.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Do pierścionka dołączamy certyfikat autentyczności kamieni.\n\nModel wykonamy w wybranym rozmiarze.",
+    "carats": "0,90 ct + diamenty 0,50 ct"
+  },
+  {
+    "id": 25,
+    "name": "Chryse",
+    "lead": "Słoneczny cytryn i świetlista oprawa – ciepło w szlachetnej formie.",
+    "description": "Cytryn o masie 0,39 ct z diamentami o łącznej masie 0,18 ct, w żółtym złocie. Słoneczna barwa cytrynu dobrze współgra z ciepłym kolorem metalu.\n\nKażdy kamień oprawiamy ręcznie, z dbałością o najmniejszy szczegół, który zapewnia pierścionkowi trwałość. Cytryn to żółta odmiana kwarcu o twardości 7 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,39 ct + diamenty 0,18 ct"
+  },
+  {
+    "id": 26,
+    "name": "Phoebe",
+    "description": "Tanzanit o masie 1,33 ct w koronie z dziesięciu diamentów o łącznej masie 0,30 ct. Żółte złoto próby 585, waga pierścionka 5,16 g. Forma nawiązuje do biżuterii wiktoriańskiej.\n\nTanzanit zmienia barwę od fioletu po głęboki błękit zależnie od padającego światła. Kamienie oprawiamy ręcznie w naszej pracowni.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "1,33 ct + diamenty 0,30 ct"
+  },
+  {
+    "id": 27,
+    "name": "Aria",
+    "lead": "Delikatny fiolet ametystu i migot diamentów – lekki jak oddech, wyrazisty jak emocje.",
+    "description": "Ametyst o masie 0,43 ct w oprawie pavé z diamentami o łącznej masie 0,16 ct, w żółtym złocie.\n\nKażdy kamień oprawiamy ręcznie, z myślą o trwałości i wygodzie noszenia. Ametyst to fioletowa odmiana kwarcu, a barwę zawdzięcza domieszkom żelaza.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,43 ct + diamenty 0,16 ct"
+  },
+  {
+    "id": 28,
+    "name": "Helios",
+    "lead": "Topaz w otoczeniu dwudziestu czterech diamentów, w żółtym i białym złocie – pełen światła.",
+    "description": "Topaz o masie 0,78 ct w otoczeniu 24 diamentów o łącznej masie 0,30 ct. Oprawa łączy żółte i białe złoto próby 585.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni. Topaz ma twardość 8 w skali Mohsa, ale łatwo się łupie, dlatego jego szlifowanie i oprawa wymagają dużej ostrożności.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,78 ct + diamenty 0,30 ct"
+  },
+  {
+    "id": 29,
+    "name": "Pelagia",
+    "lead": "Szafir w towarzystwie dwunastu diamentów, w żółtym i białym złocie – szlachetna prostota.",
+    "description": "Szafir o masie 0,44 ct z dwunastoma diamentami o łącznej masie 0,32 ct. Oprawa z żółtego i białego złota próby 585 łączy ciepło i chłód metalu.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Szafir to odmiana korundu – po diamencie najtwardszy kamień szlachetny.\n\nModel wykonamy w dowolnym rozmiarze, także z innym kamieniem środkowym.",
+    "carats": "0,44 ct + diamenty 0,32 ct"
+  },
+  {
+    "id": 30,
+    "name": "Iris",
+    "lead": "Tanzanit w otoczeniu diamentów, w żółtym i białym złocie – fiolet przechodzący w błękit.",
+    "description": "Tanzanit o masie 0,28 ct w otoczeniu diamentów, w oprawie z żółtego i białego złota próby 585.\n\nKażdy kamień oprawiamy ręcznie, z największą precyzją. Tanzanit odkryto dopiero w XX wieku – to jeden z najmłodszych kamieni szlachetnych.\n\nModel wykonamy w dowolnym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,28 ct"
+  },
+  {
+    "id": 31,
+    "name": "Ione",
+    "lead": "Naturalny tanzanit w fioletowo-niebieskiej barwie, w geometrycznej oprawie art déco z diamentami.",
+    "description": "Pierścionek w stylu art déco z naturalnym tanzanitem o masie 0,35 ct, w barwie fioletowo-niebieskiej. Otaczają go diamenty o łącznej masie 0,20 ct, barwie H i czystości SI, a oprawa łączy żółte i białe złoto próby 585.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni.\n\nFason wykonamy w dowolnym rozmiarze, także z innym kamieniem szlachetnym.",
+    "carats": "0,35 ct + diamenty 0,20 ct",
+    "clarity": "diamenty SI, barwa H"
+  },
+  {
+    "id": 32,
+    "name": "Gaia",
+    "lead": "Niebieskawozielony szmaragd w sercu oprawy art déco, otoczony blaskiem diamentów.",
+    "description": "Pierścionek w stylu art déco z naturalnym szmaragdem o masie 0,11 ct w barwie niebieskawozielonej, osadzonym centralnie. Otaczają go diamenty o łącznej masie 0,38 ct, barwie H i czystości SI. Oprawa łączy żółte i białe złoto próby 585.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,11 ct + diamenty 0,38 ct",
+    "clarity": "diamenty SI, barwa H"
+  },
+  {
+    "id": 33,
+    "name": "Adamas",
+    "lead": "Trzynaście diamentów w geometrycznej oprawie art déco – czysty blask w dwóch kolorach złota.",
+    "description": "Pierścionek w stylu art déco z trzynastoma diamentami: centralny ma masę 0,13 ct, boczne – łącznie 0,18 ct, w barwie H i czystości SI. Połączenie żółtego i białego złota próby 585 wydobywa blask kamieni.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni.\n\nModel wykonamy w wybranym rozmiarze, także z kolorowym kamieniem w centrum.",
+    "carats": "0,13 ct + diamenty 0,18 ct",
+    "clarity": "diamenty boczne SI, barwa H"
+  },
+  {
+    "id": 34,
+    "name": "Asteria",
+    "lead": "Naturalny szafir w bogatej oprawie z dwudziestu jeden diamentów, w żółtym i białym złocie.",
+    "description": "Bogato zdobiony pierścionek z naturalnym szafirem o masie 0,41 ct w otoczeniu 21 diamentów o łącznej masie około 0,40 ct. Oprawa łączy żółte i białe złoto próby 585.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni. Szafir ma twardość 9 w skali Mohsa – zarysować go może tylko diament.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,41 ct + diamenty ok. 0,40 ct"
+  },
+  {
+    "id": 35,
+    "name": "Delos",
+    "lead": "Naturalny szafir w ponadczasowej oprawie art déco, otoczony dwunastoma diamentami.",
+    "description": "Ponadczasowy fason w stylu art déco z naturalnym szafirem o masie 0,28 ct. Otacza go dwanaście diamentów o łącznej masie 0,18 ct, w barwie H i czystości SI. Oprawa łączy żółte i białe złoto próby 585.\n\nKamienie oprawiamy ręcznie, dzięki czemu pierścionek posłuży przez długie lata.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "carats": "0,28 ct + diamenty 0,18 ct",
+    "clarity": "diamenty SI, barwa H"
+  },
+  {
+    "id": 37,
+    "name": "Leucothea",
+    "lead": "Diament w szlifie szmaragdowym w klasycznej oprawie z dwunastoma mniejszymi diamentami – czysta geometria.",
+    "description": "Diament w szlifie szmaragdowym o masie 0,41 ct, czystości VS2 i barwie F, przebadany w laboratorium GIA. W klasycznej oprawie otacza go dwanaście mniejszych diamentów.\n\nPierścionek wykonaliśmy ręcznie od podstaw w naszej pracowni, dla klientki, która wymarzyła sobie kamień właśnie w tym kształcie i szlifie.\n\nPodobny pierścionek wykonamy z kamieniem dobranym do Twojego projektu."
+  },
+  {
+    "id": 38,
+    "name": "Amphitrite",
+    "lead": "Niebieski diament w oprawie art déco z białego złota, otoczony dwunastoma brylantami.",
+    "description": "Niebieski diament o masie 0,21 ct w otoczeniu dwunastu brylantów o łącznej masie 0,22 ct. Oprawa w stylu art déco z białego złota wydobywa chłodną barwę kamienia i blask diamentów wokół.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Ten fason wykonaliśmy wcześniej z szafirem.\n\nModel wykonamy w wybranym rozmiarze, także ze szmaragdem, tanzanitem lub innym kamieniem centralnym.",
+    "metal": "Białe",
+    "carats": "0,21 ct + brylanty 0,22 ct"
+  },
+  {
+    "id": 39,
+    "name": "Chloris",
+    "lead": "Zielony oliwin w szlifie emerald, flankowany brylantami – spokojny połysk w żółtym złocie.",
+    "description": "Naturalny oliwin (perydot) w prostokątnym, stopniowanym szlifie emerald ze ściętymi narożnikami. Duży stół i równoległe fasety wydobywają głębię koloru, a drobne brylanty po obu stronach akcentują linię korony.\n\nCałość w żółtym złocie ma lekko vintage’owy charakter. Kamienie oprawiamy ręcznie w naszej pracowni.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "metal": "Żółte"
+  },
+  {
+    "id": 40,
+    "name": "Erythea",
+    "lead": "Malinowy turmalin w oprawie halo z diamentów – kobiecy, zmysłowy i wyrazisty.",
+    "description": "Turmalin w intensywnym, malinowym kolorze w oprawie halo z diamentów. Jasny pierścień drobnych kamieni wokół podkreśla nasycenie barwy.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Turmalin ma twardość 7–7,5 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 41,
+    "name": "Rhodope",
+    "lead": "Turmalin w delikatnym różu, otoczony diamentami w oprawie halo – subtelny i jasny.",
+    "description": "Różowy turmalin w delikatnym odcieniu, otoczony diamentami w oprawie halo. Delikatny róż kamienia i jasny blask diamentów tworzą subtelną, świetlistą całość.\n\nKamienie oprawiamy ręcznie w naszej pracowni.\n\nFason wykonamy na zamówienie w wybranym rozmiarze i z naturalnym kamieniem w dowolnym kolorze."
+  },
+  {
+    "id": 42,
+    "name": "Ianthe",
+    "lead": "Owalny ametyst z diamentami – szlachetny fiolet i ponadczasowa klasa z nutą tajemnicy.",
+    "description": "Owalny ametyst z diamentami, które dodatkowo podkreślają jego kolor. W kamieniu widać naturalne inkluzje – dzięki nim każdy egzemplarz jest niepowtarzalny.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Model powstał w dwóch wersjach – z ametystem owalnym i w szlifie oktagon.\n\nModel wykonamy w wybranym rozmiarze i z kamieniem centralnym w dowolnym kolorze."
+  },
+  {
+    "id": 43,
+    "name": "Iole",
+    "lead": "Ametyst w szlifie oktagon w delikatnej oprawie z diamentów – głęboki kolor i luksusowy blask.",
+    "description": "Ametyst w szlifie oktagon, który wydobywa głębię jego koloru, w delikatnej oprawie z diamentów. Model powstał w dwóch wersjach – z ametystem w szlifie oktagon i owalnym.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Ametyst to fioletowa odmiana kwarcu o twardości 7 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze i z kamieniem centralnym w dowolnym kolorze."
+  },
+  {
+    "id": 44,
+    "name": "Rhea",
+    "lead": "Owalny agat w intensywnej zieleni o jedwabistym połysku, rozświetlony delikatnymi diamentami.",
+    "description": "Owalny agat w intensywnej zieleni o jedwabistym połysku – spokojny, soczysty kolor natury. Towarzyszą mu delikatne diamenty, które podkreślają blask kamienia.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Agat to odmiana chalcedonu o twardości 6,5–7 w skali Mohsa.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 45,
+    "name": "Eos",
+    "lead": "Morganit o brzoskwiniowo-złotej barwie na szynie pavé z diamentami – ciepły, miękki blask.",
+    "description": "Morganit w brzoskwiniowo-złotym odcieniu, osadzony na szynie pavé wysadzanej diamentami. Ciepła barwa morganitu łagodnie kontrastuje z jasnym blaskiem drobnych kamieni.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Morganit, podobnie jak szmaragd, należy do rodziny berylu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym."
+  },
+  {
+    "id": 46,
+    "name": "Aion",
+    "lead": "Pierścionek eternity w czterech odsłonach – kolorowe kamienie albo same brylanty w nieprzerwanym rzędzie.",
+    "description": "Złoty pierścionek typu eternity, w którym kamienie tworzą nieprzerwany rząd. Fason wykonujemy w czterech wariantach: szmaragdy z białymi brylantami, różowe turmaliny z białymi brylantami, niebieskie i białe brylanty albo same białe brylanty.\n\nKamienie oprawiamy ręcznie w naszej pracowni.\n\nKażdy wariant wykonamy na zamówienie w wybranym rozmiarze."
+  },
+  {
+    "id": 47,
+    "name": "Calypso",
+    "lead": "Niebieski diament w towarzystwie białych, oprawiony w białe złoto – chłodny, głęboki blask.",
+    "description": "Pierścionek z białego złota z niebieskim diamentem w centrum i klasycznymi białymi diamentami. Głęboka barwa kamienia głównego nadaje projektowi indywidualny charakter, a precyzyjna oprawa sprawia, że światło pracuje z każdym ruchem dłoni.\n\nPierścionek wykonaliśmy ręcznie od podstaw, według projektu przygotowanego wspólnie z zamawiającym, z oprawą dopasowaną do jego życzeń.\n\nPodobny projekt przygotujemy na indywidualne zamówienie.",
+    "metal": "Białe"
+  }
+]

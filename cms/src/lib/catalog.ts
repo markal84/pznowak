@@ -102,6 +102,15 @@ export function formatMetal(metal: string): string {
   return GOLD_COLORS.find(({ id }) => id === group)?.sentence ?? sentence(metal)
 }
 
+/** Opis z panelu podzielony na akapity (pusta linia = nowy akapit); pojedyncze złamania linii zostają spacją. */
+export function descriptionParagraphs(text: string | null | undefined): string[] {
+  return (text ?? '')
+    .replace(/\r\n/g, '\n')
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+}
+
 export function pluralRing(count: number): string {
   if (count === 1) return 'pierścionek'
   const digit = count % 10

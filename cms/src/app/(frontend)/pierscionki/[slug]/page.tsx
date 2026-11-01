@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducts } from '@/lib/collection'
-import { formatStone, goldColorLabel, similarTo, toCatalogRing } from '@/lib/catalog'
+import { descriptionParagraphs, formatStone, goldColorLabel, similarTo, toCatalogRing } from '@/lib/catalog'
 import { productPath, productSeoDescription, productSeoTitle } from '@/lib/product-seo'
 import { pageMetadata } from '@/lib/seo'
 import { showPlaceholders } from '@/lib/placeholders'
@@ -40,6 +40,7 @@ export default async function ProductPage({ params }: Params) {
 
   const stone = formatStone(product.stone)
   const metal = goldColorLabel(product.metal)
+  const description = descriptionParagraphs(product.description)
   const similar = similarTo(product, products, 4).map(toCatalogRing)
   // Pusty kamień albo metal: na produkcji wiersza nie ma, na podglądzie widać znacznik „do uzupełnienia”.
   const facts: [string, ReactNode][] = []
@@ -103,7 +104,15 @@ export default async function ProductPage({ params }: Params) {
             </dl>
           </div>
 
-          {product.description ? <p className="text" style={{ fontSize: 16 }}>{product.description}</p> : null}
+          {description.length ? (
+            <div className="stack" style={{ gap: 12 }}>
+              {description.map((paragraph, index) => (
+                <p className="text" key={index} style={{ fontSize: 16 }}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          ) : null}
 
           <div className="stack" style={{ gap: 14 }}>
             <div className="row" style={{ gap: '12px 20px' }}>
