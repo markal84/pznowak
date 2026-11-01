@@ -71,9 +71,7 @@ describe('opisy-u.json – dane', () => {
 
   it('metal tylko z listy kolorów złota, masy i czystość w polskim zapisie', () => {
     for (const spec of specs) {
-      // „Różowe” tylko Aion (obrączka z różowego złota 14k, przegląd Klaudii).
-      if (spec.metal !== undefined) expect(['Żółte', 'Białe', 'Żółte z białym', 'Różowe']).toContain(spec.metal)
-      if (spec.metal === 'Różowe') expect(spec.name).toBe('Aion')
+      if (spec.metal !== undefined) expect(['Żółte', 'Białe', 'Żółte z białym']).toContain(spec.metal)
       if (spec.carats !== undefined) expect(spec.carats, spec.name).toMatch(/^[^.]*\d,\d+ ct/u)
       if (spec.clarity !== undefined) expect(spec.clarity, spec.name).toMatch(/barwa [D-Z]$/u)
     }
@@ -86,10 +84,9 @@ describe('opisy-u.json – dane', () => {
 
   it('kolor złota ze zdjęć: karty bez metalu w eksporcie dostają kolor', () => {
     const byName = new Map(specs.map((s) => [s.name, s]))
-    for (const name of ['Leucothea', 'Erythea', 'Rhodope', 'Ianthe', 'Iole', 'Rhea', 'Eos']) {
+    for (const name of ['Leucothea', 'Erythea', 'Rhodope', 'Ianthe', 'Iole', 'Rhea', 'Eos', 'Aion']) {
       expect(byName.get(name)?.metal, name).toBe('Żółte')
     }
-    expect(byName.get('Aion')?.metal).toBe('Różowe')
   })
 })
 
@@ -108,10 +105,11 @@ describe('opisy-u.json – linter treści', () => {
   it('Aion: obrączka eternity z różowymi szafirami (jedyne zdjęcie karty), bez czterech wariantów pierścionka', () => {
     const aion = specs.find((s) => s.name === 'Aion') as OpisSpec
     expect(aion.lead).toMatch(/eternity/u)
-    for (const text of ['Obrączka', 'różowe szafiry', 'różowego złota 14k', 'od podstaw', 'online', 'bez przymiarek']) {
+    for (const text of ['Obrączka', 'różowe szafiry', 'złota 14k', 'od podstaw', 'online', 'bez przymiarek']) {
       expect(aion.description).toContain(text)
     }
-    expect(aion.description).not.toMatch(/czterech|turmalin|szmaragd|zaufani/iu)
+    // Bez koloru złota w tekście: pole `metal` = „Żółte” (decyzja Marcina), nic nie może mu przeczyć.
+    expect(`${aion.lead} ${aion.description}`).not.toMatch(/czterech|turmalin|szmaragd|zaufani|różow\w* złot|żółt\w* złot/iu)
     expect(aion).not.toHaveProperty('stone')
   })
 

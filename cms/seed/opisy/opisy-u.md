@@ -141,7 +141,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Thalassa (#16, /pierscionki/thalassa)
 
-**Kamień (pole `stone`):** Diament niebieski, Diament *(poprawione po przeglądzie Klaudii)*
+**Kamień (pole `stone`):** Diament niebieski, Diament *(poprawione po przeglądzie)*
 
 **Lead:** Niebieskie diamenty i brylanty w żółtym złocie – lekki pierścionek w chłodnym błękicie.
 
@@ -585,7 +585,7 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 ## Rhea (#44, /pierscionki/rhea)
 
-**Kamień (pole `stone`):** Agat zielony, Diament *(poprawione po przeglądzie Klaudii)*
+**Kamień (pole `stone`):** Agat zielony, Diament *(poprawione po przeglądzie)*
 
 **Lead:** Owalny agat w intensywnej zieleni o jedwabistym połysku, rozświetlony delikatnymi diamentami.
 
@@ -621,17 +621,17 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 
 **Kamień (pole `stone`):** Szafir różowy, Diament *(bez zmian)*
 
-**Lead:** Obrączka eternity z różowymi szafirami i diamentami w różowym złocie – nieprzerwany, ciepły blask.
+**Lead:** Obrączka eternity z różowymi szafirami i diamentami – nieprzerwany, ciepły blask w złocie.
 
 **Opis:**
 
-> Obrączka typu eternity, w której różowe szafiry i diamenty tworzą nieprzerwany rząd. Wykonana z różowego złota 14k, czyli próby 585.
+> Obrączka typu eternity, w której różowe szafiry i diamenty tworzą nieprzerwany rząd. Wykonana ze złota 14k, czyli próby 585.
 >
 > Obrączkę wykonaliśmy ręcznie od podstaw, na zamówienie złożone online – bez przymiarek w pracowni. Szafir to odmiana korundu o twardości 9 w skali Mohsa.
 >
 > Ten fason wykonamy w wybranym rozmiarze, także z kamieniami w innym kolorze.
 
-**Parametry:** metal: „” → „Różowe”
+**Parametry:** metal: „” → „Żółte”
 
 
 ## Calypso (#47, /pierscionki/calypso)
@@ -649,15 +649,3 @@ Legenda: *(bez zmian)* – pole zostaje jak w eksporcie; **Parametry** – zmien
 > Podobny projekt przygotujemy na indywidualne zamówienie.
 
 **Parametry:** metal: „Biały” → „Białe”
-
-
----
-
-## Do potwierdzenia przez Michała
-
-Lista skrócona po przeglądzie Klaudii (01.11). Pozostałe pytania rozstrzygnęła na podstawie zdjęć kart na stagingu.
-
-1. **Leto (#7)** – `stone` = „Kamień różowy”. Jaki to kamień (turmalin, morganit, szafir…)?
-2. **Próba 585** – czy wszystkie pierścionki z kolekcji są w próbie 585? Dziś podajemy ją tylko tam, gdzie była w poście. Jeśli tak, można ją dopisać wszędzie.
-3. **Thalassa (#16)** – w poście była próba „586”. Chodzi o 585? Dziś opis nie podaje próby.
-4. **Masy kamieni** (kiedyś, nie blokuje) – brakuje ich w: Merope, Electra, Prometheus, Leto, Celaeno, Maia, Terpsichore, Urania, Nyx, Eirene, Harmonia, Hestia, Erythea, Rhodope, Ianthe, Iole, Rhea, Eos, Calypso. Gdy będą, trafią do pola „Masa / karaty” i jednego zdania opisu.
