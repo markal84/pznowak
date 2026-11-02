@@ -1,7 +1,7 @@
 import { randomUUID, timingSafeEqual } from 'node:crypto'
 
 import { deriveKey } from '../submissions/form-token'
-import { requestOrigin } from '../submissions/handler'
+import { linkOrigin, readLimited, safeErrorMessage } from '../submissions/request'
 import type { ProcessResult, RejectReason } from './image'
 import { ATTACHMENT_RULES } from './rules'
 import type { AttachmentStorage } from './storage'
@@ -46,10 +46,14 @@ export const UPLOAD_MESSAGES: Record<UploadCode, string> = {
   error: 'Coś poszło nie tak po naszej stronie.',
 }
 
+export { readLimited }
+
 export type UploadResponse = { ok: boolean; code: UploadCode; message: string }
 
 export type UploadDeps = {
   appSecret: string
+  /** Adres strony do linków w mailach (produkcja: z konfiguracji); `null` = z żądania. */
+  publicOrigin: string | null
   /** Przełącznik i magazyn; bez któregokolwiek endpoint odpowiada 503. */
   storage: AttachmentStorage | null
   enabled: boolean
@@ -115,25 +119,6 @@ export function cleanFileName(raw: string | null): string | null {
   return name ? Array.from(name).slice(0, 120).join('') : null
 }
 
-/** Treść żądania, najwyżej `limit` bajtów; `null`, gdy klient przysłał więcej. */
-export async function readLimited(request: Request, limit: number): Promise<Buffer | null> {
-  if (!request.body) return Buffer.alloc(0)
-  const reader = request.body.getReader()
-  const chunks: Uint8Array[] = []
-  let total = 0
-  for (;;) {
-    const { done, value } = await reader.read()
-    if (done) break
-    total += value.byteLength
-    if (total > limit) {
-      await reader.cancel().catch(() => undefined)
-      return null
-    }
-    chunks.push(value)
-  }
-  return Buffer.concat(chunks, total)
-}
-
 /** POST /api/zgloszenia/zalaczniki */
 export async function handleUpload(request: Request, deps: UploadDeps): Promise<Response> {
   const log =
@@ -160,14 +145,15 @@ export async function handleUpload(request: Request, deps: UploadDeps): Promise<
     const finish = async (code: UploadCode) => {
       const state = await deps.claimCompletion(slot.submissionId)
       if (state) {
-        const origin = requestOrigin(request)
+        // Bez Turnstile w tym żądaniu: na produkcji adres do linku w mailu tylko z konfiguracji, nie z nagłówków.
+        const origin = linkOrigin(request, deps.publicOrigin)
         deps.defer(async () => {
           try {
             await deps.afterCompletion(slot.submissionId, { origin })
           } catch (error) {
             log('błąd po zakończeniu przesyłania', {
               id: slot.submissionId,
-              error: error instanceof Error ? error.message : String(error),
+              error: safeErrorMessage(error),
             })
           }
         })
@@ -227,7 +213,7 @@ export async function handleUpload(request: Request, deps: UploadDeps): Promise<
     }
     return finish('stored')
   } catch (error) {
-    log('błąd obsługi pliku', { error: error instanceof Error ? error.message : String(error) })
+    log('błąd obsługi pliku', { error: safeErrorMessage(error) })
     return reply('error')
   }
 }

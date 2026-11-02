@@ -293,14 +293,14 @@ test.describe('Kreator pierścionka', () => {
     // Przy wyłączonej wysyłce (E2E_SUBMISSIONS=off): komunikat wersji podglądowej i też zero żądań.
     const writes = captureWrites(page)
     await page.getByLabel('Imię').fill('Anna')
-    await page.getByLabel('Telefon').fill(SUBMISSIONS_OFF ? '501 321 347' : '12 34')
+    await page.getByRole('textbox', { name: 'Telefon' }).fill(SUBMISSIONS_OFF ? '501 321 347' : '12 34')
     await page.getByRole('button', { name: 'Wyślij projekt do pracowni' }).click()
     if (SUBMISSIONS_OFF) {
       await expect(page.getByRole('status').filter({ hasText: NOTICE })).toBeVisible()
     } else {
       await expect(page.getByText(/^Sprawdź numer telefonu, np\. 501 321 347\. Zagraniczny/)).toBeVisible()
       await expect(page.getByText('Zaznacz zgodę na kontakt, żebyśmy mogli oddzwonić.')).toBeVisible()
-      await expect(page.getByLabel('Telefon')).toHaveAttribute('aria-invalid', 'true')
+      await expect(page.getByRole('textbox', { name: 'Telefon' })).toHaveAttribute('aria-invalid', 'true')
       await expect(page.getByRole('alert').filter({ hasText: 'Sprawdź zaznaczone pola.' })).toBeVisible()
     }
     expect(writes).toEqual([])
@@ -338,7 +338,7 @@ test.describe('Obrączki i formularz kontaktowy', () => {
 
     const writes = captureWrites(page)
     await page.getByLabel('Imię').fill('Marek')
-    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
     await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
     if (SUBMISSIONS_OFF) {
       await expect(page.getByRole('status').filter({ hasText: NOTICE })).toBeVisible()
@@ -469,7 +469,7 @@ test.describe('Ukryty kreator i konfigurator (zlecenie A)', () => {
     await expect(page).toHaveURL(/\/kontakt\?temat=nowy$/)
     await page.waitForSelector('html[data-hydrated="true"]')
     await expect(page.getByRole('radio', { name: /Pierścionek lub obrączki na zamówienie/ })).toBeChecked()
-    await expect(page.getByLabel('Co Ci się podoba?')).toBeVisible()
+    await expect(page.getByLabel('Opisz, czego szukasz')).toBeVisible()
   })
 
   test('/na-zamowienie: jeden przycisk „Umów rozmowę o projekcie”, bez drugiego linku do tego samego formularza', async ({ page }) => {
@@ -734,7 +734,7 @@ test.describe('Formularz: zamówienie z grawerem i rozmiarem', () => {
     await expect(page.getByLabel(/Grawer/)).toHaveValue('www.sklep.pl')
     await page.getByRole('radio', { name: 'Znam rozmiar' }).check()
     await page.getByLabel('Imię').fill('Marek')
-    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
     await page.getByLabel(/Zgadzam się na kontakt/).check()
     await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
     if (SUBMISSIONS_OFF) {

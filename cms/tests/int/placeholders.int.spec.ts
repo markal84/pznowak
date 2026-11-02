@@ -121,7 +121,9 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
   it('produkcja dostaje neutralne zdania zamiast znaczników', async () => {
     vi.stubEnv('SITE_ENV', 'production')
     const p = await pages()
-    expect(p['/kontakt?temat=nowy']).not.toContain('Budżet')
+    // Przedziały budżetu są już prawdziwe (zlecenie X), więc pole jest także na produkcji.
+    expect(p['/kontakt?temat=nowy']).toContain('Budżet')
+    expect(p['/kontakt?temat=nowy']).toContain('powyżej 10 000 zł')
     expect(p['/kontakt']).toContain('Zgadzam się na kontakt w sprawie mojej wiadomości. Dane przetwarzamy tylko w tym celu.')
     expect(p['stopka']).not.toContain('Regulamin')
     expect(p['/']).toContain('Cenę i wygląd znasz, zanim zaczniemy.')
@@ -169,7 +171,8 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/naprawy']).not.toContain('[ok. X minut')
     expect(p['/realizacje']).not.toContain('Przed i po naprawie')
     expect(p['/pierscionki/bez-kamienia']).toContain('[do uzupełnienia]')
-    expect(p['/kontakt?temat=nowy']).toContain('[przedział 1]')
+    expect(p['/kontakt?temat=nowy']).toContain('4 000–10 000 zł')
+    expect(p['/kontakt?temat=nowy']).not.toContain('[przedział')
     expect(p['/kontakt']).toContain('Polityka prywatności [wkrótce]')
     expect(p['stopka']).toContain('Regulamin [wkrótce]')
     expect(findPlaceholders(p['/']).length).toBeGreaterThan(0)

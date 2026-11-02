@@ -48,10 +48,17 @@ const nextConfig: NextConfig = {
       { source: '/:path+/', destination: '/:path+', permanent: true },
     ]
   },
+  // Nagłówki bezpieczeństwa na każdym hostingu (Vercel, MyDevil): bez osadzania stron i panelu w cudzych ramkach,
+  // bez zgadywania typu plików przez przeglądarkę, bez pełnych adresów w Referer dla innych stron.
   // Wersje podglądowe nie mogą być indeksowane (SITE_ENV=production albo VERCEL_ENV=production włącza indeksowanie).
   async headers() {
-    if (isIndexable()) return []
-    return [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }]
+    const security = [
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+    ]
+    const robots = isIndexable() ? [] : [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]
+    return [{ source: '/:path*', headers: [...security, ...robots] }]
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

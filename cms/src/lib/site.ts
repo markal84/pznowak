@@ -89,6 +89,17 @@ export const SUBMISSIONS_ENABLED = TURNSTILE_SITE_KEY !== ''
 export const ATTACHMENTS_ENABLED =
   SUBMISSIONS_ENABLED && ['1', 'true'].includes((process.env.ATTACHMENTS_ENABLED ?? '').trim().toLowerCase())
 
+/**
+ * Czas odpowiedzi pod przyciskiem formularza kontaktowego i na karcie „Wiadomość wysłana”. Jedno miejsce do zmiany
+ * (do potwierdzenia przez Michała, pytanie w PR zlecenia X).
+ */
+export const RESPONSE_TIME = 'Odpowiadamy zwykle tego samego lub następnego dnia roboczego.'
+
+/** Godziny otwarcia jednym zdaniem do opisów stron, z `SITE.hours`: „Pon.–pt. 9:00–16:30, sobota 9:00–13:00”. */
+export function openingHoursText(hours: readonly { days: string; time: string }[] = SITE.hours): string {
+  return hours.map((h, i) => `${i === 0 ? h.days : h.days.toLowerCase()} ${h.time}`).join(', ')
+}
+
 export const PREVIEW_NOTICE =
   'Wersja podglądowa: wysyłka jest jeszcze wyłączona. Zadzwoń lub napisz, a odpowiemy w godzinach pracy pracowni.'
 

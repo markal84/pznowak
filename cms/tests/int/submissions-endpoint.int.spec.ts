@@ -10,6 +10,7 @@ import {
 import type { LimitBucket } from '@/lib/submissions/limits'
 import { RING_CREATOR_ENABLED } from '@/lib/site'
 import { submissionSettingsFromEnv } from '@/lib/submissions/config'
+import { buildStudioMail } from '@/lib/submissions/notify'
 import { CONSENT_TEXT } from '@/lib/submissions/options'
 import type { SubmissionDraft } from '@/lib/submissions/store'
 import { siteverifyReachable, verifyTurnstile } from '@/lib/submissions/turnstile'
@@ -577,7 +578,7 @@ describe('POST /api/zgloszenia: przyjęcie', () => {
       email: 'ania@example.pl',
       consentText: CONSENT_TEXT.kontakt,
     })
-    expect(t.inserted[0].summary).toBe('Temat: Naprawa lub przeróbka')
+    expect(t.inserted[0].summary).toBe('Temat: Naprawa lub przeróbka\nPreferowany kontakt: Telefon')
   })
 
   it('kontakt „na zamówienie”: grawer i rozmiar w osobnych kolumnach, w karcie i w danych', async () => {
@@ -608,6 +609,8 @@ describe('POST /api/zgloszenia: przyjęcie', () => {
     expect(draft.summary).toBe(
       [
         'Temat: Pierścionek lub obrączki na zamówienie',
+        'Rozmowa: W pracowni w Busku-Zdroju',
+        'Preferowany kontakt: Telefon',
         'Okazja: zaręczyny',
         'Budżet: Jeszcze nie wiem',
         'Grawer: „Na zawsze ♥”',
@@ -637,6 +640,61 @@ describe('POST /api/zgloszenia: przyjęcie', () => {
     expect(t.inserted[1].summary).toContain('Grawer: bez graweru')
   })
 
+  it('kontakt (zlecenie X): forma rozmowy, preferowany kontakt i kwota budżetu w szkicu i w mailu', async () => {
+    const t = setup()
+    const result = await send(
+      t.deps,
+      contactBody({
+        data: validContactData({
+          topic: 'nowy',
+          meeting: 'zdalnie',
+          contactPreference: 'email',
+          email: 'Ania@Example.pl',
+          budget: 'kwota',
+          budgetAmount: '6 500',
+          message: 'Pierścionek z szafirem.',
+        }),
+      }),
+    )
+    expect(result.status).toBe(201)
+    const draft = t.inserted[0]
+    expect(draft.details).toMatchObject({
+      meeting: 'zdalnie',
+      contactPreference: 'email',
+      budget: 'kwota',
+      budgetAmount: 6500,
+      ringSizeKnown: 'unknown',
+    })
+    expect(draft.summary).toBe(
+      [
+        'Temat: Pierścionek lub obrączki na zamówienie',
+        'Rozmowa: Telefonicznie albo przez wideo – mieszkam dalej',
+        'Preferowany kontakt: E-mail',
+        'Budżet: 6 500 zł (kwota podana przez klienta)',
+        'Grawer: bez graweru',
+        'Rozmiar: nie zna, zmierzy u jubilera w swojej okolicy',
+      ].join('\n'),
+    )
+    await Promise.all(t.deferred)
+    const mail = buildStudioMail(t.accepted[0].submission, {
+      to: 'pracownia@example.pl',
+      adminUrl: 'https://x/admin/collections/submissions/1',
+    })
+    expect(mail.subject).toBe('Pierścionek lub obrączki na zamówienie – Test Automatyczny (nr 1)')
+    expect(mail.replyTo).toBe('ania@example.pl')
+    expect(mail.text).toContain(draft.summary!)
+
+    // „E-mail” bez adresu: 400 przy polu, przed Turnstile i limitami
+    const missing = await send(
+      t.deps,
+      contactBody({ data: validContactData({ contactPreference: 'email', email: '' }) }),
+      { ip: '203.0.113.30' },
+    )
+    expect(missing.status).toBe(400)
+    expect(missing.body.fields).toEqual({ email: MESSAGES.emailRequired })
+    expect(t.turnstile).toHaveBeenCalledTimes(1)
+  })
+
   it('kontakt: temat bez graweru i rozmiaru nie zapisuje tych pól, nawet gdy przyszły', async () => {
     const t = setup()
     await send(
@@ -651,7 +709,7 @@ describe('POST /api/zgloszenia: przyjęcie', () => {
       ringSizeKnown: null,
       ringSize: null,
     })
-    expect(t.inserted[0].summary).toBe('Temat: Naprawa lub przeróbka')
+    expect(t.inserted[0].summary).toBe('Temat: Naprawa lub przeróbka\nPreferowany kontakt: Telefon')
   })
 
   it('błąd bazy przy zapisie: 500 z prośbą o kontakt telefoniczny', async () => {

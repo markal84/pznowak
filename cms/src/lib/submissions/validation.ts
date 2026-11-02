@@ -1,10 +1,14 @@
 import type { CutId, GemId, MetalId, PaveId, SettingId, WidthId } from '../ring-geometry'
 import {
   BUDGETS,
+  BUDGET_AMOUNT,
+  CONTACT_PREFERENCES,
   CONTACT_TOPICS,
   CUT_IDS,
   GEM_IDS,
   LIMITS,
+  MEETING_MODES,
+  MEETING_TOPICS,
   METALS,
   OCCASIONS,
   PAVES,
@@ -13,7 +17,10 @@ import {
   RING_SIZE_KNOWN,
   SETTINGS,
   WIDTHS,
+  type BudgetId,
+  type ContactPreferenceId,
   type ContactTopicId,
+  type MeetingModeId,
   type OccasionId,
   type RingSizeKnownId,
 } from './options'
@@ -45,9 +52,15 @@ export type CreatorSubmission = {
 
 export type ContactSubmission = {
   topic: ContactTopicId
+  /** Forma rozmowy; pusta przy temacie bez tego pytania (MEETING_TOPICS). */
+  meeting: MeetingModeId | ''
+  contactPreference: ContactPreferenceId
   occasionText: string
   when: string
-  budget: string
+  /** Tylko przy temacie „nowy”; przy innych pusty. */
+  budget: BudgetId | ''
+  /** Kwota w złotych, gdy budżet to „Podam kwotę”; w innych przypadkach null. */
+  budgetAmount: number | null
   project: string
   weddingDate: string
   bandChoice: string
@@ -71,7 +84,7 @@ const LINK =
   /(?:[a-z][a-z0-9+.-]*:\/\/|\b(?:javascript|data|vbscript):|www\.|\b[\p{L}\p{N}-]+\.(?:pl|com|net|org|eu|io|info|biz|xyz|ru|de|uk|co|me|app|link|site|online|shop|top|store|click)\b|[^\s@]+@[^\s@]+\.[^\s@]+)/iu
 const NAME = /^[\p{L}\p{M}][\p{L}\p{M} '’.-]*$/u
 const ENGRAVING = /^[\p{L}\p{M}\p{N} &.,\-'’+!?:()♥∞]*$/u
-const EMAIL = /^[^\s@<>()"',;:]+@[^\s@<>()"',;:]+\.[^\s@<>()"',;:]{2,}$/
+export const EMAIL = /^[^\s@<>()"',;:]+@[^\s@<>()"',;:]+\.[^\s@<>()"',;:]{2,}$/
 const PHONE_CHARS = /^[+\d\s().\/-]+$/
 
 export const MESSAGES = {
@@ -87,6 +100,10 @@ export const MESSAGES = {
   phoneInvalid:
     'Sprawdź numer telefonu, np. 501 321 347. Zagraniczny wpisz z kierunkowym, np. +49 30 1234 5678.',
   email: 'Sprawdź adres e-mail.',
+  emailRequired: 'Podaj adres e-mail albo wybierz kontakt przez telefon lub SMS.',
+  meetingRequired: 'Wybierz, jak wolisz porozmawiać.',
+  budgetAmountRequired: 'Wpisz kwotę w złotych.',
+  budgetAmount: `Wpisz kwotę samymi cyframi, np. 6000 (najwyżej ${BUDGET_AMOUNT.maxDigits} cyfr).`,
   engraving: "Grawer może mieć litery, cyfry, spacje i znaki: & . , - ' + ! ? : ( ) ♥ ∞",
   consent: 'Zaznacz zgodę na kontakt, żebyśmy mogli oddzwonić.',
   messageRequired: 'Napisz, w czym możemy pomóc.',
@@ -195,6 +212,32 @@ function contactFields(data: Record<string, unknown>, errors: FieldErrors) {
 
   if (data.consent !== true) errors.consent = MESSAGES.consent
   return { name: nameValue, phone: phoneValue }
+}
+
+// Spacje (także twarde i wąskie) wolno wpisać jako odstęp tysięcy: „6 000”. Wszystko inne poza cyframi to błąd.
+const AMOUNT_SPACES = /[\s\u00A0\u202F\u2009]/g
+
+/**
+ * Kwota budżetu w złotych: tylko cyfry (najwyżej BUDGET_AMOUNT.maxDigits), bez groszy, waluty, znaku i notacji
+ * wykładniczej. Liczba w JSON-ie musi być całkowita i w tym samym zakresie.
+ */
+export function parseBudgetAmount(raw: unknown): { value: number } | { error: string } {
+  if (raw === undefined || raw === null || raw === '')
+    return { error: MESSAGES.budgetAmountRequired }
+  let digits: string
+  if (typeof raw === 'number') {
+    if (!Number.isSafeInteger(raw)) return { error: MESSAGES.budgetAmount }
+    digits = String(raw)
+  } else if (typeof raw === 'string') {
+    if (raw.length > 40) return { error: MESSAGES.budgetAmount }
+    digits = raw.trim().replace(AMOUNT_SPACES, '')
+    if (!digits) return { error: MESSAGES.budgetAmountRequired }
+  } else return { error: MESSAGES.budgetAmount }
+  if (!/^\d+$/.test(digits)) return { error: MESSAGES.budgetAmount }
+  const value = Number(digits)
+  if (value < BUDGET_AMOUNT.min || String(value).length > BUDGET_AMOUNT.maxDigits)
+    return { error: MESSAGES.budgetAmount }
+  return { value }
 }
 
 export function validateCreator(input: unknown): Validation<CreatorSubmission> {
@@ -315,16 +358,51 @@ export function validateContact(input: unknown): Validation<ContactSubmission> {
     }
   }
 
-  let budget = ''
+  let budget: BudgetId | '' = ''
+  let budgetAmount: number | null = null
   if (topic === 'nowy') {
     const raw =
       data.budget === undefined || data.budget === null || data.budget === ''
-        ? BUDGETS[0]
+        ? BUDGETS[0].id
         : data.budget
-    const value = choice(raw, BUDGETS)
+    const value = choice(
+      raw,
+      BUDGETS.map((b) => b.id),
+    )
     if (value) budget = value
     else errors.budget = MESSAGES.choice
+    if (value === 'kwota') {
+      const amount = parseBudgetAmount(data.budgetAmount)
+      if ('error' in amount) errors.budgetAmount = amount.error
+      else budgetAmount = amount.value
+    }
   }
+
+  // Forma rozmowy: wymagana przy tematach z MEETING_TOPICS (formularz zaznacza pierwszą opcję), przy naprawie pomijana.
+  let meeting: MeetingModeId | '' = ''
+  if (topic !== null && MEETING_TOPICS.includes(topic)) {
+    const value = choice(
+      data.meeting,
+      MEETING_MODES.map((m) => m.id),
+    )
+    if (value) meeting = value
+    else
+      errors.meeting =
+        data.meeting === undefined || data.meeting === null || data.meeting === ''
+          ? MESSAGES.meetingRequired
+          : MESSAGES.choice
+  }
+
+  // Preferowany kontakt: brak odpowiedzi = telefon (pierwsza opcja); przy e-mailu adres jest wymagany (niżej).
+  const contactPreference = choice(
+    data.contactPreference === undefined ||
+      data.contactPreference === null ||
+      data.contactPreference === ''
+      ? CONTACT_PREFERENCES[0].id
+      : data.contactPreference,
+    CONTACT_PREFERENCES.map((c) => c.id),
+  )
+  if (!contactPreference) errors.contactPreference = MESSAGES.choice
 
   const message = text(data.message, { max: LIMITS.message, multiline: true, links: true })
   let messageValue = ''
@@ -337,6 +415,7 @@ export function validateContact(input: unknown): Validation<ContactSubmission> {
   let emailValue = ''
   if ('error' in email) errors.email = email.error
   else if (email.value && !EMAIL.test(email.value)) errors.email = MESSAGES.email
+  else if (!email.value && contactPreference === 'email') errors.email = MESSAGES.emailRequired
   else emailValue = email.value.toLowerCase()
 
   const person = contactFields(data, errors)
@@ -346,9 +425,12 @@ export function validateContact(input: unknown): Validation<ContactSubmission> {
     ok: true,
     value: {
       topic: topic!,
+      meeting,
+      contactPreference: contactPreference!,
       occasionText,
       when,
       budget,
+      budgetAmount,
       project,
       weddingDate,
       bandChoice,

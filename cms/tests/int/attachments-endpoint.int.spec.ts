@@ -339,6 +339,7 @@ function uploadSetup(overrides: Partial<UploadDeps> = {}) {
   const afterCompletion = vi.fn(async () => undefined)
   const deps: UploadDeps = {
     appSecret: APP_SECRET,
+    publicOrigin: null,
     storage,
     enabled: true,
     prefix: 'zgloszenia-test/',
@@ -753,7 +754,8 @@ describe('powiadomienie pracowni o zdjęciach', () => {
     expect(text).toContain('Załączniki: 2 zdjęcia do obejrzenia w panelu')
     expect(text).toContain('https://x/admin/collections/submissions/7')
     expect(text).not.toMatch(/blob|zgloszenia\/|\.jpg/i)
-    expect(subject).not.toContain('Anna')
+    // Temat: rodzaj sprawy i imię (zlecenie X), bez plików i adresów.
+    expect(subject).toBe('Formularz kontaktowy – Anna (nr 7)')
   })
 
   it('niepełne: ile dotarło', () => {

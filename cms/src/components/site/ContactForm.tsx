@@ -1,33 +1,37 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { ATTACHMENTS_ENABLED, PREVIEW_NOTICE, SITE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
+import { ATTACHMENTS_ENABLED, PREVIEW_NOTICE, RESPONSE_TIME, SITE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
 import {
+  BUDGETS,
+  BUDGET_AMOUNT,
+  CONTACT_PREFERENCES,
   CONTACT_TOPICS as TOPICS,
   LIMITS,
+  MEETING_MODES,
+  MEETING_TOPICS,
   RING_DETAIL_TOPICS,
   RING_SIZES,
   RING_SIZE_KNOWN,
   ringSizeLabel,
+  type BudgetId,
+  type ContactPreferenceId,
   type ContactTopicId as TopicId,
   type RingSizeKnownId,
 } from '@/lib/submissions/options'
 import { validateContact } from '@/lib/submissions/validation'
 import Attachments, { AttachmentsNote } from './Attachments'
+import { effectiveMeeting, useContactPlan } from './ContactPlan'
 import { FieldError, FormNotice, Honeypot, invalidProps } from './FormParts'
 import Turnstile from './Turnstile'
 import { useSubmission } from './useSubmission'
 
 const MESSAGES: Record<TopicId, [string, string]> = {
-  nowy: ['Co Ci się podoba?', 'Opisz pierścionek lub obrączki: kamień, kolor złota, styl, dla kogo. Zdjęcie z internetu? Wklej link.'],
+  nowy: ['Opisz, czego szukasz', 'Opisz pierścionek lub obrączki: kamień, kolor złota, styl, dla kogo. Zdjęcie z internetu? Wklej link.'],
   kolekcja: ['Co chcesz zmienić w projekcie?', 'np. inny kamień, białe złoto, rozmiar do sprawdzenia'],
   obraczki: ['Coś jeszcze o obrączkach?', 'np. chcemy różne szerokości, grawer z datą, złoto po dziadkach'],
   naprawa: ['Co trzeba zrobić?', 'np. zmniejszyć pierścionek po babci i sprawdzić oprawę kamienia'],
   inne: ['Twoja wiadomość', 'W czym możemy pomóc?'],
-}
-
-function isTopic(value: string | undefined): value is TopicId {
-  return TOPICS.some((t) => t.id === value)
 }
 
 const text = (form: FormData, name: string) => {
@@ -40,23 +44,27 @@ export default function ContactForm({
   project,
   choice,
   consentText,
-  budgets,
 }: {
-  initialTopic?: string
+  /** Temat na starcie (`initialContactTopic` z adresu strony). */
+  initialTopic: TopicId
   project?: string
   choice?: string
   /** Treść zgody (z serwera; ta sama trafia do zapisu zgłoszenia). */
   consentText: string
-  /** Przedziały budżetu do wyboru; pusta lista ukrywa pole (do czasu podania przedziałów przez pracownię). */
-  budgets: readonly string[]
 }) {
-  const [topic, setTopic] = useState<TopicId>(isTopic(initialTopic) ? initialTopic : project ? 'kolekcja' : 'nowy')
+  // Temat i forma rozmowy są wspólne ze stroną (kroki „Co dalej” w kolumnie obok): ContactPlan.tsx.
+  const { topic, setTopic, meeting, setMeeting } = useContactPlan(initialTopic)
   const [sizeKnown, setSizeKnown] = useState<RingSizeKnownId>('unknown')
+  const [budget, setBudget] = useState<BudgetId>(BUDGETS[0].id)
+  const [contactBy, setContactBy] = useState<ContactPreferenceId>(CONTACT_PREFERENCES[0].id)
   const honeypot = useRef<HTMLInputElement>(null)
   const { sending, sent, notice, setNotice, fieldErrors, setFieldErrors, showErrors, submit, reset, attachmentsRef, attachmentsResult, turnstileProps } =
     useSubmission('kontakt', SUBMISSIONS_ENABLED)
   const [label, hint] = MESSAGES[topic]
   const ringDetails = RING_DETAIL_TOPICS.includes(topic)
+  const asksMeeting = MEETING_TOPICS.includes(topic)
+  const remote = effectiveMeeting(topic, meeting) === 'zdalnie'
+  const emailRequired = contactBy === 'email'
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -67,9 +75,12 @@ export default function ContactForm({
     const form = new FormData(event.currentTarget)
     const data = {
       topic,
+      ...(asksMeeting ? { meeting } : {}),
+      contactPreference: contactBy,
       occasionText: text(form, 'okazja'),
       when: text(form, 'data'),
-      budget: text(form, 'budzet'),
+      budget: topic === 'nowy' ? budget : '',
+      budgetAmount: topic === 'nowy' && budget === 'kwota' ? text(form, 'kwota') : '',
       project: text(form, 'projekt'),
       weddingDate: text(form, 'slub'),
       bandChoice: text(form, 'wybor'),
@@ -103,7 +114,8 @@ export default function ContactForm({
         <span aria-hidden="true" className="hole" />
         <h2 className="h2" style={{ fontSize: 44, lineHeight: 1.05 }}>Wiadomość wysłana</h2>
         <p className="text" style={{ maxWidth: '32em' }}>
-          Dziękujemy. Oddzwonimy w godzinach pracy pracowni, żeby ustalić termin rozmowy.
+          Dziękujemy. Odezwiemy się {CONTACT_PREFERENCES.find((c) => c.id === contactBy)?.sent}, żeby ustalić
+          termin rozmowy. {RESPONSE_TIME}
         </p>
         {/* ZLECENIE-B: wynik dołączania zdjęć (pusty, gdy klient ich nie dodawał). */}
         <AttachmentsNote result={attachmentsResult} />
@@ -138,6 +150,21 @@ export default function ContactForm({
         </div>
       </fieldset>
 
+      {asksMeeting ? (
+        <fieldset className="field">
+          <legend className="lbl">Jak wolisz porozmawiać?</legend>
+          <div className="choice-row">
+            {MEETING_MODES.map((m) => (
+              <label className="check" key={m.id}>
+                <input checked={meeting === m.id} data-field="meeting" name="rozmowa" onChange={() => setMeeting(m.id)} type="radio" value={m.id} {...err('meeting', 'k-rozmowa-err')} />
+                <span>{m.label}</span>
+              </label>
+            ))}
+          </div>
+          <FieldError id="k-rozmowa-err" message={fieldErrors.meeting} />
+        </fieldset>
+      ) : null}
+
       {topic === 'nowy' ? (
         <div className="form-grid">
           <div className="field">
@@ -150,15 +177,21 @@ export default function ContactForm({
             <input className="fld" data-field="when" id="k-data" maxLength={LIMITS.when} name="data" placeholder="np. koniec czerwca" type="text" {...err('when', 'k-data-err')} />
             <FieldError id="k-data-err" message={fieldErrors.when} />
           </div>
-          {budgets.length > 0 ? (
+          <div className="field">
+            <label htmlFor="k-budzet">Budżet <span className="opt-note">(opcjonalnie)</span></label>
+            <select className="fld" data-field="budget" id="k-budzet" name="budzet" onChange={(e) => setBudget(e.target.value as BudgetId)} value={budget} {...err('budget', 'k-budzet-err')}>
+              {BUDGETS.map((b) => (
+                <option key={b.id} value={b.id}>{b.label}</option>
+              ))}
+            </select>
+            <FieldError id="k-budzet-err" message={fieldErrors.budget} />
+          </div>
+          {budget === 'kwota' ? (
             <div className="field">
-              <label htmlFor="k-budzet">Budżet <span className="opt-note">(opcjonalnie)</span></label>
-              <select className="fld" data-field="budget" id="k-budzet" name="budzet" {...err('budget', 'k-budzet-err')}>
-                {budgets.map((b) => (
-                  <option key={b}>{b}</option>
-                ))}
-              </select>
-              <FieldError id="k-budzet-err" message={fieldErrors.budget} />
+              <label htmlFor="k-kwota">Kwota w złotych</label>
+              <input autoComplete="off" className="fld" data-field="budgetAmount" id="k-kwota" inputMode="numeric" maxLength={BUDGET_AMOUNT.maxDigits + 2} name="kwota" pattern="[0-9 ]*" placeholder="np. 6000" type="text" {...err('budgetAmount', 'k-kwota-err')} />
+              <span className="field-hint">Same cyfry, bez groszy.</span>
+              <FieldError id="k-kwota-err" message={fieldErrors.budgetAmount} />
             </div>
           ) : null}
         </div>
@@ -242,12 +275,33 @@ export default function ContactForm({
                 <FieldError id="k-rozmiar-err" message={fieldErrors.ringSize} />
               </>
             ) : (
-              <span className="field-hint">Nic nie szkodzi. Zmierzymy palec w pracowni, a przy niespodziance podpowiemy, jak sprawdzić rozmiar po cichu.</span>
+              <span className="field-hint">
+                {remote
+                  ? 'Nic nie szkodzi. Rozmiar zmierzy bez problemu każdy jubiler w Twojej okolicy, a przy niespodziance podpowiemy, jak sprawdzić go po cichu.'
+                  : 'Nic nie szkodzi. Zmierzymy palec w pracowni, a przy niespodziance podpowiemy, jak sprawdzić rozmiar po cichu.'}
+              </span>
             )}
             <FieldError id="k-rozmiar-znany-err" message={fieldErrors.ringSizeKnown} />
           </fieldset>
         </div>
       ) : null}
+
+      <fieldset className="field">
+        <legend className="lbl">Jak się z Tobą skontaktować?</legend>
+        <div className="choice-row">
+          {CONTACT_PREFERENCES.map((c) => (
+            <label className="check" key={c.id}>
+              <input checked={contactBy === c.id} data-field="contactPreference" name="kontakt" onChange={() => {
+                setContactBy(c.id)
+                // „Podaj e-mail” dotyczyło wyboru „E-mail”; po zmianie wyboru komunikat znika.
+                clearError('email')
+              }} type="radio" value={c.id} />
+              <span>{c.label}</span>
+            </label>
+          ))}
+        </div>
+        <FieldError id="k-kontakt-err" message={fieldErrors.contactPreference} />
+      </fieldset>
 
       <div className="form-grid">
         <div className="field">
@@ -261,8 +315,8 @@ export default function ContactForm({
           <FieldError id="k-tel-err" message={fieldErrors.phone} />
         </div>
         <div className="field">
-          <label htmlFor="k-mail">E-mail <span className="opt-note">(opcjonalnie)</span></label>
-          <input autoComplete="email" className="fld" data-field="email" id="k-mail" maxLength={LIMITS.email} name="email" type="email" {...err('email', 'k-mail-err')} />
+          <label htmlFor="k-mail">E-mail{emailRequired ? null : <> <span className="opt-note">(opcjonalnie)</span></>}</label>
+          <input aria-required={emailRequired || undefined} autoComplete="email" className="fld" data-field="email" id="k-mail" maxLength={LIMITS.email} name="email" type="email" {...err('email', 'k-mail-err')} />
           <FieldError id="k-mail-err" message={fieldErrors.email} />
         </div>
       </div>
@@ -283,7 +337,7 @@ export default function ContactForm({
         <button className="btn" disabled={sending} type="submit">
           {sending ? 'Wysyłanie…' : 'Wyślij wiadomość'}
         </button>
-        <span style={{ fontSize: 14, color: 'var(--muted)' }}>Oddzwonimy w godzinach pracy pracowni.</span>
+        <span style={{ fontSize: 14, color: 'var(--muted)' }}>{RESPONSE_TIME}</span>
       </div>
       <FormNotice notice={notice} />
     </form>

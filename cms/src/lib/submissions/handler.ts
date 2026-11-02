@@ -13,6 +13,15 @@ import {
 } from './limits'
 import { consentText } from './consent'
 import type { FormKind } from './options'
+import {
+  clientIp,
+  describeIpHeaders,
+  linkOrigin,
+  readLimited,
+  requestHostname,
+  requestOrigin,
+  safeErrorMessage,
+} from './request'
 import type { LimitOutcome, SubmissionDraft } from './store'
 import { describeContact, describeCreator, rowsToText } from './summary'
 import type { TurnstileResult } from './turnstile'
@@ -82,6 +91,9 @@ export const RESPONSE_MESSAGES: Record<ResponseCode, string> = {
 
 export const MAX_BODY_BYTES = 16 * 1024
 
+// Dawniej zdefiniowane tutaj; zostają pod tą samą nazwą dla istniejących importów.
+export { clientIp, requestHostname, requestOrigin }
+
 export type AcceptedSubmission = SubmissionDraft & { id: number; createdAt: string }
 
 export type SubmissionDeps = {
@@ -124,28 +136,7 @@ function reply(
   return Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...headers } })
 }
 
-/** Adres klienta według nagłówków ustawianych przez Vercel (klient nie może ich podmienić). */
-export function clientIp(headers: Headers): string | null {
-  const real = headers.get('x-real-ip')?.trim()
-  if (real) return real
-  return headers.get('x-forwarded-for')?.split(',')[0]?.trim() || null
-}
-
-/** Host, na który przyszło zgłoszenie; Turnstile musi być rozwiązany na tym samym hoście. */
-export function requestHostname(request: Request): string {
-  const host =
-    request.headers.get('x-forwarded-host') ??
-    request.headers.get('host') ??
-    new URL(request.url).host
-  return host.split(',')[0].trim().replace(/:\d+$/, '').toLowerCase()
-}
-
-export function requestOrigin(request: Request): string {
-  const proto =
-    request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim() ||
-    new URL(request.url).protocol.replace(':', '')
-  return `${proto}://${request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? new URL(request.url).host}`
-}
+let ipHeadersLogged = false
 
 const isForm = (value: unknown): value is FormKind => value === 'kreator' || value === 'kontakt'
 
@@ -244,8 +235,11 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
     }
     if (Number(request.headers.get('content-length') ?? 0) > MAX_BODY_BYTES)
       return reply(413, 'rejected')
-    const raw = await request.text()
-    if (Buffer.byteLength(raw) > MAX_BODY_BYTES) return reply(413, 'rejected')
+    // Czytanie z limitem: żądanie bez Content-Length nie wczyta do pamięci więcej niż 16 KB (poza Vercelem
+    // nie ma limitu treści po stronie platformy).
+    const bytes = await readLimited(request, MAX_BODY_BYTES)
+    if (!bytes) return reply(413, 'rejected')
+    const raw = bytes.toString('utf8')
 
     let body: Record<string, unknown>
     try {
@@ -285,7 +279,12 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
     }
 
     // 2. Walidacja pól (przed Turnstile, żeby nie zużyć tokenu przy literówce).
-    const ip = clientIp(request.headers)
+    const ip = clientIp(request.headers, settings.clientIpSource)
+    // Raz na proces (i za każdym razem, gdy adresu brak): które nagłówki niosą adres, bez samych adresów.
+    if (!ipHeadersLogged || !ip) {
+      ipHeadersLogged = true
+      log(describeIpHeaders(request.headers, ip !== null), { source: settings.clientIpSource.kind })
+    }
     const ipHash = hashIp(
       ip ? ipLimitIdentity(ip) : 'nieznany',
       deriveKey(settings.appSecret, 'ip-hash'),
@@ -406,10 +405,7 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
           uploads: slots.map((slot) => ({ token: issueUploadToken(slot.id, expiresAt, key) })),
         }
       } catch (error) {
-        log('zdjęcia odrzucone: błąd miejsc na pliki', {
-          id,
-          error: error instanceof Error ? error.message : String(error),
-        })
+        log('zdjęcia odrzucone: błąd miejsc na pliki', { id, error: safeErrorMessage(error) })
         attachmentsState = 'refused_unavailable'
         await deps.attachments.markUnavailable(id).catch(() => undefined)
       }
@@ -427,22 +423,18 @@ export async function handleSubmission(request: Request, deps: SubmissionDeps): 
       id,
       createdAt: new Date(now).toISOString(),
     }
-    const origin = requestOrigin(request)
+    const origin = linkOrigin(request, settings.publicOrigin)
     deps.defer(async () => {
       try {
         await deps.afterAccepted(accepted, { origin })
       } catch (error) {
-        log('błąd po przyjęciu zgłoszenia', {
-          id,
-          error: error instanceof Error ? error.message : String(error),
-        })
+        log('błąd po przyjęciu zgłoszenia', { id, error: safeErrorMessage(error) })
       }
     })
     return reply(201, 'accepted', attachments ? { attachments } : {})
   } catch (error) {
-    log('błąd obsługi zgłoszenia', {
-      error: error instanceof Error ? error.message : String(error),
-    })
+    // Bez pełnego komunikatu: błąd zapytania do bazy zawiera w drugiej linijce dane z formularza.
+    log('błąd obsługi zgłoszenia', { error: safeErrorMessage(error) })
     return reply(500, 'error')
   }
 }

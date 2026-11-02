@@ -60,7 +60,7 @@ test.describe('Zdjęcia od klienta w panelu', () => {
     await page.locator('label.topic', { hasText: 'Inne pytanie' }).click()
     await page.getByLabel('Twoja wiadomość').fill(`Test panelu ${RUN}, proszę zignorować.`)
     await page.getByLabel('Imię').fill('Test Playwright')
-    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
     await page.getByLabel(/Zgadzam się na kontakt/).check()
     const photo = (background: string) =>
       sharp({ create: { width: 800, height: 600, channels: 3, background } })

@@ -23,7 +23,8 @@ const readOnly = { readOnly: true }
 const contactOnly = (data: Partial<{ kind: SubmissionKind }>) => data?.kind === 'contact'
 const RING_SIZE_KNOWN_LABELS: Record<RingSizeKnownId, string> = {
   known: 'Zna rozmiar',
-  unknown: 'Nie zna – zmierzymy w pracowni',
+  // Bez „zmierzymy w pracowni”: klient spoza Buska mierzy u jubilera w swojej okolicy (karta zgłoszenia mówi, który wariant).
+  unknown: 'Nie zna rozmiaru',
 }
 
 /** Pola zdjęć widać tylko przy zgłoszeniach, w których klient je dołączał (przełącznik wyłączony = panel bez zmian). */
