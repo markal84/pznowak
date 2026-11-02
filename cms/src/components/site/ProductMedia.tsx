@@ -2,8 +2,11 @@
 
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { useRef, useState, type TouchEvent } from 'react'
+import { useRef, useState, type ReactNode, type TouchEvent } from 'react'
 import type { Slide } from 'yet-another-react-lightbox'
+
+import { useSelectedStoneVariant } from './StoneVariants'
+import Tag from './Tag'
 
 // Podgląd (z biblioteką i pełnymi zdjęciami) ładuje się dopiero po pierwszym kliknięciu w zdjęcie.
 const ProductLightbox = dynamic(() => import('./ProductLightbox'), { ssr: false })
@@ -14,9 +17,15 @@ type ProductMediaProps = {
   name: string
   images: string[]
   video: string
+  /** Pod galerią, np. „Zamów z innym kamieniem” (kółka zmieniają główne zdjęcie). */
+  children?: ReactNode
 }
 
-type Item = { kind: 'image'; src: string; label: string } | { kind: 'video'; src: string; label: string; poster: string }
+type VariantInfo = { stone: string; isVisualization: boolean; alt: string }
+
+type Item =
+  | { kind: 'image'; src: string; label: string; variant?: VariantInfo }
+  | { kind: 'video'; src: string; label: string; poster: string }
 
 const IMAGE_LABELS = ['widok z boku', 'oprawa z bliska', 'obrączka', 'inne ujęcie', 'kolejne ujęcie']
 
@@ -28,21 +37,39 @@ function ArrowIcon({ dir }: { dir: 'left' | 'right' }) {
   )
 }
 
-export default function ProductMedia({ name, images, video }: ProductMediaProps) {
+export default function ProductMedia({ name, images, video, children }: ProductMediaProps) {
+  const variant = useSelectedStoneVariant()
   const items: Item[] = images.map((src, i) => ({
     kind: 'image',
     src,
     label: `Zdjęcie ${i + 1}: ${IMAGE_LABELS[i] ?? 'kolejne ujęcie'}`,
   }))
   if (video) items.push({ kind: 'video', src: video, label: 'Film o pierścionku', poster: images[0] ?? '' })
+  // Wybrany inny kamień: jego obraz staje się głównym (pierwszym) zdjęciem; zdjęcia oryginału zostają dalej w galerii.
+  if (variant) {
+    items.unshift({
+      kind: 'image',
+      src: variant.image,
+      label: `${variant.isVisualization ? 'Wizualizacja' : 'Zdjęcie'}: ${variant.stone.toLowerCase()}`,
+      variant: { stone: variant.stone, isVisualization: variant.isVisualization, alt: variant.alt },
+    })
+  }
 
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
+  // Zmiana kamienia pokazuje od razu jego obraz (stan ustawiany w trakcie renderu, wzorzec z dokumentacji Reacta).
+  const variantKey = variant?.slug ?? ''
+  const [shownVariant, setShownVariant] = useState(variantKey)
+  if (shownVariant !== variantKey) {
+    setShownVariant(variantKey)
+    setIndex(0)
+    setPlaying(false)
+  }
   const [lightbox, setLightbox] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const zoomRef = useRef<HTMLButtonElement>(null)
   const touchStart = useRef<{ x: number; y: number } | null>(null)
-  const current = items[index]
+  const current = items[index] ?? items[0]
   if (!current) return null
 
   const pick = (i: number) => {
@@ -67,7 +94,7 @@ export default function ProductMedia({ name, images, video }: ProductMediaProps)
 
   const slides: Slide[] = items.map((item) =>
     item.kind === 'image'
-      ? { src: item.src, alt: `${name}: ${item.label.toLowerCase()}` }
+      ? { src: item.src, alt: item.variant ? variantAlt(name, item.variant) : `${name}: ${item.label.toLowerCase()}` }
       : { type: 'video', sources: [{ src: item.src, type: 'video/mp4' }], poster: item.poster || undefined },
   )
 
@@ -82,16 +109,31 @@ export default function ProductMedia({ name, images, video }: ProductMediaProps)
             ref={zoomRef}
             type="button"
           >
-            <span className="ph">
-              <Image
-                alt={`${name}: ${current.label.toLowerCase()}`}
-                fill
-                priority={index === 0}
-                sizes="(max-width: 960px) 100vw, 55vw"
-                src={current.src}
-                style={{ objectFit: 'cover' }}
-              />
-            </span>
+            {current.variant ? (
+              // Obraz wariantu bywa pionowy: cały pierścionek w kadrze, tło z tego samego obrazu (rozmyte) zamiast pasów.
+              <span className="ph ph-variant">
+                <Image alt="" aria-hidden="true" className="ph-variant-bg" fill sizes="(max-width: 960px) 100vw, 55vw" src={current.src} />
+                <Image
+                  alt={variantAlt(name, current.variant)}
+                  fill
+                  priority
+                  sizes="(max-width: 960px) 100vw, 55vw"
+                  src={current.src}
+                  style={{ objectFit: 'contain' }}
+                />
+              </span>
+            ) : (
+              <span className="ph">
+                <Image
+                  alt={`${name}: ${current.label.toLowerCase()}`}
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 960px) 100vw, 55vw"
+                  src={current.src}
+                  style={{ objectFit: 'cover' }}
+                />
+              </span>
+            )}
           </button>
         ) : (
           <>
@@ -126,6 +168,9 @@ export default function ProductMedia({ name, images, video }: ProductMediaProps)
             ) : null}
           </>
         )}
+        {current.kind === 'image' && current.variant?.isVisualization ? (
+          <Tag className="tag-corner variant-tag" name="Wizualizacja" sub={current.variant.stone} />
+        ) : null}
         {items.length > 1 ? (
           <>
             <button aria-label="Poprzednie zdjęcie" className="media-arrow media-prev" onClick={() => step(-1)} type="button">
@@ -166,7 +211,13 @@ export default function ProductMedia({ name, images, video }: ProductMediaProps)
               type="button"
             >
               <span className="ph ph-11">
-                <Image alt="" fill sizes="120px" src={item.kind === 'video' ? item.poster || images[0] : item.src} />
+                <Image
+                  alt=""
+                  fill
+                  sizes="120px"
+                  src={item.kind === 'video' ? item.poster || images[0] : item.src}
+                  style={item.kind === 'image' && item.variant ? { objectFit: 'cover', objectPosition: '50% 45%' } : undefined}
+                />
               </span>
               {item.kind === 'video' ? (
                 <span aria-hidden="true" className="film">
@@ -177,6 +228,12 @@ export default function ProductMedia({ name, images, video }: ProductMediaProps)
           ))}
         </div>
       ) : null}
+      {children}
     </div>
   )
+}
+
+function variantAlt(name: string, variant: VariantInfo): string {
+  if (variant.alt) return variant.alt
+  return `${name} z kamieniem: ${variant.stone.toLowerCase()}${variant.isVisualization ? ' (wizualizacja)' : ''}`
 }

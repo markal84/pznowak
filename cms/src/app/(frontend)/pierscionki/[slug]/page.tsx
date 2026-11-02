@@ -11,10 +11,18 @@ import { SHOW_GOLD_FINENESS, SITE } from '@/lib/site'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import ProductMedia from '@/components/site/ProductMedia'
 import RingCard from '@/components/site/RingCard'
+import {
+  StoneVariantPicker,
+  StoneVariantProvider,
+  VariantInquiryLink,
+  VariantStoneFact,
+} from '@/components/site/StoneVariants'
+import { originalSwatch } from '@/lib/stone-variants'
 
 export const dynamic = 'force-dynamic'
 
 type Params = { params: Promise<{ slug: string }> }
+type SearchParams = Promise<Record<string, string | string[] | undefined>>
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params
@@ -32,8 +40,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   })
 }
 
-export default async function ProductPage({ params }: Params) {
+export default async function ProductPage({ params, searchParams }: Params & { searchParams: SearchParams }) {
   const { slug } = await params
+  // `?kamien=<slug>` (link do wybranego kamienia): adres kanoniczny zostaje bez parametru (generateMetadata).
+  const stoneParam = (await searchParams).kamien
+  const initialStone = Array.isArray(stoneParam) ? stoneParam[0] : stoneParam
   const products = await getProducts()
   const product = products.find((p) => p.slug === slug)
   if (!product) notFound()
@@ -44,8 +55,15 @@ export default async function ProductPage({ params }: Params) {
   const similar = similarTo(product, products, 4).map(toCatalogRing)
   // Pusty kamień albo metal: na produkcji wiersza nie ma, na podglądzie widać znacznik „do uzupełnienia”.
   const facts: [string, ReactNode][] = []
-  if (stone) facts.push(['Kamień główny', stone])
-  else if (showPlaceholders()) facts.push(['Kamień główny', <DoUzupelnienia key="stone">[do uzupełnienia]</DoUzupelnienia>])
+  if (stone) facts.push(['Kamień główny', <VariantStoneFact key="stone">{stone}</VariantStoneFact>])
+  else if (showPlaceholders()) {
+    facts.push([
+      'Kamień główny',
+      <VariantStoneFact key="stone">
+        <DoUzupelnienia>[do uzupełnienia]</DoUzupelnienia>
+      </VariantStoneFact>,
+    ])
+  }
   if (metal) {
     facts.push([
       'Złoto',
@@ -59,7 +77,7 @@ export default async function ProductPage({ params }: Params) {
   if (product.clarity) facts.push(['Czystość kamienia', product.clarity])
 
   return (
-    <>
+    <StoneVariantProvider initialSlug={initialStone ?? null} variants={product.stoneVariants}>
       <nav aria-label="Ścieżka" className="wrap crumbs">
         <ol>
           <li>
@@ -71,7 +89,9 @@ export default async function ProductPage({ params }: Params) {
       </nav>
 
       <section className="wrap product">
-        <ProductMedia images={product.images} name={product.name} video={product.video} />
+        <ProductMedia images={product.images} name={product.name} video={product.video}>
+          <StoneVariantPicker originalStone={stone} originalSwatch={originalSwatch(product.stone)} />
+        </ProductMedia>
 
         <div className="product-info">
           <div className="stack" style={{ gap: 16 }}>
@@ -116,18 +136,17 @@ export default async function ProductPage({ params }: Params) {
 
           <div className="stack" style={{ gap: 14 }}>
             <div className="row" style={{ gap: '12px 20px' }}>
-              <Link
-                className="btn"
-                href={`/kontakt?temat=kolekcja&projekt=${encodeURIComponent(product.name)}`}
-              >
+              <VariantInquiryLink className="btn" projectName={product.name}>
                 Zapytaj o ten pierścionek
-              </Link>
+              </VariantInquiryLink>
               <a className="btn btn-line" href={SITE.phoneHref}>
                 Zadzwoń: {SITE.phoneShort}
               </a>
             </div>
             <p className="small" style={{ fontSize: 14.5 }}>
-              Formularz otworzy się z nazwą tego projektu. Wystarczy dopisać, co chcesz zmienić.
+              {product.stoneVariants.length
+                ? 'Formularz otworzy się z nazwą projektu i wybranym kamieniem. Wystarczy dopisać, co chcesz zmienić.'
+                : 'Formularz otworzy się z nazwą tego projektu. Wystarczy dopisać, co chcesz zmienić.'}
             </p>
           </div>
 
@@ -177,6 +196,6 @@ export default async function ProductPage({ params }: Params) {
           </ul>
         </section>
       ) : null}
-    </>
+    </StoneVariantProvider>
   )
 }

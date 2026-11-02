@@ -168,7 +168,7 @@ export default function ContactForm({
         <div className="field" style={{ maxWidth: 420 }}>
           <label htmlFor="k-projekt">Który projekt Cię interesuje?</label>
           <input className="fld" data-field="project" defaultValue={project ?? ''} id="k-projekt" maxLength={LIMITS.project} name="projekt" placeholder="np. Phoebe" type="text" {...err('project', 'k-projekt-err')} />
-          <span className="field-hint">Z karty pierścionka nazwa wpisze się sama.</span>
+          <span className="field-hint">Z karty pierścionka nazwa i wybrany kamień wpiszą się same.</span>
           <FieldError id="k-projekt-err" message={fieldErrors.project} />
         </div>
       ) : null}

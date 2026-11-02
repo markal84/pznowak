@@ -4,7 +4,7 @@ import ContactMap from '@/components/site/ContactMap'
 import NavigateLink from '@/components/site/NavigateLink'
 import { byEnv } from '@/lib/placeholders'
 import { consentText } from '@/lib/submissions/consent'
-import { BUDGETS } from '@/lib/submissions/options'
+import { BUDGETS, LIMITS } from '@/lib/submissions/options'
 import JsonLd from '@/components/site/JsonLd'
 import { pageMetadata } from '@/lib/seo'
 import { SITE } from '@/lib/site'
@@ -23,7 +23,11 @@ const first = (value: string | string[] | undefined) => (Array.isArray(value) ? 
 export default async function ContactPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams
   const topic = first(params.temat)
-  const project = first(params.projekt)?.slice(0, 80)
+  const projectName = first(params.projekt)?.trim().slice(0, LIMITS.project)
+  // Kamień wybrany na karcie pierścionka („Zamów z innym kamieniem”): wpisuje się do pola projektu, bo to pole
+  // trafia do zgłoszenia i powiadomienia jako „Projekt”, więc pracownia widzi wybór bez nowej kolumny w bazie.
+  const stone = first(params.kamien)?.replace(/\s+/g, ' ').trim().slice(0, 60)
+  const project = projectName && stone ? `${projectName}, kamień: ${stone}`.slice(0, LIMITS.project) : projectName
   const choice = first(params.wybor)?.slice(0, 160)
 
   return (

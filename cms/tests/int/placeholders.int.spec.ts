@@ -31,6 +31,7 @@ const product = (id: number, name: string, extra: Partial<SiteProduct> = {}): Si
   updatedAt: '2026-10-26T00:00:00.000Z',
   featuredOnHome: false,
   homeOrder: 0,
+  stoneVariants: [],
   ...extra,
 })
 
@@ -88,8 +89,8 @@ const html = (element: ReactElement) => renderToStaticMarkup(element)
 const pages = async () => ({
   '/': html(await HomePage()),
   '/pierscionki': html(await CatalogPage()),
-  '/pierscionki/phoebe': html(await ProductPage({ params: Promise.resolve({ slug: 'phoebe' }) })),
-  '/pierscionki/bez-kamienia': html(await ProductPage({ params: Promise.resolve({ slug: 'bez-kamienia' }) })),
+  '/pierscionki/phoebe': html(await ProductPage({ params: Promise.resolve({ slug: 'phoebe' }), searchParams: Promise.resolve({}) })),
+  '/pierscionki/bez-kamienia': html(await ProductPage({ params: Promise.resolve({ slug: 'bez-kamienia' }), searchParams: Promise.resolve({}) })),
   '/obraczki': html(await BandsPage()),
   '/na-zamowienie': html(await OnOrderPage()),
   '/naprawy': html(await RepairsPage()),

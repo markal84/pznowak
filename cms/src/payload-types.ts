@@ -160,6 +160,34 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  stoneVariants?:
+    | {
+        /**
+         * Tak jak w parametrach karty. Z nazwy powstaje adres ?kamien=…
+         */
+        stone: string;
+        swatch:
+          | 'zielony'
+          | 'niebieski'
+          | 'granatowy'
+          | 'jasnoniebieski'
+          | 'fioletowy'
+          | 'czerwony'
+          | 'rozowy'
+          | 'zolty'
+          | 'bialy';
+        /**
+         * Najlepiej w proporcjach jak zdjęcia pierścionka; cały pierścionek w kadrze.
+         */
+        image: number | Media;
+        alt?: string | null;
+        /**
+         * Na obrazie pojawia się etykieta „Wizualizacja”. Odznacz tylko przy prawdziwym zdjęciu wykonanego pierścionka.
+         */
+        isVisualization?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   legacy?: {
     wordpressId?: number | null;
     sourcePayload?:
@@ -224,8 +252,6 @@ export interface Media {
    * Pole techniczne używane podczas importu starego katalogu.
    */
   legacySourceUrl?: string | null;
-  prefix?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -548,6 +574,16 @@ export interface ProductsSelect<T extends boolean = true> {
         alt?: T;
         id?: T;
       };
+  stoneVariants?:
+    | T
+    | {
+        stone?: T;
+        swatch?: T;
+        image?: T;
+        alt?: T;
+        isVisualization?: T;
+        id?: T;
+      };
   legacy?:
     | T
     | {
@@ -583,8 +619,6 @@ export interface ProductsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   legacySourceUrl?: T;
-  prefix?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
