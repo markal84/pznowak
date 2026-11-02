@@ -61,6 +61,9 @@ next-env.d.ts
 # Surowy eksport z fanpage FB (linki CDN wygasają, media duże)
 /data/facebook/
 
+# Próby i oceny wizualizacji kamieni (zlecenie W) – wynik trafia do cms/seed/warianty
+/data/warianty-w/
+
 # Zlecenia dla agentów (także w chmurze) – w gicie tylko zlecenia i zasady; raporty i zrzuty zostają lokalnie
 !docs/zlecenia/*_zlecenie-*.md
 !docs/zlecenia/KOLEJKA.md
