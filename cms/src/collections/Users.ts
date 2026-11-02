@@ -20,6 +20,9 @@ export const Users: CollectionConfig = {
     useAPIKey: true,
   },
   access: {
+    // Bez `create` Payload wpuszcza każdego zalogowanego, a konto redaktora dostałoby domyślne `roles: ['admin']`.
+    // Pierwsze konto (/admin/create-first-user) Payload tworzy z overrideAccess: true, więc ta reguła go nie blokuje.
+    create: isAdmin,
     read: isAdmin,
     update: isAdmin,
     delete: isAdmin,
