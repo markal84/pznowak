@@ -8,6 +8,7 @@ import {
 } from '../access/permissions'
 import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-publication'
 import { applyArchiveStatus, validateProductMedia } from '../lib/product-workflow'
+import { SWATCHES } from '../lib/stone-variants'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -149,6 +150,79 @@ export const Products: CollectionConfig = {
                   name: 'alt',
                   type: 'text',
                   label: 'Opis alternatywny',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Inne kamienie',
+          description:
+            'Sekcja „Zamów z innym kamieniem” na karcie: kółka kolorów pod galerią. Pierwsze kółko to zawsze oryginał z zakładki „Materiały”. Wariant to propozycja do rozmowy, bez ceny; dostępność kamienia potwierdza pracownia.',
+          fields: [
+            {
+              name: 'stoneVariants',
+              type: 'array',
+              label: 'Warianty kamienia',
+              labels: {
+                singular: 'Wariant',
+                plural: 'Warianty',
+              },
+              admin: {
+                initCollapsed: true,
+                components: {
+                  RowLabel: '/components/admin/StoneVariantRowLabel#StoneVariantRowLabel',
+                },
+              },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'stone',
+                      type: 'text',
+                      label: 'Kamień',
+                      required: true,
+                      admin: {
+                        width: '60%',
+                        placeholder: 'np. Szmaragd i diamenty',
+                        description: 'Tak jak w parametrach karty. Z nazwy powstaje adres ?kamien=…',
+                      },
+                    },
+                    {
+                      name: 'swatch',
+                      type: 'select',
+                      label: 'Kolor kółka',
+                      required: true,
+                      options: SWATCHES.map(({ id, label }) => ({ value: id, label })),
+                      admin: { width: '40%' },
+                    },
+                  ],
+                },
+                {
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'Obraz',
+                  required: true,
+                  admin: {
+                    description: 'Najlepiej w proporcjach jak zdjęcia pierścionka; cały pierścionek w kadrze.',
+                  },
+                },
+                {
+                  name: 'alt',
+                  type: 'text',
+                  label: 'Opis alternatywny',
+                },
+                {
+                  name: 'isVisualization',
+                  type: 'checkbox',
+                  label: 'Wizualizacja',
+                  defaultValue: true,
+                  admin: {
+                    description:
+                      'Na obrazie pojawia się etykieta „Wizualizacja”. Odznacz tylko przy prawdziwym zdjęciu wykonanego pierścionka.',
+                  },
                 },
               ],
             },

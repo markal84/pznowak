@@ -8,6 +8,7 @@ import * as migration_20261022_095455_seo_pierscionki from './20261022_095455_se
 import * as migration_20261026_111856_strona_glowna_wybrane from './20261026_111856_strona_glowna_wybrane'
 import * as migration_20261026_125727_fb_import_zrodlo from './20261026_125727_fb_import_zrodlo'
 import * as migration_20261101_101210_realizacje from './20261101_101210_realizacje'
+import * as migration_20261102_100513_warianty_kamieni from './20261102_100513_warianty_kamieni'
 
 export const migrations = [
   {
@@ -59,5 +60,10 @@ export const migrations = [
     up: migration_20261101_101210_realizacje.up,
     down: migration_20261101_101210_realizacje.down,
     name: '20261101_101210_realizacje',
+  },
+  {
+    up: migration_20261102_100513_warianty_kamieni.up,
+    down: migration_20261102_100513_warianty_kamieni.down,
+    name: '20261102_100513_warianty_kamieni',
   },
 ]

@@ -1,4 +1,5 @@
 import type { GalleryItem, Media, Product, SiteContent } from '../payload-types'
+import { serializeStoneVariants, type StoneVariant } from './stone-variants'
 
 export const DEFAULT_PRODUCTS_LIMIT = 3
 export const MAX_PRODUCTS_LIMIT = 10
@@ -34,7 +35,12 @@ export type ProductHomeFields = {
   homeOrder: number
 }
 
-export type SiteProduct = PublicProduct & ProductSeoFields & ProductHomeFields
+/** „Zamów z innym kamieniem” (zlecenie V). Tylko dla stron serwisu; publiczny kontrakt API (`PublicProduct`) bez zmian. */
+export type ProductVariantFields = {
+  stoneVariants: StoneVariant[]
+}
+
+export type SiteProduct = PublicProduct & ProductSeoFields & ProductHomeFields & ProductVariantFields
 
 export type PublicGalleryItem = {
   id: number
@@ -128,6 +134,7 @@ export function serializeSiteProduct(product: Product): SiteProduct {
     updatedAt: product.updatedAt,
     featuredOnHome: product.featuredOnHome === true,
     homeOrder: product.homeOrder ?? 0,
+    stoneVariants: serializeStoneVariants(product.stoneVariants),
   }
 }
 
