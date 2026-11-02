@@ -18,6 +18,8 @@ export const IMAGES_DIR = path.join(WARIANTY_DIR, 'obrazy')
 /** Obrazy z seeda rozpoznajemy w Media po `legacySourceUrl`, jak w seedzie realizacji. */
 export const SOURCE_PREFIX = 'seed://warianty/'
 export const sourceKey = (file: string) => `${SOURCE_PREFIX}${file}`
+/** Podmieniony obraz dostaje własny klucz (skrót pliku), więc nie myli się ze starym Media tego samego pliku. */
+export const replacementKey = (file: string, hash: string) => `${sourceKey(file)}#${hash}`
 export const MAX_IMAGE_BYTES = 300 * 1024
 
 export type VariantSpec = {
@@ -135,6 +137,20 @@ export function missingVariants(current: readonly CurrentVariant[], specs: reado
   return specs.filter(
     (spec) => !current.some((variant) => variant.file === spec.file || norm(variant.stone) === norm(spec.stone)),
   )
+}
+
+/** `--podmien-obraz <slug>:<kamień>`; kamień porównujemy jak nazwy wariantów (bez wielkości liter i nadmiarowych spacji). */
+export function parseReplaceArg(value: string | undefined): { slug: string; stone: string } {
+  const at = (value ?? '').indexOf(':')
+  const slug = (value ?? '').slice(0, at).trim()
+  const stone = (value ?? '').slice(at + 1).trim()
+  if (at < 1 || !stone) throw new Error('--podmien-obraz wymaga <slug>:<kamień>, np. aion:Szafir granatowy i diamenty')
+  return { slug, stone }
+}
+
+/** Wariant do podmiany obrazu: ten o danej nazwie kamienia, bo `missingVariants` istniejących nie rusza. */
+export function findReplaceTarget<T extends { stone: string }>(variants: readonly T[], stone: string): T | undefined {
+  return variants.find((variant) => norm(variant.stone) === norm(stone))
 }
 
 /** Warianty z karty, które zostają po usunięciu `removeStones` (porównanie nazw bez wielkości liter i spacji). */

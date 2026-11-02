@@ -20,7 +20,10 @@ import {
   fixMediaAlts,
   IMAGES_DIR,
   loadSpecs,
+  findReplaceTarget,
   keptVariants,
+  parseReplaceArg,
+  replacementKey,
   missingVariants,
   planCardFix,
 } from '../../scripts/warianty-v-logic'
@@ -267,5 +270,20 @@ describe('formularz kontaktu z kamieniem', () => {
   it('bez kamienia sama nazwa projektu', async () => {
     const html = renderToStaticMarkup(await ContactPage({ searchParams: Promise.resolve({ temat: 'kolekcja', projekt: 'Aion' }) }))
     expect(html).toContain('value="Aion"')
+  })
+})
+
+describe('--podmien-obraz', () => {
+  it('rozbiera <slug>:<kamień> i odrzuca zły zapis', () => {
+    expect(parseReplaceArg('aion:Szafir granatowy i diamenty')).toEqual({ slug: 'aion', stone: 'Szafir granatowy i diamenty' })
+    expect(() => parseReplaceArg('aion')).toThrow()
+    expect(() => parseReplaceArg(undefined)).toThrow()
+  })
+
+  it('znajduje wariant po nazwie kamienia i daje osobny klucz Media', () => {
+    const variants = [{ stone: 'Szmaragd i diamenty' }, { stone: 'Szafir  granatowy i diamenty' }]
+    expect(findReplaceTarget(variants, 'szafir granatowy i diamenty')).toBe(variants[1])
+    expect(findReplaceTarget(variants, 'Rubin')).toBeUndefined()
+    expect(replacementKey('a.webp', 'abc')).toBe('seed://warianty/a.webp#abc')
   })
 })

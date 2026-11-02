@@ -4,6 +4,9 @@
  *
  *   npm run staging:warianty              sprawdzenie: nic nie zapisuje, pokazuje plan
  *   npm run staging:warianty -- --apply   migracja + wgranie obrazów + zapis wariantów i poprawek
+ *   npm run staging:warianty -- --apply --podmien-obraz aion:"Szafir granatowy i diamenty"
+ *                                         tylko to: wgrywa nowy plik wariantu z seeda i podmienia obraz tego jednego wariantu
+ *                                         (bez --apply sam plan); nic innego na kartach nie rusza
  *
  * Idempotentne: obrazy rozpoznaje po `legacySourceUrl` (`seed://warianty/<plik>`), warianty po obrazie albo nazwie
  * kamienia (istniejących nie nadpisuje, ręcznie dodane w panelu zostają), poprawki kart tylko przy dawnym kamieniu.
@@ -11,6 +14,7 @@
  * (zapis zmieniłby `updatedAt`, a `staging:opisy` pominąłby wtedy te karty jako poprawione ręcznie).
  * Działa tylko z NEON_BRANCH=staging (jak `seed-staging.ts` i `seed-realizacje.ts`).
  */
+import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
@@ -21,18 +25,23 @@ import type { Media, Product } from '../src/payload-types'
 import { loadSpecs as loadOpisySpecs, planCard as planOpisCard } from './opisy-u-logic'
 import {
   checkImages,
+  findReplaceTarget,
   fixMediaAlts,
   IMAGES_DIR,
   keptVariants,
   loadSpecs,
   missingVariants,
+  parseReplaceArg,
   planCardFix,
+  replacementKey,
   SOURCE_PREFIX,
   sourceKey,
   type VariantSpec,
 } from './warianty-v-logic'
 
 const applyChanges = process.argv.includes('--apply')
+const replaceIndex = process.argv.indexOf('--podmien-obraz')
+const replaceTarget = replaceIndex >= 0 ? parseReplaceArg(process.argv[replaceIndex + 1]) : null
 
 if (process.env.NEON_BRANCH !== 'staging') {
   throw new Error('staging:warianty musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
@@ -113,6 +122,41 @@ try {
   // Skrypt działa poza Next.js: odświeżanie strony (revalidateTag) rzuciłoby tu błąd.
   const context = { skipFrontendRevalidation: true }
   const mediaId = (asset: number | Media | null | undefined) => (typeof asset === 'object' && asset ? asset.id : asset)
+
+  if (replaceTarget) {
+    const spec = specs.find((s) => s.slug === replaceTarget.slug)
+    const variant = spec && findReplaceTarget(spec.variants, replaceTarget.stone)
+    if (!spec || !variant) throw new Error(`Nie ma w warianty.json wariantu „${replaceTarget.stone}” karty ${replaceTarget.slug}`)
+    const doc = bySlug.get(spec.slug)
+    if (!doc) throw new Error(`${spec.slug}: nie ma karty o tym adresie na stagingu`)
+    const index = (doc.stoneVariants ?? []).findIndex((v) => findReplaceTarget([v], variant.stone))
+    if (index < 0) throw new Error(`${spec.slug}: karta nie ma jeszcze wariantu „${variant.stone}” (najpierw zwykły staging:warianty --apply)`)
+    const data = await readFile(path.join(IMAGES_DIR, variant.file))
+    const key = replacementKey(variant.file, createHash('sha1').update(data).digest('hex').slice(0, 10))
+    const current = doc.stoneVariants![index]
+    const currentKey = typeof current.image === 'object' && current.image ? current.image.legacySourceUrl : null
+    if (currentKey === key) {
+      console.log(`= ${spec.slug}: obraz „${variant.stone}” jest już podmieniony`)
+    } else if (!applyChanges) {
+      console.log(`~ ${spec.slug}: podmienię obraz wariantu „${variant.stone}” na ${variant.file} (${Math.round(data.byteLength / 1024)} KB)`)
+      console.log('To było sprawdzenie. Zapis: dodaj --apply')
+    } else {
+      const found = await payload.find({ collection: 'media', depth: 0, limit: 1, overrideAccess: true, where: { legacySourceUrl: { equals: key } } })
+      const media =
+        found.docs[0] ??
+        (await payload.create({
+          collection: 'media',
+          data: { alt: variant.alt, legacySourceUrl: key },
+          file: { data, mimetype: 'image/webp', name: variant.file, size: data.byteLength },
+          overrideAccess: true,
+        }))
+      const stoneVariants = (doc.stoneVariants ?? []).map((v, i) => ({ ...v, image: i === index ? media.id : (mediaId(v.image) as number) }))
+      await payload.update({ collection: 'products', id: doc.id, data: { stoneVariants, _status: 'published' }, draft: false, overrideAccess: true, context })
+      console.log(`~ ${spec.slug}: obraz wariantu „${variant.stone}” podmieniony (Media ${media.id}), reszta karty bez zmian`)
+    }
+    await payload.destroy()
+    process.exit(0)
+  }
 
   let changed = 0
   for (const spec of specs) {
