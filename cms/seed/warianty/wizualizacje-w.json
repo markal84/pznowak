@@ -1,5 +1,5 @@
 {
-  "about": "Zlecenie W: wizualizacje kamieni przez Codex headless. Ścieżki plików względem katalogu data/ w repo; pierwszy istniejący wygrywa (HD z eksportu FB, potem stara strona w gicie). Wzorce kolorów to prawdziwe zdjęcia kart katalogu z naturalnymi kamieniami.",
+  "about": "Zlecenie W: wizualizacje kamieni przez Codex headless. Ścieżki plików względem katalogu data/ w repo; pierwszy istniejący wygrywa (HD z eksportu FB, potem pliki w gicie: data/legacy, data/wzorce). Wzorce kolorów to prawdziwe zdjęcia kart katalogu z naturalnymi kamieniami.",
   "kamienie": {
     "rubin": {
       "nazwa": "Rubin",
@@ -8,8 +8,18 @@
       "en": "ruby",
       "kolor_en": "deep red with a slight purplish tone, rich and velvety, darker in the pavilion with bright red flashes; not orange, not pink, not candy-like glass",
       "wzorce": [
-        { "slug": "pyrrha", "pliki": ["legacy/jewelry/556567240_122158670450616875_36706868027100241_n-1024x683.jpg"] },
-        { "slug": "pyrrha", "pliki": ["legacy/jewelry/556954558_122158670414616875_5977421602371462442_n-1024x683.jpg"] }
+        {
+          "slug": "pyrrha",
+          "pliki": [
+            "legacy/jewelry/556567240_122158670450616875_36706868027100241_n-1024x683.jpg"
+          ]
+        },
+        {
+          "slug": "pyrrha",
+          "pliki": [
+            "legacy/jewelry/556954558_122158670414616875_5977421602371462442_n-1024x683.jpg"
+          ]
+        }
       ]
     },
     "szafir": {
@@ -19,9 +29,41 @@
       "en": "blue sapphire",
       "kolor_en": "deep royal-to-cornflower blue, velvety, darker towards the edges; not electric neon blue, not purple-black",
       "wzorce": [
-        { "slug": "thalia", "pliki": ["legacy/jewelry/1-16-1024x683.jpg"] },
-        { "slug": "pelagia", "pliki": ["legacy/jewelry/Michalnowak.com_.pl-26-1024x683.jpg"] }
+        {
+          "slug": "thalia",
+          "pliki": [
+            "legacy/jewelry/1-16-1024x683.jpg"
+          ]
+        },
+        {
+          "slug": "pelagia",
+          "pliki": [
+            "legacy/jewelry/Michalnowak.com_.pl-26-1024x683.jpg"
+          ]
+        }
       ]
+    },
+    "szafir-granatowy": {
+      "nazwa": "Szafir granatowy",
+      "z": "z granatowym szafirem",
+      "swatch": "granatowy",
+      "en": "dark blue sapphire",
+      "kolor_en": "dark, deep blue sapphire leaning towards navy, velvety and saturated but dark; darker than cornflower or royal blue, not black, not electric, not purple",
+      "wzorce": [
+        {
+          "slug": "thalia",
+          "pliki": [
+            "legacy/jewelry/1-16-1024x683.jpg"
+          ]
+        },
+        {
+          "slug": "pelagia",
+          "pliki": [
+            "legacy/jewelry/Michalnowak.com_.pl-26-1024x683.jpg"
+          ]
+        }
+      ],
+      "wzorce_uwaga_en": "The target is noticeably darker than these references – navy rather than cornflower blue."
     },
     "szmaragd": {
       "nazwa": "Szmaragd",
@@ -30,8 +72,18 @@
       "en": "emerald",
       "kolor_en": "deep, slightly bluish green with a soft velvety glow and subtle natural inclusions (jardin); not neon green, not bottle-glass green",
       "wzorce": [
-        { "slug": "euterpe", "pliki": ["legacy/jewelry/1-50-1024x683.jpg"] },
-        { "slug": "athena", "pliki": ["legacy/jewelry/470198967_122111882990616875_4420467916375926706_n-1024x683.jpg"] }
+        {
+          "slug": "euterpe",
+          "pliki": [
+            "legacy/jewelry/1-50-1024x683.jpg"
+          ]
+        },
+        {
+          "slug": "athena",
+          "pliki": [
+            "legacy/jewelry/470198967_122111882990616875_4420467916375926706_n-1024x683.jpg"
+          ]
+        }
       ]
     },
     "ametyst": {
@@ -41,8 +93,18 @@
       "en": "amethyst",
       "kolor_en": "medium-to-deep purple with violet and slightly reddish flashes; not pink, not greyish lilac",
       "wzorce": [
-        { "slug": "ianthe", "pliki": ["facebook/media/122179662746616875_122179662632616875.jpg"] },
-        { "slug": "aria", "pliki": ["legacy/jewelry/2_1-1024x683.jpg"] }
+        {
+          "slug": "ianthe",
+          "pliki": [
+            "facebook/media/122179662746616875_122179662632616875.jpg"
+          ]
+        },
+        {
+          "slug": "aria",
+          "pliki": [
+            "legacy/jewelry/2_1-1024x683.jpg"
+          ]
+        }
       ]
     },
     "topaz-jasnoniebieski": {
@@ -52,8 +114,18 @@
       "en": "sky blue topaz",
       "kolor_en": "clear light-to-medium sky blue, bright and transparent, clearly lighter than London blue topaz; not turquoise, not pale aquamarine",
       "wzorce": [
-        { "slug": "urania", "pliki": ["legacy/jewelry/557903524_122158637246616875_2692591890710495238_n-1024x683.jpg"] },
-        { "slug": "urania", "pliki": ["legacy/jewelry/557930792_122158637264616875_6448592044616193409_n-1024x683.jpg"] }
+        {
+          "slug": "urania",
+          "pliki": [
+            "legacy/jewelry/557903524_122158637246616875_2692591890710495238_n-1024x683.jpg"
+          ]
+        },
+        {
+          "slug": "urania",
+          "pliki": [
+            "legacy/jewelry/557930792_122158637264616875_6448592044616193409_n-1024x683.jpg"
+          ]
+        }
       ]
     },
     "topaz-london-blue": {
@@ -63,8 +135,18 @@
       "en": "London blue topaz",
       "kolor_en": "dark steel-grey navy blue with inky depth and muted saturation; not bright royal blue",
       "wzorce": [
-        { "slug": "nyx", "pliki": ["legacy/jewelry/517395163_122146668320616875_1130408888123729720_n-683x1024.jpg"] },
-        { "slug": "nyx", "pliki": ["legacy/jewelry/516746856_122146668344616875_8750395572297232691_n-1024x683.jpg"] }
+        {
+          "slug": "nyx",
+          "pliki": [
+            "legacy/jewelry/517395163_122146668320616875_1130408888123729720_n-683x1024.jpg"
+          ]
+        },
+        {
+          "slug": "nyx",
+          "pliki": [
+            "legacy/jewelry/516746856_122146668344616875_8750395572297232691_n-1024x683.jpg"
+          ]
+        }
       ]
     },
     "bialy-diament": {
@@ -72,11 +154,36 @@
       "z": "z białym diamentem",
       "swatch": "bialy",
       "en": "colourless white diamond",
-      "kolor_en": "colourless, crisp white with lively brilliance and subtle rainbow fire; no blue, grey or yellow tint",
+      "kolor_en": "colourless, icy white diamond: crisp neutral white with lively brilliance and subtle rainbow fire; no tint picked up from the yellow gold and no trace of the previous blue colour",
       "wzorce": [
-        { "slug": "hestia", "pliki": ["legacy/jewelry/504831419_122142162182616875_9143894248516053307_n-1024x682.jpg"] },
-        { "slug": "leucothea", "pliki": ["facebook/media/122112995414616875_122112993824616875.jpg"] }
-      ]
+        {
+          "slug": "kamila-biel-2",
+          "pliki": [
+            "wzorce/biel-wzor-2.jpg"
+          ]
+        },
+        {
+          "slug": "kamila-biel-3",
+          "pliki": [
+            "wzorce/biel-wzor-3.jpg"
+          ]
+        },
+        {
+          "slug": "kamila-biel-1",
+          "pliki": [
+            "wzorce/biel-wzor-1.jpg"
+          ],
+          "pomocniczy": true
+        },
+        {
+          "slug": "kamila-biel-4",
+          "pliki": [
+            "wzorce/biel-wzor-4.jpg"
+          ],
+          "pomocniczy": true
+        }
+      ],
+      "wzorce_uwaga_en": "The reference diamonds are emerald-cut: take ONLY their colour (colourless, icy white, no warm or blue tint) and the character of their brilliance; keep the round brilliant cut and the facets of the stone in IMAGE 1."
     }
   },
   "fasony": [
@@ -87,9 +194,18 @@
         "facebook/media/122146302602616875_122146301840616875.jpg",
         "legacy/jewelry/516963860_122146302710616875_5069761323671397972_n-1024x683.jpg"
       ],
-      "nazwa_wariantu": { "domyslnie": "{nazwa} i diamenty", "bialy-diament": "Białe diamenty" },
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
       "alt": "Pierścionek Cyane {z} w halo z diamentów, w żółtym złocie (wizualizacja)",
-      "kamienie": ["rubin", "bialy-diament", "szafir", "topaz-jasnoniebieski", "topaz-london-blue"]
+      "kamienie": [
+        "rubin",
+        "bialy-diament",
+        "szafir",
+        "topaz-jasnoniebieski",
+        "topaz-london-blue"
+      ]
     },
     {
       "slug": "daphne",
@@ -98,9 +214,36 @@
         "facebook/media/122158713014616875_122158712948616875.jpg",
         "legacy/jewelry/559537858_122158713122616875_2181757851967116382_n-1024x683.jpg"
       ],
-      "nazwa_wariantu": { "domyslnie": "{nazwa}" },
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa}"
+      },
       "alt": "Pierścionek Daphne {z} w szlifie oktagon, w żółtym złocie (wizualizacja)",
-      "kamienie": ["szmaragd", "szafir", "ametyst", "rubin", "topaz-jasnoniebieski", "topaz-london-blue"]
+      "kamienie": [
+        "szmaragd",
+        "szafir",
+        "ametyst",
+        "rubin",
+        "topaz-jasnoniebieski",
+        "topaz-london-blue"
+      ]
+    },
+    {
+      "slug": "aion",
+      "name": "Aion",
+      "zrodlo": [
+        "facebook/media/122199865622616875_122199865040616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty"
+      },
+      "alt": "Obrączka eternity Aion z granatowymi szafirami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+      "zmiana_en": "all the pink sapphires set around the band (they alternate with colourless white diamonds)",
+      "zmiana_pl": "różowe szafiry (na przemian z białymi diamentami)",
+      "zachowaj_en": "The colourless white diamonds between them, their settings and the gold stay exactly as they are.",
+      "maska": "wiele",
+      "kamienie": [
+        "szafir-granatowy"
+      ]
     }
   ]
 }

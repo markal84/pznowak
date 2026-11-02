@@ -25,6 +25,20 @@
         "file": "eternity-diamenty-biale.webp",
         "alt": "Obrączka eternity Aion z samymi białymi diamentami, w żółtym złocie (wizualizacja)",
         "isVisualization": true
+      },
+      {
+        "stone": "Diamenty niebieskie i białe",
+        "swatch": "niebieski",
+        "file": "eternity-niebieskie-diamenty.webp",
+        "alt": "Obrączka eternity Aion z niebieskimi i białymi diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "file": "aion-szafir-granatowy.webp",
+        "alt": "Obrączka eternity Aion z granatowymi szafirami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
       }
     ],
     "removeStones": [
@@ -44,5 +58,94 @@
       "mediaAlt": "Pierścionek Leto z różowym morganitem i diamentami, w żółtym i białym złocie"
     },
     "variants": []
+  },
+  {
+    "slug": "cyane",
+    "name": "Cyane",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "file": "cyane-rubin.webp",
+        "alt": "Pierścionek Cyane z rubinem w halo z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "file": "cyane-bialy-diament.webp",
+        "alt": "Pierścionek Cyane z białym diamentem w halo z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szafir i diamenty",
+        "swatch": "niebieski",
+        "file": "cyane-szafir.webp",
+        "alt": "Pierścionek Cyane z szafirem w halo z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Topaz jasnoniebieski i diamenty",
+        "swatch": "jasnoniebieski",
+        "file": "cyane-topaz-jasnoniebieski.webp",
+        "alt": "Pierścionek Cyane z jasnoniebieskim topazem w halo z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Topaz London blue i diamenty",
+        "swatch": "granatowy",
+        "file": "cyane-topaz-london-blue.webp",
+        "alt": "Pierścionek Cyane z topazem London blue w halo z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "daphne",
+    "name": "Daphne",
+    "variants": [
+      {
+        "stone": "Szmaragd",
+        "swatch": "zielony",
+        "file": "daphne-szmaragd.webp",
+        "alt": "Pierścionek Daphne ze szmaragdem w szlifie oktagon, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szafir",
+        "swatch": "niebieski",
+        "file": "daphne-szafir.webp",
+        "alt": "Pierścionek Daphne z szafirem w szlifie oktagon, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Ametyst",
+        "swatch": "fioletowy",
+        "file": "daphne-ametyst.webp",
+        "alt": "Pierścionek Daphne z ametystem w szlifie oktagon, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin",
+        "swatch": "czerwony",
+        "file": "daphne-rubin.webp",
+        "alt": "Pierścionek Daphne z rubinem w szlifie oktagon, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Topaz jasnoniebieski",
+        "swatch": "jasnoniebieski",
+        "file": "daphne-topaz-jasnoniebieski.webp",
+        "alt": "Pierścionek Daphne z jasnoniebieskim topazem w szlifie oktagon, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Topaz London blue",
+        "swatch": "granatowy",
+        "file": "daphne-topaz-london-blue.webp",
+        "alt": "Pierścionek Daphne z topazem London blue w szlifie oktagon, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]

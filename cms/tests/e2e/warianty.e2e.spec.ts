@@ -1,10 +1,18 @@
+import { readFileSync } from 'node:fs'
+
 import { expect, test, type Page } from '@playwright/test'
 import { presetConsent } from '../helpers/consent'
 
 /**
- * Zlecenie V: „Zamów z innym kamieniem” na karcie pierścionka. Dane: Aion z trzema wizualizacjami od Kamili i Leto
- * bez wariantów (`npm run staging:warianty -- --apply`). Na bazie bez tych danych test się pomija, zamiast padać.
+ * Zlecenie V: „Zamów z innym kamieniem” na karcie pierścionka. Dane: Aion z wizualizacjami z `seed/warianty/warianty.json`
+ * (V + W) i Leto bez wariantów (`npm run staging:warianty -- --apply`). Na bazie bez tych danych test się pomija.
  */
+
+const seed = JSON.parse(readFileSync(new URL('../../seed/warianty/warianty.json', import.meta.url), 'utf8')) as {
+  slug: string
+  variants: unknown[]
+}[]
+const aionVariants = seed.find((entry) => entry.slug === 'aion')!.variants.length
 
 async function visit(page: Page, path: string) {
   const response = await page.goto(path)
@@ -26,11 +34,11 @@ test.beforeEach(async ({ context, baseURL }) => {
 })
 
 test.describe('Zamów z innym kamieniem (zlecenie V)', () => {
-  test('Aion: 3 kółka (oryginał + 2), klik podmienia zdjęcie, pokazuje „Wizualizacja” i zmienia adres', async ({ page }) => {
+  test('Aion: kółka (oryginał + warianty z seeda), klik podmienia zdjęcie, pokazuje „Wizualizacja” i zmienia adres', async ({ page }) => {
     await openAion(page)
     const section = page.getByRole('region', { name: 'Zamów z innym kamieniem' })
     const options = section.getByRole('group', { name: 'Kamień' }).getByRole('button')
-    await expect(options).toHaveCount(3)
+    await expect(options).toHaveCount(1 + aionVariants)
     await expect(options.first()).toHaveAttribute('aria-pressed', 'true')
     await expect(options.first()).toHaveAccessibleName(/^Oryginał/)
     await expect(section).toContainText('Dostępność kamienia potwierdza pracownia.')

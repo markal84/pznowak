@@ -83,18 +83,21 @@ describe('warianty.json (dane na staging)', () => {
   const aion = specs.find((s) => s.slug === 'aion')!
   const leto = specs.find((s) => s.slug === 'leto')!
 
-  it('Aion: dwie wizualizacje od Kamili; różowa wersja to oryginał (zdjęcia i film karty), więc wypada z wariantów', () => {
+  it('Aion: trzy wizualizacje od Kamili + szafir granatowy z W; różowa wersja to oryginał, więc wypada z wariantów', () => {
     expect(aion.removeStones).toEqual(['Różowy szafir i diamenty'])
     expect(aion.variants.map((v) => [v.stone, v.swatch, v.file, v.isVisualization])).toEqual([
       ['Szmaragd i diamenty', 'zielony', 'eternity-szmaragd-diamenty.webp', true],
       ['Białe diamenty', 'bialy', 'eternity-diamenty-biale.webp', true],
+      ['Diamenty niebieskie i białe', 'niebieski', 'eternity-niebieskie-diamenty.webp', true],
+      ['Szafir granatowy i diamenty', 'granatowy', 'aion-szafir-granatowy.webp', true],
     ])
     for (const variant of aion.variants) expect(SWATCH_IDS).toContain(variant.swatch)
   })
 
-  it('obrazy: są, webp, ≤ 300 KB, pionowe 4:5 bez czarnych pasów', async () => {
+  it('obrazy: są, webp, ≤ 300 KB; gotowe obrazy Kamili pionowe 4:5 bez czarnych pasów', async () => {
     expect(checkImages(specs)).toEqual([])
-    for (const variant of aion.variants) {
+    // Wizualizacje z W (`<slug>-<kamien>.webp`) mają proporcje zdjęcia karty – sprawdza je test zlecenia W.
+    for (const variant of aion.variants.filter((v) => v.file.startsWith('eternity-'))) {
       const file = path.join(IMAGES_DIR, variant.file)
       const { width, height, format } = await sharp(file).metadata()
       expect(format).toBe('webp')
@@ -131,12 +134,14 @@ describe('plan skryptu staging:warianty (idempotencja)', () => {
   const [aion] = loadSpecs()
 
   it('dopisuje tylko brakujące warianty; ręczne i już wgrane zostają', () => {
-    expect(missingVariants([], aion.variants)).toHaveLength(2)
+    expect(missingVariants([], aion.variants)).toHaveLength(aion.variants.length)
     const afterFirstRun = aion.variants.map((v) => ({ file: v.file, stone: v.stone }))
     expect(missingVariants(afterFirstRun, aion.variants)).toEqual([])
     // Michał zmienił nazwę jednego wariantu w panelu (obraz ten sam) i dodał własny: nic nie dublujemy.
     const edited = [{ file: 'eternity-szmaragd-diamenty.webp', stone: 'Szmaragdy i brylanty' }, { file: null, stone: 'Rubin' }]
-    expect(missingVariants(edited, aion.variants).map((v) => v.stone)).toEqual(['Białe diamenty'])
+    expect(missingVariants(edited, aion.variants).map((v) => v.stone)).toEqual(
+      aion.variants.filter((v) => v.file !== 'eternity-szmaragd-diamenty.webp').map((v) => v.stone),
+    )
   })
 
   it('removeStones: usuwa po nazwie kamienia, reszta (także ręczne) zostaje', () => {

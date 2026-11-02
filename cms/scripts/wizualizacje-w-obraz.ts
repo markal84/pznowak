@@ -20,7 +20,13 @@ const grey = (input: string | Buffer, width: number, height: number, raw?: Raw) 
  * Zwraca maskę (600 px szerokości), jej udział w kadrze i dopasowanie albo null, gdy zmiana nie układa się w jeden
  * kamień. `prior` – maska fasonu z przyjętego wariantu (patrz `stoneMask`).
  */
-export async function composite(source: string, generated: string, output: string, prior?: Uint8Array | null) {
+export async function composite(
+  source: string,
+  generated: string,
+  output: string,
+  prior?: Uint8Array | null,
+  mode: 'jeden' | 'wiele' = 'jeden',
+) {
   const { width, height } = await sharp(source).metadata()
   const W = width!
   const H = height!
@@ -71,7 +77,7 @@ export async function composite(source: string, generated: string, output: strin
   const SH = Math.round((SW * H) / W)
   const small = (input: string | Buffer, raw?: Raw) =>
     sharp(input, raw ? { raw } : undefined).resize(SW, SH, { fit: 'fill' }).removeAlpha().raw().toBuffer()
-  const found = stoneMask(await small(source), await small(aligned, rawFull), SW, SH, 25, 2, prior)
+  const found = stoneMask(await small(source), await small(aligned, rawFull), SW, SH, 25, 2, prior, mode)
   if (!found) return null
   const alpha = await sharp(Buffer.from(found.mask), { raw: { width: SW, height: SH, channels: 1 } })
     .resize(W, H, { fit: 'fill' })
@@ -108,4 +114,46 @@ export async function toWebp(input: string, aspect: number, output: string) {
     }
   }
   throw new Error(`${path.basename(output)}: nie mieści się w ${MAX_IMAGE_BYTES} B`)
+}
+
+/** Zrzut z telefonu: obszar bez czarnych pasów (wiersze i kolumny o średniej jasności ≤ 14 od krawędzi). */
+export async function contentBox(input: string) {
+  const { data, info } = await sharp(input).greyscale().raw().toBuffer({ resolveWithObject: true })
+  const { width, height } = info
+  const row = (y: number) => {
+    let sum = 0
+    for (let x = 0; x < width; x++) sum += data[y * width + x]
+    return sum / width
+  }
+  const col = (x: number, y0: number, y1: number) => {
+    let sum = 0
+    for (let y = y0; y <= y1; y++) sum += data[y * width + x]
+    return sum / (y1 - y0 + 1)
+  }
+  let top = 0
+  let bottom = height - 1
+  while (top < bottom && row(top) <= 14) top++
+  while (bottom > top && row(bottom) <= 14) bottom--
+  let left = 0
+  let right = width - 1
+  while (left < right && col(left, top, bottom) <= 14) left++
+  while (right > left && col(right, top, bottom) <= 14) right--
+  return { left, top, width: right - left + 1, height: bottom - top + 1 }
+}
+
+/** Zrzut bez czarnych pasów, opcjonalnie przycięty do proporcji `aspect` (środek) i zmniejszony do `width`. */
+export async function trimScreenshot(input: string, output: string, options: { aspect?: number; width?: number } = {}) {
+  const box = await contentBox(input)
+  const crop = options.aspect ? coverCrop(box, options.aspect) : { left: 0, top: 0, width: box.width, height: box.height }
+  const region = { left: box.left + crop.left, top: box.top + crop.top, width: crop.width, height: crop.height }
+  let image = sharp(input).extract(region)
+  if (options.width) image = image.resize({ width: options.width })
+  if (output.endsWith('.webp')) {
+    for (let quality = 86; quality >= 50; quality -= 6) {
+      const buffer = await image.clone().webp({ quality, effort: 6 }).toBuffer()
+      if (buffer.length <= MAX_IMAGE_BYTES) return writeFileSync(output, buffer)
+    }
+    throw new Error(`${path.basename(output)}: nie mieści się w ${MAX_IMAGE_BYTES} B`)
+  }
+  await image.jpeg({ quality: 88 }).toFile(output)
 }

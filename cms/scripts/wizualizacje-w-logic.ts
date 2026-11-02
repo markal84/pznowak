@@ -32,15 +32,27 @@ export type Stone = {
   swatch: SwatchId
   en: string
   kolor_en: string
-  wzorce: { slug: string; pliki: string[] }[]
+  /** `pomocniczy`: wzorzec tylko do oceny (nie idzie do generatora, żeby nie mnożyć obrazów na wejściu). */
+  wzorce: { slug: string; pliki: string[]; pomocniczy?: boolean }[]
+  /** Dodatkowe zdanie o wzorcach do promptu, np. że mają inny szlif i bierzemy z nich tylko barwę. */
+  wzorce_uwaga_en?: string
 }
 export type Design = {
   slug: string
   name: string
   zrodlo: string[]
   nazwa_wariantu: Record<string, string>
-  alt: string
+  /** Tekst albo mapa jak `nazwa_wariantu` (klucz kamienia albo `domyslnie`); `{z}` = „z rubinem” itd. */
+  alt: string | Record<string, string>
   kamienie: string[]
+  /**
+   * Co zmieniamy, gdy to nie jeden kamień główny (np. obrączka eternity): opis po angielsku do promptu, po polsku do
+   * oceny, a `zachowaj_en` – co z pozostałych kamieni zostaje. Z `maska: "wiele"` wycinamy każdy zmieniony kamień osobno.
+   */
+  zmiana_en?: string
+  zmiana_pl?: string
+  zachowaj_en?: string
+  maska?: 'jeden' | 'wiele'
 }
 export type Config = { kamienie: Record<string, Stone>; fasony: Design[] }
 
@@ -83,18 +95,25 @@ export function jobs(config: Config, only: string[] = []): Job[] {
   return all.filter((job) => only.some((o) => o === job.design.slug || o === job.id))
 }
 
-/** Pierwszy istniejący plik z listy (ścieżki względem `data/`). */
+/**
+ * Pierwszy istniejący plik z listy (ścieżki względem `data/`). Gdy `dataDir` to inny katalog (np. dane na Macu przy
+ * pracy w worktree), sprawdza też `data/` w repo – tam leżą wzorce w gicie (`data/legacy`, `data/wzorce`).
+ */
 export function firstExisting(dataDir: string, candidates: string[]): string | null {
-  for (const candidate of candidates) {
-    const full = path.join(dataDir, candidate)
-    if (existsSync(full)) return full
+  for (const base of [...new Set([dataDir, path.join(REPO_ROOT, 'data')])]) {
+    for (const candidate of candidates) {
+      const full = path.join(base, candidate)
+      if (existsSync(full)) return full
+    }
   }
   return null
 }
 
+const pick = (value: string | Record<string, string>, key: string, fallback: string) =>
+  typeof value === 'string' ? value : (value[key] ?? value.domyslnie ?? fallback)
+
 export function variantName(job: Job): string {
-  const template = job.design.nazwa_wariantu[job.stone.key] ?? job.design.nazwa_wariantu.domyslnie ?? '{nazwa}'
-  return template.replace('{nazwa}', job.stone.nazwa)
+  return pick(job.design.nazwa_wariantu, job.stone.key, '{nazwa}').replace('{nazwa}', job.stone.nazwa)
 }
 
 export function variantSpec(job: Job): VariantSpec {
@@ -102,7 +121,7 @@ export function variantSpec(job: Job): VariantSpec {
     stone: variantName(job),
     swatch: job.stone.swatch,
     file: job.file,
-    alt: job.design.alt.replace('{z}', job.stone.z),
+    alt: pick(job.design.alt, job.stone.key, '').replace('{z}', job.stone.z),
     isVisualization: true,
   }
 }
@@ -148,14 +167,20 @@ export const describePrompt = () =>
 
 export function generationPrompt(job: Job, description: Description, refCount: number, retryHint?: string): string {
   const refs = refCount === 1 ? 'IMAGE 2' : `IMAGES 2–${refCount + 1}`
-  const otherStones = /^none\b/i.test(description.other_stones_en.trim())
-    ? ''
-    : ` All other stones (${description.other_stones_en}) keep their current colour and look.`
+  const { zmiana_en: target, zachowaj_en: keep } = job.design
+  const otherStones = keep
+    ? ` ${keep}`
+    : /^none\b/i.test(description.other_stones_en.trim())
+      ? ''
+      : ` All other stones (${description.other_stones_en}) keep their current colour and look.`
+  const subject = target ? 'every changed stone' : 'the centre stone'
   const imagePrompt = [
     'Edit IMAGE 1, a real product photo of a handmade ring from a jewellery workshop. This is a photorealistic retouch of that photo, not a new render.',
-    `CHANGE ONLY the centre stone (${description.centre_stone_en}): make it a natural ${job.stone.en} – ${job.stone.kolor_en}.${otherStones}`,
-    `${refs}: real photos of natural ${job.stone.en} from the same workshop. Use them ONLY as a colour reference – match their hue, saturation, depth and the way light breaks inside the stone. Do not copy their shape, cut, setting, metal or background.`,
-    `KEEP EXACTLY AS IN IMAGE 1: the cut, outline, size and position of the centre stone, which must sit within exactly the same prongs; the number, size and placement of every stone and prong; the metal (${description.metal_en}) with its colour, shape, texture and every detail of the setting and band; the background, camera angle, crop and framing; lighting, reflections, shadows, depth of field and sharpness. Same aspect ratio and composition as IMAGE 1.`,
+    target
+      ? `CHANGE ONLY ${target}: make them natural ${job.stone.en} – ${job.stone.kolor_en}.${otherStones}`
+      : `CHANGE ONLY the centre stone (${description.centre_stone_en}): make it a natural ${job.stone.en} – ${job.stone.kolor_en}.${otherStones}`,
+    `${refs}: real photos of natural ${job.stone.en} from the same workshop. Use them ONLY as a colour reference – match their hue, saturation, depth and the way light breaks inside the stone. Do not copy their shape, cut, setting, metal or background.${job.stone.wzorce_uwaga_en ? ` ${job.stone.wzorce_uwaga_en}` : ''}`,
+    `KEEP EXACTLY AS IN IMAGE 1: the cut, outline, size and position of ${subject}, which must sit within exactly the same prongs; the number, size and placement of every stone and prong; the metal (${description.metal_en}) with its colour, shape, texture and every detail of the setting and band; the background, camera angle, crop and framing; lighting, reflections, shadows, depth of field and sharpness. Same aspect ratio and composition as IMAGE 1.`,
     'Natural gemstones are slightly imperfect: believable internal reflections and depth, not coloured glass or plastic. No added text, logos, watermarks, props, hands, sparkle effects or glow.',
     retryHint ? `Previous attempt was rejected: ${retryHint}` : '',
   ]
@@ -221,13 +246,14 @@ export type Check = {
 
 export function checkPrompt(job: Job, refCount: number): string {
   const refs = refCount === 1 ? 'Obraz 3' : `Obrazy 3–${refCount + 2}`
+  const what = job.design.zmiana_pl ?? 'kamień główny'
   return [
     'Kontrola jakości wizualizacji dla pracowni jubilerskiej. Nie uruchamiaj żadnych poleceń, patrz tylko na obrazy.',
-    'Obraz 1: prawdziwe zdjęcie pierścionka (oryginał). Obraz 2: wizualizacja, w której miał się zmienić WYŁĄCZNIE kamień',
-    `główny – na naturalny kamień: ${job.stone.nazwa.toLowerCase()} (${job.stone.kolor_en}). Poza obszarem kamienia`,
-    'obraz 2 składa się z pikseli oryginału, więc szukaj przede wszystkim błędów na kamieniu i na jego styku z oprawą.',
-    `${refs}: prawdziwe zdjęcia tego kamienia z pracowni – wzorzec koloru.`,
-    'Porównaj 1 i 2: szlif (typ), obrys, rozmiar i położenie kamienia głównego; łapki i oprawa wokół niego; pozostałe kamienie,',
+    `Obraz 1: prawdziwe zdjęcie pierścionka (oryginał). Obraz 2: wizualizacja, w której miał się zmienić WYŁĄCZNIE ${what}`,
+    `– na naturalny kamień: ${job.stone.nazwa.toLowerCase()} (${job.stone.kolor_en}). Poza obszarem zmienianych kamieni`,
+    'obraz 2 składa się z pikseli oryginału, więc szukaj przede wszystkim błędów na kamieniach i na ich styku z oprawą.',
+    `${refs}: prawdziwe zdjęcia tego kamienia – wzorzec koloru.${job.stone.wzorce_uwaga_en ? ` Uwaga: ${job.stone.wzorce_uwaga_en}` : ''}`,
+    `Porównaj 1 i 2: szlif (typ), obrys, rozmiar i położenie zmienianych kamieni (${what}); łapki i oprawa wokół; pozostałe kamienie,`,
     'metal, kadr. Układ odblasków w fasetach MOŻE się różnić (inny materiał inaczej łamie światło) – to nie jest błąd,',
     'o ile szlif i obrys są te same. Sprawdź kolor względem wzorca (naturalny, nie neonowy, nie szkło) i artefakty',
     '(szwy, poświata lub resztki starego koloru na krawędzi kamienia, rozmyte fasety, łapki wchodzące w kamień, tekst).',
@@ -259,6 +285,8 @@ export function coverCrop(src: { width: number; height: number }, aspect: number
  * `prior`: maska fasonu z przyjętego wcześniej wariantu (ten sam kamień na tym samym zdjęciu). Dokładana do obszaru
  * zmiany – przy małej różnicy koloru (np. niebieski → granatowy, niebieski → biały) sama różnica nie łapie krawędzi
  * kamienia i zostaje na niej stary kolor. Obszar zmiany daleko od maski fasonu jest pomijany.
+ * `mode: "wiele"` (obrączka eternity, kilka zmienianych kamieni): każdy obszar zmiany od 0,03 % kadru dostaje własną
+ * otoczkę wypukłą; null, gdy nic nie zostało albo zmiana obejmuje ponad połowę kadru.
  * Zwraca maskę 0/255 albo null, gdy zmiana nie wygląda na jeden kamień (za mała, za duża) i nie ma maski fasonu.
  */
 export function stoneMask(
@@ -269,6 +297,7 @@ export function stoneMask(
   threshold = 25,
   grow = 2,
   prior?: Uint8Array | Buffer | null,
+  mode: 'jeden' | 'wiele' = 'jeden',
 ) {
   const n = width * height
   const hot = new Uint8Array(n)
@@ -286,6 +315,7 @@ export function stoneMask(
   }
   // największy spójny obszar (8-sąsiedztwo)
   const label = new Int32Array(n)
+  const sizes: number[] = [0]
   let best = 0
   let bestSize = 0
   let current = 0
@@ -312,7 +342,24 @@ export function stoneMask(
         }
       }
     }
+    sizes.push(size)
     if (size > bestSize) [best, bestSize] = [current, size]
+  }
+  if (mode === 'wiele') {
+    const groups = new Map<number, [number, number][]>()
+    for (let i = 0; i < n; i++) {
+      const l = label[i]
+      if (!l || sizes[l] < Math.max(4, n * 0.0003)) continue
+      if (!groups.has(l)) groups.set(l, [])
+      groups.get(l)!.push([i % width, Math.floor(i / width)])
+    }
+    let mask = new Uint8Array(n)
+    for (const points of groups.values()) fillHull(mask, width, convexHull(points))
+    if (prior) for (let i = 0; i < n; i++) if (prior[i]) mask[i] = 1
+    mask = growMask(mask, width, grow)
+    const area = mask.reduce((sum, v) => sum + v, 0) / n
+    if (!area || area > 0.5) return null
+    return { mask: mask.map((v) => (v ? 255 : 0)), area }
   }
   const valid = bestSize >= n * 0.002 && bestSize <= n * 0.25
   // Szlif kamienia ma zawsze wypukły obrys: otoczka wypukła wypełnia ciemne fasety i odblaski, które zmieniły się mało.
@@ -339,22 +386,9 @@ export function stoneMask(
     points = near ? [...own, ...known] : known
   }
   if (!points.length) return null
-  const hull = convexHull(points)
   let mask = new Uint8Array(n)
-  const xs = hull.map((p) => p[0])
-  const ys = hull.map((p) => p[1])
-  for (let y = Math.min(...ys); y <= Math.max(...ys); y++) {
-    for (let x = Math.min(...xs); x <= Math.max(...xs); x++) if (insideConvex(hull, x, y)) mask[y * width + x] = 1
-  }
-  for (let g = 0; g < grow; g++) {
-    const next = mask.slice()
-    for (let i = 0; i < n; i++) {
-      if (mask[i]) continue
-      const x = i % width
-      if ((i >= width && mask[i - width]) || (i + width < n && mask[i + width]) || (x > 0 && mask[i - 1]) || (x < width - 1 && mask[i + 1])) next[i] = 1
-    }
-    mask = next
-  }
+  fillHull(mask, width, convexHull(points))
+  mask = growMask(mask, width, grow)
   const out = new Uint8Array(n)
   let area = 0
   for (let i = 0; i < n; i++) {
@@ -407,6 +441,28 @@ export function align(
     }
   }
   return best
+}
+
+function fillHull(mask: Uint8Array, width: number, hull: [number, number][]) {
+  const xs = hull.map((p) => p[0])
+  const ys = hull.map((p) => p[1])
+  for (let y = Math.min(...ys); y <= Math.max(...ys); y++) {
+    for (let x = Math.min(...xs); x <= Math.max(...xs); x++) if (insideConvex(hull, x, y)) mask[y * width + x] = 1
+  }
+}
+
+function growMask(mask: Uint8Array, width: number, steps: number) {
+  const n = mask.length
+  for (let g = 0; g < steps; g++) {
+    const next = mask.slice()
+    for (let i = 0; i < n; i++) {
+      if (mask[i]) continue
+      const x = i % width
+      if ((i >= width && mask[i - width]) || (i + width < n && mask[i + width]) || (x > 0 && mask[i - 1]) || (x < width - 1 && mask[i + 1])) next[i] = 1
+    }
+    mask = next
+  }
+  return mask
 }
 
 /** Otoczka wypukła (monotone chain), punkty przeciwnie do ruchu wskazówek zegara. */

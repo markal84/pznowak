@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
+import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
 import { stoneSlug } from '@/lib/stone-variants'
@@ -13,6 +14,7 @@ import {
   loadConfig,
   PROPOSALS_PATH,
   proposals,
+  REPO_ROOT,
   stoneMask,
   variantSpec,
 } from '../../scripts/wizualizacje-w-logic'
@@ -27,6 +29,27 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
     expect(cyane).toEqual(['rubin', 'bialy-diament', 'szafir', 'topaz-jasnoniebieski', 'topaz-london-blue'])
     const daphne = jobs(config, ['daphne']).map((j) => j.stone.key).sort()
     expect(daphne).toEqual(['ametyst', 'rubin', 'szafir', 'szmaragd', 'topaz-jasnoniebieski', 'topaz-london-blue'])
+  })
+
+  it('dogrywka: biel od Kamili (2 i 3 do generatora, 1 i 4 tylko do oceny), Aion – szafir granatowy', () => {
+    const white = config.kamienie['bialy-diament']
+    expect(white.wzorce.filter((w) => !w.pomocniczy).map((w) => w.pliki[0])).toEqual(['wzorce/biel-wzor-2.jpg', 'wzorce/biel-wzor-3.jpg'])
+    expect(white.wzorce.filter((w) => w.pomocniczy)).toHaveLength(2)
+    for (const w of white.wzorce) expect(existsSync(path.join(REPO_ROOT, 'data', w.pliki[0]))).toBe(true)
+    const [aion] = jobs(config, ['aion'])
+    expect(variantSpec(aion)).toMatchObject({ stone: 'Szafir granatowy i diamenty', swatch: 'granatowy', file: 'aion-szafir-granatowy.webp' })
+    expect(aion.design.maska).toBe('wiele')
+  })
+
+  it('prompt obrączki: zmienia wszystkie różowe szafiry, diamenty zostają; biel: tylko barwa ze wzorców', () => {
+    const description = { centre_stone_en: 'x', other_stones_en: 'x', metal_en: 'yellow gold', notes_pl: '' }
+    const aion = generationPrompt(jobs(config, ['aion'])[0], description, 2)
+    expect(aion).toContain('CHANGE ONLY all the pink sapphires')
+    expect(aion).toContain('white diamonds between them')
+    expect(aion).toContain('every changed stone')
+    const white = generationPrompt(jobs(config, ['cyane-bialy-diament'])[0], description, 2)
+    expect(white).toContain('take ONLY their colour')
+    expect(white).toContain('keep the round brilliant cut')
   })
 
   it('każdy kamień ma wzorzec koloru ze zdjęcia z pracowni', () => {
@@ -55,7 +78,24 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
     expect(variantSpec(jobs(config, ['daphne-szmaragd'])[0]).swatch).toBe('zielony')
   })
 
-  it('zapisany warianty-w.json czyta loader z V, a jego obrazy są na miejscu i ≤ 300 KB', () => {
+  it('przyjęte wizualizacje W są w warianty.json (jeden przebieg staging:warianty wgrywa wszystko)', () => {
+    const published = new Set(loadSpecs().flatMap((spec) => spec.variants.map((v) => v.file)))
+    for (const id of ['cyane-rubin', 'cyane-bialy-diament', 'daphne-szmaragd', 'daphne-topaz-london-blue', 'aion-szafir-granatowy']) {
+      expect(published.has(`${id}.webp`)).toBe(true)
+    }
+  })
+
+  it('wizualizacje W mają proporcje zdjęcia karty i ≤ 300 KB', async () => {
+    const expected: Record<string, number> = { cyane: 1980 / 1320, daphne: 1680 / 1120, aion: 640 / 343 }
+    for (const spec of loadSpecs()) {
+      for (const v of spec.variants.filter((variant) => variant.file.startsWith(`${spec.slug}-`))) {
+        const { width, height } = await sharp(path.join(IMAGES_DIR, v.file)).metadata()
+        expect((width ?? 0) / (height ?? 1)).toBeCloseTo(expected[spec.slug], 1)
+      }
+    }
+  })
+
+  it('zapisany warianty-w.json (czekające na akceptację) czyta loader z V, a jego obrazy są na miejscu', () => {
     if (!existsSync(PROPOSALS_PATH)) return
     const specs = loadSpecs(PROPOSALS_PATH)
     expect(checkImages(specs)).toEqual([])
@@ -127,6 +167,18 @@ describe('wizualizacje W: obróbka obrazu', () => {
     const edge = 40 * W + 60 + 9
     expect(stoneMask(blue, navy, W, H, 25, 0)?.mask[edge] ?? 0).toBe(0)
     expect(stoneMask(blue, navy, W, H, 25, 0, prior)!.mask[edge]).toBe(255)
+  })
+
+  it('maska „wiele”: każdy zmieniony kamień obrączki osobno, bez wypełniania przerw między nimi', () => {
+    const stones = [20, 50, 80, 110]
+    const at = (x: number, y: number) => stones.some((cx, i) => i % 2 === 0 && (x - cx) ** 2 + (y - 40) ** 2 < 36)
+    const pink = rgb((x, y) => (at(x, y) ? [220, 120, 150] : [200, 190, 120]))
+    const navy = rgb((x, y) => (at(x, y) ? [25, 35, 90] : [200, 190, 120]))
+    const found = stoneMask(pink, navy, W, H, 25, 0, null, 'wiele')!
+    expect(found.mask[40 * W + 20]).toBe(255)
+    expect(found.mask[40 * W + 80]).toBe(255)
+    expect(found.mask[40 * W + 50]).toBe(0) // kamień pomiędzy (diament) bez zmiany
+    expect(stoneMask(pink, navy, W, H, 25, 0, null, 'jeden')!.mask[40 * W + 80]).toBe(0) // tryb „jeden” bierze tylko 1 kamień
   })
 
   it('maska odrzuca zmianę całego kadru', () => {
