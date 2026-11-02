@@ -20,6 +20,7 @@ import {
   fixMediaAlts,
   IMAGES_DIR,
   loadSpecs,
+  keptVariants,
   missingVariants,
   planCardFix,
 } from '../../scripts/warianty-v-logic'
@@ -82,9 +83,9 @@ describe('warianty.json (dane na staging)', () => {
   const aion = specs.find((s) => s.slug === 'aion')!
   const leto = specs.find((s) => s.slug === 'leto')!
 
-  it('Aion: trzy wizualizacje od Kamili w kolejności ze zlecenia', () => {
+  it('Aion: dwie wizualizacje od Kamili; różowa wersja to oryginał (zdjęcia i film karty), więc wypada z wariantów', () => {
+    expect(aion.removeStones).toEqual(['Różowy szafir i diamenty'])
     expect(aion.variants.map((v) => [v.stone, v.swatch, v.file, v.isVisualization])).toEqual([
-      ['Różowy szafir i diamenty', 'rozowy', 'eternity-rozowy-szafir-diamenty.webp', true],
       ['Szmaragd i diamenty', 'zielony', 'eternity-szmaragd-diamenty.webp', true],
       ['Białe diamenty', 'bialy', 'eternity-diamenty-biale.webp', true],
     ])
@@ -110,12 +111,13 @@ describe('warianty.json (dane na staging)', () => {
     }
   })
 
-  it('Leto → morganit, kolor w filtrze różowy; Aion → niebieskie i białe diamenty', () => {
+  it('Leto → morganit, kolor w filtrze różowy; Aion → różowe szafiry (także po pierwszej wersji V)', () => {
     expect(leto.card?.stone).toBe('Morganit różowy i diamenty')
     expect(leto.card?.onlyIfStone).toEqual(['Kamień różowy'])
     expect(stoneGroup(leto.card!.stone)).toBe('rozowe')
-    expect(aion.card?.stone).toBe('Diamenty niebieskie i białe')
-    expect(stoneGroup(aion.card!.stone)).toBe('niebieskie')
+    expect(aion.card?.stone).toBe('Różowy szafir i diamenty')
+    expect(aion.card?.onlyIfStone).toEqual(['Szafir różowy, Diament', 'Diamenty niebieskie i białe'])
+    expect(stoneGroup(aion.card!.stone)).toBe('rozowe')
   })
 
   it('nowe teksty kart trzymają standard opisów ze zlecenia U', () => {
@@ -129,12 +131,22 @@ describe('plan skryptu staging:warianty (idempotencja)', () => {
   const [aion] = loadSpecs()
 
   it('dopisuje tylko brakujące warianty; ręczne i już wgrane zostają', () => {
-    expect(missingVariants([], aion.variants)).toHaveLength(3)
+    expect(missingVariants([], aion.variants)).toHaveLength(2)
     const afterFirstRun = aion.variants.map((v) => ({ file: v.file, stone: v.stone }))
     expect(missingVariants(afterFirstRun, aion.variants)).toEqual([])
     // Michał zmienił nazwę jednego wariantu w panelu (obraz ten sam) i dodał własny: nic nie dublujemy.
     const edited = [{ file: 'eternity-szmaragd-diamenty.webp', stone: 'Szmaragdy i brylanty' }, { file: null, stone: 'Rubin' }]
-    expect(missingVariants(edited, aion.variants).map((v) => v.stone)).toEqual(['Różowy szafir i diamenty', 'Białe diamenty'])
+    expect(missingVariants(edited, aion.variants).map((v) => v.stone)).toEqual(['Białe diamenty'])
+  })
+
+  it('removeStones: usuwa po nazwie kamienia, reszta (także ręczne) zostaje', () => {
+    const current = [
+      { stone: 'Różowy szafir i diamenty' },
+      { stone: 'Szmaragd i diamenty' },
+      { stone: 'Rubin' },
+    ]
+    expect(keptVariants(current, aion.removeStones).map((v) => v.stone)).toEqual(['Szmaragd i diamenty', 'Rubin'])
+    expect(keptVariants(current, [])).toHaveLength(3)
   })
 
   it('poprawka karty tylko przy dawnym kamieniu', () => {

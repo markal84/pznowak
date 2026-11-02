@@ -41,9 +41,11 @@ export type CardFix = {
   mediaAlt?: string
 }
 
-export type CardSpec = { slug: string; name: string; card?: CardFix; variants: VariantSpec[] }
+/** `removeStones`: warianty do usunięcia z karty (po nazwie kamienia), np. gdy wariant dubluje oryginał. */
+export type CardSpec = { slug: string; name: string; card?: CardFix; variants: VariantSpec[]; removeStones: string[] }
 
 const isText = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
+const norm = (value: string | null | undefined) => (value ?? '').replace(/\s+/g, ' ').trim().toLowerCase()
 
 export function loadSpecs(source: string = SPECS_PATH): CardSpec[] {
   const raw: unknown = JSON.parse(readFileSync(source, 'utf8'))
@@ -92,7 +94,16 @@ export function loadSpecs(source: string = SPECS_PATH): CardSpec[] {
         mediaAlt: c.mediaAlt as string | undefined,
       }
     }
-    return { slug: item.slug, name: item.name, card, variants }
+    if (item.removeStones !== undefined && (!Array.isArray(item.removeStones) || !item.removeStones.every(isText))) {
+      throw new Error(`${where}: „removeStones” musi być listą nazw kamieni`)
+    }
+    const removeStones = ((item.removeStones as string[] | undefined) ?? []).map((stone) => stone.trim())
+    for (const stone of removeStones) {
+      if (variants.some((variant) => norm(variant.stone) === norm(stone))) {
+        throw new Error(`${where}: „${stone}” jest jednocześnie w „variants” i „removeStones”`)
+      }
+    }
+    return { slug: item.slug, name: item.name, card, variants, removeStones }
   })
 }
 
@@ -110,8 +121,6 @@ export function checkImages(specs: readonly CardSpec[], dir: string = IMAGES_DIR
   return problems
 }
 
-const norm = (value: string | null | undefined) => (value ?? '').replace(/\s+/g, ' ').trim().toLowerCase()
-
 /* ------------------------------------------------------------------------------------------------------------------ */
 /* Warianty */
 
@@ -126,6 +135,11 @@ export function missingVariants(current: readonly CurrentVariant[], specs: reado
   return specs.filter(
     (spec) => !current.some((variant) => variant.file === spec.file || norm(variant.stone) === norm(spec.stone)),
   )
+}
+
+/** Warianty z karty, które zostają po usunięciu `removeStones` (porównanie nazw bez wielkości liter i spacji). */
+export function keptVariants<T extends { stone: string }>(current: readonly T[], removeStones: readonly string[]): T[] {
+  return current.filter((variant) => !removeStones.some((stone) => norm(stone) === norm(variant.stone)))
 }
 
 /* ------------------------------------------------------------------------------------------------------------------ */

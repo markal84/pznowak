@@ -1,6 +1,6 @@
 /**
  * „Zamów z innym kamieniem” na staging (zlecenie V): migracja bazy, obrazy wariantów do Media, pole `stoneVariants`
- * na kartach z `seed/warianty/warianty.json` i poprawki danych kart (Leto → morganit, Aion → niebieskie i białe diamenty).
+ * na kartach z `seed/warianty/warianty.json` i poprawki danych kart (Leto → morganit, Aion → różowe szafiry; zbędne warianty z `removeStones`).
  *
  *   npm run staging:warianty              sprawdzenie: nic nie zapisuje, pokazuje plan
  *   npm run staging:warianty -- --apply   migracja + wgranie obrazów + zapis wariantów i poprawek
@@ -23,6 +23,7 @@ import {
   checkImages,
   fixMediaAlts,
   IMAGES_DIR,
+  keptVariants,
   loadSpecs,
   missingVariants,
   planCardFix,
@@ -143,7 +144,10 @@ try {
       }
     }
 
-    const current = (doc.stoneVariants ?? []).map((variant) => {
+    const docVariants = keptVariants(doc.stoneVariants ?? [], spec.removeStones)
+    const removed = (doc.stoneVariants ?? []).length - docVariants.length
+    if (removed) notes.push(`warianty: usuwam ${spec.removeStones.join(', ')}`)
+    const current = docVariants.map((variant) => {
       const media = typeof variant.image === 'object' ? variant.image : null
       const key = media?.legacySourceUrl ?? ''
       return { file: key.startsWith(SOURCE_PREFIX) ? key.slice(SOURCE_PREFIX.length) : null, stone: variant.stone }
@@ -156,19 +160,19 @@ try {
           : `warianty: wszystkie ${spec.variants.length} już są`,
       )
     }
-    if (missing.length && applyChanges) {
+    if ((missing.length || removed) && applyChanges) {
       const added = []
       for (const variant of missing) {
         const media = await ensureMedia(variant)
         added.push({ stone: variant.stone, swatch: variant.swatch, image: media.id, alt: variant.alt, isVisualization: variant.isVisualization })
       }
       data.stoneVariants = [
-        ...(doc.stoneVariants ?? []).map((variant) => ({ ...variant, image: mediaId(variant.image) as number })),
+        ...docVariants.map((variant) => ({ ...variant, image: mediaId(variant.image) as number })),
         ...added,
       ]
     }
 
-    if (!Object.keys(data).length && !missing.length) {
+    if (!Object.keys(data).length && !missing.length && !removed) {
       console.log(`= ${spec.slug}: ${notes.join('; ')}`)
       continue
     }

@@ -3,19 +3,15 @@
     "slug": "aion",
     "name": "Aion",
     "card": {
-      "onlyIfStone": ["Szafir różowy, Diament"],
-      "stone": "Diamenty niebieskie i białe",
-      "lead": "Obrączka eternity z niebieskimi i białymi diamentami ułożonymi na przemian – nieprzerwany blask w złocie.",
-      "description": "Obrączka typu eternity, w której niebieskie i białe diamenty ułożone na przemian tworzą nieprzerwany rząd dookoła palca.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni, dbając o jego trwałe osadzenie. Diament ma twardość 10 w skali Mohsa, więc obrączka dobrze znosi codzienne noszenie.\n\nTen fason wykonamy w wybranym rozmiarze, także z kamieniami w innym kolorze – przykładowe zestawienia pokazujemy pod zdjęciami."
+      "onlyIfStone": [
+        "Szafir różowy, Diament",
+        "Diamenty niebieskie i białe"
+      ],
+      "stone": "Różowy szafir i diamenty",
+      "lead": "Obrączka eternity z różowymi szafirami i białymi diamentami ułożonymi na przemian – nieprzerwany blask w złocie.",
+      "description": "Obrączka typu eternity, w której różowe szafiry i białe diamenty ułożone na przemian tworzą nieprzerwany rząd dookoła palca.\n\nKażdy kamień oprawiamy ręcznie w naszej pracowni, dbając o jego trwałe osadzenie. Szafir i diament należą do najtwardszych kamieni, więc obrączka dobrze znosi codzienne noszenie.\n\nTen fason wykonamy w wybranym rozmiarze, także z kamieniami w innym kolorze – przykładowe zestawienia pokazujemy pod zdjęciami."
     },
     "variants": [
-      {
-        "stone": "Różowy szafir i diamenty",
-        "swatch": "rozowy",
-        "file": "eternity-rozowy-szafir-diamenty.webp",
-        "alt": "Obrączka eternity Aion z różowymi szafirami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
-        "isVisualization": true
-      },
       {
         "stone": "Szmaragd i diamenty",
         "swatch": "zielony",
@@ -30,13 +26,18 @@
         "alt": "Obrączka eternity Aion z samymi białymi diamentami, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       }
+    ],
+    "removeStones": [
+      "Różowy szafir i diamenty"
     ]
   },
   {
     "slug": "leto",
     "name": "Leto",
     "card": {
-      "onlyIfStone": ["Kamień różowy"],
+      "onlyIfStone": [
+        "Kamień różowy"
+      ],
       "stone": "Morganit różowy i diamenty",
       "lead": "Różowy morganit z diamentami w oprawie z żółtego i białego złota – ciepło i chłód w równowadze.",
       "description": "Pierścionek łączy żółte i białe złoto, a jego akcentem jest różowy morganit z diamentami po bokach. Zestawienie dwóch kolorów metalu podkreśla barwę kamienia i nadaje całości lekkości.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Morganit to różowa odmiana berylu, minerału, do którego należą też szmaragd i akwamaryn.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
