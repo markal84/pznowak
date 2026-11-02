@@ -86,7 +86,7 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
   })
 
   it('wizualizacje W mają proporcje zdjęcia karty i ≤ 300 KB', async () => {
-    const expected: Record<string, number> = { cyane: 1980 / 1320, daphne: 1680 / 1120, aion: 640 / 343 }
+    const expected: Record<string, number> = { cyane: 1980 / 1320, daphne: 1680 / 1120, aion: 4 / 5 }
     for (const spec of loadSpecs()) {
       for (const v of spec.variants.filter((variant) => variant.file.startsWith(`${spec.slug}-`))) {
         const { width, height } = await sharp(path.join(IMAGES_DIR, v.file)).metadata()
