@@ -3255,6 +3255,9 @@ fieldset.plain legend {
 }
 .map-frame {
   position: relative;
+  /* Pełna szerokość kolumny wprost: element z aspect-ratio nie rozciąga się w siatce sam (justify-self: normal
+     działa wtedy jak start), więc bez tego min-height 280 px × 4/3 dawało na telefonie 373 px i poziome przewijanie. */
+  width: 100%;
   aspect-ratio: 1200 / 640;
   min-height: 280px;
   background: var(--shade);
