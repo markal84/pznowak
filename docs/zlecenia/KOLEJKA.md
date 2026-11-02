@@ -20,6 +20,8 @@ Statusy: `gotowe do startu` · `w toku` · `czeka na Marcina` · `do przeglądu 
 | S | Nowe pierścionki z FB: imiona z mitologii (Leucothea, Calypso…) + publikacja na stagingu | `2026-11-01_zlecenie-S_nazwy-nowych-pierscionkow.md` | `feat/nazwy-nowych-pierscionkow` / [#36](https://github.com/markal84/pznowak/pull/36) | do przeglądu Klaudii | opis PR; na Macu: `cd cms && npm run staging:nazwy -- --apply` |
 | T | /pracownia: gotowy film z pracowni (30 s, 4:5) zamiast placeholdera + napisy etapów z `.vtt` | `2026-11-01_zlecenie-T_film-pracownia.md` | `claude/tender-cray-0x5of3` / [#37](https://github.com/markal84/pznowak/pull/37) | do przeglądu Klaudii | opis PR; nic na staging (bez bazy) |
 | U | Jednolite opisy pierścionków: lead + opis 40–90 słów + parametry, bez stylu FB; skrypt na staging | `2026-11-01_zlecenie-U_opisy-pierscionkow.md` | `claude/gifted-dijkstra-vlxr2n` / [#38](https://github.com/markal84/pznowak/pull/38) | do przeglądu Klaudii | opis PR + podgląd `cms/seed/opisy/opisy-u.md`; na Macu: `cd cms && npm run staging:opisy -- --apply` |
+| V | Karta pierścionka: „Zamów z innym kamieniem” (kółka kolorów, podmiana zdjęcia, etykieta „Wizualizacja”, kamień w zapytaniu) + Aion z 3 obrazami od Kamili + Leto → morganit | `2026-11-02_zlecenie-V_warianty-kamieni-karta.md` | – | gotowe do startu | Sonnet 5.5 high |
+| W | Wizualizacje kamieni w Codex headless – próbka (Cyane + jeden owal/oktagon) do oceny Kamili | `2026-11-02_zlecenie-W_wizualizacje-codex.md` | – | czeka na Marcina | Marcin ustala uruchomienie Codexa; po V albo równolegle |
 | H-D1 | Sync przez Meta Graph API | `2026-10-26_zlecenie-H_proces-katalogu-z-fb-ig.md` (etap D) | – | wstrzymane | brak dostępu w Meta Business Suite |
 | H-D2 | Eksport przyrostowy (dalszy ciąg) | jw., etap D | – | czeka na zlecenie Klaudii | ustalenia niżej („Na D2”) |
 | H-E | Zakładka „Proces” + panel pod człowieka | jw., etap E + `2026-10-26_NOTATKA_panel-katalogu-dla-czlowieka.md` | – | wstrzymane | czeka na zlecenie Klaudii |
@@ -28,6 +30,11 @@ Ostatnio scalone (31.10, pliki w `archiwum/`): #26 K pierścionki · #27 L moiss
 Otwarte po K: mystic topaz bez koloru w filtrze.
 
 ## Czeka na zlecenie (Klaudia)
+- **Zdjęcia na dłoni (Kamila 01.11):** z FB wyciągnąć zdjęcia pierścionków na dłoni Kamili i dołączyć do galerii fasonu
+  przy kolorze oryginału (najlepiej jako 2. zdjęcie). Po V.
+- **Warianty dla całego katalogu (Kamila: „każdy kolejny poszerzaj ofertę”):** po akceptacji próbki W.
+- **Godziny otwarcia z Payload:** pole `site-content.openingHours` nie jest podłączone (godziny w `SITE.hours`, zmienione 01.11
+  na prośbę Michała). Zmienić pole na listę dni/godzin i czytać na stronie + w danych dla Google.
 - Galeria kilku filmów na karcie pierścionka (dziś CMS przyjmuje 1 film; dodatkowe czekają w `source.facebookPayload`).
 - Szczegóły wyglądu strony, sekcja po sekcji – hero na telefonie = zlecenie M; dalej kolejne sekcje (uwagi: `2026-10-25_uwagi-po-F.md`, fundament: `2026-10-25_design-fundament.md`;
   na telefonie zdjęcie hero pod linią przewijania).
