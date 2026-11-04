@@ -15,6 +15,7 @@ import { GalleryItems } from './collections/GalleryItems'
 import { Works } from './collections/Works'
 import { Submissions } from './collections/Submissions'
 import { SiteContent } from './globals/SiteContent'
+import { emailAdapterFromEnv } from './lib/email'
 import { resolveCmsEnvironment } from './lib/environment'
 import { productPath, productSeoDescription, productSeoTitle } from './lib/product-seo'
 import { firstProductImageId } from './lib/product-seo-admin'
@@ -45,6 +46,8 @@ export default buildConfig({
   collections: [Products, Media, GalleryItems, Works, Submissions, Users],
   globals: [SiteContent],
   editor: lexicalEditor(),
+  // Powiadomienia o zgłoszeniach: SMTP skrzynki pracowni ze zmiennych `SMTP_*` (src/lib/email.ts); bez nich „console”.
+  email: emailAdapterFromEnv(),
   secret: environment.payloadSecret,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

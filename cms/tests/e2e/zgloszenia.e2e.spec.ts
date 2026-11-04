@@ -77,7 +77,7 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
     await expectTurnstileFrame(page)
 
     await page.getByLabel('Imię').fill(E2E_NAME)
-    await page.getByLabel('Telefon').fill('501 321 347')
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('501 321 347')
     await page.getByLabel(/Coś jeszcze/).fill('Zgłoszenie testowe Playwright, proszę zignorować.')
     await page.getByLabel(/Zgadzam się na kontakt w sprawie projektu/).check()
 
@@ -114,7 +114,7 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
       .getByLabel('Co trzeba zrobić?')
       .fill('Zgłoszenie testowe Playwright, proszę zignorować.')
     await page.getByLabel('Imię').fill(E2E_NAME)
-    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
     await page.getByLabel(/Zgadzam się na kontakt w sprawie mojej wiadomości/).check()
 
     const response = submissionResponse(page)
@@ -138,13 +138,13 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
     await expectTurnstileFrame(page)
     await page.getByLabel('Okazja').fill('zaręczyny')
     await page
-      .getByLabel('Co Ci się podoba?')
+      .getByLabel('Opisz, czego szukasz')
       .fill('Zgłoszenie testowe Playwright, proszę zignorować. Jak na https://pinterest.com/pin/1')
     await page.getByLabel(/Grawer/).fill('Na zawsze ♥')
     await page.getByRole('radio', { name: 'Znam rozmiar' }).check()
     await page.getByLabel('Rozmiar w polskiej skali').selectOption('14')
     await page.getByLabel('Imię').fill(E2E_NAME)
-    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
     await page.getByLabel(/Zgadzam się na kontakt w sprawie mojej wiadomości/).check()
 
     const response = submissionResponse(page)
@@ -156,6 +156,8 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
       honeypot: '',
       data: {
         topic: 'nowy',
+        meeting: 'pracownia',
+        contactPreference: 'telefon',
         occasionText: 'zaręczyny',
         engraving: 'Na zawsze ♥',
         ringSizeKnown: 'known',
@@ -192,7 +194,7 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
       .getByLabel('Twoja wiadomość')
       .fill('Zgłoszenie testowe Playwright, proszę zignorować.')
     await page.getByLabel('Imię').fill(E2E_NAME)
-    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
     await page.getByLabel(/Zgadzam się na kontakt/).check()
 
     const response = submissionResponse(page)
@@ -233,7 +235,7 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
     await page.locator('label.topic', { hasText: 'Inne pytanie' }).click()
     await page.getByLabel('Twoja wiadomość').fill('Pytanie testowe.')
     await page.getByLabel('Imię').fill(E2E_NAME)
-    await page.getByLabel('Telefon').fill('600 100 200')
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
     await page.getByLabel(/Zgadzam się na kontakt/).check()
     await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
     const alert = page
@@ -246,5 +248,145 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
     )
     await expect(alert.getByRole('link', { name: 'kontakt@pznowak.pl' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Wyślij wiadomość' })).toBeEnabled()
+  })
+})
+
+/**
+ * Zlecenie X: nowe pola formularza kontaktowego. Odpowiedź serwera jest atrapą (201), żeby testy nie zapisywały
+ * zgłoszeń w bazie stagingowej i nie zużywały limitu 5 zgłoszeń na godzinę z jednego IP (testy idą na kilku
+ * przeglądarkach z jednego runnera). Prawdziwą wysyłkę sprawdzają testy wyżej, a walidację serwera testy
+ * integracyjne (`tests/int/submissions-form-x.int.spec.ts`).
+ */
+test.describe('Formularz kontaktowy: rozmowa, kontakt i budżet (zlecenie X)', () => {
+  test.describe.configure({ timeout: 90_000 })
+
+  /** Atrapa POST /api/zgloszenia; zwraca treść żądań, które wysłał formularz. */
+  async function fakeAccept(page: Page) {
+    const bodies: Array<Record<string, unknown>> = []
+    await page.route('**/api/zgloszenia', async (route) => {
+      if (route.request().method() !== 'POST') return route.continue()
+      bodies.push(route.request().postDataJSON())
+      await route.fulfill({
+        status: 201,
+        json: { ok: true, code: 'accepted', message: 'Dziękujemy. Zgłoszenie trafiło do pracowni.' },
+      })
+    })
+    return bodies
+  }
+
+  async function fillPerson(page: Page) {
+    await page.getByLabel('Imię').fill(E2E_NAME)
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
+    await page.getByLabel(/Zgadzam się na kontakt w sprawie mojej wiadomości/).check()
+  }
+
+  const TOPICS = [
+    { id: 'nowy', label: 'Pierścionek lub obrączki na zamówienie', message: 'Opisz, czego szukasz', meeting: true },
+    { id: 'kolekcja', label: 'Projekt z kolekcji', message: 'Co chcesz zmienić w projekcie?', meeting: true },
+    { id: 'obraczki', label: 'Obrączki ślubne', message: 'Coś jeszcze o obrączkach?', meeting: true },
+    { id: 'naprawa', label: 'Naprawa lub przeróbka', message: 'Co trzeba zrobić?', meeting: false },
+    { id: 'inne', label: 'Inne pytanie', message: 'Twoja wiadomość', meeting: true },
+  ] as const
+
+  for (const topic of TOPICS) {
+    test(`${topic.label}: formularz wysyła temat, formę rozmowy i preferowany kontakt`, async ({ page }) => {
+      const bodies = await fakeAccept(page)
+      await visit(page, `/kontakt?temat=${topic.id}`)
+      await expect(page.locator('label.topic', { hasText: topic.label })).toHaveClass(/is-checked/)
+      const meeting = page.getByRole('group', { name: 'Jak wolisz porozmawiać?' })
+      if (topic.meeting) {
+        await expect(meeting.getByRole('radio', { name: 'W pracowni w Busku-Zdroju' })).toBeChecked()
+      } else {
+        // naprawa jest usługą na miejscu: bez pytania o rozmowę zdalną
+        await expect(meeting).toHaveCount(0)
+      }
+      await expect(page.getByRole('radio', { name: 'Telefon', exact: true })).toBeChecked()
+      await page.getByLabel(topic.message).fill('Zgłoszenie testowe Playwright, proszę zignorować.')
+      await fillPerson(page)
+      await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
+      await expect(page.getByRole('heading', { name: 'Wiadomość wysłana' })).toBeVisible({ timeout: 30_000 })
+      expect(bodies).toHaveLength(1)
+      const data = bodies[0].data as Record<string, unknown>
+      expect(data).toMatchObject({ topic: topic.id, contactPreference: 'telefon', name: E2E_NAME })
+      if (topic.meeting) expect(data.meeting).toBe('pracownia')
+      else expect(data).not.toHaveProperty('meeting')
+      await expect(page.getByText(/Odezwiemy się telefonicznie/)).toBeVisible()
+    })
+  }
+
+  test('„mieszkam dalej”: inne „Co dalej”, podpowiedź o jubilerze w okolicy, bez obietnic wysyłki i miarek', async ({
+    page,
+  }) => {
+    const bodies = await fakeAccept(page)
+    await visit(page, '/kontakt?temat=nowy')
+    const steps = page.locator('ol[data-meeting]')
+    await expect(steps).toContainText('W pracowni oglądasz kamienie i projekty.')
+    await expect(page.getByText(/Zmierzymy palec w pracowni/)).toBeVisible()
+
+    await page.getByRole('radio', { name: 'Telefonicznie albo przez wideo – mieszkam dalej' }).check()
+    await expect(steps).toHaveAttribute('data-meeting', 'zdalnie')
+    await expect(steps).toContainText('Pokazujemy kamienie i projekty na zdjęciach i filmach.')
+    await expect(steps).not.toContainText('W pracowni oglądasz')
+    await expect(page.getByText('Rozmiar zmierzy bez problemu każdy jubiler w Twojej okolicy', { exact: false })).toBeVisible()
+    await expect(page.getByText(/Zmierzymy palec w pracowni/)).toHaveCount(0)
+    await expect(page.locator('main')).not.toContainText(/wysyłamy (gotow|pierście)|\bmiark|do przymiarki/i)
+
+    // naprawa: pytania o rozmowę nie ma, „Co dalej” wraca do pracowni
+    await page.locator('label.topic', { hasText: 'Naprawa lub przeróbka' }).click()
+    await expect(steps).toHaveAttribute('data-meeting', 'pracownia')
+    await page.locator('label.topic', { hasText: 'Pierścionek lub obrączki na zamówienie' }).click()
+    await expect(steps).toHaveAttribute('data-meeting', 'zdalnie')
+
+    await page.getByLabel('Opisz, czego szukasz').fill('Zgłoszenie testowe Playwright, proszę zignorować.')
+    await page.getByRole('radio', { name: 'SMS' }).check()
+    await fillPerson(page)
+    await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
+    await expect(page.getByRole('heading', { name: 'Wiadomość wysłana' })).toBeVisible({ timeout: 30_000 })
+    expect(bodies[0].data).toMatchObject({ topic: 'nowy', meeting: 'zdalnie', contactPreference: 'sms' })
+    await expect(page.getByText(/Odezwiemy się SMS-em/)).toBeVisible()
+    await expect(page.getByText('Odpowiadamy zwykle tego samego dnia roboczego.')).toBeVisible()
+  })
+
+  test('budżet: przedziały, „Podam kwotę” z polem na cyfry; błędna kwota i brak e-maila przy „E-mail” zatrzymują wysyłkę', async ({
+    page,
+  }) => {
+    const bodies = await fakeAccept(page)
+    await visit(page, '/kontakt?temat=nowy')
+    await expect(page.getByText('Odpowiadamy zwykle tego samego dnia roboczego.')).toBeVisible()
+    const budget = page.getByLabel(/Budżet/)
+    await expect(budget.locator('option')).toHaveText([
+      'Jeszcze nie wiem',
+      'do 4 000 zł',
+      '4 000–10 000 zł',
+      'powyżej 10 000 zł',
+      'Podam kwotę',
+    ])
+    await expect(page.getByLabel('Kwota w złotych')).toHaveCount(0)
+    await budget.selectOption('kwota')
+    await page.getByLabel('Kwota w złotych').fill('6000 zł')
+    await page.getByRole('radio', { name: 'E-mail' }).check()
+    // przy „E-mail” znika dopisek „(opcjonalnie)”
+    await expect(page.locator('label[for="k-mail"]')).toHaveText('E-mail')
+    await page.getByLabel('Opisz, czego szukasz').fill('Zgłoszenie testowe Playwright, proszę zignorować.')
+    await fillPerson(page)
+    await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
+
+    await expect(page.getByText('Wpisz kwotę samymi cyframi, np. 6000 (najwyżej 7 cyfr).')).toBeVisible()
+    await expect(page.getByText('Podaj adres e-mail albo wybierz kontakt przez telefon lub SMS.')).toBeVisible()
+    await expect(page.getByLabel('Kwota w złotych')).toHaveAttribute('aria-invalid', 'true')
+    await expect(page.getByRole('textbox', { name: 'E-mail' })).toHaveAttribute('aria-invalid', 'true')
+    expect(bodies).toHaveLength(0)
+
+    await page.getByLabel('Kwota w złotych').fill('6 000')
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('test-playwright@example.com')
+    await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
+    await expect(page.getByRole('heading', { name: 'Wiadomość wysłana' })).toBeVisible({ timeout: 30_000 })
+    expect(bodies[0].data).toMatchObject({
+      budget: 'kwota',
+      budgetAmount: '6 000',
+      contactPreference: 'email',
+      email: 'test-playwright@example.com',
+    })
+    await expect(page.getByText(/Odezwiemy się e-mailem/)).toBeVisible()
   })
 })

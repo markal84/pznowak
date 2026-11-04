@@ -50,8 +50,8 @@ const faq = (): FaqItem[] => [
     q: 'Czy da się pracować zdalnie?',
     a: (
       <>
-        Pierwszą rozmowę możemy przeprowadzić przez telefon. Na przymiarkę i odbiór zapraszamy do Buska-Zdroju.
-        <DoUzupelnienia> [Do potwierdzenia: rozmowy wideo i wysyłka gotowej biżuterii.]</DoUzupelnienia>
+        Pierwszą rozmowę możemy przeprowadzić przez telefon. Na przymiarkę i odbiór zapraszamy do Buska-Zdroju. Gotową biżuterię wysyłamy kurierem.
+        <DoUzupelnienia> [Do potwierdzenia: rozmowy wideo.]</DoUzupelnienia>
       </>
     ),
   },

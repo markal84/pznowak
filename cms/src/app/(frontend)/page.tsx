@@ -5,7 +5,7 @@ import { pluralRing, toCatalogRing } from '@/lib/catalog'
 import { heroRing as pickHero, pickHomeRings } from '@/lib/home'
 import { showPlaceholders } from '@/lib/placeholders'
 import { pageMetadata } from '@/lib/seo'
-import { CUSTOM_ORDER_LINK, FAMILY, HERO_TRUST, RING_CREATOR_ENABLED, SITE } from '@/lib/site'
+import { CUSTOM_ORDER_LINK, FAMILY, HERO_TRUST, RING_CREATOR_ENABLED, SITE, openingHoursText } from '@/lib/site'
 import { jewelryStoreJsonLd } from '@/lib/structured-data'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Faq, { type FaqItem } from '@/components/site/Faq'
@@ -20,8 +20,7 @@ import Tag from '@/components/site/Tag'
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = pageMetadata({
   title: 'Złotnik w Busku-Zdroju – pracownia rodzinna od 1920',
-  description:
-    'Pracownia złotnicza przy Kilińskiego 12 w Busku-Zdroju. Pierścionki z kamieniami szlachetnymi, obrączki, naprawy biżuterii. Pon.–pt. 8–16, sob. 10–16.',
+  description: `Pracownia złotnicza przy ${SITE.street} w Busku-Zdroju. Pierścionki z kamieniami szlachetnymi, obrączki, naprawy biżuterii. ${openingHoursText()}.`,
   path: '/',
 })
 
