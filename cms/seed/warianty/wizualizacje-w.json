@@ -1,5 +1,5 @@
 {
-  "about": "Zlecenie W: wizualizacje kamieni przez Codex headless. Ścieżki plików względem katalogu data/ w repo; pierwszy istniejący wygrywa (HD z eksportu FB, potem pliki w gicie: data/legacy, data/wzorce). Wzorce kolorów to prawdziwe zdjęcia kart katalogu z naturalnymi kamieniami.",
+  "about": "Zlecenie W: wizualizacje kamieni przez Codex headless. Ścieżki plików względem katalogu data/ w repo; pierwszy istniejący wygrywa (HD z eksportu FB, potem pliki w gicie: data/legacy, data/wzorce). Wzorce kolorów to prawdziwe zdjęcia kart katalogu z naturalnymi kamieniami. Zlecenie Y: „zdjecia” = kolejne zdjęcia galerii karty (2., 3., …), „cala_galeria” = kamienie generowane na każdym zdjęciu; obraz n-tego zdjęcia ma końcówkę -<n>.",
   "kamienie": {
     "rubin": {
       "nazwa": "Rubin",
@@ -86,6 +86,28 @@
         }
       ]
     },
+    "szmaragd-stonowany": {
+      "nazwa": "Szmaragd",
+      "z": "ze szmaragdem",
+      "swatch": "zielony",
+      "en": "emerald",
+      "kolor_en": "natural emerald in a calm, medium green with a slight bluish tint, moderately saturated and soft, with a gentle velvety glow and subtle natural inclusions (jardin); clearly less saturated and less vivid than a neon or 'emerald-green' colour swatch; not neon, not bottle-glass, not mint, not dark olive",
+      "wzorce": [
+        {
+          "slug": "euterpe",
+          "pliki": [
+            "legacy/jewelry/1-50-1024x683.jpg"
+          ]
+        },
+        {
+          "slug": "athena",
+          "pliki": [
+            "legacy/jewelry/470198967_122111882990616875_4420467916375926706_n-1024x683.jpg"
+          ]
+        }
+      ],
+      "wzorce_uwaga_en": "Aim for a calmer, slightly less saturated green than the most vivid parts of these references – a quiet, natural stone rather than a bright one."
+    },
     "ametyst": {
       "nazwa": "Ametyst",
       "z": "z ametystem",
@@ -154,7 +176,7 @@
       "z": "z białym diamentem",
       "swatch": "bialy",
       "en": "colourless white diamond",
-      "kolor_en": "colourless, icy white diamond: crisp neutral white with lively brilliance and subtle rainbow fire; no tint picked up from the yellow gold and no trace of the previous blue colour",
+      "kolor_en": "colourless, icy white diamond: crisp neutral white with lively brilliance and subtle rainbow fire; no tint picked up from the yellow gold and no trace of the previous stone colour",
       "wzorce": [
         {
           "slug": "kamila-biel-2",
@@ -183,7 +205,7 @@
           "pomocniczy": true
         }
       ],
-      "wzorce_uwaga_en": "The reference diamonds are emerald-cut: take ONLY their colour (colourless, icy white, no warm or blue tint) and the character of their brilliance; keep the round brilliant cut and the facets of the stone in IMAGE 1."
+      "wzorce_uwaga_en": "The reference diamonds are emerald-cut: take ONLY their colour (colourless, icy white, no warm or blue tint) and the character of their brilliance; keep the cut, outline and facets of the stone in IMAGE 1."
     }
   },
   "fasony": [
@@ -204,7 +226,35 @@
         "bialy-diament",
         "szafir",
         "topaz-jasnoniebieski",
-        "topaz-london-blue"
+        "topaz-london-blue",
+        "szafir-granatowy",
+        "szmaragd-stonowany"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122146302602616875_122146301756616875.jpg",
+            "legacy/jewelry/516720575_122146302680616875_3682765357402159369_n-683x1024.jpg"
+          ]
+        },
+        {
+          "zrodlo": [
+            "facebook/media/122146302602616875_122146301918616875.jpg",
+            "legacy/jewelry/516066180_122146302740616875_8768136860432387588_n-1024x683.jpg"
+          ]
+        },
+        {
+          "zrodlo": [
+            "facebook/media/122146302602616875_122146301774616875.jpg",
+            "legacy/jewelry/515501763_122146302668616875_2931523350292918468_n-683x1024.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
       ]
     },
     {
@@ -219,13 +269,36 @@
       },
       "alt": "Pierścionek Daphne {z} w szlifie oktagon, w żółtym złocie (wizualizacja)",
       "kamienie": [
-        "szmaragd",
         "szafir",
         "ametyst",
         "rubin",
         "topaz-jasnoniebieski",
-        "topaz-london-blue"
-      ]
+        "topaz-london-blue",
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122158713014616875_122158712894616875.jpg",
+            "legacy/jewelry/558301413_122158713110616875_3728876808884052658_n-683x1024.jpg"
+          ]
+        },
+        {
+          "zrodlo": [
+            "facebook/media/122158713014616875_122158712822616875.jpg",
+            "legacy/jewelry/558890012_122158713068616875_4562075833488016299_n-683x1024.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "uwaga": "Y (04.11): szmaragd z W był za bardzo nasycony (Michał) – zastąpiony przez szmaragd-stonowany pod tą samą nazwą wariantu."
     },
     {
       "slug": "aion",
@@ -236,13 +309,20 @@
       "nazwa_wariantu": {
         "domyslnie": "{nazwa} i diamenty"
       },
-      "alt": "Obrączka eternity Aion z granatowymi szafirami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+      "alt": {
+        "szafir-granatowy": "Obrączka eternity Aion z granatowymi szafirami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "rubin": "Obrączka eternity Aion z rubinami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "szmaragd-stonowany": "Obrączka eternity Aion ze szmaragdami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "domyslnie": "Obrączka eternity Aion z granatowymi szafirami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)"
+      },
       "zmiana_en": "all the pink sapphires set around the band (they alternate with colourless white diamonds)",
       "zmiana_pl": "różowe szafiry (na przemian z białymi diamentami)",
       "zachowaj_en": "The colourless white diamonds between them, their settings and the gold stay exactly as they are.",
       "maska": "wiele",
       "kamienie": [
-        "szafir-granatowy"
+        "szafir-granatowy",
+        "rubin",
+        "szmaragd-stonowany"
       ]
     }
   ]

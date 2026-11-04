@@ -58,7 +58,13 @@ export type StoneVariant = {
   slug: string
   stone: string
   swatch: SwatchId
+  /** Pierwszy obraz (zastępuje 1. zdjęcie karty); to samo co `images[0]`. */
   image: string
+  /**
+   * Obrazy wariantu w kolejności zdjęć karty (zlecenie Y): „Obraz”, potem „Kolejne obrazy”. Jeden element = wariant
+   * z jednym obrazem (V/W). Po wyborze kamienia galeria pokazuje tylko te obrazy, oryginałów z nimi nie mieszamy.
+   */
+  images: string[]
   alt: string
   isVisualization: boolean
 }
@@ -75,6 +81,11 @@ export function serializeStoneVariants(entries: readonly VariantEntry[] | null |
   for (const entry of entries ?? []) {
     const stone = entry.stone?.replace(/\s+/g, ' ').trim() ?? ''
     const image = populated(entry.image)?.url ?? ''
+    // Tylko obrazy (film w „Kolejnych obrazach” to pomyłka w panelu); kolejność z panelu, bez powtórzeń.
+    const more = (entry.moreImages ?? [])
+      .map(populated)
+      .filter((asset): asset is Media => Boolean(asset?.url) && !asset?.mimeType?.startsWith('video/'))
+      .map((asset) => asset.url as string)
     const swatch = SWATCH_IDS.find((id) => id === entry.swatch)
     if (!stone || !image || !swatch) continue
     const base = stoneSlug(stone) || 'kamien'
@@ -86,12 +97,30 @@ export function serializeStoneVariants(entries: readonly VariantEntry[] | null |
       stone,
       swatch,
       image,
+      images: [...new Set([image, ...more])],
       alt: entry.alt?.trim() ?? '',
       // Brak wartości traktujemy jak wizualizację: etykieta „Wizualizacja” to bezpieczniejszy błąd niż jej brak.
       isVisualization: entry.isVisualization !== false,
     })
   }
   return variants
+}
+
+/**
+ * Opis alternatywny n-tego obrazu wariantu (od 0). Pierwszy = alt z panelu; kolejne dostają „ujęcie N”, żeby czytnik
+ * ekranu nie czytał kilka razy tego samego. Wizualizacja zawsze kończy się „(wizualizacja)”.
+ */
+export function variantImageAlt(
+  name: string,
+  variant: Pick<StoneVariant, 'alt' | 'stone' | 'isVisualization'>,
+  index = 0,
+): string {
+  const mark = ' (wizualizacja)'
+  let base = variant.alt || `${name} z kamieniem: ${variant.stone.toLowerCase()}`
+  const marked = variant.isVisualization || base.toLowerCase().endsWith(mark)
+  if (base.toLowerCase().endsWith(mark)) base = base.slice(0, -mark.length)
+  if (index > 0) base = `${base}, ujęcie ${index + 1}`
+  return marked ? `${base}${mark}` : base
 }
 
 /** Wariant z parametru `?kamien=`; nieznany adres (np. wariant usunięty w panelu) = oryginał. */

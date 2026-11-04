@@ -206,7 +206,19 @@ export const Products: CollectionConfig = {
                   label: 'Obraz',
                   required: true,
                   admin: {
-                    description: 'Najlepiej w proporcjach jak zdjęcia pierścionka; cały pierścionek w kadrze.',
+                    description:
+                      'Zastępuje pierwsze zdjęcie z „Zdjęcia i filmy”. Najlepiej ten sam kadr i proporcje; cały pierścionek w kadrze.',
+                  },
+                },
+                {
+                  name: 'moreImages',
+                  type: 'upload',
+                  relationTo: 'media',
+                  hasMany: true,
+                  label: 'Kolejne obrazy',
+                  admin: {
+                    description:
+                      'Ten sam kamień na 2., 3. … zdjęciu z „Zdjęcia i filmy”, w tej samej kolejności. Po wyborze kamienia galeria pokazuje tylko obrazy wariantu (film zostaje prawdziwy). Puste = jeden obraz.',
                   },
                 },
                 {

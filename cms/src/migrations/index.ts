@@ -1,14 +1,15 @@
-import * as migration_20260920_130936_initial_cms from './20260920_130936_initial_cms'
-import * as migration_20260921_074300_product_workflow_hardening from './20260921_074300_product_workflow_hardening'
-import * as migration_20261020_173112_etap2_zgloszenia from './20261020_173112_etap2_zgloszenia'
-import * as migration_20261020_211333_etap2_kwarantanna from './20261020_211333_etap2_kwarantanna'
-import * as migration_20261021_182202_zamowienie_grawer_rozmiar from './20261021_182202_zamowienie_grawer_rozmiar'
-import * as migration_20261021_182906_zlecenie_b_zalaczniki from './20261021_182906_zlecenie_b_zalaczniki'
-import * as migration_20261022_095455_seo_pierscionki from './20261022_095455_seo_pierscionki'
-import * as migration_20261026_111856_strona_glowna_wybrane from './20261026_111856_strona_glowna_wybrane'
-import * as migration_20261026_125727_fb_import_zrodlo from './20261026_125727_fb_import_zrodlo'
-import * as migration_20261101_101210_realizacje from './20261101_101210_realizacje'
-import * as migration_20261102_100513_warianty_kamieni from './20261102_100513_warianty_kamieni'
+import * as migration_20260920_130936_initial_cms from './20260920_130936_initial_cms';
+import * as migration_20260921_074300_product_workflow_hardening from './20260921_074300_product_workflow_hardening';
+import * as migration_20261020_173112_etap2_zgloszenia from './20261020_173112_etap2_zgloszenia';
+import * as migration_20261020_211333_etap2_kwarantanna from './20261020_211333_etap2_kwarantanna';
+import * as migration_20261021_182202_zamowienie_grawer_rozmiar from './20261021_182202_zamowienie_grawer_rozmiar';
+import * as migration_20261021_182906_zlecenie_b_zalaczniki from './20261021_182906_zlecenie_b_zalaczniki';
+import * as migration_20261022_095455_seo_pierscionki from './20261022_095455_seo_pierscionki';
+import * as migration_20261026_111856_strona_glowna_wybrane from './20261026_111856_strona_glowna_wybrane';
+import * as migration_20261026_125727_fb_import_zrodlo from './20261026_125727_fb_import_zrodlo';
+import * as migration_20261101_101210_realizacje from './20261101_101210_realizacje';
+import * as migration_20261102_100513_warianty_kamieni from './20261102_100513_warianty_kamieni';
+import * as migration_20261104_231900_warianty_cala_galeria from './20261104_231900_warianty_cala_galeria';
 
 export const migrations = [
   {
@@ -66,4 +67,9 @@ export const migrations = [
     down: migration_20261102_100513_warianty_kamieni.down,
     name: '20261102_100513_warianty_kamieni',
   },
-]
+  {
+    up: migration_20261104_231900_warianty_cala_galeria.up,
+    down: migration_20261104_231900_warianty_cala_galeria.down,
+    name: '20261104_231900_warianty_cala_galeria'
+  },
+];
