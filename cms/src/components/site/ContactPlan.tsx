@@ -51,7 +51,7 @@ export function useContactPlan(initialTopic: ContactTopicId): ContactPlan {
 export const effectiveMeeting = (topic: ContactTopicId, meeting: MeetingModeId): MeetingModeId =>
   MEETING_TOPICS.includes(topic) ? meeting : DEFAULT_MEETING
 
-/** Kroki „Co dalej”. Przy rozmowie zdalnej bez obietnic wysyłki: tylko zdjęcia i filmy (wysyłka – decyzja Michała). */
+/** Kroki „Co dalej”. Przy rozmowie zdalnej: zdjęcia i filmy; bez wysyłki miarek i obrączek do przymiarki (ustalone 01.11). */
 export const NEXT_STEPS: Record<MeetingModeId, readonly string[]> = {
   pracownia: [
     'Oddzwaniamy i ustalamy termin rozmowy.',

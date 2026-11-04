@@ -344,7 +344,7 @@ test.describe('Formularz kontaktowy: rozmowa, kontakt i budżet (zlecenie X)', (
     await expect(page.getByRole('heading', { name: 'Wiadomość wysłana' })).toBeVisible({ timeout: 30_000 })
     expect(bodies[0].data).toMatchObject({ topic: 'nowy', meeting: 'zdalnie', contactPreference: 'sms' })
     await expect(page.getByText(/Odezwiemy się SMS-em/)).toBeVisible()
-    await expect(page.getByText('Odpowiadamy zwykle tego samego lub następnego dnia roboczego.')).toBeVisible()
+    await expect(page.getByText('Odpowiadamy zwykle tego samego dnia roboczego.')).toBeVisible()
   })
 
   test('budżet: przedziały, „Podam kwotę” z polem na cyfry; błędna kwota i brak e-maila przy „E-mail” zatrzymują wysyłkę', async ({
@@ -352,7 +352,7 @@ test.describe('Formularz kontaktowy: rozmowa, kontakt i budżet (zlecenie X)', (
   }) => {
     const bodies = await fakeAccept(page)
     await visit(page, '/kontakt?temat=nowy')
-    await expect(page.getByText('Odpowiadamy zwykle tego samego lub następnego dnia roboczego.')).toBeVisible()
+    await expect(page.getByText('Odpowiadamy zwykle tego samego dnia roboczego.')).toBeVisible()
     const budget = page.getByLabel(/Budżet/)
     await expect(budget.locator('option')).toHaveText([
       'Jeszcze nie wiem',
