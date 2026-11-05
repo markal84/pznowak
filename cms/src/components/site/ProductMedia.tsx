@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRef, useState, type ReactNode, type TouchEvent } from 'react'
 import type { Slide } from 'yet-another-react-lightbox'
 
-import { variantImageAlt, variantImages } from '@/lib/stone-variants'
+import { originalFilmCaption, variantImageAlt, variantImages } from '@/lib/stone-variants'
 
 import { useSelectedStoneVariant } from './StoneVariants'
 import Tag from './Tag'
@@ -19,6 +19,8 @@ type ProductMediaProps = {
   name: string
   images: string[]
   video: string
+  /** Kamień oryginału z karty (np. „Diament niebieski”) – do podpisu filmu przy wybranym innym kamieniu. */
+  originalStone?: string
   /** Pod galerią, np. „Zamów z innym kamieniem” (kółka podmieniają zdjęcia galerii). */
   children?: ReactNode
 }
@@ -28,7 +30,7 @@ type VariantInfo = { stone: string; isVisualization: boolean; alt: string; cover
 
 type Item =
   | { kind: 'image'; src: string; label: string; variant?: VariantInfo }
-  | { kind: 'video'; src: string; label: string; poster: string }
+  | { kind: 'video'; src: string; label: string; poster: string; caption?: string }
 
 const IMAGE_LABELS = ['widok z boku', 'oprawa z bliska', 'obrączka', 'inne ujęcie', 'kolejne ujęcie']
 
@@ -40,7 +42,7 @@ function ArrowIcon({ dir }: { dir: 'left' | 'right' }) {
   )
 }
 
-export default function ProductMedia({ name, images, video, children }: ProductMediaProps) {
+export default function ProductMedia({ name, images, video, originalStone, children }: ProductMediaProps) {
   const variant = useSelectedStoneVariant()
   // Wybrany inny kamień (zlecenie Y): cała galeria to obrazy wariantu, w kolejności zdjęć karty; zdjęć oryginału z nimi
   // nie mieszamy (pierścionek w dwóch kolorach naraz wyglądał niespójnie). Film zostaje prawdziwy, z okładką oryginału.
@@ -62,7 +64,17 @@ export default function ProductMedia({ name, images, video, children }: ProductM
         src,
         label: `Zdjęcie ${i + 1}: ${IMAGE_LABELS[i] ?? 'kolejne ujęcie'}`,
       }))
-  if (video) items.push({ kind: 'video', src: video, label: 'Film o pierścionku', poster: images[0] ?? '' })
+  // Przy innym kamieniu film dalej pokazuje oryginał (zlecenie Y.2) – podpis na miniaturze i w odtwarzaczu.
+  const filmCaption = variant ? originalFilmCaption(originalStone) : undefined
+  if (video) {
+    items.push({
+      kind: 'video',
+      src: video,
+      label: filmCaption ?? 'Film o pierścionku',
+      poster: images[0] ?? '',
+      caption: filmCaption,
+    })
+  }
 
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -187,6 +199,7 @@ export default function ProductMedia({ name, images, video, children }: ProductM
                 </span>
               </button>
             ) : null}
+            {current.caption ? <span className="film-original">{current.caption}</span> : null}
           </>
         )}
         {current.kind === 'image' && current.variant?.isVisualization ? (
@@ -243,6 +256,7 @@ export default function ProductMedia({ name, images, video, children }: ProductM
               {item.kind === 'video' ? (
                 <span aria-hidden="true" className="film">
                   Film
+                  {item.caption ? <small>oryginał</small> : null}
                 </span>
               ) : null}
             </button>

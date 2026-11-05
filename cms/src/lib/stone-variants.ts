@@ -179,6 +179,24 @@ export function originalSwatch(stone: string): SwatchId {
   return earliest(qualifiers) ?? earliest(stones) ?? 'bialy'
 }
 
+/**
+ * Dopisek pod kółkami (Kamila 05.11, zlecenie Y.2): jeden tekst dla każdej karty z wariantami. Wizualizacja pokazuje
+ * kolor, a kamień naturalny klient i tak zobaczy przed zamówieniem.
+ */
+export const STONE_VARIANTS_NOTE =
+  'Wizualizacje pokazują kolor kamienia. Kamienie naturalne różnią się między sobą odcieniem i blaskiem – przed zamówieniem pokażemy Ci zdjęcie lub film kamienia, który dla Ciebie wybierzemy.'
+
+/**
+ * Podpis filmu, gdy wybrany jest inny kamień niż oryginał (zlecenie Y.2): filmu nie przemalowujemy, więc mówimy wprost,
+ * że pokazuje oryginał, np. „Film: oryginał (diament niebieski)”. Bez nazwy kamienia na karcie – samo „Film: oryginał”.
+ */
+export function originalFilmCaption(originalStone: string | null | undefined): string {
+  const stone = (originalStone ?? '').trim()
+  if (!stone) return 'Film: oryginał'
+  // Pierwsza litera mała („Diament niebieski” → „diament niebieski”), reszta bez zmian („London Blue” zostaje).
+  return `Film: oryginał (${stone.charAt(0).toLocaleLowerCase('pl')}${stone.slice(1)})`
+}
+
 /** Adres formularza z karty: nazwa projektu i (gdy wybrany wariant) kamień. */
 export function inquiryHref(projectName: string, stone?: string | null): string {
   const params = new URLSearchParams({ temat: 'kolekcja', projekt: projectName })

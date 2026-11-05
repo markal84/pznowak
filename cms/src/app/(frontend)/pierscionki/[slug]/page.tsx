@@ -89,7 +89,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
       </nav>
 
       <section className="wrap product">
-        <ProductMedia images={product.images} name={product.name} video={product.video}>
+        <ProductMedia images={product.images} name={product.name} originalStone={stone} video={product.video}>
           <StoneVariantPicker originalStone={stone} originalSwatch={originalSwatch(product.stone)} />
         </ProductMedia>
 

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 
 import { expect, test, type Page } from '@playwright/test'
+import { originalFilmCaption, STONE_VARIANTS_NOTE } from '../../src/lib/stone-variants'
 import { presetConsent } from '../helpers/consent'
 
 /**
@@ -41,7 +42,8 @@ test.describe('Zamów z innym kamieniem (zlecenie V)', () => {
     await expect(options).toHaveCount(1 + aionVariants)
     await expect(options.first()).toHaveAttribute('aria-pressed', 'true')
     await expect(options.first()).toHaveAccessibleName(/^Oryginał/)
-    await expect(section).toContainText('Dostępność kamienia potwierdza pracownia.')
+    // Dopisek pod kółkami (Y.2): jeden tekst ze stałej, na każdej karcie z wariantami.
+    await expect(section.locator('.stone-variants-note')).toHaveText(STONE_VARIANTS_NOTE)
     await expect(page.locator('.product-main .variant-tag')).toHaveCount(0)
 
     const originalSrc = await mainImage(page).getAttribute('src')
@@ -129,5 +131,43 @@ test.describe('Kamień zmienia całą galerię (zlecenie Y)', () => {
     await page.getByRole('button', { name: /^Oryginał/ }).click()
     await expect(page.locator('.product-main .variant-tag')).toHaveCount(0)
     expect(await thumbSrcs()).toEqual(originalSrcs)
+  })
+})
+
+test.describe('Film przy wybranym kamieniu (zlecenie Y.2)', () => {
+  test('Cyane: przy innym kamieniu film ma podpis „Film: oryginał (…)” na miniaturze i w odtwarzaczu, przy oryginale bez', async ({ page }) => {
+    const response = await visit(page, '/pierscionki/cyane')
+    const ready =
+      response?.ok() &&
+      (await page.locator('.stone-variants').count()) > 0 &&
+      (await page.getByRole('group', { name: 'Zdjęcia pierścionka' }).getByRole('button', { name: /^Film/ }).count()) > 0
+    test.skip(!ready, 'Na tej bazie Cyane nie ma wariantów albo filmu')
+
+    const originalStone = ((await stoneFact(page).textContent()) ?? '').trim()
+    const caption = originalFilmCaption(originalStone)
+    expect(caption).toMatch(/^Film: oryginał \(.+\)$/)
+    const thumbs = page.getByRole('group', { name: 'Zdjęcia pierścionka' }).getByRole('button')
+
+    // Oryginał: zwykły film, bez podpisu.
+    await expect(thumbs.filter({ hasText: 'Film' })).toHaveAccessibleName('Film o pierścionku')
+    await thumbs.filter({ hasText: 'Film' }).click()
+    await expect(page.locator('.product-main video')).toHaveCount(1)
+    await expect(page.locator('.film-original')).toHaveCount(0)
+
+    // Inny kamień: miniatura i odtwarzacz mówią, że film pokazuje oryginał.
+    await page.locator('.stone-option').nth(1).click()
+    const film = thumbs.filter({ hasText: 'Film' })
+    await expect(film).toHaveAccessibleName(caption)
+    await expect(film).toContainText('oryginał')
+    await film.click()
+    await expect(page.locator('.product-main .film-original')).toHaveText(caption)
+    await expect(page.locator('.product-main .film-original')).toBeVisible()
+    await page.getByRole('button', { name: 'Odtwórz film' }).click()
+    await expect(page.locator('.product-main .film-original')).toBeVisible()
+
+    // Powrót do oryginału: podpis znika.
+    await page.getByRole('button', { name: /^Oryginał/ }).click()
+    await expect(page.locator('.film-original')).toHaveCount(0)
+    await expect(thumbs.filter({ hasText: 'Film' })).toHaveAccessibleName('Film o pierścionku')
   })
 })
