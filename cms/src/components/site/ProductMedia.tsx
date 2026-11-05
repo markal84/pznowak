@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRef, useState, type ReactNode, type TouchEvent } from 'react'
 import type { Slide } from 'yet-another-react-lightbox'
 
-import { variantImageAlt } from '@/lib/stone-variants'
+import { variantImageAlt, variantImages } from '@/lib/stone-variants'
 
 import { useSelectedStoneVariant } from './StoneVariants'
 import Tag from './Tag'
@@ -44,8 +44,9 @@ export default function ProductMedia({ name, images, video, children }: ProductM
   const variant = useSelectedStoneVariant()
   // Wybrany inny kamień (zlecenie Y): cała galeria to obrazy wariantu, w kolejności zdjęć karty; zdjęć oryginału z nimi
   // nie mieszamy (pierścionek w dwóch kolorach naraz wyglądał niespójnie). Film zostaje prawdziwy, z okładką oryginału.
-  const items: Item[] = variant
-    ? variant.images.map((src, i) => ({
+  const variantSrcs = variant ? variantImages(variant) : []
+  const items: Item[] = variant && variantSrcs.length
+    ? variantSrcs.map((src, i) => ({
         kind: 'image',
         src,
         label: `${variant.isVisualization ? 'Wizualizacja' : 'Zdjęcie'} ${i + 1}: ${variant.stone.toLowerCase()}`,
@@ -53,7 +54,7 @@ export default function ProductMedia({ name, images, video, children }: ProductM
           stone: variant.stone,
           isVisualization: variant.isVisualization,
           alt: variantImageAlt(name, variant, i),
-          cover: variant.images.length > 1,
+          cover: variantSrcs.length > 1,
         },
       }))
     : images.map((src, i) => ({

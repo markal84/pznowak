@@ -6,7 +6,7 @@ import sharp from 'sharp'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { SiteProduct } from '@/lib/public-products'
-import { serializeStoneVariants, variantImageAlt, type StoneVariant } from '@/lib/stone-variants'
+import { serializeStoneVariants, variantImageAlt, variantImages, type StoneVariant } from '@/lib/stone-variants'
 import { checkImages, IMAGES_DIR, loadSpecs, missingVariants, planVariantImages, seedFile, WARIANTY_DIR } from '../../scripts/warianty-v-logic'
 import { designPhotos, jobs, loadConfig, proposals } from '../../scripts/wizualizacje-w-logic'
 
@@ -71,6 +71,14 @@ describe('dane strony: obrazy wariantu', () => {
     expect(variant.images).toEqual(['/m/1.webp', '/m/2.webp', '/m/4.webp'])
     const [single] = serializeStoneVariants([{ stone: 'Szafir', swatch: 'granatowy', image: media(5, '/m/5.webp') }])
     expect(single.images).toEqual(['/m/5.webp'])
+  })
+
+  it('variantImages: brak „images” (dane sprzed Y) = [image]; pusta lista też', () => {
+    expect(variantImages({ image: '/media/a.webp' })).toEqual(['/media/a.webp'])
+    expect(variantImages({ image: '/media/a.webp', images: null })).toEqual(['/media/a.webp'])
+    expect(variantImages({ image: '/media/a.webp', images: [] })).toEqual(['/media/a.webp'])
+    expect(variantImages({ image: '/media/a.webp', images: ['/media/a.webp', '/media/b.webp'] })).toEqual(['/media/a.webp', '/media/b.webp'])
+    expect(variantImages({ image: '' })).toEqual([])
   })
 
   it('alt: kolejne ujęcia numerowane, wizualizacja zawsze z „(wizualizacja)”', () => {
@@ -184,7 +192,11 @@ const product: SiteProduct = {
   updatedAt: '2026-11-05T00:00:00.000Z',
   featuredOnHome: false,
   homeOrder: 0,
-  stoneVariants: galleryVariants,
+  stoneVariants: [
+    ...galleryVariants,
+    // Kształt sprzed Y (wpis z Data Cache zapisany starszym wdrożeniem): bez `images`.
+    { slug: 'stary-wpis', stone: 'Stary wpis', swatch: 'czerwony', image: '/media/stary.webp', alt: '', isVisualization: true } as unknown as StoneVariant,
+  ],
 }
 
 vi.mock('@/lib/collection', () => ({ getProducts: async () => [product] }))
@@ -215,6 +227,14 @@ describe('karta: wybrany kamień zmienia całą galerię', () => {
     expect(html).toContain('Film o pierścionku')
     // Ten sam kadr co zdjęcie karty: bez rozmytego tła pojedynczego obrazu.
     expect(html).not.toContain('ph-variant')
+  })
+
+  it('wariant bez „images” (stary wpis cache): jeden obraz z „image”, bez błędu', async () => {
+    const html = await render({ kamien: 'stary-wpis' })
+    expect(html).toContain(enc('/media/stary.webp'))
+    expect(html).not.toContain(enc('/media/cyane-2.jpg'))
+    expect(html).toContain('ph-variant')
+    expect(html).toContain('Film o pierścionku')
   })
 
   it('wariant z jednym obrazem: tylko ten obraz (bez mieszania z oryginałem) na rozmytym tle', async () => {

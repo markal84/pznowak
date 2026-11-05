@@ -107,6 +107,16 @@ export function serializeStoneVariants(entries: readonly VariantEntry[] | null |
 }
 
 /**
+ * Obrazy wariantu do galerii, odporne na dane sprzed Y: wpis z Data Cache zapisany starszym kodem ma tylko `image`
+ * (bez `images`), a cache Vercela jest wspólny dla wdrożeń. Wtedy wariant ma jeden obraz.
+ */
+export function variantImages(variant: Pick<StoneVariant, 'image'> & { images?: readonly string[] | null }): string[] {
+  const images = (variant.images ?? []).filter(Boolean)
+  if (images.length) return [...images]
+  return variant.image ? [variant.image] : []
+}
+
+/**
  * Opis alternatywny n-tego obrazu wariantu (od 0). Pierwszy = alt z panelu; kolejne dostają „ujęcie N”, żeby czytnik
  * ekranu nie czytał kilka razy tego samego. Wizualizacja zawsze kończy się „(wizualizacja)”.
  */

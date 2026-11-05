@@ -33,7 +33,9 @@ export const getProducts = unstable_cache(
     })
     return result.docs.map(serializeSiteProduct).filter(({ imagePath }) => Boolean(imagePath))
   },
-  ['published-products'],
+  // Wersja w kluczu = kształt danych (Y: `stoneVariants[].images`). Data Cache Vercela jest wspólny dla wdrożeń,
+  // więc bez niej nowy kod czytałby wpis zapisany przez starsze wdrożenie. Zmiana kształtu SiteProduct → podbij wersję.
+  ['published-products', 'v-y'],
   { tags: ['products'], revalidate: 3600 },
 )
 
