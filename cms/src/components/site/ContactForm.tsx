@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ATTACHMENTS_ENABLED, PREVIEW_NOTICE, RESPONSE_TIME, SITE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
 import {
   BUDGETS,
@@ -66,6 +66,22 @@ export default function ContactForm({
   const remote = effectiveMeeting(topic, meeting) === 'zdalnie'
   const emailRequired = contactBy === 'email'
 
+  // Po wysłaniu przewijamy do karty „Wiadomość wysłana”, a po „Napisz kolejną” – na początek formularza.
+  // Bez tego na telefonie karta zostaje ~1800 px nad ekranem i klient widzi stopkę.
+  const cardRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const wasSent = useRef(sent)
+  useEffect(() => {
+    if (wasSent.current === sent) return
+    wasSent.current = sent
+    const target = sent ? cardRef.current : formRef.current
+    if (!target) return
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    target.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' })
+    // Fokus na karcie: czytnik ekranu ogłosi „Wiadomość wysłana”. preventScroll – przewinięcie już jest.
+    if (sent) cardRef.current?.focus({ preventScroll: true })
+  }, [sent])
+
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!SUBMISSIONS_ENABLED) {
@@ -110,7 +126,7 @@ export default function ContactForm({
 
   if (sent) {
     return (
-      <div className="sent-card" role="status">
+      <div className="sent-card" ref={cardRef} role="status" tabIndex={-1}>
         <span aria-hidden="true" className="hole" />
         <h2 className="h2" style={{ fontSize: 44, lineHeight: 1.05 }}>Wiadomość wysłana</h2>
         <p className="text" style={{ maxWidth: '32em' }}>
@@ -131,7 +147,8 @@ export default function ContactForm({
   return (
     <form
       aria-label="Formularz kontaktowy"
-      className="stack"
+      className="stack contact-form"
+      ref={formRef}
       noValidate
       onChange={(e) => clearError((e.target as unknown as HTMLElement).dataset.field ?? '')}
       onSubmit={onSubmit}
