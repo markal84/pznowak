@@ -16,18 +16,20 @@ Statusy: `gotowe do startu` · `w toku` · `czeka na Marcina` · `do przeglądu 
 
 | # | Zlecenie | Plik | Gałąź / PR | Status | Co dalej |
 |---|---|---|---|---|---|
-| Y | Wariant kamienia zmienia całą galerię – próbka Cyane, Daphne, Aion × szafir granatowy / szmaragd (spokojniejszy) / rubin / biały diament | `2026-11-04_zlecenie-Y_warianty-cala-galeria.md` | `feat/warianty-cala-galeria` / [#46](https://github.com/markal84/pznowak/pull/46) | czeka na Michała i Kamilę | Klaudia 05.11: kod OK po poprawce cache (`getProducts` – wspólny Data Cache Vercela); staging wgrany; link gałęzi wysłany 05.11. Brak: biały diament (maska myli kamień z odblaskiem), rubin Aion. Aion słaby (oryginał to klatka z filmu). Scalić po odpowiedzi Buska |
-| Z | Kółka kolorów bez dubli na karcie: London blue ≠ szafir granatowy, oliwkowy ≠ szmaragd (+ migracja wartości listy) | `2026-11-05_zlecenie-Z_kolka-kolorow.md` | gałąź od `feat/warianty-cala-galeria`; scalać po #46 | gotowe do startu | Haiku 5.5 high |
+| Y.2 | Wizualizacje tylko w wycinku kamienia (biały diament) + podpis „Film: oryginał (…)” przy wariancie | `2026-11-05_zlecenie-Y2_bialy-diament-maska-i-film.md` | gałąź od `main` | gotowe do startu | Opus 5.5 high + Codex, lokalnie |
+| AA | Warianty, partia 1: Maia, Delos, Pelagia, Athena, Aria, Ianthe, Erythea, Merope × 4 kolory, 2 obrazy na kolor | `2026-11-05_zlecenie-AA_warianty-partia-1.md` | – | czeka na Y.2 | Sonnet 5.5 high + Codex, lokalnie; partia 2 (15 fasonów) po ocenie AA |
+| AB | Jeden fason: Urania + Pyrrha + Nyx (prawdziwe zdjęcia jako warianty, przekierowania 308) | `2026-11-05_zlecenie-AB_polaczenie-urania-pyrrha-nyx.md` | – | gotowe do startu (Kamila 05.11: zostaje Urania) | Sonnet 5.5 high |
 | H-D1 | Sync przez Meta Graph API | `2026-10-26_zlecenie-H_proces-katalogu-z-fb-ig.md` (etap D) | – | wstrzymane | brak dostępu w Meta Business Suite |
 | H-D2 | Eksport przyrostowy (dalszy ciąg) | jw., etap D | – | czeka na zlecenie Klaudii | ustalenia niżej („Na D2”) |
 | H-E | Zakładka „Proces” + panel pod człowieka | jw., etap E + `2026-10-26_NOTATKA_panel-katalogu-dla-czlowieka.md` | – | wstrzymane | czeka na zlecenie Klaudii |
 
-Ostatnio scalone (02–05.11, pliki zleceń w `archiwum/`, staging wgrany): #34 R realizacje · #36 S nazwy nowych pierścionków · #37 T film z pracowni · #38 U opisy pierścionków · #40 V warianty kamieni na karcie · #41/#42 W wizualizacje Codex · #43 X formularz kontaktowy (+ X.2: wysyłka kurierem, „tego samego dnia roboczego”) · #44 konta zakłada tylko admin · #45 mapa na telefonie · #47 X.3 przewijanie po wysłaniu.
+Ostatnio scalone (02–05.11, pliki zleceń w `archiwum/`, staging wgrany): #46 Y cała galeria w kolorze kamienia · #48 Z kółka bez dubli (**staging: Marcin – `npx payload migrate` + `npm run staging:warianty -- --apply` w `cms`**) · #34 R realizacje · #36 S nazwy nowych pierścionków · #37 T film z pracowni · #38 U opisy pierścionków · #40 V warianty kamieni na karcie · #41/#42 W wizualizacje Codex · #43 X formularz kontaktowy (+ X.2: wysyłka kurierem, „tego samego dnia roboczego”) · #44 konta zakłada tylko admin · #45 mapa na telefonie · #47 X.3 przewijanie po wysłaniu.
 Wcześniej (31.10): #26 K · #27 L · #28 M · #29 N · #30 O · #31 P · #32 Q – szczegóły w `archiwum/KOLEJKA-archiwum_do-2026-10-31.md`.
 Otwarte po K: mystic topaz bez koloru w filtrze.
 
 ## Czeka na zlecenie (Klaudia)
-- **Warianty dla dalszych pierścionków (po odpowiedzi na próbkę Y):** propozycja Klaudii 05.11 – 2 zdjęcia na kolor (główne + boczne),
+- **Partia 2 wariantów (po ocenie AA):** Phoebe, Iris, Ione, Gaia, Asteria, Helios, Chloris, Rhodope, Iole, Eos, Chryse, Amphitrite, Calypso, Electra, Dione. Doszły (Kamila 05.11): **Celaeno** – kolorowe drobne kamienie w „żyłkach” liścia (wzory kolorów od Kamili: `docs/od-kamili/2026-11-05/kama-wizualizacje/celaeno-wzor-*.png`, tylko jako wzór, nie na stronę; najpierw 1 kolor na próbę – trudne, dużo drobnych kamieni); **Adamas** – kamień środkowy; prawdziwe zdjęcie z szafirem naturalnym z FB (18.11.2024, `adamas-szafir-naturalny-fb-2024-11-18.png` to zrzut – oryginał z eksportu FB) jako wariant „zdjęcie”, reszta kolorów jako wizualizacje. Bez wariantów: Rhea (agat – inny szlif). 
+- **Zasady wariantów:** propozycja Klaudii 05.11 – 2 zdjęcia na kolor (główne + boczne),
   tylko fasony z co najmniej 2 prawdziwymi zdjęciami (bez klatek z filmu); Michał wybiera 8–10 najczęściej pytanych. Biały diament:
   generować tylko wycinek z kamieniem (maska), reszta zdjęcia nietknięta.
 - **Kreator – karta „Projekt wysłany”** ma ten sam problem z przewijaniem co formularz przed X.3 (kreator schowany, nie pilne).
