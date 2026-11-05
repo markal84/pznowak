@@ -66,11 +66,21 @@ describe('warianty: adresy i dane strony', () => {
   it('kółko oryginału z nazwy kamienia (pierwszy wymieniony)', () => {
     expect(originalSwatch('Diamenty niebieskie i białe')).toBe('niebieski')
     expect(originalSwatch('Morganit różowy i diamenty')).toBe('rozowy')
-    expect(originalSwatch('Topaz London Blue, diament')).toBe('granatowy')
+    expect(originalSwatch('Topaz London Blue, diament')).toBe('londonblue')
     expect(originalSwatch('Szmaragd i szafiry kolorowe')).toBe('zielony')
     expect(originalSwatch('Ametyst, Diament')).toBe('fioletowy')
     expect(originalSwatch('Topaz Swiss blue')).toBe('jasnoniebieski')
     expect(originalSwatch('Diament')).toBe('bialy')
+  })
+
+  it('zlecenie Z: oliwkowy i London blue nie dublują zieleni ani granatu na karcie', () => {
+    expect(originalSwatch('Turmalin oliwkowy')).toBe('oliwkowy')
+    expect(originalSwatch('Topaz London blue')).toBe('londonblue')
+    expect(originalSwatch('Szmaragd')).toBe('zielony')
+    expect(originalSwatch('Szafir granatowy')).toBe('granatowy')
+    expect(originalSwatch('Szafir różowy, Diament')).toBe('rozowy')
+    expect(originalSwatch('Diamenty niebieskie i białe')).toBe('niebieski')
+    expect(SWATCH_IDS).toEqual(expect.arrayContaining(['oliwkowy', 'londonblue']))
   })
 
   it('link „Zapytaj” niesie projekt i kamień', () => {
