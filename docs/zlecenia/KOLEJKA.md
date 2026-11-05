@@ -25,7 +25,7 @@ Statusy: `gotowe do startu` · `w toku` · `czeka na Marcina` · `do przeglądu 
 | H-D1 | Sync przez Meta Graph API | `2026-10-26_zlecenie-H_proces-katalogu-z-fb-ig.md` (etap D) | – | wstrzymane | brak dostępu w Meta Business Suite |
 | H-D2 | Eksport przyrostowy (dalszy ciąg) | jw., etap D | – | czeka na zlecenie Klaudii | ustalenia niżej („Na D2”) |
 | H-E | Zakładka „Proces” + panel pod człowieka | jw., etap E + `2026-10-26_NOTATKA_panel-katalogu-dla-czlowieka.md` | – | wstrzymane | czeka na zlecenie Klaudii |
-| X.3 | Formularz: po wysłaniu przewiń do karty „Wiadomość wysłana” (na telefonie klient lądował w stopce) | `2026-11-05_zlecenie-X3_przewiniecie-po-wyslaniu.md` | `fix/formularz-przewiniecie` / PR – | do przeglądu Klaudii | opis PR; test e2e (mobile) do uruchomienia z kluczami Turnstile |
+| X.3 | Formularz: po wysłaniu przewiń do karty „Wiadomość wysłana” (na telefonie klient lądował w stopce) | `2026-11-05_zlecenie-X3_przewiniecie-po-wyslaniu.md` | `fix/formularz-przewiniecie` / [#47](https://github.com/markal84/pznowak/pull/47) | do przeglądu Klaudii | opis PR; test e2e (mobile) do uruchomienia z kluczami Turnstile |
 
 Ostatnio scalone (31.10, pliki w `archiwum/`): #26 K pierścionki · #27 L moissanity i media spoza FB · #28 M hero na telefonie · #29 N cookies na telefonie · #30 O obrączki – zdjęcia · #31 P /na-zamowienie bez „3D” · #32 Q /naprawy – zdjęcia przed/po i mniej tekstu.
 Otwarte po K: mystic topaz bez koloru w filtrze.
