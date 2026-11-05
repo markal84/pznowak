@@ -95,3 +95,39 @@ test.describe('Zamów z innym kamieniem (zlecenie V)', () => {
     await expect(page.locator('.facts')).not.toContainText('(na zamówienie)')
   })
 })
+
+test.describe('Kamień zmienia całą galerię (zlecenie Y)', () => {
+  const cyane = seed.find((entry) => entry.slug === 'cyane') as { variants: { stone: string; files: string[] }[] } | undefined
+  const gallery = cyane?.variants.find((v) => v.stone === 'Szafir granatowy i diamenty')
+
+  test('Cyane: szafir granatowy podmienia wszystkie zdjęcia i miniatury, film zostaje, oryginał wraca', async ({ page }) => {
+    test.skip(!gallery, 'Brak wariantu w warianty.json')
+    const response = await visit(page, '/pierscionki/cyane')
+    const ready = response?.ok() && (await page.getByRole('button', { name: /^Szafir granatowy i diamenty/ }).count()) > 0
+    test.skip(!ready, 'Na tej bazie Cyane nie ma wariantów Y (najpierw npm run staging:warianty -- --apply)')
+
+    const thumbs = page.getByRole('group', { name: 'Zdjęcia pierścionka' }).getByRole('button')
+    const originalCount = await thumbs.count()
+    const thumbSrcs = () => thumbs.locator('img').evaluateAll((imgs) => imgs.map((img) => img.getAttribute('src') ?? ''))
+    const originalSrcs = await thumbSrcs()
+
+    await page.getByRole('button', { name: /^Szafir granatowy i diamenty/ }).click()
+    await expect(page).toHaveURL(/kamien=szafir-granatowy-i-diamenty/)
+    // Tyle samo pozycji co oryginał (zdjęcia + film), każde zdjęcie z wariantu.
+    await expect(thumbs).toHaveCount(originalCount)
+    await expect(thumbs.filter({ hasText: 'Film' })).toHaveCount(1)
+    const variantSrcs = await thumbSrcs()
+    for (const src of variantSrcs.slice(0, gallery!.files.length)) expect(src).toMatch(/szafir-granatowy/)
+
+    // Każde kolejne zdjęcie też jest wizualizacją z etykietą.
+    for (let i = 1; i < gallery!.files.length; i += 1) {
+      await page.getByRole('button', { name: 'Następne zdjęcie' }).click()
+      await expect(page.locator('.product-main .variant-tag')).toContainText('Wizualizacja')
+      await expect(mainImage(page)).toHaveAttribute('alt', /\(wizualizacja\)$/)
+    }
+
+    await page.getByRole('button', { name: /^Oryginał/ }).click()
+    await expect(page.locator('.product-main .variant-tag')).toHaveCount(0)
+    expect(await thumbSrcs()).toEqual(originalSrcs)
+  })
+})
