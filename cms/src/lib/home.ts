@@ -7,8 +7,8 @@ export const HOME_RINGS_LIMIT = 4
 /** Pierścionek z hero (po nazwie; bez niego pierwszy z katalogu). */
 export const HERO_RING_NAME = 'Phoebe'
 
-/** Zapas, gdy w panelu nic nie zaznaczono: kolejność z wcześniejszej wersji strony. */
-export const HOME_RINGS_FALLBACK = ['Phoebe', 'Harmonia', 'Athena', 'Nyx', 'Pyrrha', 'Cyane', 'Eirene', 'Daphne']
+/** Zapas, gdy w panelu nic nie zaznaczono: kolejność z wcześniejszej wersji strony (Nyx i Pyrrha to od zlecenia AB warianty Uranii). */
+export const HOME_RINGS_FALLBACK = ['Phoebe', 'Harmonia', 'Athena', 'Urania', 'Cyane', 'Eirene', 'Daphne']
 
 export function heroRing<T extends { name: string }>(products: readonly T[]): T | undefined {
   return products.find((p) => p.name === HERO_RING_NAME) ?? products[0]
