@@ -27,9 +27,9 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
   it('próbka: Cyane w pięciu kamieniach, fason z oktagonem w pełnej szóstce Kamili', () => {
     // Kamienie na 1. zdjęciu; Y dopisało szafir granatowy i spokojniejszy szmaragd (Michał 04.11).
     const first = (slug: string) => jobs(config, [slug]).filter((j) => j.photo === 1).map((j) => j.stone.key)
-    expect(first('cyane')).toEqual(['rubin', 'bialy-diament', 'szafir', 'topaz-jasnoniebieski', 'topaz-london-blue', 'szafir-granatowy', 'szmaragd-stonowany'])
+    expect(first('cyane')).toEqual(['rubin', 'bialy-diament', 'topaz-jasnoniebieski', 'topaz-london-blue', 'szafir-granatowy', 'szmaragd-stonowany'])
     expect(first('daphne').sort()).toEqual(
-      ['ametyst', 'bialy-diament', 'rubin', 'szafir', 'szafir-granatowy', 'szmaragd-stonowany', 'topaz-jasnoniebieski', 'topaz-london-blue'],
+      ['ametyst', 'bialy-diament', 'rubin', 'szafir-granatowy', 'szmaragd-stonowany', 'topaz-jasnoniebieski', 'topaz-london-blue'],
     )
   })
 
@@ -65,7 +65,6 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
     expect(cyane.variants.map((v) => v.stone)).toEqual([
       'Rubin i diamenty',
       'Białe diamenty',
-      'Szafir i diamenty',
       'Topaz jasnoniebieski i diamenty',
       'Topaz London blue i diamenty',
       'Szafir granatowy i diamenty',

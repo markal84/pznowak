@@ -224,7 +224,6 @@
       "kamienie": [
         "rubin",
         "bialy-diament",
-        "szafir",
         "topaz-jasnoniebieski",
         "topaz-london-blue",
         "szafir-granatowy",
@@ -255,7 +254,8 @@
         "szmaragd-stonowany",
         "rubin",
         "bialy-diament"
-      ]
+      ],
+      "uwaga": "Y (05.11, Marcin): jasny szafir z W usunięty – zostaje szafir granatowy."
     },
     {
       "slug": "daphne",
@@ -269,7 +269,6 @@
       },
       "alt": "Pierścionek Daphne {z} w szlifie oktagon, w żółtym złocie (wizualizacja)",
       "kamienie": [
-        "szafir",
         "ametyst",
         "rubin",
         "topaz-jasnoniebieski",
@@ -298,7 +297,7 @@
         "rubin",
         "bialy-diament"
       ],
-      "uwaga": "Y (04.11): szmaragd z W był za bardzo nasycony (Michał) – zastąpiony przez szmaragd-stonowany pod tą samą nazwą wariantu."
+      "uwaga": "Y (04.11): szmaragd z W był za bardzo nasycony (Michał) – zastąpiony przez szmaragd-stonowany pod tą samą nazwą wariantu. Y (05.11, Marcin): jasny szafir z W usunięty – zostaje szafir granatowy."
     },
     {
       "slug": "aion",

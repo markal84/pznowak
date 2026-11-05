@@ -93,15 +93,6 @@
         "isVisualization": true
       },
       {
-        "stone": "Szafir i diamenty",
-        "swatch": "niebieski",
-        "files": [
-          "cyane-szafir.webp"
-        ],
-        "alt": "Pierścionek Cyane z szafirem w halo z diamentów, w żółtym złocie (wizualizacja)",
-        "isVisualization": true
-      },
-      {
         "stone": "Topaz jasnoniebieski i diamenty",
         "swatch": "jasnoniebieski",
         "files": [
@@ -143,6 +134,9 @@
         "alt": "Pierścionek Cyane ze szmaragdem w halo z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       }
+    ],
+    "removeStones": [
+      "Szafir i diamenty"
     ]
   },
   {
@@ -158,15 +152,6 @@
           "daphne-szmaragd-stonowany-3.webp"
         ],
         "alt": "Pierścionek Daphne ze szmaragdem w szlifie oktagon, w żółtym złocie (wizualizacja)",
-        "isVisualization": true
-      },
-      {
-        "stone": "Szafir",
-        "swatch": "niebieski",
-        "files": [
-          "daphne-szafir.webp"
-        ],
-        "alt": "Pierścionek Daphne z szafirem w szlifie oktagon, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       },
       {
@@ -218,6 +203,9 @@
         "alt": "Pierścionek Daphne z granatowym szafirem w szlifie oktagon, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       }
+    ],
+    "removeStones": [
+      "Szafir"
     ]
   }
 ]

@@ -129,6 +129,12 @@ describe('warianty.json po Y: próbka Cyane, Daphne, Aion', () => {
     expect(checkImages(specs)).toEqual([])
   })
 
+  it('jasny szafir z W wycofany (Marcin 05.11): zostaje szafir granatowy', () => {
+    expect(specs.find((s) => s.slug === 'cyane')!.removeStones).toEqual(['Szafir i diamenty'])
+    expect(specs.find((s) => s.slug === 'daphne')!.removeStones).toEqual(['Szafir'])
+    expect(specs.find((s) => s.slug === 'daphne')!.variants.map((v) => v.stone)).not.toContain('Szafir')
+  })
+
   it('n-ty obraz wariantu ma proporcje n-tego zdjęcia karty; alt kończy „(wizualizacja)”', async () => {
     for (const slug of ['cyane', 'daphne']) {
       const photos = designPhotos(config.fasony.find((d) => d.slug === slug)!)
