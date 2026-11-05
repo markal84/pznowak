@@ -17,7 +17,7 @@ Statusy: `gotowe do startu` · `w toku` · `czeka na Marcina` · `do przeglądu 
 | # | Zlecenie | Plik | Gałąź / PR | Status | Co dalej |
 |---|---|---|---|---|---|
 | Y | Wariant kamienia zmienia całą galerię – próbka Cyane, Daphne, Aion × szafir granatowy / szmaragd (spokojniejszy) / rubin / biały diament | `2026-11-04_zlecenie-Y_warianty-cala-galeria.md` | `feat/warianty-cala-galeria` / [#46](https://github.com/markal84/pznowak/pull/46) | czeka na Michała i Kamilę | Klaudia 05.11: kod OK po poprawce cache (`getProducts` – wspólny Data Cache Vercela); staging wgrany; link gałęzi wysłany 05.11. Brak: biały diament (maska myli kamień z odblaskiem), rubin Aion. Aion słaby (oryginał to klatka z filmu). Scalić po odpowiedzi Buska |
-| Z | Kółka kolorów bez dubli na karcie: London blue ≠ szafir granatowy, oliwkowy ≠ szmaragd (+ migracja wartości listy) | `2026-11-05_zlecenie-Z_kolka-kolorow.md` | `feat/kolka-kolorow` / [#48](https://github.com/markal84/pznowak/pull/48); scalać po #46 | do przeglądu Klaudii | Haiku 5.5 high. Lista kart w PR; na Macu: migracja Z na stagingu + `cd cms && npm run staging:warianty -- --apply` |
+| Z | Kółka kolorów bez dubli na karcie: London blue ≠ szafir granatowy, oliwkowy ≠ szmaragd (+ migracja wartości listy) | `2026-11-05_zlecenie-Z_kolka-kolorow.md` | gałąź od `feat/warianty-cala-galeria`; scalać po #46 | gotowe do startu | Haiku 5.5 high |
 | H-D1 | Sync przez Meta Graph API | `2026-10-26_zlecenie-H_proces-katalogu-z-fb-ig.md` (etap D) | – | wstrzymane | brak dostępu w Meta Business Suite |
 | H-D2 | Eksport przyrostowy (dalszy ciąg) | jw., etap D | – | czeka na zlecenie Klaudii | ustalenia niżej („Na D2”) |
 | H-E | Zakładka „Proces” + panel pod człowieka | jw., etap E + `2026-10-26_NOTATKA_panel-katalogu-dla-czlowieka.md` | – | wstrzymane | czeka na zlecenie Klaudii |
@@ -58,7 +58,7 @@ Otwarte po K: mystic topaz bez koloru w filtrze.
 - Para 2↔D1 = karta mieszana (pierścionek + sygnet z awenturynem) – odłożone przez Marcina.
 
 ## Przed startem produkcji (Marcin, przed 21.11 – wygasa home.pl)
-- Zlecenie Y: `npx payload migrate` (migracja `20261104_231900_warianty_cala_galeria`) przed wdrożeniem kodu Y; zlecenie Z: `npx payload migrate` (migracja `20261105_092851_kolka_kolorow`, tylko wartości kółek) przed wdrożeniem kodu Z.
+- Zlecenie Y: `npx payload migrate` (migracja `20261104_231900_warianty_cala_galeria`) przed wdrożeniem kodu Y; zlecenie Z – jego migracja wartości kółek.
 - Formularz (X): `SITE_ENV=production` (także przy `next build`), `SITE_URL=https://pznowak.pl`, `SMTP_*` + `SUBMISSIONS_NOTIFY_TO` (skrzynka na MyDevil), `CLIENT_IP_HEADER` wg Cloudflare – szczegóły w opisie PR #43.
 - Realizacje (R): dane na produkcję – tym samym seedem z flagą dla produkcji albo ręcznie w panelu; decyzja Marcina.
 - Zlecenie R: `npx payload migrate` na produkcji (migracja `20261101_101210_realizacje`, tylko nowe tabele „Realizacje”) przed wdrożeniem kodu; potem Michał dodaje realizacje w panelu (na produkcji do czasu dodania strona pokazuje krótki pusty stan, seed jest tylko na staging).
