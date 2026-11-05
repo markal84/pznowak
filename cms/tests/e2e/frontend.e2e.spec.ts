@@ -118,6 +118,25 @@ test.describe('Nowy design: strony i nawigacja', () => {
     })
   }
 
+  test('/kontakt na telefonie: mapa „Jak dojechać” mieści się w kolumnie, bez poziomego przewijania', async ({ page }) => {
+    // Wcześniej min-height mapy (280 px) przenosił się przez aspect-ratio 4:3 na szerokość 373 px i mapa wystawała.
+    for (const [width, height] of [
+      [375, 812],
+      [320, 640],
+      [430, 932],
+    ]) {
+      await page.setViewportSize({ width, height })
+      await visit(page, '/kontakt')
+      await noHorizontalScroll(page)
+      const column = (await page.locator('.map-block').boundingBox())!
+      for (const selector of ['.map-frame', 'a.map-link', '.map-frame img']) {
+        const box = (await page.locator(selector).boundingBox())!
+        expect(box.x, `${selector} przy ${width} px`).toBeGreaterThanOrEqual(column.x - 0.5)
+        expect(box.x + box.width, `${selector} przy ${width} px`).toBeLessThanOrEqual(column.x + column.width + 0.5)
+      }
+    }
+  })
+
   test('stare adresy przekierowują na nowe', async ({ page }) => {
     await visit(page, '/katalog')
     await expect(page).toHaveURL(/\/pierscionki$/)
