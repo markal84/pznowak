@@ -258,6 +258,8 @@ export interface Media {
    * Pole techniczne używane podczas importu starego katalogu.
    */
   legacySourceUrl?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -626,6 +628,8 @@ export interface ProductsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   legacySourceUrl?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
