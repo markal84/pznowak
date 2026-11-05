@@ -9,14 +9,21 @@ import {
   type WidthId,
 } from '../ring-geometry'
 import {
+  BUDGETS,
+  CONTACT_PREFERENCES,
   CONTACT_TOPICS,
+  MEETING_MODES,
   METALS,
   OCCASIONS,
   RING_DETAIL_TOPICS,
   SETTINGS,
   WIDTHS,
+  formatZloty,
   labelOf,
+  type BudgetId,
+  type ContactPreferenceId,
   type ContactTopicId,
+  type MeetingModeId,
   type RingSizeKnownId,
 } from './options'
 
@@ -48,9 +55,12 @@ export function describeCreator(c: CreatorChoices): [string, string][] {
 
 export type ContactDetails = {
   topic: ContactTopicId
+  meeting: MeetingModeId | ''
+  contactPreference: ContactPreferenceId
   occasionText: string
   when: string
-  budget: string
+  budget: BudgetId | ''
+  budgetAmount: number | null
   project: string
   weddingDate: string
   bandChoice: string
@@ -59,12 +69,24 @@ export type ContactDetails = {
   ringSize: string
 }
 
+/** Budżet do podsumowania: etykieta przedziału albo kwota podana przez klienta. */
+export function budgetText(d: Pick<ContactDetails, 'budget' | 'budgetAmount'>): string {
+  if (!d.budget) return ''
+  if (d.budget === 'kwota')
+    return d.budgetAmount ? `${formatZloty(d.budgetAmount)} (kwota podana przez klienta)` : ''
+  return labelOf(BUDGETS, d.budget)
+}
+
 export function describeContact(d: ContactDetails): [string, string][] {
-  const rows: [string, string][] = [['Temat', labelOf(CONTACT_TOPICS, d.topic)]]
+  const rows: [string, string][] = [
+    ['Temat', labelOf(CONTACT_TOPICS, d.topic)],
+    ...(d.meeting ? ([['Rozmowa', labelOf(MEETING_MODES, d.meeting)]] as [string, string][]) : []),
+    ['Preferowany kontakt', labelOf(CONTACT_PREFERENCES, d.contactPreference)],
+  ]
   const optional: [string, string][] = [
     ['Okazja', d.occasionText],
     ['Na kiedy', d.when],
-    ['Budżet', d.budget],
+    ['Budżet', budgetText(d)],
     ['Projekt', d.project],
     ['Data ślubu', d.weddingDate],
     ['Wstępny wybór', d.bandChoice],
@@ -76,7 +98,9 @@ export function describeContact(d: ContactDetails): [string, string][] {
           'Rozmiar',
           d.ringSizeKnown === 'known'
             ? `${d.ringSize} (polska skala)`
-            : 'nie zna, zmierzymy w pracowni',
+            : d.meeting === 'zdalnie'
+              ? 'nie zna, zmierzy u jubilera w swojej okolicy'
+              : 'nie zna, zmierzymy w pracowni',
         ],
       ]
     : []

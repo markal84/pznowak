@@ -66,7 +66,7 @@ async function fillContact(page: Page) {
     .getByLabel('Twoja wiadomość')
     .fill('Zgłoszenie testowe Playwright ze zdjęciami, proszę zignorować.')
   await page.getByLabel('Imię').fill(E2E_NAME)
-  await page.getByLabel('Telefon').fill('600 100 200')
+  await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
   await page.getByLabel(/Zgadzam się na kontakt/).check()
 }
 

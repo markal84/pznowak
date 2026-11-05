@@ -58,6 +58,7 @@ export function uploadDeps(
   const db = async () => getPayloadInstance()
   return {
     appSecret: settings.appSecret,
+    publicOrigin: settings.publicOrigin,
     storage,
     enabled: settings.attachmentsEnabled,
     prefix: attachmentsPrefix(),

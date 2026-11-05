@@ -28,6 +28,8 @@ const creator = (overrides: Record<string, unknown> = {}) => ({
 
 const contact = (overrides: Record<string, unknown> = {}) => ({
   topic: 'naprawa',
+  meeting: 'pracownia',
+  contactPreference: 'telefon',
   message: 'Zmniejszyć pierścionek po babci.',
   name: 'Marek',
   phone: '+48 600 100 200',
@@ -204,7 +206,7 @@ describe('walidacja formularza kontaktowego', () => {
     const budget = validateContact(contact({ topic: 'nowy', budget: 'milion' }))
     expect(!budget.ok && budget.errors.budget).toBe(MESSAGES.choice)
     const okBudget = validateContact(contact({ topic: 'nowy', budget: '' }))
-    expect(okBudget.ok && okBudget.value.budget).toBe('Jeszcze nie wiem')
+    expect(okBudget.ok && okBudget.value.budget).toBe('nie-wiem')
   })
 
   it('odrzuca nieznany temat, zły e-mail i link w polu projektu', () => {

@@ -25,6 +25,8 @@ export function testSettings(overrides: Partial<SubmissionSettings> = {}): Submi
   return {
     turnstileSecret: TEST_SECRET_PASS,
     allowTestingKeys: true,
+    clientIpSource: { kind: 'legacy' },
+    publicOrigin: null,
     appSecret: APP_SECRET,
     limits: testLimits(),
     visualizations: { limit: 10, mode: 'manual', namespace: '' },
@@ -60,6 +62,9 @@ export const validCreatorData = (overrides: Record<string, unknown> = {}) => ({
 
 export const validContactData = (overrides: Record<string, unknown> = {}) => ({
   topic: 'naprawa',
+  // Przy naprawie formularz nie pyta o formę rozmowy (pole jest pomijane); przy innych tematach jest wymagane.
+  meeting: 'pracownia',
+  contactPreference: 'telefon',
   message: 'Zgłoszenie z testów integracyjnych.',
   name: 'Test Automatyczny',
   phone: '600 100 200',

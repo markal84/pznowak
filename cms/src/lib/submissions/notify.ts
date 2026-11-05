@@ -2,19 +2,21 @@ import type { Payload } from 'payload'
 
 import { photosLabel } from '../attachments/rules'
 import type { SubmissionAttachmentsState } from '../attachments/store'
+import { CONTACT_TOPICS, labelOf, type ContactTopicId } from './options'
 import type { NotificationStatus } from './statuses'
+import { EMAIL } from './validation'
 
 /**
  * Powiadomienie pracowni o nowym zgłoszeniu. Wiadomość idzie wyłącznie na adres pracowni
  * (`SUBMISSIONS_NOTIFY_TO`); do klienta nic nie jest wysyłane automatycznie.
  *
- * Transport to adapter poczty Payloada (`payload.sendEmail`). Projekt nie ma dziś dostawcy poczty:
- * Payload używa wtedy adaptera „console”, a my pomijamy wysyłkę (status `skipped`), żeby dane klienta
- * nie lądowały w logach. Po dodaniu adaptera (np. SMTP skrzynki pracowni albo Resend) w `payload.config.ts`
- * i ustawieniu `SUBMISSIONS_NOTIFY_TO` powiadomienia zaczną wychodzić bez zmian w tym pliku.
+ * Transport to adapter poczty Payloada (`payload.sendEmail`): SMTP skrzynki pracowni ze zmiennych `SMTP_*`
+ * (`src/lib/email.ts`). Bez nich Payload używa adaptera „console”, a my pomijamy wysyłkę (status `skipped`),
+ * żeby dane klienta nie lądowały w logach. Treść to zwykły tekst (bez HTML), więc dane z formularza nie mogą
+ * niczego wstrzyknąć do wiadomości. `Reply-To` = e-mail klienta, jeśli go podał: „Odpowiedz” trafia do klienta.
  */
 
-export type StudioMail = { to: string; subject: string; text: string }
+export type StudioMail = { to: string; subject: string; text: string; replyTo?: string }
 
 export interface MailTransport {
   /** Nazwa adaptera; „console” oznacza brak prawdziwego dostawcy. */
@@ -30,6 +32,8 @@ export type NotifiedSubmission = {
   email?: string | null
   summary?: string | null
   message?: string | null
+  /** Temat formularza kontaktowego (rodzaj sprawy w temacie maila). */
+  topic?: ContactTopicId | null
   /** `quarantine`: przyszło, gdy Cloudflare Turnstile był niedostępny (bez weryfikacji). */
   verification?: 'verified' | 'quarantine' | null
   createdAt: string
@@ -43,7 +47,12 @@ export function payloadMailTransport(payload: Payload): MailTransport {
   return {
     name: payload.email?.name ?? 'console',
     send: async (mail) => {
-      await payload.sendEmail({ to: mail.to, subject: mail.subject, text: mail.text })
+      await payload.sendEmail({
+        to: mail.to,
+        subject: mail.subject,
+        text: mail.text,
+        ...(mail.replyTo ? { replyTo: mail.replyTo } : {}),
+      })
     },
   }
 }
@@ -87,25 +96,42 @@ const warsawTime = new Intl.DateTimeFormat('pl-PL', {
   timeStyle: 'short',
 })
 
-/** Temat bez danych osobowych (adapter „console” loguje temat). */
+/** Rodzaj sprawy do tematu maila: temat formularza kontaktowego albo kreator. */
+export function kindOfMatter(submission: Pick<NotifiedSubmission, 'kind' | 'topic'>): string {
+  if (submission.kind === 'creator') return 'Kreator pierścionka'
+  return submission.topic ? labelOf(CONTACT_TOPICS, submission.topic) : 'Formularz kontaktowy'
+}
+
+/**
+ * Temat: rodzaj sprawy i imię klienta, np. „Obrączki ślubne – Anna (nr 17)”, żeby pracownia od razu widziała,
+ * o co chodzi. Imię jest sprawdzone przez walidację (litery, bez znaków nowej linii), więc nie doda nagłówków;
+ * adapter „console” (który loguje temat) nie dostaje tej wiadomości, bo wysyłka jest wtedy pomijana.
+ */
 export function buildStudioMail(
   submission: NotifiedSubmission,
   options: { to: string; adminUrl: string },
 ): StudioMail {
   const quarantine = submission.verification === 'quarantine'
+  // Adres klienta przeszedł walidację przy zgłoszeniu; tu jeszcze raz ta sama reguła (jeden adres, bez spacji,
+  // przecinków i nawiasów), bo trafia do nagłówka wiadomości.
+  const replyTo = submission.email && EMAIL.test(submission.email) ? submission.email : undefined
   const lines = [
     `Nowe zgłoszenie ${KIND_LABEL[submission.kind]} (nr ${submission.id}), ${warsawTime.format(new Date(submission.createdAt))}.`,
     ...(quarantine
       ? [
           '',
           'UWAGA: KWARANTANNA. Zgłoszenie przyszło, gdy weryfikacja Cloudflare Turnstile była niedostępna,',
-          'więc nie wiadomo, czy wysłał je człowiek. Sprawdź, czy to nie spam. Wizualizacja ruszy tylko po ręcznym zatwierdzeniu.',
+          'więc nie wiadomo, czy wysłał je człowiek. Sprawdź, czy to nie spam.' +
+            (submission.kind === 'creator'
+              ? ' Wizualizacja ruszy tylko po ręcznym zatwierdzeniu.'
+              : ''),
         ]
       : []),
     '',
     `Imię: ${submission.name}`,
     `Telefon: ${submission.phone}`,
     ...(submission.email ? [`E-mail: ${submission.email}`] : []),
+    ...(replyTo ? ['(„Odpowiedz” na tę wiadomość trafi do klienta na ten adres.)'] : []),
     ...(submission.summary ? ['', submission.summary] : []),
     ...(submission.message ? ['', 'Wiadomość:', submission.message] : []),
     ...(attachmentLines(submission).length ? ['', ...attachmentLines(submission)] : []),
@@ -116,9 +142,20 @@ export function buildStudioMail(
   ]
   return {
     to: options.to,
-    subject: `Nowe zgłoszenie ${KIND_LABEL[submission.kind]} (nr ${submission.id})${quarantine ? ' – kwarantanna' : ''}`,
+    subject: `${kindOfMatter(submission)} – ${submission.name} (nr ${submission.id})${quarantine ? ' – kwarantanna' : ''}`,
     text: lines.join('\n'),
+    ...(replyTo ? { replyTo } : {}),
   }
+}
+
+/** Kod błędu nodemailera i kod odpowiedzi SMTP, bez treści komunikatu. */
+export function mailErrorCode(error: unknown): string {
+  const { code, responseCode } = (error ?? {}) as { code?: unknown; responseCode?: unknown }
+  const parts = [
+    typeof code === 'string' && /^[A-Z_]{2,30}$/.test(code) ? code : null,
+    typeof responseCode === 'number' ? String(responseCode) : null,
+  ].filter(Boolean)
+  return parts.length ? parts.join(' ') : 'nieznany'
 }
 
 export async function notifyStudio(
@@ -144,8 +181,11 @@ export async function notifyStudio(
       buildStudioMail(submission, { to: options.to, adminUrl: options.adminUrl }),
     )
     return 'sent'
-  } catch {
-    log(`powiadomienie o zgłoszeniu ${submission.id} nie wyszło (błąd dostawcy poczty)`)
+  } catch (error) {
+    // Sam kod błędu (np. EAUTH, ECONNECTION, 535): komunikat serwera poczty może zawierać adresy.
+    log(
+      `powiadomienie o zgłoszeniu ${submission.id} nie wyszło (błąd dostawcy poczty: ${mailErrorCode(error)})`,
+    )
     return 'failed'
   }
 }

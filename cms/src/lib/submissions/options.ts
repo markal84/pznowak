@@ -92,6 +92,15 @@ export const CONTACT_TOPICS = [
 
 export type ContactTopicId = (typeof CONTACT_TOPICS)[number]['id']
 
+export const isContactTopic = (value: string | undefined): value is ContactTopicId =>
+  CONTACT_TOPICS.some((t) => t.id === value)
+
+/** Temat na starcie formularza: z adresu (`?temat=`), a z karty pierścionka (`?projekt=`) „Projekt z kolekcji”. */
+export const initialContactTopic = (
+  topic: string | undefined,
+  project: string | undefined,
+): ContactTopicId => (isContactTopic(topic) ? topic : project ? 'kolekcja' : 'nowy')
+
 /** Tematy, przy których formularz pyta o grawer i rozmiar (pierścionek lub obrączki do wykonania). */
 export const RING_DETAIL_TOPICS: readonly ContactTopicId[] = ['nowy', 'kolekcja']
 
@@ -110,12 +119,50 @@ export const RING_SIZES = Array.from({ length: 31 }, (_, i) => String(5 + i))
 
 export const ringSizeLabel = (size: string) => `${size} (obwód ${Number(size) + 40} mm)`
 
+/**
+ * Budżet przy zamówieniu (temat „nowy”). „Podam kwotę” odsłania pole na kwotę w złotych (same cyfry, serwer
+ * sprawdza zakres: `BUDGET_AMOUNT`). W zgłoszeniu zapisuje się identyfikator i kwota, w podsumowaniu etykieta.
+ */
 export const BUDGETS = [
-  'Jeszcze nie wiem',
-  '[przedział 1]',
-  '[przedział 2]',
-  '[przedział 3]',
+  { id: 'nie-wiem', label: 'Jeszcze nie wiem' },
+  { id: 'do-4000', label: 'do 4 000 zł' },
+  { id: '4000-10000', label: '4 000–10 000 zł' },
+  { id: 'powyzej-10000', label: 'powyżej 10 000 zł' },
+  { id: 'kwota', label: 'Podam kwotę' },
 ] as const
+
+export type BudgetId = (typeof BUDGETS)[number]['id']
+
+/** Kwota podana przez klienta: całe złote, 1–9 999 999 (najwyżej 7 cyfr). */
+export const BUDGET_AMOUNT = { min: 1, maxDigits: 7 } as const
+
+/** „4 000 zł”: grupy cyfr oddzielone spacją, jak w etykietach przedziałów. */
+export const formatZloty = (amount: number) =>
+  `${String(amount).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} zł`
+
+/**
+ * Jak klient woli porozmawiać o zamówieniu (od 2027 klienci z całej Polski). Pierwsza opcja jest domyślna.
+ * Pracownia nie wysyła miarek ani obrączek do przymiarki, a o wysyłce gotowej biżuterii decyduje Michał,
+ * więc wariant zdalny obiecuje tylko rozmowę, zdjęcia i filmy.
+ */
+export const MEETING_MODES = [
+  { id: 'pracownia', label: 'W pracowni w Busku-Zdroju' },
+  { id: 'zdalnie', label: 'Telefonicznie albo przez wideo – mieszkam dalej' },
+] as const
+
+export type MeetingModeId = (typeof MEETING_MODES)[number]['id']
+
+/** Naprawa to usługa na miejscu (biżuterię trzeba przynieść), więc przy niej formularz nie pyta o formę rozmowy. */
+export const MEETING_TOPICS: readonly ContactTopicId[] = ['nowy', 'kolekcja', 'obraczki', 'inne']
+
+/** Preferowany kontakt; przy e-mailu adres staje się wymagany. Telefon jest wymagany zawsze. */
+export const CONTACT_PREFERENCES = [
+  { id: 'telefon', label: 'Telefon', sent: 'telefonicznie' },
+  { id: 'sms', label: 'SMS', sent: 'SMS-em' },
+  { id: 'email', label: 'E-mail', sent: 'e-mailem' },
+] as const
+
+export type ContactPreferenceId = (typeof CONTACT_PREFERENCES)[number]['id']
 
 /** Limity długości pól; interfejs ustawia z nich `maxLength`, serwer odrzuca dłuższe. */
 export const LIMITS = {
