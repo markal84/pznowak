@@ -16,24 +16,24 @@ Statusy: `gotowe do startu` · `w toku` · `czeka na Marcina` · `do przeglądu 
 
 | # | Zlecenie | Plik | Gałąź / PR | Status | Co dalej |
 |---|---|---|---|---|---|
-| R | /realizacje: kolekcja „Realizacje” z historiami zleceń; górne okno podmieniane kliknięciem kafelka (`?r=slug`), 6 historii z FB na start; stara galeria znika ze strony | `2026-11-01_zlecenie-R_realizacje-historie.md` | `claude/eloquent-noether-v7ijrt` / [#34](https://github.com/markal84/pznowak/pull/34) | do przeglądu Klaudii | opis PR; na Macu: `cd cms && npm run staging:realizacje -- --apply` |
-| S | Nowe pierścionki z FB: imiona z mitologii (Leucothea, Calypso…) + publikacja na stagingu | `2026-11-01_zlecenie-S_nazwy-nowych-pierscionkow.md` | `feat/nazwy-nowych-pierscionkow` / [#36](https://github.com/markal84/pznowak/pull/36) | do przeglądu Klaudii | opis PR; na Macu: `cd cms && npm run staging:nazwy -- --apply` |
-| T | /pracownia: gotowy film z pracowni (30 s, 4:5) zamiast placeholdera + napisy etapów z `.vtt` | `2026-11-01_zlecenie-T_film-pracownia.md` | `claude/tender-cray-0x5of3` / [#37](https://github.com/markal84/pznowak/pull/37) | do przeglądu Klaudii | opis PR; nic na staging (bez bazy) |
-| U | Jednolite opisy pierścionków: lead + opis 40–90 słów + parametry, bez stylu FB; skrypt na staging | `2026-11-01_zlecenie-U_opisy-pierscionkow.md` | `claude/gifted-dijkstra-vlxr2n` / [#38](https://github.com/markal84/pznowak/pull/38) | do przeglądu Klaudii | opis PR + podgląd `cms/seed/opisy/opisy-u.md`; na Macu: `cd cms && npm run staging:opisy -- --apply` |
-| V | Karta pierścionka: „Zamów z innym kamieniem” (kółka kolorów, podmiana zdjęcia, etykieta „Wizualizacja”, kamień w zapytaniu) + Aion z 3 obrazami od Kamili + Leto → morganit | `2026-11-02_zlecenie-V_warianty-kamieni-karta.md` | `claude/keen-bell-5xdz59` / [#40](https://github.com/markal84/pznowak/pull/40) | do przeglądu Klaudii | opis PR (decyzje: Aion = niebieskie i białe diamenty, obrazy 4:5); na Macu: `cd cms && npm run staging:warianty -- --apply` (po `staging:opisy`) |
-| W | Wizualizacje kamieni w Codex headless – Cyane ×5, Daphne ×6 (zaakceptowane przez Kamilę) + dogrywka: Cyane biały diament, Aion szafir granatowy i niebieskie diamenty | `2026-11-02_zlecenie-W_wizualizacje-codex.md` | `feat/wizualizacje-codex` / [#41](https://github.com/markal84/pznowak/pull/41) | do przeglądu Klaudii | wszystko w `warianty.json`; na Macu: `cd cms && npm run staging:warianty -- --apply` (po `staging:opisy`); nowe z dogrywki Kamila jeszcze nie widziała |
-| Y | Wariant kamienia zmienia całą galerię – próbka Cyane, Daphne, Aion × szafir granatowy / szmaragd (spokojniejszy) / rubin / biały diament | `2026-11-04_zlecenie-Y_warianty-cala-galeria.md` | `feat/warianty-cala-galeria` / [#46](https://github.com/markal84/pznowak/pull/46) | do przeglądu Klaudii | opis PR (decyzje Marcina na górze); staging wgrany (migracja + `staging:warianty`); biały diament i rubin Aion – Codex nie dał kompletu |
+| Y | Wariant kamienia zmienia całą galerię – próbka Cyane, Daphne, Aion × szafir granatowy / szmaragd (spokojniejszy) / rubin / biały diament | `2026-11-04_zlecenie-Y_warianty-cala-galeria.md` | `feat/warianty-cala-galeria` / [#46](https://github.com/markal84/pznowak/pull/46) | czeka na Michała i Kamilę | Klaudia 05.11: kod OK po poprawce cache (`getProducts` – wspólny Data Cache Vercela); staging wgrany; link gałęzi wysłany 05.11. Brak: biały diament (maska myli kamień z odblaskiem), rubin Aion. Aion słaby (oryginał to klatka z filmu). Scalić po odpowiedzi Buska |
+| Z | Kółka kolorów bez dubli na karcie: London blue ≠ szafir granatowy, oliwkowy ≠ szmaragd (+ migracja wartości listy) | `2026-11-05_zlecenie-Z_kolka-kolorow.md` | gałąź od `feat/warianty-cala-galeria`; scalać po #46 | gotowe do startu | Haiku 5.5 high |
 | H-D1 | Sync przez Meta Graph API | `2026-10-26_zlecenie-H_proces-katalogu-z-fb-ig.md` (etap D) | – | wstrzymane | brak dostępu w Meta Business Suite |
 | H-D2 | Eksport przyrostowy (dalszy ciąg) | jw., etap D | – | czeka na zlecenie Klaudii | ustalenia niżej („Na D2”) |
 | H-E | Zakładka „Proces” + panel pod człowieka | jw., etap E + `2026-10-26_NOTATKA_panel-katalogu-dla-czlowieka.md` | – | wstrzymane | czeka na zlecenie Klaudii |
 
-Ostatnio scalone (31.10, pliki w `archiwum/`): #26 K pierścionki · #27 L moissanity i media spoza FB · #28 M hero na telefonie · #29 N cookies na telefonie · #30 O obrączki – zdjęcia · #31 P /na-zamowienie bez „3D” · #32 Q /naprawy – zdjęcia przed/po i mniej tekstu.
+Ostatnio scalone (02–05.11, pliki zleceń w `archiwum/`, staging wgrany): #34 R realizacje · #36 S nazwy nowych pierścionków · #37 T film z pracowni · #38 U opisy pierścionków · #40 V warianty kamieni na karcie · #41/#42 W wizualizacje Codex · #43 X formularz kontaktowy (+ X.2: wysyłka kurierem, „tego samego dnia roboczego”) · #44 konta zakłada tylko admin · #45 mapa na telefonie · #47 X.3 przewijanie po wysłaniu.
+Wcześniej (31.10): #26 K · #27 L · #28 M · #29 N · #30 O · #31 P · #32 Q – szczegóły w `archiwum/KOLEJKA-archiwum_do-2026-10-31.md`.
 Otwarte po K: mystic topaz bez koloru w filtrze.
 
 ## Czeka na zlecenie (Klaudia)
+- **Warianty dla dalszych pierścionków (po odpowiedzi na próbkę Y):** propozycja Klaudii 05.11 – 2 zdjęcia na kolor (główne + boczne),
+  tylko fasony z co najmniej 2 prawdziwymi zdjęciami (bez klatek z filmu); Michał wybiera 8–10 najczęściej pytanych. Biały diament:
+  generować tylko wycinek z kamieniem (maska), reszta zdjęcia nietknięta.
+- **Kreator – karta „Projekt wysłany”** ma ten sam problem z przewijaniem co formularz przed X.3 (kreator schowany, nie pilne).
+- **`payload-types.ts` – dryf** (`prefix`, `_objectKey` w Media wracają przy generowaniu): ustalić, skąd starsza konfiguracja.
 - **Zdjęcia na dłoni (Kamila 01.11):** z FB wyciągnąć zdjęcia pierścionków na dłoni Kamili i dołączyć do galerii fasonu
   przy kolorze oryginału (najlepiej jako 2. zdjęcie). Po V.
-- **Warianty dla całego katalogu (Kamila: „każdy kolejny poszerzaj ofertę”):** po akceptacji próbki W.
 - **Godziny otwarcia z Payload:** pole `site-content.openingHours` nie jest podłączone (godziny w `SITE.hours`, zmienione 01.11
   na prośbę Michała). Zmienić pole na listę dni/godzin i czytać na stronie + w danych dla Google.
 - Galeria kilku filmów na karcie pierścionka (dziś CMS przyjmuje 1 film; dodatkowe czekają w `source.facebookPayload`).
@@ -58,21 +58,28 @@ Otwarte po K: mystic topaz bez koloru w filtrze.
 - Para 2↔D1 = karta mieszana (pierścionek + sygnet z awenturynem) – odłożone przez Marcina.
 
 ## Przed startem produkcji (Marcin, przed 21.11 – wygasa home.pl)
+- Zlecenie Y: `npx payload migrate` (migracja `20261104_231900_warianty_cala_galeria`) przed wdrożeniem kodu Y; zlecenie Z – jego migracja wartości kółek.
+- Formularz (X): `SITE_ENV=production` (także przy `next build`), `SITE_URL=https://pznowak.pl`, `SMTP_*` + `SUBMISSIONS_NOTIFY_TO` (skrzynka na MyDevil), `CLIENT_IP_HEADER` wg Cloudflare – szczegóły w opisie PR #43.
 - Realizacje (R): dane na produkcję – tym samym seedem z flagą dla produkcji albo ręcznie w panelu; decyzja Marcina.
 - Zlecenie R: `npx payload migrate` na produkcji (migracja `20261101_101210_realizacje`, tylko nowe tabele „Realizacje”) przed wdrożeniem kodu; potem Michał dodaje realizacje w panelu (na produkcji do czasu dodania strona pokazuje krótki pusty stan, seed jest tylko na staging).
-- Zlecenie Y: `npx payload migrate` na produkcji (migracja `20261104_231900_warianty_cala_galeria`, tylko nowe tabele `cms_products_rels`) przed wdrożeniem kodu Y – bez niej karty pierścionków nie działają.
 - Zlecenie V: `npx payload migrate` na produkcji (migracja `20261102_100513_warianty_kamieni`, tylko nowe tabele wariantów) przed wdrożeniem kodu – bez niej karty pierścionków nie działają; warianty Aion i poprawki Leto/Aion są na razie tylko na stagingu (`staging:warianty`).
 - `npx payload migrate` na produkcji (migracje z I i H-C) – przed wdrożeniem kodu. Szczegóły: `archiwum/2026-10-26_zlecenie-I-raport.md`.
 - Kod K + dane razem (22 adresy, przekierowania 308) – `archiwum/2026-10-28_zlecenie-K-raport.md`.
 - Polityka prywatności + regulamin podpięte (stopka, pasek cookies, `consent.ts`).
-- Michał/Kamila: treść „[TERMIN]”, ceny „od” (Marcin 29.10: przynajmniej „cena od …”), asortyment sklepu, godziny, opinie z Google.
+- Michał/Kamila: żółte pola – patrz „Od Michała / Kamili” (godziny już są: 01.11).
 - Hosting MyDevil, skrzynki, SEO/przekierowania/mapa strony, rekord TXT Google – `pznowak-marketing/home-pl-inwentaryzacja.md`.
 
 ## Od Michała / Kamili (otwarte)
+- **Próbka Y (05.11):** ocena kolorów na całej galerii + propozycja „2 zdjęcia na kolor” i dopisek na stronie, że wizualizacja pokazuje kolor, a prawdziwy kamień pokazują przed zamówieniem.
+- **Żółte pola (pytania wysłane 04.11):** ceny „od” i widełki na zamówienie; czas wykonania (na zamówienie, obrączki); bezpłatna pierwsza rozmowa / zaliczka; rozmowy wideo; skąd kamienie, certyfikaty, laboratoryjne; asortyment poza pierścionkami.
+- Prawdziwe zdjęcie Aion (dziś tylko klatka z filmu).
+- Czy pracownia robi skup złota – od tego zależy domknięcie odwołania kategorii w Google (bez wysokiego priorytetu).
 - Zatwierdzenie i redakcja 11 szkiców z FB (po przeglądzie Marcina).
-- Ceny „od”, godziny, plan opinii Google – rozmowa Marcina z Michałem 01.11.
+- Plan opinii Google (odpowiedzi szkicuje Klaudia, publikuje Marcin, stopniowo).
 
+Rozstrzygnięte 04.11: wysyłka gotowej biżuterii kurierem – tak; „Odpowiadamy zwykle tego samego dnia roboczego”; szafir granatowy OK; szmaragd spokojniejszy.
 ## Sprzątanie (Marcin)
+- Worktree po scalonych PR: `pznowak-cms-formularz-przewiniecie` (#47); po scaleniu #46 – `pznowak-cms-warianty-cala-galeria`.
 - Zdalne gałęzie scalonych PR na GitHubie: `chore/fb-export-skrypt`, `chore/fb-groups-json`, `chore/fb-przeglad-katalogu`,
   `feat/cookies-baner`, `feat/fb-import-cms`, `feat/fb-weryfikacja-modelem`, `feat/fb-wybor-zdjec`, `feat/strona-glowna`,
   `fix/fb-pola-prywatne`, `fix/legacy-payload-prywatne`, `feat/pierscionki-lista-i-karta`.
@@ -86,21 +93,4 @@ Otwarte po K: mystic topaz bez koloru w filtrze.
 _(koordynator dopisuje tu; brak otwartych na 31.10)_
 
 ## Odpowiedzi Klaudii
-- **31.10, przegląd Q (PR #32): OK do merge.** Podgląd gałęzi 1440×900: hero z przed/po rubinu w pełnych proporcjach,
-  przycisk „Zapytaj o naprawę”, sekcja „Przed i po” po liście usług, /realizacje bez sekcji, główna bez „model 3D”.
-  Tekst −40% (217→130 słów) – zgoda, dalej szłyby fakty. Zmiany ponad zlecenie (przycisk w hero, usunięta etykieta
-  zasłaniająca „po”, godziny tylko w hero) – akceptuję. Otwarte: zestaw zdjęć nierówny (brylanty i powiększanie to nie
-  „przed/po”, brak łańcuszków i kolczyków) – zdjęcia od Michała (pytanie 14a na 01.11), potem małe zlecenie.
-- **31.10, przegląd P (PR #31): OK do merge.** Commit 16d88bf zmienia tylko `na-zamowienie/page.tsx` + 2 testy.
-  Na podglądzie gałęzi (1440×900) sprawdzone: wstęp, krok 2, wynik kroku i odpowiedź FAQ w żółtych ramkach, na stronie
-  brak „3D”, został jeden przycisk „Umów rozmowę o projekcie”. `toConfirm` = `DoUzupelnienia` z `fallback` (span w `<p>` –
-  poprawny HTML), na produkcji zwykły tekst. Do dorobienia osobno (1 linijka): strona główna, krok „Projekt i wycena”
-  – „Szkic i model 3D.” (`page.tsx:187`). Test `placeholders.int.spec.ts` (/obraczki, „Obrączki z pracowni”) pada już
-  na main po O – do poprawy przy następnym zleceniu.
-- **31.10, przegląd M (PR #28): OK do merge.** Tylko `.hero-home` (klasy `hero-tag`/`hero-trust` są wyłącznie na głównej,
-  więc przeniesienie reguł nic nie psuje na podstronach), desktop bez zmian, e2e na 3 rozmiarach telefonu + desktop.
-  Zrzut 375×812: zdjęcie, tytuł, przycisk i link na pierwszym ekranie. Pasek cookies – osobna sprawa (niżej).
-- **31.10, przegląd L (PR #27): OK do merge.** Media spoza FB i plakietka AI zgodnie ze zleceniem, `selection.json` nietknięty,
-  AI blokowane w eksporcie bez `allow: true`. Drobiazgi na później: tylko `.jpg` (zdjęcia HEIC z iPhone'a trzeba
-  przekonwertować), walidacja przez `assert` (znika przy `python -O`). Decyzje Marcina 31.10: połączyć 32↔34, 1 ct i 2 ct
-  jako dwie karty z odsyłaczem w opisie, ETERNITY poza katalogiem do czasu prawdziwego zdjęcia.
+_(przeglądy z 31.10 przeniesione do `archiwum/KOLEJKA-archiwum_do-2026-10-31.md`; przeglądy od 02.11 – w opisach PR i w wierszach tabeli)_

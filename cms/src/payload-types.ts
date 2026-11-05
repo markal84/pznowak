@@ -407,7 +407,7 @@ export interface Submission {
   topic?: ('nowy' | 'kolekcja' | 'obraczki' | 'naprawa' | 'inne') | null;
   status: 'draft' | 'contacted' | 'closed' | 'spam';
   /**
-   * Kwarantanna: zgłoszenie przyszło, gdy Cloudflare Turnstile był niedostępny. Sprawdź, czy to nie spam; wizualizacja tylko po ręcznym zatwierdzeniu.
+   * Zweryfikowane – przeszło Cloudflare Turnstile. Kwarantanna – Turnstile był niedostępny: sprawdź, czy to nie spam; wizualizacja tylko po ręcznym zatwierdzeniu.
    */
   verification: 'verified' | 'quarantine';
   /**
