@@ -171,6 +171,33 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
     expect(writes).toEqual(['POST /api/zgloszenia'])
   })
 
+  test('kontakt na telefonie: po wysłaniu karta „Wiadomość wysłana” jest w widoku, a „Napisz kolejną” wraca na początek formularza', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await visit(page, '/kontakt')
+    await expectTurnstileFrame(page)
+    await page.locator('label.topic', { hasText: 'Naprawa lub przeróbka' }).click()
+    await page
+      .getByLabel('Co trzeba zrobić?')
+      .fill('Zgłoszenie testowe Playwright, proszę zignorować.')
+    await page.getByLabel('Imię').fill(E2E_NAME)
+    await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
+    await page.getByLabel(/Zgadzam się na kontakt w sprawie mojej wiadomości/).check()
+
+    const response = submissionResponse(page)
+    await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
+    expect((await response).status()).toBe(201)
+
+    const card = page.locator('.sent-card')
+    await expect(card.getByRole('heading', { name: 'Wiadomość wysłana' })).toBeVisible()
+    await expect(card).toBeInViewport()
+    await expect(card).toBeFocused()
+
+    await page.getByRole('button', { name: 'Napisz kolejną wiadomość' }).click()
+    await expect(page.getByRole('form', { name: 'Formularz kontaktowy' })).toBeInViewport()
+  })
+
   test('pole-pułapka jest niewidoczne, poza tabulacją i poza drzewem dostępności', async ({
     page,
   }) => {

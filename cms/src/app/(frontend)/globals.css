@@ -1537,6 +1537,15 @@ fieldset.plain legend {
   background: var(--paper);
   padding: 40px 40px 40px 72px;
   clip-path: polygon(var(--c) 0, 100% 0, 100% 100%, var(--c) 100%, 0 calc(100% - var(--c)), 0 var(--c));
+  /* Karta po przewinięciu nie chowa się pod przyklejonym nagłówkiem (wysokość nagłówka + oddech). */
+  scroll-margin-top: 110px;
+}
+/* Karta sama dostaje fokus po wysłaniu (czytnik ekranu); to nie element do sterowania, więc bez obramowania. */
+.sent-card:focus {
+  outline: none;
+}
+.contact-form {
+  scroll-margin-top: 110px;
 }
 .sent-card .hole {
   position: absolute;
