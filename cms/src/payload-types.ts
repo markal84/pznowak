@@ -168,8 +168,10 @@ export interface Product {
         stone: string;
         swatch:
           | 'zielony'
+          | 'oliwkowy'
           | 'niebieski'
           | 'granatowy'
+          | 'londonblue'
           | 'jasnoniebieski'
           | 'fioletowy'
           | 'czerwony'

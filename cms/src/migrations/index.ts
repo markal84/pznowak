@@ -10,6 +10,7 @@ import * as migration_20261026_125727_fb_import_zrodlo from './20261026_125727_f
 import * as migration_20261101_101210_realizacje from './20261101_101210_realizacje';
 import * as migration_20261102_100513_warianty_kamieni from './20261102_100513_warianty_kamieni';
 import * as migration_20261104_231900_warianty_cala_galeria from './20261104_231900_warianty_cala_galeria';
+import * as migration_20261105_092851_kolka_kolorow from './20261105_092851_kolka_kolorow';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20261104_231900_warianty_cala_galeria.up,
     down: migration_20261104_231900_warianty_cala_galeria.down,
-    name: '20261104_231900_warianty_cala_galeria'
+    name: '20261104_231900_warianty_cala_galeria',
+  },
+  {
+    up: migration_20261105_092851_kolka_kolorow.up,
+    down: migration_20261105_092851_kolka_kolorow.down,
+    name: '20261105_092851_kolka_kolorow'
   },
 ];

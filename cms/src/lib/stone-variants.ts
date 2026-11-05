@@ -8,8 +8,10 @@ import type { Media, Product } from '../payload-types'
 
 export type SwatchId =
   | 'zielony'
+  | 'oliwkowy'
   | 'niebieski'
   | 'granatowy'
+  | 'londonblue'
   | 'jasnoniebieski'
   | 'fioletowy'
   | 'czerwony'
@@ -20,11 +22,15 @@ export type SwatchId =
 /**
  * Kolory kółek. Odcienie tej samej rodziny co kropki filtra kolorów na liście (`STONE_FILTERS` w `catalog.ts`),
  * dobrane tak, żeby kółka obok siebie dało się odróżnić (np. granat od niebieskiego i jasnoniebieskiego).
+ * `londonblue` i `oliwkowy` (zlecenie Z): osobne kółka dla topazu London blue i turmalinu oliwkowego, żeby na karcie
+ * nie było dwóch kółek tego samego koloru (granat/zieleń).
  */
 export const SWATCHES: readonly { id: SwatchId; label: string; hex: string }[] = [
   { id: 'zielony', label: 'Zielony', hex: '#2F6B4F' },
+  { id: 'oliwkowy', label: 'Oliwkowy', hex: '#7C7A2F' },
   { id: 'niebieski', label: 'Niebieski', hex: '#2F4F8F' },
   { id: 'granatowy', label: 'Granatowy', hex: '#1E2A55' },
+  { id: 'londonblue', label: 'London blue', hex: '#1F5A6E' },
   { id: 'jasnoniebieski', label: 'Jasnoniebieski', hex: '#7FA8CF' },
   { id: 'fioletowy', label: 'Fioletowy', hex: '#6B4B8C' },
   { id: 'czerwony', label: 'Czerwony', hex: '#9E2235' },
@@ -139,26 +145,38 @@ export function findVariant(variants: readonly StoneVariant[], slug: string | nu
   return variants.find((variant) => variant.slug === slug) ?? null
 }
 
-/** Kolor kółka oryginału: z nazwy kamienia na karcie („Szafir różowy, diament” → różowy). */
+/**
+ * Kolor kółka oryginału: z nazwy kamienia na karcie („Szafir różowy, diament” → różowy).
+ *
+ * Dwa poziomy: najpierw kolor doprecyzowany w nazwie (granatowy, London blue, oliwkowy, różowy), bo „Szafir granatowy”
+ * to granat, a nie zwykły niebieski – nawet gdy słowo „szafir” stoi wcześniej. Dopiero bez takiego doprecyzowania
+ * liczy się pierwszy wymieniony kamień (zlecenie Z; przy remisie pozycji wygrywa reguła wyżej na liście).
+ */
 export function originalSwatch(stone: string): SwatchId {
   const text = stone.toLowerCase()
-  const rules: [RegExp, SwatchId][] = [
-    [/oliwk|oliwin|szmaragd|zielon|chryzopraz|awenturyn|peridot/, 'zielony'],
+  const qualifiers: [RegExp, SwatchId][] = [
+    [/oliwk|oliwin|peridot/, 'oliwkowy'],
+    [/topaz london|london/, 'londonblue'],
+    [/granatow|tanzanit/, 'granatowy'],
     [/ró[żz]ow|morganit/, 'rozowy'],
-    // „Topaz London blue” to granat, nie zwykły niebieski: przy remisie pozycji wygrywa reguła wyżej na liście.
-    [/topaz london|london|granatow|tanzanit/, 'granatowy'],
+  ]
+  const stones: [RegExp, SwatchId][] = [
+    [/szmaragd|zielon|chryzopraz|awenturyn/, 'zielony'],
     [/topaz (sky|swiss)|sky|swiss|jasnoniebiesk|b[łl][ęe]kitn|akwamaryn/, 'jasnoniebieski'],
     [/szafir|topaz|niebiesk/, 'niebieski'],
     [/rubin|granat\b|czerwon/, 'czerwony'],
     [/ametyst|fiolet/, 'fioletowy'],
     [/cytryn|[żz][óo][łl]t/, 'zolty'],
   ]
-  let best: { at: number; id: SwatchId } | null = null
-  for (const [pattern, id] of rules) {
-    const at = text.search(pattern)
-    if (at !== -1 && (!best || at < best.at)) best = { at, id }
+  const earliest = (rules: [RegExp, SwatchId][]): SwatchId | null => {
+    let best: { at: number; id: SwatchId } | null = null
+    for (const [pattern, id] of rules) {
+      const at = text.search(pattern)
+      if (at !== -1 && (!best || at < best.at)) best = { at, id }
+    }
+    return best?.id ?? null
   }
-  return best?.id ?? 'bialy'
+  return earliest(qualifiers) ?? earliest(stones) ?? 'bialy'
 }
 
 /** Adres formularza z karty: nazwa projektu i (gdy wybrany wariant) kamień. */
