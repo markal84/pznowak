@@ -177,9 +177,13 @@ export interface Product {
           | 'zolty'
           | 'bialy';
         /**
-         * Najlepiej w proporcjach jak zdjęcia pierścionka; cały pierścionek w kadrze.
+         * Zastępuje pierwsze zdjęcie z „Zdjęcia i filmy”. Najlepiej ten sam kadr i proporcje; cały pierścionek w kadrze.
          */
         image: number | Media;
+        /**
+         * Ten sam kamień na 2., 3. … zdjęciu z „Zdjęcia i filmy”, w tej samej kolejności. Po wyborze kamienia galeria pokazuje tylko obrazy wariantu (film zostaje prawdziwy). Puste = jeden obraz.
+         */
+        moreImages?: (number | Media)[] | null;
         alt?: string | null;
         /**
          * Na obrazie pojawia się etykieta „Wizualizacja”. Odznacz tylko przy prawdziwym zdjęciu wykonanego pierścionka.
@@ -582,6 +586,7 @@ export interface ProductsSelect<T extends boolean = true> {
         stone?: T;
         swatch?: T;
         image?: T;
+        moreImages?: T;
         alt?: T;
         isVisualization?: T;
         id?: T;

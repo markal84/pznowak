@@ -5,11 +5,14 @@
  *   npm run staging:warianty              sprawdzenie: nic nie zapisuje, pokazuje plan
  *   npm run staging:warianty -- --apply   migracja + wgranie obrazów + zapis wariantów i poprawek
  *   npm run staging:warianty -- --apply --podmien-obraz aion:"Szafir granatowy i diamenty"
- *                                         tylko to: wgrywa nowy plik wariantu z seeda i podmienia obraz tego jednego wariantu
- *                                         (bez --apply sam plan); nic innego na kartach nie rusza
+ *                                         tylko to: wgrywa na nowo pliki wariantu z seeda (np. poprawiony obraz o tej samej
+ *                                         nazwie) i podmienia obrazy tego jednego wariantu (bez --apply sam plan); nic innego nie rusza
  *
- * Idempotentne: obrazy rozpoznaje po `legacySourceUrl` (`seed://warianty/<plik>`), warianty po obrazie albo nazwie
- * kamienia (istniejących nie nadpisuje, ręcznie dodane w panelu zostają), poprawki kart tylko przy dawnym kamieniu.
+ * Idempotentne: obrazy rozpoznaje po `legacySourceUrl` (`seed://warianty/<plik>`), warianty po pierwszym obrazie albo
+ * nazwie kamienia (ręcznie dodane w panelu zostają), poprawki kart tylko przy dawnym kamieniu.
+ * Zlecenie Y: wariant ma listę obrazów (`files`: „Obraz” + „Kolejne obrazy”, w kolejności zdjęć karty). Istniejący wariant
+ * dostaje nową listę z JSON-a tylko wtedy, gdy wszystkie jego obrazy są z seeda (obraz wgrany w panelu zostaje); nazwa,
+ * kolor kółka i alt wariantu bez zmian.
  * Kolejność ze zleceniem U: jeśli opisy U nie są jeszcze zapisane na kartach, które ten skrypt zmienia, zatrzymuje się
  * (zapis zmieniłby `updatedAt`, a `staging:opisy` pominąłby wtedy te karty jako poprawione ręcznie).
  * Działa tylko z NEON_BRANCH=staging (jak `seed-staging.ts` i `seed-realizacje.ts`).
@@ -33,10 +36,11 @@ import {
   missingVariants,
   parseReplaceArg,
   planCardFix,
+  planVariantImages,
   replacementKey,
-  SOURCE_PREFIX,
+  seedFile,
   sourceKey,
-  type VariantSpec,
+  type CurrentVariant,
 } from './warianty-v-logic'
 
 const applyChanges = process.argv.includes('--apply')
@@ -52,7 +56,8 @@ const specs = loadSpecs()
 const imageProblems = checkImages(specs)
 if (imageProblems.length) throw new Error(`Obrazy wariantów:\n${imageProblems.join('\n')}`)
 const variantCount = specs.reduce((sum, spec) => sum + spec.variants.length, 0)
-console.log(`Pliki: ${variantCount} obrazów wariantów dla ${specs.length} kart są w cms/seed/warianty/obrazy.`)
+const imageCount = specs.reduce((sum, spec) => sum + spec.variants.reduce((n, v) => n + v.files.length, 0), 0)
+console.log(`Pliki: ${imageCount} obrazów ${variantCount} wariantów dla ${specs.length} kart są w cms/seed/warianty/obrazy.`)
 
 const payload = await getPayload({ config: await config })
 
@@ -70,14 +75,15 @@ try {
 
   let tableReady = true
   try {
-    await payload.find({ collection: 'products', depth: 0, limit: 1, overrideAccess: true, select: { stoneVariants: true } })
+    // Pełny odczyt karty: dotyka też tabeli „Kolejnych obrazów” (Y, cms_products_rels), nie tylko wariantów (V).
+    await payload.find({ collection: 'products', depth: 0, limit: 1, overrideAccess: true })
   } catch {
     tableReady = false
   }
   if (!tableReady) {
-    console.log('Tabela wariantów jeszcze nie istnieje: z --apply najpierw wykona się migracja.')
+    console.log('Tabele wariantów (V) albo kolejnych obrazów (Y) jeszcze nie istnieją: z --apply najpierw wykona się migracja.')
     if (!applyChanges) process.exit(0)
-    throw new Error('Po migracji nie ma tabeli cms_products_stone_variants')
+    throw new Error('Po migracji nadal brak tabel cms_products_stone_variants / cms_products_rels')
   }
 
   const found = await payload.find({
@@ -102,26 +108,40 @@ try {
     if (applyChanges) throw new Error('Przerwane: najpierw staging:opisy (zlecenie U), potem staging:warianty')
   }
 
-  const ensureMedia = async (variant: VariantSpec): Promise<Media> => {
+  /** Media obrazu z seeda (`key` = `legacySourceUrl`; domyślnie `seed://warianty/<plik>`), wgrane raz. */
+  const ensureMedia = async (file: string, alt: string, key: string = sourceKey(file)): Promise<Media> => {
     const existing = await payload.find({
       collection: 'media',
       depth: 0,
       limit: 1,
       overrideAccess: true,
-      where: { legacySourceUrl: { equals: sourceKey(variant.file) } },
+      where: { legacySourceUrl: { equals: key } },
     })
     if (existing.docs[0]) return existing.docs[0]
-    const data = await readFile(path.join(IMAGES_DIR, variant.file))
+    const data = await readFile(path.join(IMAGES_DIR, file))
     return payload.create({
       collection: 'media',
-      data: { alt: variant.alt, legacySourceUrl: sourceKey(variant.file) },
-      file: { data, mimetype: 'image/webp', name: variant.file, size: data.byteLength },
+      data: { alt, legacySourceUrl: key },
+      file: { data, mimetype: 'image/webp', name: file, size: data.byteLength },
       overrideAccess: true,
     })
   }
   // Skrypt działa poza Next.js: odświeżanie strony (revalidateTag) rzuciłoby tu błąd.
   const context = { skipFrontendRevalidation: true }
   const mediaId = (asset: number | Media | null | undefined) => (typeof asset === 'object' && asset ? asset.id : asset)
+  type DocVariant = NonNullable<Product['stoneVariants']>[number]
+  /** Wariant do zapisu: obrazy jako id (zapis z obiektami Media nie przechodzi), „Kolejne obrazy” zostają. */
+  const asInput = (variant: DocVariant) => ({
+    ...variant,
+    image: mediaId(variant.image) as number,
+    moreImages: (variant.moreImages ?? []).map((asset) => mediaId(asset) as number),
+  })
+  const keyOf = (asset: number | Media | null | undefined) => (typeof asset === 'object' && asset ? asset.legacySourceUrl : null)
+  /** Pliki z seeda obrazów wariantu (główny, potem kolejne); `null` = obraz spoza seeda. */
+  const currentOf = (variant: DocVariant): CurrentVariant => ({
+    stone: variant.stone,
+    files: [variant.image, ...(variant.moreImages ?? [])].map((asset) => seedFile(keyOf(asset))),
+  })
 
   if (replaceTarget) {
     const spec = specs.find((s) => s.slug === replaceTarget.slug)
@@ -131,28 +151,27 @@ try {
     if (!doc) throw new Error(`${spec.slug}: nie ma karty o tym adresie na stagingu`)
     const index = (doc.stoneVariants ?? []).findIndex((v) => findReplaceTarget([v], variant.stone))
     if (index < 0) throw new Error(`${spec.slug}: karta nie ma jeszcze wariantu „${variant.stone}” (najpierw zwykły staging:warianty --apply)`)
-    const data = await readFile(path.join(IMAGES_DIR, variant.file))
-    const key = replacementKey(variant.file, createHash('sha1').update(data).digest('hex').slice(0, 10))
+    // Klucz z skrótem treści: poprawiony plik o tej samej nazwie to nowe Media, niezmieniony – to samo co poprzednio.
+    const keys = await Promise.all(
+      variant.files.map(async (file) =>
+        replacementKey(file, createHash('sha1').update(await readFile(path.join(IMAGES_DIR, file))).digest('hex').slice(0, 10)),
+      ),
+    )
     const current = doc.stoneVariants![index]
-    const currentKey = typeof current.image === 'object' && current.image ? current.image.legacySourceUrl : null
-    if (currentKey === key) {
-      console.log(`= ${spec.slug}: obraz „${variant.stone}” jest już podmieniony`)
+    const currentKeys = [current.image, ...(current.moreImages ?? [])].map(keyOf)
+    if (currentKeys.length === keys.length && currentKeys.every((key, i) => key === keys[i])) {
+      console.log(`= ${spec.slug}: obrazy „${variant.stone}” są już podmienione`)
     } else if (!applyChanges) {
-      console.log(`~ ${spec.slug}: podmienię obraz wariantu „${variant.stone}” na ${variant.file} (${Math.round(data.byteLength / 1024)} KB)`)
+      console.log(`~ ${spec.slug}: podmienię obrazy wariantu „${variant.stone}” na ${variant.files.join(', ')}`)
       console.log('To było sprawdzenie. Zapis: dodaj --apply')
     } else {
-      const found = await payload.find({ collection: 'media', depth: 0, limit: 1, overrideAccess: true, where: { legacySourceUrl: { equals: key } } })
-      const media =
-        found.docs[0] ??
-        (await payload.create({
-          collection: 'media',
-          data: { alt: variant.alt, legacySourceUrl: key },
-          file: { data, mimetype: 'image/webp', name: variant.file, size: data.byteLength },
-          overrideAccess: true,
-        }))
-      const stoneVariants = (doc.stoneVariants ?? []).map((v, i) => ({ ...v, image: i === index ? media.id : (mediaId(v.image) as number) }))
+      const media: Media[] = []
+      for (const [i, file] of variant.files.entries()) media.push(await ensureMedia(file, variant.alt, keys[i]))
+      const stoneVariants = (doc.stoneVariants ?? []).map((v, i) =>
+        i === index ? { ...asInput(v), image: media[0].id, moreImages: media.slice(1).map((m) => m.id) } : asInput(v),
+      )
       await payload.update({ collection: 'products', id: doc.id, data: { stoneVariants, _status: 'published' }, draft: false, overrideAccess: true, context })
-      console.log(`~ ${spec.slug}: obraz wariantu „${variant.stone}” podmieniony (Media ${media.id}), reszta karty bez zmian`)
+      console.log(`~ ${spec.slug}: obrazy wariantu „${variant.stone}” podmienione (Media ${media.map((m) => m.id).join(', ')}), reszta karty bez zmian`)
     }
     await payload.destroy()
     process.exit(0)
@@ -191,12 +210,14 @@ try {
     const docVariants = keptVariants(doc.stoneVariants ?? [], spec.removeStones)
     const removed = (doc.stoneVariants ?? []).length - docVariants.length
     if (removed) notes.push(`warianty: usuwam ${spec.removeStones.join(', ')}`)
-    const current = docVariants.map((variant) => {
-      const media = typeof variant.image === 'object' ? variant.image : null
-      const key = media?.legacySourceUrl ?? ''
-      return { file: key.startsWith(SOURCE_PREFIX) ? key.slice(SOURCE_PREFIX.length) : null, stone: variant.stone }
-    })
+    const current = docVariants.map(currentOf)
     const missing = missingVariants(current, spec.variants)
+    // Obrazy istniejących wariantów z JSON-a (Y: cała galeria zamiast jednego obrazu).
+    const imagePlans = docVariants.map((variant, i) => {
+      const target = spec.variants.find((v) => missingVariants([current[i]], [v]).length === 0)
+      return target ? { target, plan: planVariantImages(current[i], target) } : null
+    })
+    const swaps = imagePlans.filter((entry) => entry?.plan.action === 'podmien').length
     if (spec.variants.length) {
       notes.push(
         missing.length
@@ -204,19 +225,36 @@ try {
           : `warianty: wszystkie ${spec.variants.length} już są`,
       )
     }
-    if ((missing.length || removed) && applyChanges) {
+    for (const entry of imagePlans) if (entry && entry.plan.action !== 'zostaw') notes.push(`obrazy: ${entry.plan.note}`)
+    if ((missing.length || removed || swaps) && applyChanges) {
+      const kept = []
+      for (const [i, variant] of docVariants.entries()) {
+        const entry = imagePlans[i]
+        if (entry?.plan.action !== 'podmien') {
+          kept.push(asInput(variant))
+          continue
+        }
+        const media: Media[] = []
+        for (const file of entry.target.files) media.push(await ensureMedia(file, variant.alt ?? entry.target.alt))
+        kept.push({ ...asInput(variant), image: media[0].id, moreImages: media.slice(1).map((m) => m.id) })
+      }
       const added = []
       for (const variant of missing) {
-        const media = await ensureMedia(variant)
-        added.push({ stone: variant.stone, swatch: variant.swatch, image: media.id, alt: variant.alt, isVisualization: variant.isVisualization })
+        const media: Media[] = []
+        for (const file of variant.files) media.push(await ensureMedia(file, variant.alt))
+        added.push({
+          stone: variant.stone,
+          swatch: variant.swatch,
+          image: media[0].id,
+          moreImages: media.slice(1).map((m) => m.id),
+          alt: variant.alt,
+          isVisualization: variant.isVisualization,
+        })
       }
-      data.stoneVariants = [
-        ...docVariants.map((variant) => ({ ...variant, image: mediaId(variant.image) as number })),
-        ...added,
-      ]
+      data.stoneVariants = [...kept, ...added]
     }
 
-    if (!Object.keys(data).length && !missing.length && !removed) {
+    if (!Object.keys(data).length && !missing.length && !removed && !swaps) {
       console.log(`= ${spec.slug}: ${notes.join('; ')}`)
       continue
     }

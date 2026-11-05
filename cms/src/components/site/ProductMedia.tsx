@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { useRef, useState, type ReactNode, type TouchEvent } from 'react'
 import type { Slide } from 'yet-another-react-lightbox'
 
+import { variantImageAlt, variantImages } from '@/lib/stone-variants'
+
 import { useSelectedStoneVariant } from './StoneVariants'
 import Tag from './Tag'
 
@@ -17,11 +19,12 @@ type ProductMediaProps = {
   name: string
   images: string[]
   video: string
-  /** Pod galerią, np. „Zamów z innym kamieniem” (kółka zmieniają główne zdjęcie). */
+  /** Pod galerią, np. „Zamów z innym kamieniem” (kółka podmieniają zdjęcia galerii). */
   children?: ReactNode
 }
 
-type VariantInfo = { stone: string; isVisualization: boolean; alt: string }
+/** `cover`: obraz w kadrze oryginału (cała galeria z Y) – kadrujemy jak zdjęcie karty; inaczej cały obraz na rozmytym tle. */
+type VariantInfo = { stone: string; isVisualization: boolean; alt: string; cover: boolean }
 
 type Item =
   | { kind: 'image'; src: string; label: string; variant?: VariantInfo }
@@ -39,21 +42,27 @@ function ArrowIcon({ dir }: { dir: 'left' | 'right' }) {
 
 export default function ProductMedia({ name, images, video, children }: ProductMediaProps) {
   const variant = useSelectedStoneVariant()
-  const items: Item[] = images.map((src, i) => ({
-    kind: 'image',
-    src,
-    label: `Zdjęcie ${i + 1}: ${IMAGE_LABELS[i] ?? 'kolejne ujęcie'}`,
-  }))
+  // Wybrany inny kamień (zlecenie Y): cała galeria to obrazy wariantu, w kolejności zdjęć karty; zdjęć oryginału z nimi
+  // nie mieszamy (pierścionek w dwóch kolorach naraz wyglądał niespójnie). Film zostaje prawdziwy, z okładką oryginału.
+  const variantSrcs = variant ? variantImages(variant) : []
+  const items: Item[] = variant && variantSrcs.length
+    ? variantSrcs.map((src, i) => ({
+        kind: 'image',
+        src,
+        label: `${variant.isVisualization ? 'Wizualizacja' : 'Zdjęcie'} ${i + 1}: ${variant.stone.toLowerCase()}`,
+        variant: {
+          stone: variant.stone,
+          isVisualization: variant.isVisualization,
+          alt: variantImageAlt(name, variant, i),
+          cover: variantSrcs.length > 1,
+        },
+      }))
+    : images.map((src, i) => ({
+        kind: 'image',
+        src,
+        label: `Zdjęcie ${i + 1}: ${IMAGE_LABELS[i] ?? 'kolejne ujęcie'}`,
+      }))
   if (video) items.push({ kind: 'video', src: video, label: 'Film o pierścionku', poster: images[0] ?? '' })
-  // Wybrany inny kamień: jego obraz staje się głównym (pierwszym) zdjęciem; zdjęcia oryginału zostają dalej w galerii.
-  if (variant) {
-    items.unshift({
-      kind: 'image',
-      src: variant.image,
-      label: `${variant.isVisualization ? 'Wizualizacja' : 'Zdjęcie'}: ${variant.stone.toLowerCase()}`,
-      variant: { stone: variant.stone, isVisualization: variant.isVisualization, alt: variant.alt },
-    })
-  }
 
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -94,7 +103,7 @@ export default function ProductMedia({ name, images, video, children }: ProductM
 
   const slides: Slide[] = items.map((item) =>
     item.kind === 'image'
-      ? { src: item.src, alt: item.variant ? variantAlt(name, item.variant) : `${name}: ${item.label.toLowerCase()}` }
+      ? { src: item.src, alt: item.variant ? item.variant.alt : `${name}: ${item.label.toLowerCase()}` }
       : { type: 'video', sources: [{ src: item.src, type: 'video/mp4' }], poster: item.poster || undefined },
   )
 
@@ -109,17 +118,29 @@ export default function ProductMedia({ name, images, video, children }: ProductM
             ref={zoomRef}
             type="button"
           >
-            {current.variant ? (
-              // Obraz wariantu bywa pionowy: cały pierścionek w kadrze, tło z tego samego obrazu (rozmyte) zamiast pasów.
+            {current.variant && !current.variant.cover ? (
+              // Pojedynczy obraz wariantu bywa pionowy: cały pierścionek w kadrze, tło z tego samego obrazu (rozmyte).
               <span className="ph ph-variant">
                 <Image alt="" aria-hidden="true" className="ph-variant-bg" fill sizes="(max-width: 960px) 100vw, 55vw" src={current.src} />
                 <Image
-                  alt={variantAlt(name, current.variant)}
+                  alt={current.variant.alt}
                   fill
                   priority
                   sizes="(max-width: 960px) 100vw, 55vw"
                   src={current.src}
                   style={{ objectFit: 'contain' }}
+                />
+              </span>
+            ) : current.variant ? (
+              // Obraz z kadru zdjęcia karty: ten sam kadr co oryginał, więc przełączanie kamieni nie przesuwa pierścionka.
+              <span className="ph">
+                <Image
+                  alt={current.variant.alt}
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 960px) 100vw, 55vw"
+                  src={current.src}
+                  style={{ objectFit: 'cover' }}
                 />
               </span>
             ) : (
@@ -216,7 +237,7 @@ export default function ProductMedia({ name, images, video, children }: ProductM
                   fill
                   sizes="120px"
                   src={item.kind === 'video' ? item.poster || images[0] : item.src}
-                  style={item.kind === 'image' && item.variant ? { objectFit: 'cover', objectPosition: '50% 45%' } : undefined}
+                  style={item.kind === 'image' && item.variant && !item.variant.cover ? { objectFit: 'cover', objectPosition: '50% 45%' } : undefined}
                 />
               </span>
               {item.kind === 'video' ? (
@@ -231,9 +252,4 @@ export default function ProductMedia({ name, images, video, children }: ProductM
       {children}
     </div>
   )
-}
-
-function variantAlt(name: string, variant: VariantInfo): string {
-  if (variant.alt) return variant.alt
-  return `${name} z kamieniem: ${variant.stone.toLowerCase()}${variant.isVisualization ? ' (wizualizacja)' : ''}`
 }

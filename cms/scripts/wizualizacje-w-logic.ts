@@ -53,10 +53,32 @@ export type Design = {
   zmiana_pl?: string
   zachowaj_en?: string
   maska?: 'jeden' | 'wiele'
+  /**
+   * Zlecenie Y: kolejne zdjęcia galerii karty (2., 3., …) w kolejności z „Zdjęcia i filmy”; `zrodlo` jak wyżej
+   * (pierwszy istniejący plik). Zdjęcie 1 to `zrodlo` fasonu.
+   */
+  zdjecia?: { zrodlo: string[]; maska?: 'jeden' | 'wiele' }[]
+  /** Kamienie, które dostają wizualizację na każdym zdjęciu galerii (pozostałe tylko na pierwszym, jak w W). */
+  cala_galeria?: string[]
 }
 export type Config = { kamienie: Record<string, Stone>; fasony: Design[] }
 
-export type Job = { design: Design; stone: Stone; id: string; file: string }
+/**
+ * Jedno zdjęcie wariantu. `photo` od 1 (kolejność galerii karty); `variantId` = `<slug>-<kamień>` wspólne dla zdjęć
+ * jednego wariantu; `photoKey` = zdjęcie fasonu (`<slug>` dla pierwszego, jak w W, `<slug>-<n>` dla kolejnych) – klucz
+ * opisu zdjęcia, maski fasonu i proporcji.
+ */
+export type Job = {
+  design: Design
+  stone: Stone
+  id: string
+  file: string
+  photo: number
+  variantId: string
+  photoKey: string
+  zrodlo: string[]
+  maska?: 'jeden' | 'wiele'
+}
 
 const isText = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
 
@@ -78,21 +100,46 @@ export function loadConfig(source: string = CONFIG_PATH): Config {
     for (const key of design.kamienie) {
       if (!kamienie[key]) throw new Error(`wizualizacje-w.json, ${design.slug}: nieznany kamień „${key}”`)
     }
+    for (const key of design.cala_galeria ?? []) {
+      if (!design.kamienie.includes(key)) throw new Error(`wizualizacje-w.json, ${design.slug}: „cala_galeria” spoza „kamienie” (${key})`)
+    }
+    for (const [i, photo] of (design.zdjecia ?? []).entries()) {
+      if (!photo.zrodlo?.length) throw new Error(`wizualizacje-w.json, ${design.slug}: zdjęcie ${i + 2} bez „zrodlo”`)
+    }
   }
   return { kamienie, fasony: raw.fasony }
 }
 
+/** Zdjęcia galerii fasonu: 1 = `zrodlo`, dalej `zdjecia`. */
+export function designPhotos(design: Design): { photo: number; photoKey: string; zrodlo: string[]; maska?: 'jeden' | 'wiele' }[] {
+  return [
+    { photo: 1, photoKey: design.slug, zrodlo: design.zrodlo, maska: design.maska },
+    ...(design.zdjecia ?? []).map((entry, i) => ({
+      photo: i + 2,
+      photoKey: `${design.slug}-${i + 2}`,
+      zrodlo: entry.zrodlo,
+      maska: entry.maska ?? design.maska,
+    })),
+  ]
+}
+
+/**
+ * Wszystkie obrazy do zrobienia: fason → kamień → zdjęcie (zdjęcia jednego wariantu po kolei). Zdjęcie 1 ma nazwy
+ * z W (`<slug>-<kamień>`), kolejne końcówkę `-<n>`. `only`: slug fasonu, wariant (`<slug>-<kamień>`, wszystkie jego
+ * zdjęcia) albo pojedynczy obraz (`<slug>-<kamień>-<n>`).
+ */
 export function jobs(config: Config, only: string[] = []): Job[] {
   const all = config.fasony.flatMap((design) =>
-    design.kamienie.map((key) => ({
-      design,
-      stone: config.kamienie[key],
-      id: `${design.slug}-${key}`,
-      file: `${design.slug}-${key}.webp`,
-    })),
+    design.kamienie.flatMap((key) => {
+      const photos = (design.cala_galeria ?? []).includes(key) ? designPhotos(design) : designPhotos(design).slice(0, 1)
+      return photos.map(({ photo, photoKey, zrodlo, maska }) => {
+        const id = photo === 1 ? `${design.slug}-${key}` : `${design.slug}-${key}-${photo}`
+        return { design, stone: config.kamienie[key], id, file: `${id}.webp`, photo, variantId: `${design.slug}-${key}`, photoKey, zrodlo, maska }
+      })
+    }),
   )
   if (!only.length) return all
-  return all.filter((job) => only.some((o) => o === job.design.slug || o === job.id))
+  return all.filter((job) => only.some((o) => o === job.design.slug || o === job.variantId || o === job.id))
 }
 
 /**
@@ -116,25 +163,36 @@ export function variantName(job: Job): string {
   return pick(job.design.nazwa_wariantu, job.stone.key, '{nazwa}').replace('{nazwa}', job.stone.nazwa)
 }
 
-export function variantSpec(job: Job): VariantSpec {
+/** Wpis wariantu (format `warianty.json`); `files` = obrazy podanych zdjęć wariantu w kolejności galerii. */
+export function variantSpec(job: Job, photos: readonly Job[] = [job]): VariantSpec {
   return {
     stone: variantName(job),
     swatch: job.stone.swatch,
-    file: job.file,
+    files: photos.map((photo) => photo.file),
     alt: pick(job.design.alt, job.stone.key, '').replace('{z}', job.stone.z),
     isVisualization: true,
   }
 }
 
-/** Wpisy do `warianty-w.json` (format `warianty.json` z V) w kolejności konfiguracji, tylko przyjęte obrazy. */
+/** Zdjęcia jednego wariantu pogrupowane (kolejność konfiguracji). */
+export function variantGroups(list: readonly Job[]): Job[][] {
+  const groups = new Map<string, Job[]>()
+  for (const job of list) groups.set(job.variantId, [...(groups.get(job.variantId) ?? []), job])
+  return [...groups.values()]
+}
+
+/**
+ * Wpisy do `warianty-w.json` (format `warianty.json` z V) w kolejności konfiguracji: tylko warianty, w których
+ * przyjęto wszystkie zdjęcia (wariant z dziurą w galerii nie trafia na stronę).
+ */
 export function proposals(config: Config, accepted: Set<string>) {
   return config.fasony
     .map((design) => ({
       slug: design.slug,
       name: design.name,
-      variants: jobs(config, [design.slug])
-        .filter((job) => accepted.has(job.id))
-        .map(variantSpec),
+      variants: variantGroups(jobs(config, [design.slug]))
+        .filter((photos) => photos.every((job) => accepted.has(job.id)))
+        .map((photos) => variantSpec(photos[0], photos)),
     }))
     .filter((entry) => entry.variants.length > 0)
 }
@@ -517,40 +575,56 @@ export const hamming = (a: number[], b: number[]) => a.reduce((sum, bit, i) => s
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
 
-export type SheetRow = { design: Design; original: string; variants: { job: Job; attempts: number }[] }
+/** Arkusz: fason → zdjęcia galerii (wiersze) → oryginał i warianty (kolumny). Pusta komórka = obrazu jeszcze nie ma. */
+export type SheetRow = {
+  design: Design
+  stones: { key: string; name: string; swatch: SwatchId }[]
+  photos: { photo: number; original: string; files: Record<string, string | null> }[]
+}
 
 export function previewHtml(rows: SheetRow[], date: string): string {
   const cards = rows
-    .map(({ design, original, variants }) => {
-      const tiles = [
-        `<figure><img src="${esc(original)}" alt="${esc(design.name)} – oryginał"><figcaption><b>Oryginał</b><span>zdjęcie z pracowni</span></figcaption></figure>`,
-        ...variants.map(
-          ({ job }) =>
-            `<figure><div class="pic"><img src="obrazy/${esc(job.file)}" alt="${esc(variantSpec(job).alt)}"><span class="tag">Wizualizacja</span></div><figcaption><b>${esc(variantName(job))}</b><span><i style="background:var(--${job.stone.swatch})"></i>${esc(job.stone.swatch)}</span></figcaption></figure>`,
-        ),
-      ].join('\n')
-      return `<section><h2>${esc(design.name)}</h2><div class="grid">\n${tiles}\n</div></section>`
+    .map(({ design, stones, photos }) => {
+      const head = [
+        '<div class="h">Oryginał</div>',
+        ...stones.map((s) => `<div class="h"><i style="background:var(--${s.swatch})"></i>${esc(s.name)}</div>`),
+      ].join('')
+      const body = photos
+        .map(({ photo, original, files }) =>
+          [
+            `<figure><img src="${esc(original)}" alt="${esc(design.name)} – zdjęcie ${photo}, oryginał"><figcaption>zdjęcie ${photo}</figcaption></figure>`,
+            ...stones.map((s) =>
+              files[s.key]
+                ? `<figure><div class="pic"><img src="obrazy/${esc(files[s.key]!)}" alt="${esc(design.name)} – zdjęcie ${photo}, ${esc(s.name)} (wizualizacja)"><span class="tag">Wizualizacja</span></div></figure>`
+                : '<figure class="none"><span>tylko oryginał</span></figure>',
+            ),
+          ].join('\n'),
+        )
+        .join('\n')
+      return `<section><h2>${esc(design.name)}</h2><div class="grid" style="--cols:${stones.length + 1}">\n${head}\n${body}\n</div></section>`
     })
     .join('\n')
   return `<!doctype html>
 <html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wizualizacje kamieni – próbka ${esc(date)}</title>
+<title>Wizualizacje kamieni – cała galeria ${esc(date)}</title>
 <style>
 :root{--czerwony:#9E2235;--niebieski:#2F4F8F;--granatowy:#1E2A55;--jasnoniebieski:#7FA8CF;--fioletowy:#6B4B8C;--zielony:#2F6B4F;--rozowy:#D98A9E;--zolty:#D2A92E;--bialy:#FBFBF8}
 body{margin:0;padding:24px 16px;font:15px/1.5 system-ui,sans-serif;background:#faf8f4;color:#2a2722}
 h1{font-size:22px;margin:0 0 4px}p.lead{margin:0 0 24px;color:#6b665d;max-width:70ch}
 h2{font-size:18px;margin:32px 0 12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-figure{margin:0;background:#fff;border:1px solid #e7e2d8;border-radius:8px;overflow:hidden}
+section{overflow-x:auto}
+.grid{display:grid;grid-template-columns:repeat(var(--cols),minmax(150px,1fr));gap:10px;min-width:calc(var(--cols)*150px)}
+.h{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.h i{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid #ccc}
+figure{margin:0;background:#fff;border:1px solid #e7e2d8;border-radius:6px;overflow:hidden}
+figure.none{display:flex;align-items:center;justify-content:center;color:#9a958b;font-size:13px;min-height:80px}
 .pic{position:relative}img{display:block;width:100%;height:auto}
-.tag{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.88);font-size:12px;padding:2px 8px;border-radius:4px}
-figcaption{display:flex;justify-content:space-between;gap:8px;padding:8px 12px}
-figcaption span{color:#6b665d;font-size:13px;display:flex;align-items:center;gap:6px}
-figcaption i{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid #ccc}
+.tag{position:absolute;top:6px;right:6px;background:rgba(255,255,255,.88);font-size:11px;padding:1px 6px;border-radius:4px}
+figcaption{padding:4px 8px;color:#6b665d;font-size:12px}
 </style></head><body>
-<h1>Wizualizacje kamieni – próbka do oceny</h1>
-<p class="lead">Zlecenie W, ${esc(date)}. Pierwsze zdjęcie w rzędzie to prawdziwe zdjęcie z pracowni, kolejne to wizualizacje
-z innym kamieniem (zmieniony tylko kolor kamienia głównego). Na stronie każda ma etykietę „Wizualizacja”.</p>
+<h1>Wizualizacje kamieni – cała galeria</h1>
+<p class="lead">Zlecenie Y, ${esc(date)}. W wierszu jedno zdjęcie z karty: pierwsze to prawdziwe zdjęcie z pracowni, dalej
+ten sam kadr z innym kamieniem (zmieniony tylko kolor kamieni). Na stronie każda wizualizacja ma etykietę „Wizualizacja”.</p>
 ${cards}
 </body></html>
 `

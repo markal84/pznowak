@@ -14,6 +14,10 @@
  * fasonu” (ten sam kamień na tym samym zdjęciu) – kolejne warianty wycinają co najmniej ten obszar, więc przy małej
  * różnicy koloru (niebieski → granatowy/biały) na krawędzi kamienia nie zostaje stary kolor. Program: CODEX_BIN, konto ChatGPT (bez klucza API).
  *
+ * Zlecenie Y: fason może mieć kolejne zdjęcia galerii (`zdjecia`), a kamienie z `cala_galeria` powstają na każdym z nich
+ * (`<slug>-<kamien>-<n>.webp`); opis zdjęcia, maska fasonu i proporcje są osobne dla każdego zdjęcia (`--tylko <slug>-<kamien>`
+ * bierze wszystkie zdjęcia wariantu). Do `warianty-w.json` trafia tylko wariant z kompletem przyjętych zdjęć.
+ *
  * Wynik: `seed/warianty/obrazy/<slug>-<kamien>.webp` (proporcje oryginału, ≤ 300 KB), `seed/warianty/warianty-w.json`
  * (format `warianty.json` z V; tylko warianty, których jeszcze nie ma w `warianty.json` – po akceptacji Kamili wpisy
  * przenosimy tam ręcznie, a ten plik przy następnym przebiegu znika), arkusz `seed/warianty/podglad-<data>.html`. Próby, oceny i liczniki: `data/warianty-w/`
@@ -32,6 +36,7 @@ import {
   CHECK_MODEL,
   CHECK_SCHEMA,
   checkPrompt,
+  designPhotos,
   DESCRIBE_SCHEMA,
   describePrompt,
   firstExisting,
@@ -50,6 +55,8 @@ import {
   type Check,
   type Description,
   type Job,
+  type SheetRow,
+  variantName,
 } from './wizualizacje-w-logic'
 
 const arg = (name: string) => {
@@ -78,9 +85,9 @@ const sources = new Map<string, string>()
 const refs = new Map<string, { slug: string; file: string; pomocniczy: boolean }[]>()
 const missing: string[] = []
 for (const job of todo) {
-  const source = firstExisting(dataDir, job.design.zrodlo)
-  if (source) sources.set(job.design.slug, source)
-  else missing.push(`${job.design.slug}: brak zdjęcia źródłowego (${job.design.zrodlo.join(' | ')})`)
+  const source = firstExisting(dataDir, job.zrodlo)
+  if (source) sources.set(job.photoKey, source)
+  else missing.push(`${job.photoKey}: brak zdjęcia źródłowego (${job.zrodlo.join(' | ')})`)
   const found = job.stone.wzorce.flatMap((w) => {
     const file = firstExisting(dataDir, w.pliki)
     return file ? [{ slug: w.slug, file, pomocniczy: Boolean(w.pomocniczy) }] : []
@@ -88,7 +95,7 @@ for (const job of todo) {
   if (found.length) refs.set(job.stone.key, found)
   else missing.push(`${job.stone.key}: brak wzorca koloru – nie zgaduję, wariant pominięty`)
 }
-const runnable = todo.filter((job) => sources.has(job.design.slug) && refs.has(job.stone.key))
+const runnable = todo.filter((job) => sources.has(job.photoKey) && refs.has(job.stone.key))
 
 type Attempt = {
   n: number
@@ -122,6 +129,8 @@ if (retryRejected && applyChanges) {
   }
 }
 const designs = [...new Set(runnable.map((job) => job.design.slug))]
+/** Zdjęcia fasonów (zdjęcie 1 = `<slug>`, kolejne `<slug>-<n>`): opis, proporcje i maska są osobno dla każdego. */
+const photoKeys = [...new Set(runnable.map((job) => job.photoKey))]
 const pending = runnable.filter((job) => {
   const entry = state.jobs[job.id]
   return !entry?.accepted && (retryRejected || (entry?.attempts.length ?? 0) < maxAttempts)
@@ -130,10 +139,10 @@ console.log(`Fasony: ${designs.join(', ')} · wariantów: ${runnable.length} (do
 for (const job of runnable) {
   const done = state.jobs[job.id]?.accepted ? ' – już przyjęty' : ''
   const refList = refs.get(job.stone.key)!.map((r) => r.slug).join(', ')
-  console.log(`  ${job.id.padEnd(30)} ${path.basename(sources.get(job.design.slug)!)} · wzorce: ${refList}${done}`)
+  console.log(`  ${job.id.padEnd(34)} ${path.basename(sources.get(job.photoKey)!)} · wzorce: ${refList}${done}`)
 }
 for (const problem of missing) console.log(`  ! ${problem}`)
-const describeCalls = designs.filter((slug) => !state.descriptions[slug]).length
+const describeCalls = photoKeys.filter((key) => !state.descriptions[key]).length
 console.log(
   `Wywołania Codexa: opis ${describeCalls} + najwyżej ${pending.length * maxAttempts} generowań (${GEN_MODEL.id} ${GEN_MODEL.effort})` +
     ` + najwyżej ${pending.length * maxAttempts} ocen (${CHECK_MODEL.id} ${CHECK_MODEL.effort}); próby na obraz: ${maxAttempts}`,
@@ -199,7 +208,7 @@ async function structured<T>(model: { id: string; effort: string }, schema: obje
 const genRefs = (job: Job) => refs.get(job.stone.key)!.filter((r) => !r.pomocniczy)
 
 async function generate(job: Job, prompt: string, n: number) {
-  const args = [...modelArgs(GEN_MODEL), '-s', 'read-only', '-i', sources.get(job.design.slug)!]
+  const args = [...modelArgs(GEN_MODEL), '-s', 'read-only', '-i', sources.get(job.photoKey)!]
   for (const ref of genRefs(job)) args.push('-i', ref.file)
   const run = await codex(args, prompt)
   const dir = path.join(CODEX_HOME, 'generated_images', run.thread)
@@ -213,42 +222,46 @@ async function generate(job: Job, prompt: string, n: number) {
 
 // ---------- przebieg ----------
 
-for (const slug of designs) {
-  if (state.descriptions[slug]) continue
-  console.log(`opis zdjęcia: ${slug}…`)
-  const { result, run } = await structured<Description>(CHECK_MODEL, DESCRIBE_SCHEMA, [sources.get(slug)!], describePrompt(), `opis-${slug}`)
-  state.descriptions[slug] = { ...result, seconds: run.seconds, tokens: run.tokens }
+for (const key of photoKeys) {
+  if (state.descriptions[key]) continue
+  console.log(`opis zdjęcia: ${key}…`)
+  const { result, run } = await structured<Description>(CHECK_MODEL, DESCRIBE_SCHEMA, [sources.get(key)!], describePrompt(), `opis-${key}`)
+  state.descriptions[key] = { ...result, seconds: run.seconds, tokens: run.tokens }
   saveState()
-  console.log(`  ${slug}: ${result.centre_stone_en} | inne: ${result.other_stones_en}`)
+  console.log(`  ${key}: ${result.centre_stone_en} | inne: ${result.other_stones_en}`)
 }
 
 const aspects = new Map<string, number>()
-for (const slug of designs) {
-  const meta = await sharp(sources.get(slug)!).metadata()
-  aspects.set(slug, meta.width! / meta.height!)
+for (const key of photoKeys) {
+  const meta = await sharp(sources.get(key)!).metadata()
+  aspects.set(key, meta.width! / meta.height!)
 }
 
-/** Maska fasonu: z pierwszego przyjętego wariantu (kolejność z konfiguracji), zapisana w data/warianty-w/maski. */
+/**
+ * Maska fasonu: z pierwszego przyjętego wariantu tego samego zdjęcia (kolejność z konfiguracji), zapisana
+ * w data/warianty-w/maski/<zdjęcie>.png. Każde zdjęcie galerii ma własną – kamień leży w innym miejscu kadru.
+ */
 const designMasks = new Map<string, Uint8Array>()
-async function designMask(slug: string) {
-  if (designMasks.has(slug)) return designMasks.get(slug)!
-  const file = path.join(workDir, 'maski', `${slug}.png`)
+async function designMask(job: Job) {
+  const key = job.photoKey
+  if (designMasks.has(key)) return designMasks.get(key)!
+  const file = path.join(workDir, 'maski', `${key}.png`)
   if (existsSync(file)) {
     const mask = new Uint8Array(await sharp(file).extractChannel(0).raw().toBuffer())
-    designMasks.set(slug, mask)
+    designMasks.set(key, mask)
     return mask
   }
-  for (const job of allJobs(config, [slug])) {
-    const accepted = state.jobs[job.id]?.attempts.find((a) => a.accepted)
+  for (const other of allJobs(config, [job.design.slug]).filter((j) => j.photoKey === key)) {
+    const accepted = state.jobs[other.id]?.attempts.find((a) => a.accepted)
     const raw = accepted && path.join(workDir, accepted.file.replace(/-kompozycja\.png$/, '.png'))
     if (!raw || !existsSync(raw)) continue
-    const placed = await composite(sources.get(slug)!, raw, path.join(tmpdir(), `maska-${slug}-${process.pid}.png`), null, job.design.maska)
+    const placed = await composite(sources.get(key)!, raw, path.join(tmpdir(), `maska-${key}-${process.pid}.png`), null, other.maska)
     if (!placed) continue
     mkdirSync(path.dirname(file), { recursive: true })
     const height = placed.mask.length / 600
     await sharp(Buffer.from(placed.mask), { raw: { width: 600, height, channels: 1 } }).png().toFile(file)
-    designMasks.set(slug, placed.mask)
-    console.log(`maska fasonu ${slug}: z wariantu ${job.id}`)
+    designMasks.set(key, placed.mask)
+    console.log(`maska fasonu ${key}: z wariantu ${other.id}`)
     return placed.mask
   }
   return null
@@ -257,13 +270,13 @@ async function designMask(slug: string) {
 async function runJob(job: Job) {
   const entry = (state.jobs[job.id] ??= { attempts: [], accepted: null })
   if (entry.accepted) return
-  const original = await dHash(sources.get(job.design.slug)!)
+  const original = await dHash(sources.get(job.photoKey)!)
   const refCount = genRefs(job).length
   const checkRefCount = refs.get(job.stone.key)!.length
   let hint: string | undefined = [...entry.attempts].reverse().find((a) => a.check?.fix_hint_en)?.check?.fix_hint_en
   while (entry.attempts.length < maxAttempts) {
     const n = entry.attempts.length + 1
-    const prompt = generationPrompt(job, state.descriptions[job.design.slug], refCount, hint)
+    const prompt = generationPrompt(job, state.descriptions[job.photoKey], refCount, hint)
     const { run, file } = await generate(job, prompt, n)
     const attempt: Attempt = {
       n,
@@ -281,9 +294,9 @@ async function runJob(job: Job) {
     } else {
       attempt.hashDistance = hamming(original, await dHash(file))
       const merged = file.replace(/\.png$/, '-kompozycja.png')
-      const prior = await designMask(job.design.slug)
+      const prior = await designMask(job)
       const placed =
-        attempt.hashDistance > MAX_HASH_DISTANCE ? null : await composite(sources.get(job.design.slug)!, file, merged, prior, job.design.maska)
+        attempt.hashDistance > MAX_HASH_DISTANCE ? null : await composite(sources.get(job.photoKey)!, file, merged, prior, job.maska)
       attempt.placement = placed && { area: placed.area, alignment: placed.alignment, designMask: Boolean(prior) }
       if (attempt.hashDistance > MAX_HASH_DISTANCE) {
         attempt.reason = `inny kadr/kompozycja (dHash ${attempt.hashDistance} > ${MAX_HASH_DISTANCE}) – bez oceny modelu`
@@ -293,7 +306,7 @@ async function runJob(job: Job) {
         hint = 'Change only the colour of the centre stone; leave every other pixel of IMAGE 1 as it is.'
       } else {
         attempt.file = path.relative(workDir, merged)
-        const images = [sources.get(job.design.slug)!, merged, ...refs.get(job.stone.key)!.map((r) => r.file)]
+        const images = [sources.get(job.photoKey)!, merged, ...refs.get(job.stone.key)!.map((r) => r.file)]
         const { result, run: checkRun } = await structured<Check>(CHECK_MODEL, CHECK_SCHEMA, images, checkPrompt(job, checkRefCount), `ocena-${job.id}-${n}`)
         attempt.check = result
         attempt.seconds += checkRun.seconds
@@ -307,7 +320,7 @@ async function runJob(job: Job) {
     console.log(`${job.id} próba ${n}: ${attempt.accepted ? 'PRZYJĘTA' : 'odrzucona'} – ${attempt.reason}`)
     if (attempt.accepted) {
       const out = path.join(IMAGES_DIR, job.file)
-      const webp = await toWebp(path.join(workDir, attempt.file), aspects.get(job.design.slug)!, out)
+      const webp = await toWebp(path.join(workDir, attempt.file), aspects.get(job.photoKey)!, out)
       entry.accepted = attempt.file
       console.log(`  → ${path.relative(REPO_ROOT, out)} (${Math.round(webp.bytes / 1024)} KB, q${webp.quality})`)
     }
@@ -333,26 +346,38 @@ await Promise.all(
 
 // Wynik zawsze ze wszystkich przyjętych wariantów (także spoza --tylko), żeby częściowy przebieg nie gubił reszty.
 const acceptedIds = new Set(allJobs(config).filter((job) => state.jobs[job.id]?.accepted).map((job) => job.id))
-// warianty-w.json = przyjęte, ale jeszcze nie przeniesione do warianty.json (czekają na akceptację Kamili).
-const published = new Set(loadSpecs().flatMap((spec) => spec.variants.map((variant) => variant.file)))
-const waiting = proposals(config, new Set([...acceptedIds].filter((id) => !published.has(`${id}.webp`))))
+// warianty-w.json = warianty z kompletem przyjętych zdjęć, których jeszcze nie ma w warianty.json z tymi samymi plikami.
+const published = new Set(loadSpecs().flatMap((spec) => spec.variants.flatMap((variant) => variant.files)))
+const waiting = proposals(config, acceptedIds)
+  .map((entry) => ({ ...entry, variants: entry.variants.filter((variant) => !variant.files.every((file) => published.has(file))) }))
+  .filter((entry) => entry.variants.length > 0)
 if (waiting.length) writeFileSync(PROPOSALS_PATH, `${JSON.stringify(waiting, null, 2)}\n`)
 else rmSync(PROPOSALS_PATH, { force: true })
-console.log(`Czeka na akceptację (warianty-w.json): ${waiting.reduce((sum, entry) => sum + entry.variants.length, 0)}`)
+console.log(`Czeka na przeniesienie do warianty.json (warianty-w.json): ${waiting.reduce((sum, entry) => sum + entry.variants.length, 0)}`)
 
 const previewDir = path.join(WARIANTY_DIR, 'podglad')
 mkdirSync(previewDir, { recursive: true })
-const rows = []
+const rows: SheetRow[] = []
 for (const design of config.fasony) {
-  const source = firstExisting(dataDir, design.zrodlo)
-  if (!source || !allJobs(config, [design.slug]).some((job) => acceptedIds.has(job.id))) continue
-  const original = `podglad/${design.slug}-oryginal.webp`
-  const meta = await sharp(source).metadata()
-  await toWebp(source, meta.width! / meta.height!, path.join(WARIANTY_DIR, original))
-  const variants = allJobs(config, [design.slug])
-    .filter((job) => acceptedIds.has(job.id))
-    .map((job) => ({ job, attempts: state.jobs[job.id].attempts.length }))
-  rows.push({ design, original, variants })
+  const designJobs = allJobs(config, [design.slug]).filter((job) => acceptedIds.has(job.id))
+  if (!designJobs.length) continue
+  const stoneKeys = design.kamienie.filter((key) => designJobs.some((job) => job.stone.key === key))
+  const photos = []
+  for (const { photo, photoKey, zrodlo } of designPhotos(design)) {
+    const source = firstExisting(dataDir, zrodlo)
+    if (!source) continue
+    const original = `podglad/${photoKey}-oryginal.webp`
+    const meta = await sharp(source).metadata()
+    await toWebp(source, meta.width! / meta.height!, path.join(WARIANTY_DIR, original))
+    const files: Record<string, string | null> = {}
+    for (const key of stoneKeys) files[key] = designJobs.find((job) => job.stone.key === key && job.photo === photo)?.file ?? null
+    photos.push({ photo, original, files })
+  }
+  const stones = stoneKeys.map((key) => {
+    const job = designJobs.find((j) => j.stone.key === key)!
+    return { key, name: variantName(job), swatch: job.stone.swatch }
+  })
+  rows.push({ design, stones, photos })
 }
 const sheet = path.join(WARIANTY_DIR, `podglad-${today}.html`)
 writeFileSync(sheet, previewHtml(rows, today))
@@ -369,7 +394,7 @@ for (const job of runnable) {
   seconds += history.reduce((sum, a) => sum + a.seconds, 0)
   tokens += history.reduce((sum, a) => sum + a.tokens, 0)
   const verdict = entry.accepted ? 'przyjęty' : 'BRAK – wszystkie próby odrzucone'
-  console.log(`  ${job.id.padEnd(30)} prób: ${history.length} · ${verdict}`)
+  console.log(`  ${job.id.padEnd(34)} prób: ${history.length} · ${verdict}`)
 }
 console.log(`Przyjęte (ten przebieg): ${runnable.filter((job) => acceptedIds.has(job.id)).length}/${runnable.length} · wywołań Codexa (ten stan): ${calls} · czas modeli: ${Math.round(seconds)} s · tokeny: ${tokens}`)
 console.log(`Zapisano: ${path.relative(REPO_ROOT, sheet)}; próby i oceny: ${statePath}`)

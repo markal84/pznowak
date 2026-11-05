@@ -25,10 +25,12 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
   const config = loadConfig()
 
   it('próbka: Cyane w pięciu kamieniach, fason z oktagonem w pełnej szóstce Kamili', () => {
-    const cyane = jobs(config, ['cyane']).map((j) => j.stone.key)
-    expect(cyane).toEqual(['rubin', 'bialy-diament', 'szafir', 'topaz-jasnoniebieski', 'topaz-london-blue'])
-    const daphne = jobs(config, ['daphne']).map((j) => j.stone.key).sort()
-    expect(daphne).toEqual(['ametyst', 'rubin', 'szafir', 'szmaragd', 'topaz-jasnoniebieski', 'topaz-london-blue'])
+    // Kamienie na 1. zdjęciu; Y dopisało szafir granatowy i spokojniejszy szmaragd (Michał 04.11).
+    const first = (slug: string) => jobs(config, [slug]).filter((j) => j.photo === 1).map((j) => j.stone.key)
+    expect(first('cyane')).toEqual(['rubin', 'bialy-diament', 'topaz-jasnoniebieski', 'topaz-london-blue', 'szafir-granatowy', 'szmaragd-stonowany'])
+    expect(first('daphne').sort()).toEqual(
+      ['ametyst', 'bialy-diament', 'rubin', 'szafir-granatowy', 'szmaragd-stonowany', 'topaz-jasnoniebieski', 'topaz-london-blue'],
+    )
   })
 
   it('dogrywka: biel od Kamili (2 i 3 do generatora, 1 i 4 tylko do oceny), Aion – szafir granatowy', () => {
@@ -37,7 +39,7 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
     expect(white.wzorce.filter((w) => w.pomocniczy)).toHaveLength(2)
     for (const w of white.wzorce) expect(existsSync(path.join(REPO_ROOT, 'data', w.pliki[0]))).toBe(true)
     const [aion] = jobs(config, ['aion'])
-    expect(variantSpec(aion)).toMatchObject({ stone: 'Szafir granatowy i diamenty', swatch: 'granatowy', file: 'aion-szafir-granatowy.webp' })
+    expect(variantSpec(aion)).toMatchObject({ stone: 'Szafir granatowy i diamenty', swatch: 'granatowy', files: ['aion-szafir-granatowy.webp'] })
     expect(aion.design.maska).toBe('wiele')
   })
 
@@ -49,7 +51,8 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
     expect(aion).toContain('every changed stone')
     const white = generationPrompt(jobs(config, ['cyane-bialy-diament'])[0], description, 2)
     expect(white).toContain('take ONLY their colour')
-    expect(white).toContain('keep the round brilliant cut')
+    // Y: bez „round brilliant” – Daphne ma oktagon.
+    expect(white).toContain('keep the cut, outline and facets of the stone in IMAGE 1')
   })
 
   it('każdy kamień ma wzorzec koloru ze zdjęcia z pracowni', () => {
@@ -62,9 +65,10 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
     expect(cyane.variants.map((v) => v.stone)).toEqual([
       'Rubin i diamenty',
       'Białe diamenty',
-      'Szafir i diamenty',
       'Topaz jasnoniebieski i diamenty',
       'Topaz London blue i diamenty',
+      'Szafir granatowy i diamenty',
+      'Szmaragd i diamenty',
     ])
     for (const entry of all) {
       const slugs = entry.variants.map((v) => stoneSlug(v.stone))
@@ -72,15 +76,15 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
       for (const v of entry.variants) {
         expect(v.isVisualization).toBe(true)
         expect(v.alt).toMatch(/\(wizualizacja\)$/)
-        expect(v.file).toMatch(new RegExp(`^${entry.slug}-[a-z-]+\\.webp$`))
+        for (const file of v.files) expect(file).toMatch(new RegExp(`^${entry.slug}-[a-z-]+(-[2-9])?\\.webp$`))
       }
     }
-    expect(variantSpec(jobs(config, ['daphne-szmaragd'])[0]).swatch).toBe('zielony')
+    expect(variantSpec(jobs(config, ['daphne-szmaragd-stonowany'])[0])).toMatchObject({ stone: 'Szmaragd', swatch: 'zielony' })
   })
 
   it('przyjęte wizualizacje W są w warianty.json (jeden przebieg staging:warianty wgrywa wszystko)', () => {
-    const published = new Set(loadSpecs().flatMap((spec) => spec.variants.map((v) => v.file)))
-    for (const id of ['cyane-rubin', 'cyane-bialy-diament', 'daphne-szmaragd', 'daphne-topaz-london-blue', 'aion-szafir-granatowy']) {
+    const published = new Set(loadSpecs().flatMap((spec) => spec.variants.flatMap((v) => v.files)))
+    for (const id of ['cyane-rubin', 'cyane-bialy-diament', 'daphne-szmaragd-stonowany', 'daphne-topaz-london-blue', 'aion-szafir-granatowy']) {
       expect(published.has(`${id}.webp`)).toBe(true)
     }
   })
@@ -88,8 +92,9 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
   it('wizualizacje W mają proporcje zdjęcia karty i ≤ 300 KB', async () => {
     const expected: Record<string, number> = { cyane: 1980 / 1320, daphne: 1680 / 1120, aion: 4 / 5 }
     for (const spec of loadSpecs()) {
-      for (const v of spec.variants.filter((variant) => variant.file.startsWith(`${spec.slug}-`))) {
-        const { width, height } = await sharp(path.join(IMAGES_DIR, v.file)).metadata()
+      // Tylko 1. zdjęcie galerii (kolejne mają własne proporcje – sprawdza je test zlecenia Y).
+      for (const v of spec.variants.filter((variant) => variant.files[0].startsWith(`${spec.slug}-`))) {
+        const { width, height } = await sharp(path.join(IMAGES_DIR, v.files[0])).metadata()
         expect((width ?? 0) / (height ?? 1)).toBeCloseTo(expected[spec.slug], 1)
       }
     }
@@ -99,7 +104,7 @@ describe('wizualizacje W: konfiguracja i wpisy', () => {
     if (!existsSync(PROPOSALS_PATH)) return
     const specs = loadSpecs(PROPOSALS_PATH)
     expect(checkImages(specs)).toEqual([])
-    for (const spec of specs) for (const v of spec.variants) expect(existsSync(path.join(IMAGES_DIR, v.file))).toBe(true)
+    for (const spec of specs) for (const v of spec.variants) for (const file of v.files) expect(existsSync(path.join(IMAGES_DIR, file))).toBe(true)
   })
 
   it('prompt: zmienia tylko kamień główny, wzorce tylko jako kolor, wskazówka z poprzedniej próby', () => {

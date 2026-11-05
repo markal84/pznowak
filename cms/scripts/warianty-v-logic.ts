@@ -22,10 +22,14 @@ export const sourceKey = (file: string) => `${SOURCE_PREFIX}${file}`
 export const replacementKey = (file: string, hash: string) => `${sourceKey(file)}#${hash}`
 export const MAX_IMAGE_BYTES = 300 * 1024
 
+/**
+ * `files`: obrazy wariantu w kolejności zdjęć karty (zlecenie Y) – pierwszy zastępuje 1. zdjęcie, drugi 2. itd.
+ * W JSON-ie można dalej podać jeden `file` (V/W): to lista jednoelementowa, wariant pokazuje wtedy tylko ten obraz.
+ */
 export type VariantSpec = {
   stone: string
   swatch: SwatchId
-  file: string
+  files: string[]
   alt: string
   isVisualization: boolean
 }
@@ -61,9 +65,12 @@ export function loadSpecs(source: string = SPECS_PATH): CardSpec[] {
     const variants = item.variants.map((v, i) => {
       const variant = v as Record<string, unknown>
       const at = `${where}, wariant ${i + 1}`
-      if (!isText(variant.stone) || !isText(variant.file) || !isText(variant.alt)) {
-        throw new Error(`${at}: wymagane „stone”, „file” i „alt”`)
+      const files = variant.files ?? (variant.file === undefined ? undefined : [variant.file])
+      if (variant.files !== undefined && variant.file !== undefined) throw new Error(`${at}: podaj „file” albo „files”, nie oba`)
+      if (!isText(variant.stone) || !isText(variant.alt) || !Array.isArray(files) || !files.length || !files.every(isText)) {
+        throw new Error(`${at}: wymagane „stone”, „files” (albo „file”) i „alt”`)
       }
+      if (new Set(files).size !== files.length) throw new Error(`${at}: ten sam obraz dwa razy w „files”`)
       if (!SWATCH_IDS.includes(variant.swatch as SwatchId)) {
         throw new Error(`${at}: „swatch” spoza listy (${SWATCH_IDS.join(', ')})`)
       }
@@ -74,7 +81,7 @@ export function loadSpecs(source: string = SPECS_PATH): CardSpec[] {
       return {
         stone: variant.stone.trim(),
         swatch: variant.swatch as SwatchId,
-        file: variant.file,
+        files: files as string[],
         alt: variant.alt.trim(),
         isVisualization: variant.isVisualization,
       }
@@ -113,11 +120,11 @@ export function loadSpecs(source: string = SPECS_PATH): CardSpec[] {
 export function checkImages(specs: readonly CardSpec[], dir: string = IMAGES_DIR): string[] {
   const problems: string[] = []
   for (const spec of specs) {
-    for (const variant of spec.variants) {
-      const file = path.join(dir, variant.file)
-      if (!existsSync(file)) problems.push(`${spec.slug}: brak pliku seed/warianty/obrazy/${variant.file}`)
-      else if (!variant.file.endsWith('.webp')) problems.push(`${spec.slug}: ${variant.file} nie jest webp`)
-      else if (statSync(file).size > MAX_IMAGE_BYTES) problems.push(`${spec.slug}: ${variant.file} ma ponad 300 KB`)
+    for (const name of spec.variants.flatMap((variant) => variant.files)) {
+      const file = path.join(dir, name)
+      if (!existsSync(file)) problems.push(`${spec.slug}: brak pliku seed/warianty/obrazy/${name}`)
+      else if (!name.endsWith('.webp')) problems.push(`${spec.slug}: ${name} nie jest webp`)
+      else if (statSync(file).size > MAX_IMAGE_BYTES) problems.push(`${spec.slug}: ${name} ma ponad 300 KB`)
     }
   }
   return problems
@@ -126,17 +133,43 @@ export function checkImages(specs: readonly CardSpec[], dir: string = IMAGES_DIR
 /* ------------------------------------------------------------------------------------------------------------------ */
 /* Warianty */
 
-/** Wariant zapisany na karcie; `file` tylko dla obrazów z tego seeda (`legacySourceUrl` = `seed://warianty/<plik>`). */
-export type CurrentVariant = { file: string | null; stone: string }
+/**
+ * Wariant zapisany na karcie. `files`: plik z seeda dla każdego obrazu (główny, potem „Kolejne obrazy”);
+ * `null` = obraz spoza seeda (wgrany w panelu). Klucz po `--podmien-obraz` (`<plik>#<skrót>`) to nadal ten plik.
+ */
+export type CurrentVariant = { files: (string | null)[]; stone: string }
+
+/** Plik z seeda z `legacySourceUrl` Media (`seed://warianty/<plik>` albo `…#<skrót>`), inaczej `null`. */
+export function seedFile(legacySourceUrl: string | null | undefined): string | null {
+  if (!legacySourceUrl?.startsWith(SOURCE_PREFIX)) return null
+  return legacySourceUrl.slice(SOURCE_PREFIX.length).split('#')[0] || null
+}
+
+const sameVariant = (variant: CurrentVariant, spec: VariantSpec) =>
+  (variant.files[0] !== null && variant.files[0] === spec.files[0]) || norm(variant.stone) === norm(spec.stone)
 
 /**
- * Które warianty z JSON-a trzeba dopisać. Istniejących nie ruszamy (Michał mógł poprawić nazwę albo alt w panelu),
- * ręcznie dodane w panelu zostają. Wariant uznajemy za obecny, gdy ma ten sam obraz z seeda albo tę samą nazwę kamienia.
+ * Które warianty z JSON-a trzeba dopisać. Istniejących nie dublujemy (Michał mógł poprawić nazwę albo alt w panelu),
+ * ręcznie dodane w panelu zostają. Wariant uznajemy za obecny, gdy ma ten sam główny obraz z seeda albo tę samą nazwę kamienia.
  */
 export function missingVariants(current: readonly CurrentVariant[], specs: readonly VariantSpec[]): VariantSpec[] {
-  return specs.filter(
-    (spec) => !current.some((variant) => variant.file === spec.file || norm(variant.stone) === norm(spec.stone)),
-  )
+  return specs.filter((spec) => !current.some((variant) => sameVariant(variant, spec)))
+}
+
+export type ImagePlan = { action: 'zostaw' | 'podmien' | 'reczne'; note: string }
+
+/**
+ * Obrazy istniejącego wariantu względem JSON-a (zlecenie Y: cała galeria). Podmieniamy listę obrazów tylko wtedy,
+ * gdy wszystkie obecne są z seeda – obraz wgrany ręcznie w panelu zostaje (`reczne`). Nazwa, kolor kółka i alt
+ * wariantu się nie zmieniają.
+ */
+export function planVariantImages(current: CurrentVariant, spec: VariantSpec): ImagePlan {
+  const same = current.files.length === spec.files.length && current.files.every((file, i) => file === spec.files[i])
+  if (same) return { action: 'zostaw', note: `${spec.files.length} obr.` }
+  if (current.files.some((file) => file === null)) {
+    return { action: 'reczne', note: `„${current.stone}”: obraz wgrany w panelu, nie podmieniam (${spec.files.length} obr. w seedzie)` }
+  }
+  return { action: 'podmien', note: `„${current.stone}”: ${current.files.length} → ${spec.files.length} obr.` }
 }
 
 /** `--podmien-obraz <slug>:<kamień>`; kamień porównujemy jak nazwy wariantów (bez wielkości liter i nadmiarowych spacji). */
@@ -148,7 +181,7 @@ export function parseReplaceArg(value: string | undefined): { slug: string; ston
   return { slug, stone }
 }
 
-/** Wariant do podmiany obrazu: ten o danej nazwie kamienia, bo `missingVariants` istniejących nie rusza. */
+/** Wariant do podmiany obrazu: ten o danej nazwie kamienia. */
 export function findReplaceTarget<T extends { stone: string }>(variants: readonly T[], stone: string): T | undefined {
   return variants.find((variant) => norm(variant.stone) === norm(stone))
 }
