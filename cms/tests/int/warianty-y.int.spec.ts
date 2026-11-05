@@ -6,7 +6,7 @@ import sharp from 'sharp'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { SiteProduct } from '@/lib/public-products'
-import { serializeStoneVariants, variantImageAlt, variantImages, type StoneVariant } from '@/lib/stone-variants'
+import { galleryVideo, serializeStoneVariants, variantImageAlt, variantImages, variantVideo, type StoneVariant } from '@/lib/stone-variants'
 import { checkImages, IMAGES_DIR, loadSpecs, missingVariants, planVariantImages, seedFile, WARIANTY_DIR } from '../../scripts/warianty-v-logic'
 import { designPhotos, jobs, loadConfig, proposals } from '../../scripts/wizualizacje-w-logic'
 
@@ -71,6 +71,19 @@ describe('dane strony: obrazy wariantu', () => {
     expect(variant.images).toEqual(['/m/1.webp', '/m/2.webp', '/m/4.webp'])
     const [single] = serializeStoneVariants([{ stone: 'Szafir', swatch: 'granatowy', image: media(5, '/m/5.webp') }])
     expect(single.images).toEqual(['/m/5.webp'])
+  })
+
+  it('film wariantu (AB): tylko wideo; obraz w polu „Film” jest ignorowany; brak = pusty tekst', () => {
+    const [withClip, withImage, none] = serializeStoneVariants([
+      { stone: 'Rubin', swatch: 'czerwony', image: media(1, '/m/1.webp'), video: media(2, '/m/r.mp4', 'video/mp4') },
+      { stone: 'Szafir', swatch: 'granatowy', image: media(3, '/m/3.webp'), video: media(4, '/m/4.webp') },
+      { stone: 'Topaz', swatch: 'niebieski', image: media(5, '/m/5.webp') },
+    ])
+    expect(withClip.video).toBe('/m/r.mp4')
+    expect(withImage.video).toBe('')
+    expect(none.video).toBe('')
+    expect(variantVideo({})).toBe('')
+    expect(variantVideo({ video: '/m/r.mp4' })).toBe('/m/r.mp4')
   })
 
   it('variantImages: brak „images” (dane sprzed Y) = [image]; pusta lista też', () => {
@@ -171,6 +184,15 @@ const galleryVariants: StoneVariant[] = serializeStoneVariants([
     alt: 'Pierścionek Cyane z rubinem (wizualizacja)',
   },
   { stone: 'Topaz London blue i diamenty', swatch: 'granatowy', image: media(13, '/media/topaz.webp') },
+  // Zlecenie AB: prawdziwy wariant z własnym filmem (film karty, którą połączono z fasonem).
+  {
+    stone: 'Szmaragd i diamenty',
+    swatch: 'zielony',
+    image: media(14, '/media/szmaragd-1.webp'),
+    moreImages: [media(16, '/media/szmaragd-2.webp')],
+    video: media(15, '/media/szmaragd.mp4', 'video/mp4'),
+    isVisualization: false,
+  },
 ])
 
 const product: SiteProduct = {
@@ -227,6 +249,29 @@ describe('karta: wybrany kamień zmienia całą galerię', () => {
     expect(html).toContain('Film o pierścionku')
     // Ten sam kadr co zdjęcie karty: bez rozmytego tła pojedynczego obrazu.
     expect(html).not.toContain('ph-variant')
+  })
+
+  it('wariant z własnym filmem (AB): karta pokazuje film w galerii (miniatura „Film”), bez plakietki wizualizacji', async () => {
+    const html = await render({ kamien: 'szmaragd-i-diamenty' })
+    expect(html).toContain('Film o pierścionku')
+    expect(html).toContain(enc('/media/szmaragd-2.webp'))
+    expect(html).not.toContain('>Wizualizacja<')
+  })
+
+  it('galleryVideo: własny film wariantu z okładką wariantu; inaczej film oryginału z okładką oryginału', () => {
+    const own = { video: '/media/szmaragd.mp4' }
+    expect(galleryVideo(own, ['/media/szmaragd-1.webp'], '/media/cyane.mp4', ['/media/cyane-1.jpg'])).toEqual({
+      src: '/media/szmaragd.mp4',
+      poster: '/media/szmaragd-1.webp',
+    })
+    expect(galleryVideo({ video: '' }, ['/media/rubin-1.webp'], '/media/cyane.mp4', ['/media/cyane-1.jpg'])).toEqual({
+      src: '/media/cyane.mp4',
+      poster: '/media/cyane-1.jpg',
+    })
+    // Bez wybranego kamienia (oryginał) film wariantu się nie pojawia; bez żadnego filmu: null.
+    expect(galleryVideo(null, [], '/media/cyane.mp4', ['/media/cyane-1.jpg'])?.src).toBe('/media/cyane.mp4')
+    expect(galleryVideo(own, [], '', ['/media/cyane-1.jpg'])).toBeNull()
+    expect(galleryVideo(undefined, [], '', [])).toBeNull()
   })
 
   it('wariant bez „images” (stary wpis cache): jeden obraz z „image”, bez błędu', async () => {

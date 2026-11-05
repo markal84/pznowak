@@ -18,7 +18,7 @@ Statusy: `gotowe do startu` · `w toku` · `czeka na Marcina` · `do przeglądu 
 |---|---|---|---|---|---|
 | Y.2 | Wizualizacje tylko w wycinku kamienia (biały diament) + podpis „Film: oryginał (…)” przy wariancie | `2026-11-05_zlecenie-Y2_bialy-diament-maska-i-film.md` | gałąź od `main` | gotowe do startu | Opus 5.5 high + Codex, lokalnie |
 | AA | Warianty, partia 1: Maia, Delos, Pelagia, Athena, Aria, Ianthe, Erythea, Merope × 4 kolory, 2 obrazy na kolor | `2026-11-05_zlecenie-AA_warianty-partia-1.md` | – | czeka na Y.2 | Sonnet 5.5 high + Codex, lokalnie; partia 2 (15 fasonów) po ocenie AA |
-| AB | Jeden fason: Urania + Pyrrha + Nyx (prawdziwe zdjęcia jako warianty, przekierowania 308) | `2026-11-05_zlecenie-AB_polaczenie-urania-pyrrha-nyx.md` | `feat/ab-urania` / PR #49 | do przeglądu Klaudii (PR #49) | po scaleniu: wdrożyć kod + `npm run staging:polaczenie -- --apply` w `cms`; film Pyrrhy/Nyx nie przechodzi na fason (decyzja w PR) |
+| AB | Jeden fason: Urania + Pyrrha + Nyx (prawdziwe zdjęcia jako warianty, przekierowania 308) | `2026-11-05_zlecenie-AB_polaczenie-urania-pyrrha-nyx.md` | `feat/ab-urania` / PR #49 | do przeglądu Klaudii (PR #49) | po scaleniu: `npx payload migrate` (migracja `20261105_110548_ab_film_wariantu`, kolumna filmu wariantu) + wdrożyć kod + `npm run staging:polaczenie -- --apply` w `cms`; filmy Pyrrhy i Nyx przechodzą na warianty (Marcin 05.11) |
 | H-D1 | Sync przez Meta Graph API | `2026-10-26_zlecenie-H_proces-katalogu-z-fb-ig.md` (etap D) | – | wstrzymane | brak dostępu w Meta Business Suite |
 | H-D2 | Eksport przyrostowy (dalszy ciąg) | jw., etap D | – | czeka na zlecenie Klaudii | ustalenia niżej („Na D2”) |
 | H-E | Zakładka „Proces” + panel pod człowieka | jw., etap E + `2026-10-26_NOTATKA_panel-katalogu-dla-czlowieka.md` | – | wstrzymane | czeka na zlecenie Klaudii |
@@ -60,6 +60,7 @@ Otwarte po K: mystic topaz bez koloru w filtrze.
 - Para 2↔D1 = karta mieszana (pierścionek + sygnet z awenturynem) – odłożone przez Marcina.
 
 ## Przed startem produkcji (Marcin, przed 21.11 – wygasa home.pl)
+- Zlecenie AB: `npx payload migrate` na produkcji (migracja `20261105_110548_ab_film_wariantu`, jedna kolumna `video_id` w wariantach) przed wdrożeniem kodu.
 - Zlecenie Y: `npx payload migrate` (migracja `20261104_231900_warianty_cala_galeria`) przed wdrożeniem kodu Y; zlecenie Z – jego migracja wartości kółek.
 - Formularz (X): `SITE_ENV=production` (także przy `next build`), `SITE_URL=https://pznowak.pl`, `SMTP_*` + `SUBMISSIONS_NOTIFY_TO` (skrzynka na MyDevil), `CLIENT_IP_HEADER` wg Cloudflare – szczegóły w opisie PR #43.
 - Realizacje (R): dane na produkcję – tym samym seedem z flagą dla produkcji albo ręcznie w panelu; decyzja Marcina.

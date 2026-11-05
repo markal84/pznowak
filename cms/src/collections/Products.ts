@@ -218,7 +218,18 @@ export const Products: CollectionConfig = {
                   label: 'Kolejne obrazy',
                   admin: {
                     description:
-                      'Ten sam kamień na 2., 3. … zdjęciu z „Zdjęcia i filmy”, w tej samej kolejności. Po wyborze kamienia galeria pokazuje tylko obrazy wariantu (film zostaje prawdziwy). Puste = jeden obraz.',
+                      'Ten sam kamień na 2., 3. … zdjęciu z „Zdjęcia i filmy”, w tej samej kolejności. Po wyborze kamienia galeria pokazuje tylko obrazy wariantu (film: pole „Film” wariantu, a bez niego film oryginału). Puste = jeden obraz.',
+                  },
+                },
+                {
+                  name: 'video',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'Film',
+                  filterOptions: { mimeType: { contains: 'video/' } },
+                  admin: {
+                    description:
+                      'Prawdziwy film wykonanego pierścionka z tym kamieniem (np. z karty, która została połączona z fasonem). Po wyborze kamienia galeria pokazuje ten film zamiast filmu oryginału. Puste = film oryginału.',
                   },
                 },
                 {

@@ -5,7 +5,7 @@
  *   npm run staging:polaczenie -- --apply   zapis
  *
  * Co robi (`--apply`), w tej kolejności:
- *  1. Urania: warianty „Rubin i diamenty” (prawdziwe zdjęcia Pyrrhy) i „Topaz London blue i diamenty” (prawdziwe zdjęcia
+ *  1. Urania: warianty „Rubin i diamenty” (prawdziwe zdjęcia i film Pyrrhy) i „Topaz London blue i diamenty” (zdjęcia i film
  *     Nyx), bez plakietki „Wizualizacja”; pliki Media tych kart są używane ponownie, nic się nie wgrywa. Jeden opis fasonu.
  *     Gdy Pyrrha albo Nyx była „Na stronie głównej”, miejsce przejmuje Urania.
  *  2. Pyrrha i Nyx: archiwum (wycofane z publikacji, nie kasowane). Dopiero po udanym zapisie Uranii, żeby przy błędzie
@@ -26,6 +26,7 @@ import {
   assetId,
   featuredTransfer,
   imageIds,
+  videoId,
   MERGES,
   planArchive,
   planText,
@@ -75,6 +76,7 @@ try {
     ...variant,
     image: assetId(variant.image as number | Media) as number,
     moreImages: (variant.moreImages ?? []).map((asset) => assetId(asset as number | Media) as number),
+    video: assetId(variant.video as number | Media | null | undefined),
   })
 
   const notes: string[] = []
@@ -102,14 +104,21 @@ try {
       continue
     }
     const images = imageIds(source.media)
-    const plan = planVariant(variants, merge, images)
+    const video = videoId(source.media)
+    const plan = planVariant(variants, merge, images, video)
     notes.push(`wariant: ${plan.note}`)
+    if (plan.action === 'film') {
+      variants = variants.map((variant) => (stoneSlug(variant.stone) === stoneSlug(merge.stone) ? { ...variant, video } : variant))
+      variantsChanged = true
+      continue
+    }
     if (plan.action !== 'dodaj' && plan.action !== 'podmien') continue
     const entry = {
       stone: merge.stone,
       swatch: merge.swatch,
       image: images[0],
       moreImages: images.slice(1),
+      video,
       alt: merge.alt,
       isVisualization: false,
     }

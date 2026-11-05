@@ -3,7 +3,7 @@
  * sprawdzić testem. Używa tego `scripts/staging-polaczenie-ab.ts` (tylko staging) oraz `tests/int/polaczenie-ab.int.spec.ts`.
  *
  * Karta docelowa to Urania (topaz błękitny). Rubin (Pyrrha) i topaz London blue (Nyx) dołączają jako warianty kamienia
- * z PRAWDZIWYCH zdjęć tych kart: te same pliki Media, bez ponownego wgrywania i bez plakietki „Wizualizacja”.
+ * z PRAWDZIWYCH zdjęć i filmów tych kart: te same pliki Media, bez ponownego wgrywania i bez plakietki „Wizualizacja”.
  */
 import { stoneSlug, type SwatchId } from '../src/lib/stone-variants'
 
@@ -86,8 +86,7 @@ type Asset = number | { id: number; mimeType?: string | null } | null | undefine
 export const assetId = (asset: Asset): number | null => (typeof asset === 'object' && asset ? asset.id : (asset ?? null))
 
 /**
- * Obrazy karty w kolejności galerii („Zdjęcia i filmy”), bez filmów i powtórzeń. Film wariantu nie istnieje w modelu
- * danych (galeria wariantu to same obrazy), więc film Pyrrhy i Nyx nie jest przenoszony: na fasonie zostaje film Uranii.
+ * Obrazy karty w kolejności galerii („Zdjęcia i filmy”), bez filmów i powtórzeń. Film idzie osobno (`videoId`).
  */
 export function imageIds(media: readonly { asset?: Asset }[] | null | undefined): number[] {
   const ids: number[] = []
@@ -98,23 +97,36 @@ export function imageIds(media: readonly { asset?: Asset }[] | null | undefined)
   return ids
 }
 
-export type VariantState = { stone: string; isVisualization?: boolean | null }
-export type VariantPlan = { action: 'dodaj' | 'podmien' | 'juz' | 'pomin'; note: string }
+/** Film karty (pierwszy; karta może mieć najwyżej jeden). Trafia do pola „Film” wariantu: prawdziwy film pierścionka. */
+export function videoId(media: readonly { asset?: Asset }[] | null | undefined): number | null {
+  for (const { asset } of media ?? []) {
+    if (typeof asset === 'object' && asset?.mimeType?.startsWith('video/')) return asset.id
+  }
+  return null
+}
+
+export type VariantState = { stone: string; isVisualization?: boolean | null; video?: unknown }
+export type VariantPlan = { action: 'dodaj' | 'podmien' | 'film' | 'juz' | 'pomin'; note: string }
 
 /**
  * Wariant rozpoznajemy po adresie `?kamien=`. Prawdziwe zdjęcia (`isVisualization: false`) zostają, jak są (ktoś mógł je
- * poprawić w panelu). Wizualizacja o tej samej nazwie kamienia (zlecenia W/Y/AA) jest zastępowana prawdziwymi zdjęciami.
+ * poprawić w panelu); jedyne, co do nich dopisujemy, to brakujący film karty źródłowej (`film`). Wizualizacja o tej
+ * samej nazwie kamienia (zlecenia W/Y/AA) jest zastępowana prawdziwymi zdjęciami i filmem.
  */
-export function planVariant(existing: readonly VariantState[], spec: MergeSpec, sourceImages: readonly number[]): VariantPlan {
+export function planVariant(existing: readonly VariantState[], spec: MergeSpec, sourceImages: readonly number[], sourceVideo: number | null = null): VariantPlan {
   const found = existing.find((variant) => stoneSlug(variant.stone) === stoneSlug(spec.stone))
-  if (found && found.isVisualization === false) return { action: 'juz', note: `wariant „${spec.stone}” już jest (prawdziwe zdjęcia)` }
+  const withFilm = sourceVideo === null ? '' : ' i film'
+  if (found && found.isVisualization === false) {
+    if (sourceVideo !== null && !found.video) return { action: 'film', note: `wariant „${spec.stone}” ma zdjęcia, dopisuję film karty ${spec.name}` }
+    return { action: 'juz', note: `wariant „${spec.stone}” już jest (prawdziwe zdjęcia${found.video ? ' i film' : ''})` }
+  }
   if (!sourceImages.length) {
     return { action: 'pomin', note: `karta ${spec.name} nie ma zdjęć w galerii, wariant „${spec.stone}” bez obrazów` }
   }
   if (found) {
-    return { action: 'podmien', note: `wariant „${found.stone}” był wizualizacją, zastępuję ${sourceImages.length} zdjęciami karty ${spec.name}` }
+    return { action: 'podmien', note: `wariant „${found.stone}” był wizualizacją, zastępuję ${sourceImages.length} zdjęciami${withFilm} karty ${spec.name}` }
   }
-  return { action: 'dodaj', note: `dopisuję wariant „${spec.stone}” (${sourceImages.length} zdjęć karty ${spec.name})` }
+  return { action: 'dodaj', note: `dopisuję wariant „${spec.stone}” (${sourceImages.length} zdjęć${withFilm} karty ${spec.name})` }
 }
 
 /* ------------------------------------------------------------------------------------------------------------------ */

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRef, useState, type ReactNode, type TouchEvent } from 'react'
 import type { Slide } from 'yet-another-react-lightbox'
 
-import { variantImageAlt, variantImages } from '@/lib/stone-variants'
+import { galleryVideo, variantImageAlt, variantImages } from '@/lib/stone-variants'
 
 import { useSelectedStoneVariant } from './StoneVariants'
 import Tag from './Tag'
@@ -62,7 +62,8 @@ export default function ProductMedia({ name, images, video, children }: ProductM
         src,
         label: `Zdjęcie ${i + 1}: ${IMAGE_LABELS[i] ?? 'kolejne ujęcie'}`,
       }))
-  if (video) items.push({ kind: 'video', src: video, label: 'Film o pierścionku', poster: images[0] ?? '' })
+  const clip = galleryVideo(variant, variantSrcs, video, images)
+  if (clip) items.push({ kind: 'video', src: clip.src, label: 'Film o pierścionku', poster: clip.poster })
 
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)

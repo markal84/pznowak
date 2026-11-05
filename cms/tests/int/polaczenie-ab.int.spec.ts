@@ -12,6 +12,7 @@ import {
   planText,
   planVariant,
   TARGET,
+  videoId,
   variantQuery,
 } from '../../scripts/polaczenie-ab-logic'
 
@@ -61,6 +62,26 @@ describe('połączenie: warianty z prawdziwych zdjęć', () => {
     ]
     expect(imageIds(media)).toEqual([5, 7])
     expect(imageIds(undefined)).toEqual([])
+  })
+
+  it('film karty (jeden, wideo) trafia do wariantu; bez filmu null', () => {
+    const media = [
+      { asset: { id: 5, mimeType: 'image/webp' } },
+      { asset: { id: 9, mimeType: 'video/mp4' } },
+    ]
+    expect(videoId(media)).toBe(9)
+    expect(videoId([{ asset: { id: 5, mimeType: 'image/webp' } }])).toBeNull()
+    expect(videoId(undefined)).toBeNull()
+  })
+
+  it('film: dopisuje do prawdziwego wariantu bez filmu, nie dubluje, wizualizację zastępuje razem z filmem', () => {
+    const [rubin] = MERGES
+    const real = { stone: 'Rubin i diamenty', isVisualization: false }
+    expect(planVariant([real], rubin, [1, 2], 9).action).toBe('film')
+    expect(planVariant([{ ...real, video: 9 }], rubin, [1, 2], 9).action).toBe('juz')
+    expect(planVariant([real], rubin, [1, 2], null).action).toBe('juz')
+    expect(planVariant([], rubin, [1, 2], 9).note).toContain('film')
+    expect(planVariant([{ stone: 'Rubin i diamenty', isVisualization: true }], rubin, [1], 9)).toMatchObject({ action: 'podmien' })
   })
 
   it('dopisuje brakujący wariant, nie dubluje prawdziwego, zastępuje wizualizację, pomija kartę bez zdjęć', () => {
