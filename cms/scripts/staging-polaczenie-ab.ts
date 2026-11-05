@@ -4,7 +4,7 @@
  *   npm run staging:polaczenie              sprawdzenie: nic nie zapisuje, pokazuje plan
  *   npm run staging:polaczenie -- --apply   zapis
  *
- * Co robi (`--apply`), w tej kolejności:
+ * Co robi (`--apply`), w tej kolejności (najpierw oczekujące migracje, w tym AB: kolumna filmu wariantu):
  *  1. Urania: warianty „Rubin i diamenty” (prawdziwe zdjęcia i film Pyrrhy) i „Topaz London blue i diamenty” (zdjęcia i film
  *     Nyx), bez plakietki „Wizualizacja”; pliki Media tych kart są używane ponownie, nic się nie wgrywa. Jeden opis fasonu.
  *     Gdy Pyrrha albo Nyx była „Na stronie głównej”, miejsce przejmuje Urania.
@@ -49,6 +49,18 @@ const problems = (error: unknown): string => {
 }
 
 try {
+  if (applyChanges) {
+    console.log('Migracja bazy (tylko oczekujące)…')
+    await payload.db.migrate()
+  }
+  try {
+    // Kolumna filmu wariantu (migracja AB) musi istnieć, zanim cokolwiek odczytamy.
+    await payload.find({ collection: 'products', depth: 0, limit: 1, overrideAccess: true })
+  } catch {
+    console.log('Brakuje kolumny filmu wariantu (migracja AB): z --apply najpierw wykona się migracja.')
+    process.exit(0)
+  }
+
   const slugs = [TARGET.slug, ...MERGES.map((merge) => merge.slug)]
   const found = await payload.find({
     collection: 'products',
