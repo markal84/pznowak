@@ -121,7 +121,7 @@ export default async function OnOrderPage() {
           intro={
             <>
               Przez cały czas rozmawiasz z osobą, która robi Twój pierścionek.
-              <DoUzupelnienia> Od rozmowy do odbioru mija zwykle [TERMIN, np. 4–6 tygodni].</DoUzupelnienia>
+               Od rozmowy do odbioru mija zwykle 4–6 tygodni.
             </>
           }
           title="Cztery etapy, jeden złotnik"

@@ -129,7 +129,7 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/kontakt']).toContain('Zgadzam się na kontakt w sprawie mojej wiadomości. Dane przetwarzamy tylko w tym celu.')
     expect(p['stopka']).not.toContain('Regulamin')
     expect(p['/']).toContain('Cenę i wygląd znasz, zanim zaczniemy.')
-    expect(p['/']).not.toContain('mija zwykle')
+    expect(p['/']).toContain('Od rozmowy do odbioru mija zwykle 4–6 tygodni.')
     expect(p['/']).toContain('Na miejscu jest też sklep z gotową biżuterią')
     // Ceny (pole „Cena (zł)”): z ceną „od … zł”, bez ceny „Cena na zapytanie”; nagłówek katalogu = najniższa cena.
     expect(p['/pierscionki/phoebe']).toContain('<span class="nm">Na zapytanie</span>')
@@ -152,7 +152,8 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/obraczki']).not.toContain('[Zdjęcie graweru')
     expect(p['/naprawy']).toContain('ok. 20 minut pieszo od Parku Zdrojowego')
     expect(p['/naprawy']).toContain('Przed i po')
-    expect(p['/']).toContain('Szkic albo gotowy wzór.')
+    expect(p['/']).not.toContain('Szkic albo gotowy wzór.')
+    expect(p['/']).toContain('Od rozmowy do odbioru mija zwykle 4–6 tygodni.')
     expect(p['/']).not.toContain('model 3D')
     expect(p['/realizacje']).not.toContain('Przed i po naprawie')
     // Zaufanie w hero: tylko to, co potwierdzone.
@@ -170,7 +171,6 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     vi.stubEnv(name, value)
     const p = await pages()
     expect(p['/']).toContain('data-todo')
-    expect(p['/']).toContain('[TERMIN, np. 4–6 tygodni]')
     expect(p['/']).toContain('Tu będą 3–4 opinie z Google')
     // Cena nie jest już znacznikiem: karta bez ceny ma „Cena na zapytanie” także na podglądzie.
     expect(p['/pierscionki/phoebe']).toContain('<span class="nm">Na zapytanie</span>')
