@@ -75,7 +75,7 @@ export default async function HomePage() {
     {
       icon: 'naprawa',
       title: 'Z biżuterią do naprawy',
-      text: 'Zmiana rozmiaru, czyszczenie, nowe łapki albo nowy pierścionek z rodzinnego złota.',
+      text: 'Zmiana rozmiaru, lutowanie, nowe łapki albo nowy pierścionek z rodzinnego złota.',
       href: '/naprawy',
       link: 'Naprawy i przeróbki',
     },

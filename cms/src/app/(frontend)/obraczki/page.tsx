@@ -9,7 +9,6 @@ import Icon from '@/components/site/Icon'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import Photo from '@/components/site/Photo'
-import { byEnv } from '@/lib/placeholders'
 import { BAND_CONFIGURATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
@@ -60,8 +59,8 @@ export default function BandsPage() {
         />
         <PriceOffer
           label="Para obrączek"
-          note={byEnv('Cena zależy od szerokości, wagi i próby złota.', undefined)}
-          price={byEnv('od [X] zł za parę', undefined)}
+          note="Cena zależy od szerokości i wagi. Obrączki wykonujemy ze złota próby 585."
+          price="od 3500 zł za parę"
         >
           <Link className="btn" href="/kontakt?temat=obraczki">
             Umów przymiarkę
