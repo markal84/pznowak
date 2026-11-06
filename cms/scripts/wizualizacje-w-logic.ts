@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 
 import { SWATCH_IDS, type SwatchId } from '../src/lib/stone-variants'
 import { WARIANTY_DIR, type VariantSpec } from './warianty-v-logic'
+import type { OriginalStoneHint, StoneCheck } from './wizualizacje-wycinek-logic'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 
@@ -36,6 +37,8 @@ export type Stone = {
   wzorce: { slug: string; pliki: string[]; pomocniczy?: boolean }[]
   /** Dodatkowe zdanie o wzorcach do promptu, np. że mają inny szlif i bierzemy z nich tylko barwę. */
   wzorce_uwaga_en?: string
+  /** Y.2: automatyczna kontrola koloru w wycinku (biel: jasny, bezbarwny, z ogniem; kolor: odcień i nasycenie). */
+  kontrola?: StoneCheck
 }
 export type Design = {
   slug: string
@@ -57,7 +60,12 @@ export type Design = {
    * Zlecenie Y: kolejne zdjęcia galerii karty (2., 3., …) w kolejności z „Zdjęcia i filmy”; `zrodlo` jak wyżej
    * (pierwszy istniejący plik). Zdjęcie 1 to `zrodlo` fasonu.
    */
-  zdjecia?: { zrodlo: string[]; maska?: 'jeden' | 'wiele' }[]
+  zdjecia?: { zrodlo: string[]; maska?: 'jeden' | 'wiele'; kamien_oryginalu?: Partial<OriginalStoneHint> }[]
+  /**
+   * Zlecenie Y.2: jak rozpoznać kamień oryginału (odcień, nasycenie, opcjonalnie ręczny obszar). Fason z tym polem
+   * generuje „w wycinku”: maska z oryginału, generator dostaje tylko kwadrat wokół kamienia. Zdjęcie może je nadpisać.
+   */
+  kamien_oryginalu?: OriginalStoneHint
   /** Kamienie, które dostają wizualizację na każdym zdjęciu galerii (pozostałe tylko na pierwszym, jak w W). */
   cala_galeria?: string[]
 }
@@ -78,6 +86,8 @@ export type Job = {
   photoKey: string
   zrodlo: string[]
   maska?: 'jeden' | 'wiele'
+  /** Y.2: wypełnione = technika wycinka (scalone pola fasonu i zdjęcia). */
+  hint?: OriginalStoneHint
 }
 
 const isText = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
@@ -111,14 +121,19 @@ export function loadConfig(source: string = CONFIG_PATH): Config {
 }
 
 /** Zdjęcia galerii fasonu: 1 = `zrodlo`, dalej `zdjecia`. */
-export function designPhotos(design: Design): { photo: number; photoKey: string; zrodlo: string[]; maska?: 'jeden' | 'wiele' }[] {
+export function designPhotos(
+  design: Design,
+): { photo: number; photoKey: string; zrodlo: string[]; maska?: 'jeden' | 'wiele'; hint?: OriginalStoneHint }[] {
+  const hint = (own?: Partial<OriginalStoneHint>, maska?: 'jeden' | 'wiele'): OriginalStoneHint | undefined =>
+    design.kamien_oryginalu ? { maska, ...design.kamien_oryginalu, ...own } : undefined
   return [
-    { photo: 1, photoKey: design.slug, zrodlo: design.zrodlo, maska: design.maska },
+    { photo: 1, photoKey: design.slug, zrodlo: design.zrodlo, maska: design.maska, hint: hint(undefined, design.maska) },
     ...(design.zdjecia ?? []).map((entry, i) => ({
       photo: i + 2,
       photoKey: `${design.slug}-${i + 2}`,
       zrodlo: entry.zrodlo,
       maska: entry.maska ?? design.maska,
+      hint: hint(entry.kamien_oryginalu, entry.maska ?? design.maska),
     })),
   ]
 }
@@ -132,9 +147,9 @@ export function jobs(config: Config, only: string[] = []): Job[] {
   const all = config.fasony.flatMap((design) =>
     design.kamienie.flatMap((key) => {
       const photos = (design.cala_galeria ?? []).includes(key) ? designPhotos(design) : designPhotos(design).slice(0, 1)
-      return photos.map(({ photo, photoKey, zrodlo, maska }) => {
+      return photos.map(({ photo, photoKey, zrodlo, maska, hint }) => {
         const id = photo === 1 ? `${design.slug}-${key}` : `${design.slug}-${key}-${photo}`
-        return { design, stone: config.kamienie[key], id, file: `${id}.webp`, photo, variantId: `${design.slug}-${key}`, photoKey, zrodlo, maska }
+        return { design, stone: config.kamienie[key], id, file: `${id}.webp`, photo, variantId: `${design.slug}-${key}`, photoKey, zrodlo, maska, hint }
       })
     }),
   )
@@ -252,6 +267,43 @@ export function generationPrompt(job: Job, description: Description, refCount: n
   ].join('\n')
 }
 
+/**
+ * Y.2, technika wycinka: IMAGE 1 to kwadratowe zbliżenie kamienia (wycinek ze zdjęcia), nie cały kadr. Do zdjęcia
+ * wraca tylko obszar kamienia, więc prompt skupia się na samym kamieniu i jego styku z łapkami.
+ */
+export function cutoutPrompt(job: Job, description: Description, refCount: number, retryHint?: string): string {
+  const refs = refCount === 1 ? 'IMAGE 2' : `IMAGES 2–${refCount + 1}`
+  const { zmiana_en: target, zachowaj_en: keep } = job.design
+  const white = Boolean(job.stone.kontrola?.bialy)
+  const otherStones = keep
+    ? ` ${keep}`
+    : /^none\b/i.test(description.other_stones_en.trim())
+      ? ''
+      : ` The surrounding stones (${description.other_stones_en}) keep their current colour and look.`
+  const subject = target ? 'every changed stone' : 'the centre stone'
+  const imagePrompt = [
+    'Edit IMAGE 1: a square close-up crop of a real product photo of a handmade ring. This is a photorealistic retouch of that crop, not a new render. Only the stone area of your result will be pasted back into the photo, so keep everything around it pixel-identical.',
+    target
+      ? `CHANGE ONLY ${target}: make them natural ${job.stone.en} – ${job.stone.kolor_en}.${otherStones}`
+      : `CHANGE ONLY the centre stone in the middle of the crop (${description.centre_stone_en}): make it a natural ${job.stone.en} – ${job.stone.kolor_en}.${otherStones}`,
+    white
+      ? 'A real colourless diamond is BRIGHT: crisp white flashes, deep dark contrasting facets and small specks of spectral fire (tiny rainbow sparks). It is not grey, not milky, not glassy, and it carries no blue or teal from the previous stone – also at the girdle edge and in the facets under the prongs.'
+      : 'Recolour the whole stone evenly, also at the girdle edge and in the facets under the prongs – no trace of the previous colour.',
+    `${refs}: real photos of natural ${job.stone.en} from the same workshop. Use them ONLY as a colour reference – match their hue, saturation, depth and the way light breaks inside the stone. Do not copy their shape, cut, setting, metal or background.${job.stone.wzorce_uwaga_en ? ` ${job.stone.wzorce_uwaga_en}` : ''}`,
+    `KEEP EXACTLY AS IN IMAGE 1: the cut, outline, size and position of ${subject}, which must sit within exactly the same prongs; every prong, bead and halo stone in the same place; the metal (${description.metal_en}); the background; the framing (same square crop, no zoom, no shift); lighting and focus.`,
+    'Natural gemstones are slightly imperfect: believable internal reflections and depth, not coloured glass or plastic. No added text, logos, watermarks, props, sparkle effects or glow.',
+    retryHint ? `Previous attempt was rejected: ${retryHint}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n\n')
+  return [
+    'Use the image generation tool exactly once to edit IMAGE 1 (the first attached image), with all attached images as input.',
+    'Pass the prompt between <prompt> tags verbatim – do not shorten, rephrase or add anything. Do not run any shell commands.',
+    'When the image is ready, reply with the single word DONE.',
+    `<prompt>\n${imagePrompt}\n</prompt>`,
+  ].join('\n')
+}
+
 // ---------- ocena ----------
 
 export const CHECK_SCHEMA = {
@@ -317,6 +369,30 @@ export function checkPrompt(job: Job, refCount: number): string {
     '(szwy, poświata lub resztki starego koloru na krawędzi kamienia, rozmyte fasety, łapki wchodzące w kamień, tekst).',
     'Zasada: lepiej odrzucić ładny obraz z innym pierścionkiem niż go przyjąć. „akceptuj” tylko gdy pierścionek jest ten sam,',
     'a kolor wiarygodny. score 0–100 = przydatność na stronę z etykietą „Wizualizacja”.',
+    'Przy „odrzuc” w fix_hint_en podaj jedno zdanie po angielsku, co poprawić w kolejnej próbie.',
+  ].join(' ')
+}
+
+/**
+ * Y.2: ocena wycinka – Obraz 1 i 2 to zbliżenia (oryginał / po wklejeniu). Wszystko poza kamieniem to piksele oryginału
+ * (sprawdzone automatycznie), więc Terra ocenia sam kamień. Dla bieli kryterium „jasny, bezbarwny, z ogniem”.
+ */
+export function cutoutCheckPrompt(job: Job, refCount: number): string {
+  const refs = refCount === 1 ? 'Obraz 3' : `Obrazy 3–${refCount + 2}`
+  const what = job.design.zmiana_pl ?? 'kamień główny'
+  const white = Boolean(job.stone.kontrola?.bialy)
+  return [
+    'Kontrola jakości wizualizacji dla pracowni jubilerskiej. Nie uruchamiaj żadnych poleceń, patrz tylko na obrazy.',
+    `Obraz 1: zbliżenie prawdziwego zdjęcia pierścionka (oryginał). Obraz 2: to samo zbliżenie po retuszu – zmienił się WYŁĄCZNIE ${what}`,
+    `– na naturalny kamień: ${job.stone.nazwa.toLowerCase()} (${job.stone.kolor_en}).`,
+    'Poza obszarem kamienia obraz 2 to piksele oryginału (sprawdzone automatycznie) – oceniaj sam kamień i jego styk z łapkami i oprawą.',
+    `${refs}: prawdziwe zdjęcia tego kamienia – wzorzec koloru.${job.stone.wzorce_uwaga_en ? ` Uwaga: ${job.stone.wzorce_uwaga_en}` : ''}`,
+    `Sprawdź: typ szlifu, obrys, rozmiar i położenie kamienia (${what}) jak w obrazie 1; łapki nie wchodzą w kamień i nie znikają; brak szwów,`,
+    'poświaty i resztek starego koloru na krawędzi kamienia; brak rozmytych faset i tekstu.',
+    white
+      ? 'Biały diament oceniaj kryterium „jasny, bezbarwny, z ogniem”, NIE podobieństwem do oryginału: ma być jasny, z wyraźnym kontrastem białych błysków i ciemnych faset, bez niebieskiego, szarego czy mlecznego odcienia, z drobnymi iskrami tęczowego ognia. Układ błysków i faset biały diament ma inny niż kamień kolorowy – to NIE jest błąd, o ile typ szlifu, obrys i rozmiar są te same.'
+      : 'Układ odblasków w fasetach MOŻE się różnić (inny materiał inaczej łamie światło) – to nie jest błąd, o ile szlif i obrys są te same. Kolor porównaj ze wzorcem (naturalny, nie neonowy, nie szkło).',
+    '„akceptuj” tylko gdy pierścionek jest ten sam, a kamień wiarygodny. score 0–100 = przydatność na stronę z etykietą „Wizualizacja”.',
     'Przy „odrzuc” w fix_hint_en podaj jedno zdanie po angielsku, co poprawić w kolejnej próbie.',
   ].join(' ')
 }

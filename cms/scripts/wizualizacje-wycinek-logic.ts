@@ -1,0 +1,432 @@
+/**
+ * Zlecenie Y.2: wizualizacje „w wycinku”. Zamiast prosić generator o cały kadr i szukać potem kamienia w różnicy
+ * oryginał ↔ wynik (to zawodziło przy białym diamencie: biały kamień i białe odblaski w fasetach różnią się od
+ * oryginału za mało), maskę kamienia wyznaczamy NA ORYGINALE – po kolorze kamienia oryginału (np. niebieski diament
+ * w Cyane, różowe szafiry w Aion) w obszarze podpowiedzi. Generator dostaje tylko kwadratowy wycinek wokół kamienia,
+ * a do zdjęcia wraca wyłącznie obszar maski; reszta kadru zostaje pikselami oryginału.
+ *
+ * Weryfikacja automatyczna (bez modelu, przed oceną Terry): (a) poza maską brak zmian, (b) w masce kolor zgodny
+ * z kamieniem – dla bieli „jasny, bezbarwny, z ogniem” zamiast „różny od oryginału”, (c) wokół maski generator nie
+ * przesunął oprawy (inaczej na granicy wklejenia byłby szew).
+ *
+ * Tylko czyste funkcje na surowych pikselach (RGB, wiersz po wierszu) – obróbkę plików robi `wizualizacje-wycinek-obraz.ts`.
+ */
+import { convexHull } from './wizualizacje-w-logic'
+
+/** Zakres odcienia w stopniach (kąt h w Lab, 0–360); `[od, do]` z `od > do` przechodzi przez 0 (np. róż/czerwień). */
+export type HueRange = [number, number]
+
+/** Jak rozpoznać kamień oryginału na zdjęciu (w `wizualizacje-w.json`: `kamien_oryginalu` przy fasonie lub zdjęciu). */
+export type OriginalStoneHint = {
+  odcien: HueRange
+  /** Minimalne nasycenie (C* w Lab) piksela kamienia; domyślnie 14. */
+  chroma_min?: number
+  /**
+   * Ręczna podpowiedź obszaru `[x0, y0, x1, y1]` (ułamki kadru). Bez niej obszar bierzemy z maski fasonu
+   * (przyjęty wcześniej wariant), a bez obu – cały kadr.
+   */
+  obszar?: [number, number, number, number]
+  /** `wiele`: każda plama koloru osobno (kilka kamieni albo kamień z boku: korona i pawilon rozdzielone oprawą). */
+  maska?: 'jeden' | 'wiele'
+}
+
+/** Kryteria koloru w masce wyniku (w `kamienie.<klucz>.kontrola`). Kamień bez `kontrola` sprawdza tylko resztki starego koloru. */
+export type StoneCheck = {
+  /** Biały diament: jasny, bezbarwny, z ogniem. */
+  bialy?: boolean
+  /** Odcień kamienia docelowego (kolorowe kamienie). */
+  odcien?: HueRange
+  /** Minimalna mediana nasycenia (C*) pikseli kamienia (kolorowe kamienie). */
+  chroma_min?: number
+}
+
+export function rgbToLab(r: number, g: number, b: number): [number, number, number] {
+  const lin = (c: number) => {
+    const v = c / 255
+    return v > 0.04045 ? ((v + 0.055) / 1.055) ** 2.4 : v / 12.92
+  }
+  const [R, G, B] = [lin(r), lin(g), lin(b)]
+  const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116)
+  const x = f((0.4124 * R + 0.3576 * G + 0.1805 * B) / 0.95047)
+  const y = f(0.2126 * R + 0.7152 * G + 0.0722 * B)
+  const z = f((0.0193 * R + 0.1192 * G + 0.9505 * B) / 1.08883)
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)]
+}
+
+/** L, C (nasycenie) i h (odcień, stopnie) każdego piksela. */
+export function lch(rgb: Uint8Array | Buffer, n: number) {
+  const L = new Float32Array(n)
+  const C = new Float32Array(n)
+  const H = new Float32Array(n)
+  for (let i = 0; i < n; i++) {
+    const [l, a, b] = rgbToLab(rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2])
+    L[i] = l
+    C[i] = Math.hypot(a, b)
+    H[i] = ((Math.atan2(b, a) * 180) / Math.PI + 360) % 360
+  }
+  return { L, C, H }
+}
+
+export const inHue = (h: number, [from, to]: HueRange) => (from <= to ? h >= from && h <= to : h >= from || h <= to)
+
+/** Złoto oprawy (łapki nachodzą na kamień): ciepły żółty/pomarańczowy, nie liczy się do koloru kamienia. */
+const GOLD: HueRange = [55, 100]
+
+/** Spójne obszary (8-sąsiedztwo) pikseli `on`; zwraca etykiety i rozmiary (indeks 0 = tło). */
+function components(on: Uint8Array, width: number) {
+  const n = on.length
+  const label = new Int32Array(n)
+  const sizes: number[] = [0]
+  const stack: number[] = []
+  let current = 0
+  for (let start = 0; start < n; start++) {
+    if (!on[start] || label[start]) continue
+    current++
+    let size = 0
+    label[start] = current
+    stack.push(start)
+    while (stack.length) {
+      const p = stack.pop()!
+      size++
+      const x = p % width
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue
+          if ((dx < 0 && x === 0) || (dx > 0 && x === width - 1)) continue
+          const q = p + dy * width + dx
+          if (q >= 0 && q < n && on[q] && !label[q]) {
+            label[q] = current
+            stack.push(q)
+          }
+        }
+      }
+    }
+    sizes.push(size)
+  }
+  return { label, sizes }
+}
+
+export function growMask(mask: Uint8Array, width: number, steps: number) {
+  let out = mask
+  const n = mask.length
+  for (let g = 0; g < steps; g++) {
+    const next = out.slice()
+    for (let i = 0; i < n; i++) {
+      if (out[i]) continue
+      const x = i % width
+      if ((i >= width && out[i - width]) || (i + width < n && out[i + width]) || (x > 0 && out[i - 1]) || (x < width - 1 && out[i + 1])) next[i] = 1
+    }
+    out = next
+  }
+  return out
+}
+
+function fillHull(mask: Uint8Array, width: number, points: [number, number][]) {
+  const hull = convexHull(points)
+  if (hull.length < 3) {
+    for (const [x, y] of points) mask[y * width + x] = 1
+    return
+  }
+  const xs = hull.map((p) => p[0])
+  const ys = hull.map((p) => p[1])
+  for (let y = Math.min(...ys); y <= Math.max(...ys); y++) {
+    for (let x = Math.min(...xs); x <= Math.max(...xs); x++) {
+      let inside = true
+      for (let i = 0; i < hull.length && inside; i++) {
+        const [ax, ay] = hull[i]
+        const [bx, by] = hull[(i + 1) % hull.length]
+        if ((bx - ax) * (y - ay) - (by - ay) * (x - ax) < 0) inside = false
+      }
+      if (inside) mask[y * width + x] = 1
+    }
+  }
+}
+
+/** Obszar podpowiedzi jako maska: ręczny prostokąt albo maska fasonu poszerzona o ~4 % szerokości kadru. */
+export function hintRegion(width: number, height: number, hint: OriginalStoneHint, prior?: Uint8Array | null): Uint8Array {
+  const n = width * height
+  if (hint.obszar) {
+    const [x0, y0, x1, y1] = hint.obszar
+    const region = new Uint8Array(n)
+    for (let y = Math.floor(y0 * height); y < Math.ceil(y1 * height); y++) {
+      for (let x = Math.floor(x0 * width); x < Math.ceil(x1 * width); x++) region[y * width + x] = 1
+    }
+    return region
+  }
+  if (prior && prior.some(Boolean)) return growMask(Uint8Array.from(prior, (v) => (v ? 1 : 0)), width, Math.round(width * 0.04))
+  return new Uint8Array(n).fill(1)
+}
+
+/**
+ * Maska kamienia (albo kamieni) oryginału: piksele w odcieniu kamienia oryginału i z nasyceniem od `chroma_min`,
+ * w obszarze podpowiedzi. `jeden`: największy spójny obszar → otoczka wypukła (szlif ma wypukły obrys, więc
+ * wypełnia też białe odblaski i ciemne fasety, które koloru nie mają). `wiele` (obrączka): każdy obszar od 0,02 %
+ * kadru osobno. Na koniec poszerzenie o `grow` px – krawędź kamienia pod łapkami też ma stary kolor.
+ * null, gdy nic nie pasuje albo wynik nie wygląda na kamień (za mały / ponad 30 % kadru).
+ */
+export function originalStoneMask(
+  rgb: Uint8Array | Buffer,
+  width: number,
+  height: number,
+  hint: OriginalStoneHint,
+  region: Uint8Array,
+  mode: 'jeden' | 'wiele' = 'jeden',
+  grow = 2,
+) {
+  const n = width * height
+  const { C, H } = lch(rgb, n)
+  const chromaMin = hint.chroma_min ?? 14
+  const on = new Uint8Array(n)
+  for (let i = 0; i < n; i++) on[i] = region[i] && C[i] >= chromaMin && inHue(H[i], hint.odcien) ? 1 : 0
+  // Odblaski tną kamień na wyspy: domknięcie o 1 px skleja je w jeden obszar przed wyborem największego.
+  const { label, sizes } = components(growMask(on, width, 1), width)
+  let mask = new Uint8Array(n)
+  if (mode === 'wiele') {
+    const minSize = Math.max(6, n * 0.0002)
+    const groups = new Map<number, [number, number][]>()
+    for (let i = 0; i < n; i++) {
+      const l = label[i]
+      if (!l || sizes[l] < minSize || !on[i]) continue
+      if (!groups.has(l)) groups.set(l, [])
+      groups.get(l)!.push([i % width, Math.floor(i / width)])
+    }
+    for (const points of groups.values()) fillHull(mask, width, points)
+  } else {
+    let best = 0
+    for (let l = 1; l < sizes.length; l++) if (sizes[l] > (sizes[best] ?? 0)) best = l
+    if (!best || sizes[best] < n * 0.0005) return null
+    // Kamień bywa pocięty łapkami i ciemnymi fasetami na kilka plam koloru (korona i pawilon przy ujęciu z boku):
+    // bierzemy też plamy od 4 % największej, które leżą przy niej (w jej obrysie poszerzonym o połowę wymiaru).
+    const boxes = new Map<number, { x0: number; x1: number; y0: number; y1: number }>()
+    for (let i = 0; i < n; i++) {
+      const l = label[i]
+      if (!l) continue
+      const x = i % width
+      const y = Math.floor(i / width)
+      const b = boxes.get(l)
+      if (!b) boxes.set(l, { x0: x, x1: x, y0: y, y1: y })
+      else {
+        if (x < b.x0) b.x0 = x
+        if (x > b.x1) b.x1 = x
+        if (y < b.y0) b.y0 = y
+        if (y > b.y1) b.y1 = y
+      }
+    }
+    const main = boxes.get(best)!
+    const mx = (main.x1 - main.x0 + 1) / 2
+    const my = (main.y1 - main.y0 + 1) / 2
+    const keep = new Set<number>([best])
+    for (const [l, b] of boxes) {
+      if (l === best || sizes[l] < sizes[best] * 0.04) continue
+      const cx = (b.x0 + b.x1) / 2
+      const cy = (b.y0 + b.y1) / 2
+      if (cx >= main.x0 - mx && cx <= main.x1 + mx && cy >= main.y0 - my && cy <= main.y1 + my) keep.add(l)
+    }
+    const points: [number, number][] = []
+    for (let i = 0; i < n; i++) if (keep.has(label[i]) && on[i]) points.push([i % width, Math.floor(i / width)])
+    fillHull(mask, width, points)
+  }
+  // Obrzeże (Y.2, Cyane: „turkusowy ślad na dolnym styku”): fragmenty starego kamienia widoczne między łapkami tuż za
+  // obrysem – piksele w odcieniu kamienia (ten sam próg nasycenia, bo przy niższym łapało szaroniebieskie tło), do
+  // 3·`grow` px od maski, dołączone do maski.
+  const near = growMask(mask, width, grow * 3)
+  for (let i = 0; i < n; i++) if (near[i] && !mask[i] && region[i] && C[i] >= chromaMin * 1.5 && inHue(H[i], hint.odcien)) mask[i] = 1
+  mask = growMask(mask, width, grow)
+  let area = 0
+  for (let i = 0; i < n; i++) area += mask[i]
+  if (!area || area / n > 0.3) return null
+  return { mask: Uint8Array.from(mask, (v) => (v ? 255 : 0)), area: area / n }
+}
+
+export type Box = { left: number; top: number; width: number; height: number }
+
+/**
+ * Kwadratowy wycinek wokół maski (współrzędne w pikselach obrazu `width`×`height`): bok = większy wymiar kamienia
+ * × (1 + 2·`margin`), co najmniej `minSide`, przesunięty tak, żeby mieścił się w kadrze. Generator dostaje kamień
+ * duży i z oprawą dookoła (kontekst światła), a przez kwadrat jego wynik nie jest rozciągany.
+ */
+export function cropBox(mask: Uint8Array, maskWidth: number, width: number, height: number, margin = 0.6, minSide = 256): Box {
+  const maskHeight = mask.length / maskWidth
+  let x0 = Infinity
+  let x1 = -Infinity
+  let y0 = Infinity
+  let y1 = -Infinity
+  for (let i = 0; i < mask.length; i++) {
+    if (!mask[i]) continue
+    const x = i % maskWidth
+    const y = Math.floor(i / maskWidth)
+    if (x < x0) x0 = x
+    if (x > x1) x1 = x
+    if (y < y0) y0 = y
+    if (y > y1) y1 = y
+  }
+  if (x0 === Infinity) throw new Error('cropBox: pusta maska')
+  const sx = width / maskWidth
+  const sy = height / maskHeight
+  const cx = ((x0 + x1 + 1) / 2) * sx
+  const cy = ((y0 + y1 + 1) / 2) * sy
+  const stone = Math.max((x1 - x0 + 1) * sx, (y1 - y0 + 1) * sy)
+  const side = Math.round(Math.min(Math.max(stone * (1 + 2 * margin), minSide), width, height))
+  const left = Math.round(Math.min(Math.max(cx - side / 2, 0), width - side))
+  const top = Math.round(Math.min(Math.max(cy - side / 2, 0), height - side))
+  return { left, top, width: side, height: side }
+}
+
+export type CutoutVerdict = {
+  ok: boolean
+  /** Udział pikseli poza maską (z marginesem na miękką krawędź), które różnią się od oryginału o ΔE > 2. */
+  outsideChanged: number
+  /** Mediana ΔE między wynikiem generatora a oryginałem w pierścieniu tuż za maską (oprawa wokół kamienia). */
+  ringDelta: number
+  inside: {
+    meanL: number
+    p90L: number
+    stdL: number
+    /** Mediana nasycenia pikseli kamienia (bez złota łapek). */
+    chroma: number
+    /** Udział pikseli w odcieniu kamienia oryginału (resztki starego koloru). */
+    residue: number
+    /** Udział pikseli w odcieniu docelowym wśród nasyconych (kolorowe kamienie). */
+    targetShare: number
+    /** Udział jasnych, nasyconych iskier w innym odcieniu niż złoto i stary kolor („ogień” diamentu). */
+    fire: number
+  }
+  reasons_pl: string[]
+}
+
+export const THRESHOLDS = {
+  outsideChanged: 0.001,
+  ringDelta: 16,
+  residue: 0.06,
+  whiteChroma: 9,
+  whiteP90L: 72,
+  whiteStdL: 12,
+  targetShare: 0.5,
+} as const
+
+const quantile = (values: number[], q: number) => {
+  if (!values.length) return 0
+  const sorted = [...values].sort((a, b) => a - b)
+  return sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))]
+}
+
+/**
+ * Weryfikacja wycinka. Wszystkie obrazy RGB w tej samej rozdzielczości: `original` – zdjęcie, `result` – zdjęcie po
+ * wklejeniu, `generated` – wynik generatora dopasowany do kadru (do pierścienia wokół maski), `mask` 0/255,
+ * `core` – maska bez miękkiej krawędzi (do statystyk koloru), `feather` px – szerokość miękkiej krawędzi.
+ */
+export function verifyCutout(
+  input: {
+    original: Uint8Array | Buffer
+    result: Uint8Array | Buffer
+    generated: Uint8Array | Buffer
+    mask: Uint8Array
+    width: number
+    height: number
+    feather: number
+  },
+  originalHue: HueRange,
+  check: StoneCheck | undefined,
+): CutoutVerdict {
+  const { original, result, generated, mask, width, height, feather } = input
+  const n = width * height
+  const bin = Uint8Array.from(mask, (v) => (v ? 1 : 0))
+  const outer = growMask(bin, width, feather + 1)
+  const ring = growMask(outer, width, Math.max(3, Math.round(Math.sqrt(bin.reduce((s, v) => s + v, 0)) * 0.12)))
+  // rdzeń: maska zwężona o szerokość miękkiej krawędzi (odwrotność poszerzenia tła)
+  const core = Uint8Array.from(growMask(Uint8Array.from(bin, (v) => 1 - v), width, feather), (v) => 1 - v)
+
+  const o = lch(original, n)
+  const r = lch(result, n)
+  const g = lch(generated, n)
+  const de = (a: ReturnType<typeof lch>, b: ReturnType<typeof lch>, i: number) => {
+    const ha = (a.H[i] * Math.PI) / 180
+    const hb = (b.H[i] * Math.PI) / 180
+    return Math.hypot(a.L[i] - b.L[i], a.C[i] * Math.cos(ha) - b.C[i] * Math.cos(hb), a.C[i] * Math.sin(ha) - b.C[i] * Math.sin(hb))
+  }
+
+  let outsideCount = 0
+  let outsideChanged = 0
+  const ringValues: number[] = []
+  const Ls: number[] = []
+  const chromas: number[] = []
+  let residue = 0
+  let saturated = 0
+  let target = 0
+  let fire = 0
+  let coreCount = 0
+  for (let i = 0; i < n; i++) {
+    if (!outer[i]) {
+      outsideCount++
+      if (de(o, r, i) > 2) outsideChanged++
+      if (ring[i]) ringValues.push(de(o, g, i))
+      continue
+    }
+    if (!core[i]) continue
+    coreCount++
+    const L = r.L[i]
+    const C = r.C[i]
+    const h = r.H[i]
+    Ls.push(L)
+    const gold = C >= 12 && inHue(h, GOLD)
+    if (!gold) chromas.push(C)
+    if (C >= 15 && inHue(h, originalHue) && !(check?.odcien && inHue(h, check.odcien))) residue++
+    if (C >= 15 && !gold) {
+      saturated++
+      if (check?.odcien && inHue(h, check.odcien)) target++
+    }
+    if (L >= 60 && C >= 18 && !gold && !inHue(h, originalHue)) fire++
+  }
+  const meanL = Ls.reduce((s, v) => s + v, 0) / Math.max(1, Ls.length)
+  const stdL = Math.sqrt(Ls.reduce((s, v) => s + (v - meanL) ** 2, 0) / Math.max(1, Ls.length))
+  const verdict: CutoutVerdict = {
+    ok: true,
+    outsideChanged: outsideChanged / Math.max(1, outsideCount),
+    ringDelta: quantile(ringValues, 0.5),
+    inside: {
+      meanL,
+      p90L: quantile(Ls, 0.9),
+      stdL,
+      chroma: quantile(chromas, 0.5),
+      residue: residue / Math.max(1, coreCount),
+      targetShare: target / Math.max(1, saturated),
+      fire: fire / Math.max(1, coreCount),
+    },
+    reasons_pl: [],
+  }
+  const fail = (reason: string) => {
+    verdict.ok = false
+    verdict.reasons_pl.push(reason)
+  }
+  const pct = (v: number) => `${(v * 100).toFixed(1)} %`
+  if (verdict.outsideChanged > THRESHOLDS.outsideChanged) fail(`poza maską zmieniło się ${pct(verdict.outsideChanged)} pikseli`)
+  if (verdict.ringDelta > THRESHOLDS.ringDelta) {
+    fail(`generator przesunął albo przerysował oprawę wokół kamienia (ΔE ${verdict.ringDelta.toFixed(1)} > ${THRESHOLDS.ringDelta}) – na granicy byłby szew`)
+  }
+  const inside = verdict.inside
+  // resztki starego koloru liczymy tylko dla kamieni z `kontrola` (np. stonowany szmaragd ma odcień blisko niebieskiego)
+  if (check && inside.residue > THRESHOLDS.residue) fail(`w kamieniu zostało ${pct(inside.residue)} starego koloru`)
+  if (check?.bialy) {
+    if (inside.chroma > THRESHOLDS.whiteChroma) fail(`biel nie jest bezbarwna (nasycenie ${inside.chroma.toFixed(1)} > ${THRESHOLDS.whiteChroma})`)
+    if (inside.p90L < THRESHOLDS.whiteP90L) fail(`kamień za ciemny jak na biały diament (jasność p90 ${inside.p90L.toFixed(0)} < ${THRESHOLDS.whiteP90L})`)
+    if (inside.stdL < THRESHOLDS.whiteStdL) fail(`kamień płaski, bez blasku (kontrast ${inside.stdL.toFixed(1)} < ${THRESHOLDS.whiteStdL})`)
+  } else if (check?.odcien) {
+    if (inside.targetShare < THRESHOLDS.targetShare) fail(`za mało docelowego odcienia (${pct(inside.targetShare)} nasyconych pikseli)`)
+    if (check.chroma_min && inside.chroma < check.chroma_min) fail(`kolor za blady (nasycenie ${inside.chroma.toFixed(1)} < ${check.chroma_min})`)
+  }
+  return verdict
+}
+
+/** Zdanie do następnej próby z powodów odrzutu automatycznego. */
+export function cutoutHint(verdict: CutoutVerdict, check: StoneCheck | undefined): string {
+  const parts: string[] = []
+  if (verdict.ringDelta > THRESHOLDS.ringDelta) parts.push('keep the prongs, the halo and the metal around the stone pixel-identical and in exactly the same place')
+  if (check && verdict.inside.residue > THRESHOLDS.residue) parts.push('remove every trace of the previous stone colour, also at the girdle and under the prongs')
+  if (check?.bialy) {
+    if (verdict.inside.chroma > THRESHOLDS.whiteChroma) parts.push('the diamond must be truly colourless – no blue, grey or yellow cast')
+    if (verdict.inside.p90L < THRESHOLDS.whiteP90L || verdict.inside.stdL < THRESHOLDS.whiteStdL) {
+      parts.push('make it bright with crisp contrast between white flashes and dark facets, like a real brilliant-cut diamond')
+    }
+  } else if (check?.odcien) parts.push('make the colour clearly and evenly the target gemstone colour')
+  return parts.length ? `${parts.join('; ')}.` : ''
+}

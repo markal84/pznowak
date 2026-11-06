@@ -5,7 +5,9 @@
  *   npm run warianty:wizualizacje -- --apply              generuje, ocenia i zapisuje wynik
  *   npm run warianty:wizualizacje -- --apply --tylko cyane,daphne-rubin   tylko wybrane fasony / warianty
  *   opcje: --proby N (najwyżej 3 na obraz), --rownolegle N (domyślnie 3), --dane <katalog data/> (domyślnie data/ w repo),
- *          --ponow (warianty bez przyjętego obrazu dostają nową serię prób; stare zostają w historii)
+ *          --ponow (warianty bez przyjętego obrazu dostają nową serię prób; stare zostają w historii),
+ *          --pomin <obraz,…> (Y.2: pojedyncze obrazy wyłączone z --tylko, np. już przyjęte nową techniką),
+ *          --od-nowa (Y.2: także przyjęte obrazy z --tylko dostają nową serię; stary obraz zostaje, dopóki nowy nie przejdzie)
  *
  * Na obraz: (1) opis zdjęcia źródłowego, raz na fason (Terra medium, tylko do odczytu) – z niego prompt nazywa szlif
  * i oprawę; (2) generowanie: Terra low przekazuje prompt narzędziu do obrazów, wejście = zdjęcie karty + 2 wzorce koloru;
@@ -17,6 +19,11 @@
  * Zlecenie Y: fason może mieć kolejne zdjęcia galerii (`zdjecia`), a kamienie z `cala_galeria` powstają na każdym z nich
  * (`<slug>-<kamien>-<n>.webp`); opis zdjęcia, maska fasonu i proporcje są osobne dla każdego zdjęcia (`--tylko <slug>-<kamien>`
  * bierze wszystkie zdjęcia wariantu). Do `warianty-w.json` trafia tylko wariant z kompletem przyjętych zdjęć.
+ *
+ * Zlecenie Y.2 – technika wycinka (fason z `kamien_oryginalu`): maska kamienia z ORYGINAŁU (odcień kamienia oryginału
+ * w obszarze maski fasonu albo ręcznej podpowiedzi), generator dostaje tylko kwadratowy wycinek wokół kamienia, do zdjęcia
+ * wraca tylko maska. Przed oceną Terry kontrola automatyczna (`verifyCutout`): poza maską bez zmian, oprawa wokół na
+ * miejscu, w masce kolor kamienia (biel: jasny, bezbarwny, z ogniem). Maski i wycinki: `data/warianty-w/wycinek/`.
  *
  * Wynik: `seed/warianty/obrazy/<slug>-<kamien>.webp` (proporcje oryginału, ≤ 300 KB), `seed/warianty/warianty-w.json`
  * (format `warianty.json` z V; tylko warianty, których jeszcze nie ma w `warianty.json` – po akceptacji Kamili wpisy
@@ -32,10 +39,14 @@ import sharp from 'sharp'
 
 import { IMAGES_DIR, loadSpecs, WARIANTY_DIR } from './warianty-v-logic'
 import { composite, dHash, toWebp } from './wizualizacje-w-obraz'
+import { makeCutout, maskPreview, MASK_WIDTH, originalMask, pasteCutout } from './wizualizacje-wycinek-obraz'
+import { type Box, type CutoutVerdict, cutoutHint } from './wizualizacje-wycinek-logic'
 import {
   CHECK_MODEL,
   CHECK_SCHEMA,
   checkPrompt,
+  cutoutCheckPrompt,
+  cutoutPrompt,
   designPhotos,
   DESCRIBE_SCHEMA,
   describePrompt,
@@ -64,7 +75,9 @@ const arg = (name: string) => {
   return i >= 0 ? process.argv[i + 1] : undefined
 }
 const applyChanges = process.argv.includes('--apply')
-const retryRejected = process.argv.includes('--ponow')
+const redoAccepted = process.argv.includes('--od-nowa')
+/** `--od-nowa` obejmuje też `--ponow`: każdy obraz z --tylko dostaje nową serię prób. */
+const retryRejected = process.argv.includes('--ponow') || redoAccepted
 const only = (arg('--tylko') ?? '').split(',').filter(Boolean)
 const maxAttempts = Math.min(MAX_ATTEMPTS, Number(arg('--proby') ?? MAX_ATTEMPTS))
 const parallel = Math.max(1, Number(arg('--rownolegle') ?? 3))
@@ -78,7 +91,8 @@ const today = new Date().toISOString().slice(0, 10)
 // ---------- plan ----------
 
 const config = loadConfig()
-const todo = allJobs(config, only)
+const skip = new Set((arg('--pomin') ?? '').split(',').filter(Boolean))
+const todo = allJobs(config, only).filter((job) => !skip.has(job.id))
 if (!todo.length) throw new Error(`Brak wariantów dla --tylko ${only.join(',')}`)
 
 const sources = new Map<string, string>()
@@ -105,6 +119,10 @@ type Attempt = {
   tokens: number
   hashDistance: number | null
   placement?: { area: number; alignment: { scale: number; dx: number; dy: number; cost: number }; designMask?: boolean } | null
+  /** Y.2: technika wycinka i wynik kontroli automatycznej. */
+  technique?: 'wycinek'
+  cutout?: CutoutVerdict
+  at?: string
   check: Check | null
   accepted: boolean
   reason: string
@@ -119,10 +137,14 @@ const state: State = existsSync(statePath)
   : { descriptions: {}, jobs: {} }
 const saveState = () => writeFileSync(statePath, JSON.stringify(state, null, 1))
 
-if (retryRejected && applyChanges) {
+/** Y.2 `--od-nowa`: przyjęte obrazy z --tylko też dostają nową serię (stary zostaje, dopóki nowy nie przejdzie). */
+const redo = new Set<string>()
+if ((retryRejected || redoAccepted) && applyChanges) {
   for (const job of runnable) {
     const entry = state.jobs[job.id]
-    if (entry && !entry.accepted && entry.attempts.length) {
+    if (!entry || (entry.accepted && !redoAccepted)) continue
+    if (entry.accepted) redo.add(job.id)
+    if (entry.attempts.length) {
       entry.earlier = [...(entry.earlier ?? []), ...entry.attempts]
       entry.attempts = []
     }
@@ -133,13 +155,15 @@ const designs = [...new Set(runnable.map((job) => job.design.slug))]
 const photoKeys = [...new Set(runnable.map((job) => job.photoKey))]
 const pending = runnable.filter((job) => {
   const entry = state.jobs[job.id]
+  if (redoAccepted && entry?.accepted) return applyChanges ? redo.has(job.id) : true
   return !entry?.accepted && (retryRejected || (entry?.attempts.length ?? 0) < maxAttempts)
 })
 console.log(`Fasony: ${designs.join(', ')} · wariantów: ${runnable.length} (do zrobienia ${pending.length})`)
 for (const job of runnable) {
-  const done = state.jobs[job.id]?.accepted ? ' – już przyjęty' : ''
+  const done = state.jobs[job.id]?.accepted ? (redoAccepted ? ' – przyjęty, od nowa' : ' – już przyjęty') : ''
+  const how = job.hint ? ' · wycinek' : ''
   const refList = refs.get(job.stone.key)!.map((r) => r.slug).join(', ')
-  console.log(`  ${job.id.padEnd(34)} ${path.basename(sources.get(job.photoKey)!)} · wzorce: ${refList}${done}`)
+  console.log(`  ${job.id.padEnd(34)} ${path.basename(sources.get(job.photoKey)!)} · wzorce: ${refList}${how}${done}`)
 }
 for (const problem of missing) console.log(`  ! ${problem}`)
 const describeCalls = photoKeys.filter((key) => !state.descriptions[key]).length
@@ -207,8 +231,8 @@ async function structured<T>(model: { id: string; effort: string }, schema: obje
 /** Do generatora tylko wzorce główne; pomocnicze (`pomocniczy`) dostaje dopiero ocena. */
 const genRefs = (job: Job) => refs.get(job.stone.key)!.filter((r) => !r.pomocniczy)
 
-async function generate(job: Job, prompt: string, n: number) {
-  const args = [...modelArgs(GEN_MODEL), '-s', 'read-only', '-i', sources.get(job.photoKey)!]
+async function generate(job: Job, prompt: string, n: number | string, input = sources.get(job.photoKey)!) {
+  const args = [...modelArgs(GEN_MODEL), '-s', 'read-only', '-i', input]
   for (const ref of genRefs(job)) args.push('-i', ref.file)
   const run = await codex(args, prompt)
   const dir = path.join(CODEX_HOME, 'generated_images', run.thread)
@@ -267,15 +291,122 @@ async function designMask(job: Job) {
   return null
 }
 
+/**
+ * Y.2: maska kamienia z oryginału i wycinek dla generatora, raz na zdjęcie fasonu (`data/warianty-w/wycinek/`).
+ * Obszar podpowiedzi: ręczny `obszar` z konfiguracji albo maska fasonu z W/Y (`maski/<zdjęcie>.png`).
+ */
+type Cutout = { mask: Uint8Array; box: Box; file: string }
+const cutouts = new Map<string, Promise<Cutout>>()
+function cutoutFor(job: Job): Promise<Cutout> {
+  const key = job.photoKey
+  if (!cutouts.has(key)) {
+    cutouts.set(
+      key,
+      (async () => {
+        const dir = path.join(workDir, 'wycinek')
+        mkdirSync(dir, { recursive: true })
+        const priorFile = path.join(workDir, 'maski', `${key}.png`)
+        const prior = existsSync(priorFile) ? new Uint8Array(await sharp(priorFile).extractChannel(0).raw().toBuffer()) : null
+        const found = await originalMask(sources.get(key)!, job.hint!, prior, job.maska)
+        if (!found) throw new Error(`${key}: nie znalazłem kamienia oryginału (odcień ${job.hint!.odcien.join('–')}) – dodaj „obszar” w kamien_oryginalu`)
+        const file = path.join(dir, `${key}.png`)
+        const box = await makeCutout(sources.get(key)!, found.mask, MASK_WIDTH, file)
+        await sharp(Buffer.from(found.mask), { raw: { width: MASK_WIDTH, height: found.height, channels: 1 } }).png().toFile(path.join(dir, `${key}-maska.png`))
+        await maskPreview(sources.get(key)!, found.mask, MASK_WIDTH, box, path.join(dir, `${key}-podglad.jpg`))
+        console.log(`wycinek ${key}: maska ${(found.area * 100).toFixed(2)} % kadru, kwadrat ${box.width} px (${prior ? 'obszar z maski fasonu' : job.hint!.obszar ? 'obszar ręczny' : 'cały kadr'})`)
+        return { mask: found.mask, box, file }
+      })(),
+    )
+  }
+  return cutouts.get(key)!
+}
+
+/** Jedna próba techniką wycinka; zwraca uzupełnioną próbę i wskazówkę do następnej. */
+async function cutoutAttempt(job: Job, n: number, hint: string | undefined): Promise<{ attempt: Attempt; hint: string | undefined }> {
+  const cut = await cutoutFor(job)
+  const prompt = cutoutPrompt(job, state.descriptions[job.photoKey], genRefs(job).length, hint)
+  const { run, file } = await generate(job, prompt, `w${n}`, cut.file)
+  const attempt: Attempt = {
+    n,
+    file: file ? path.relative(workDir, file) : '',
+    thread: run.thread,
+    seconds: run.seconds,
+    tokens: run.tokens,
+    hashDistance: null,
+    check: null,
+    accepted: false,
+    reason: '',
+    technique: 'wycinek',
+    at: new Date().toISOString(),
+  }
+  if (!file) {
+    attempt.reason = `brak obrazu (kod ${run.code}): ${run.tail.slice(-160)}`
+    return { attempt, hint }
+  }
+  attempt.hashDistance = hamming(await dHash(cut.file), await dHash(file))
+  if (attempt.hashDistance > MAX_HASH_DISTANCE) {
+    attempt.reason = `inny kadr wycinka (dHash ${attempt.hashDistance} > ${MAX_HASH_DISTANCE}) – bez oceny modelu`
+    return { attempt, hint: 'Keep the exact square crop of IMAGE 1 – no zoom, no shift; only recolour the stone.' }
+  }
+  const merged = file.replace(/\.png$/, '-kompozycja.png')
+  const closeOriginal = path.join(workDir, 'wycinek', `${job.photoKey}-zblizenie.png`)
+  const closeResult = file.replace(/\.png$/, '-zblizenie.png')
+  const pasted = await pasteCutout(
+    { source: sources.get(job.photoKey)!, generated: file, box: cut.box, mask: cut.mask, maskWidth: MASK_WIDTH, output: merged, closeOriginal, closeResult },
+    job.hint!.odcien,
+    job.stone.kontrola,
+  )
+  attempt.cutout = pasted.verdict
+  attempt.placement = { area: cut.mask.reduce((s, v) => s + (v ? 1 : 0), 0) / cut.mask.length, alignment: pasted.alignment }
+  attempt.file = path.relative(workDir, merged)
+  if (!pasted.verdict.ok) {
+    attempt.reason = `kontrola automatyczna: ${pasted.verdict.reasons_pl.join('; ')} – bez oceny modelu`
+    return { attempt, hint: cutoutHint(pasted.verdict, job.stone.kontrola) || hint }
+  }
+  const images = [closeOriginal, closeResult, ...refs.get(job.stone.key)!.map((r) => r.file)]
+  const { result, run: checkRun } = await structured<Check>(
+    CHECK_MODEL,
+    CHECK_SCHEMA,
+    images,
+    cutoutCheckPrompt(job, refs.get(job.stone.key)!.length),
+    `ocena-${job.id}-${n}`,
+  )
+  attempt.check = result
+  attempt.seconds += checkRun.seconds
+  attempt.tokens += checkRun.tokens
+  attempt.accepted = isAccepted(result)
+  attempt.reason = result.reason_pl
+  return { attempt, hint: result.fix_hint_en || hint }
+}
+
 async function runJob(job: Job) {
   const entry = (state.jobs[job.id] ??= { attempts: [], accepted: null })
-  if (entry.accepted) return
+  if (entry.accepted && !redo.has(job.id)) return
   const original = await dHash(sources.get(job.photoKey)!)
   const refCount = genRefs(job).length
   const checkRefCount = refs.get(job.stone.key)!.length
   let hint: string | undefined = [...entry.attempts].reverse().find((a) => a.check?.fix_hint_en)?.check?.fix_hint_en
   while (entry.attempts.length < maxAttempts) {
     const n = entry.attempts.length + 1
+    if (job.hint) {
+      // numer pliku próby po całej historii, żeby nowa seria nie nadpisała plików starszych prób
+      const fileN = (entry.earlier?.length ?? 0) + n
+      const result = await cutoutAttempt(job, fileN, hint)
+      result.attempt.n = n
+      hint = result.hint
+      entry.attempts.push(result.attempt)
+      console.log(`${job.id} próba ${n} (wycinek): ${result.attempt.accepted ? 'PRZYJĘTA' : 'odrzucona'} – ${result.attempt.reason}`)
+      if (result.attempt.accepted) {
+        const out = path.join(IMAGES_DIR, job.file)
+        const webp = await toWebp(path.join(workDir, result.attempt.file), aspects.get(job.photoKey)!, out)
+        entry.accepted = result.attempt.file
+        redo.delete(job.id)
+        console.log(`  → ${path.relative(REPO_ROOT, out)} (${Math.round(webp.bytes / 1024)} KB, q${webp.quality})`)
+      }
+      saveState()
+      if (result.attempt.accepted) return
+      continue
+    }
     const prompt = generationPrompt(job, state.descriptions[job.photoKey], refCount, hint)
     const { run, file } = await generate(job, prompt, n)
     const attempt: Attempt = {

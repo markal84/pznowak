@@ -87,7 +87,10 @@
         "stone": "Białe diamenty",
         "swatch": "bialy",
         "files": [
-          "cyane-bialy-diament.webp"
+          "cyane-bialy-diament.webp",
+          "cyane-bialy-diament-2.webp",
+          "cyane-bialy-diament-3.webp",
+          "cyane-bialy-diament-4.webp"
         ],
         "alt": "Pierścionek Cyane z białym diamentem w halo z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true

@@ -1067,12 +1067,34 @@ summary::-webkit-details-marker {
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
   background: rgba(20, 24, 22, 0.4);
   color: #fff;
   font-size: 13px;
   font-weight: 600;
+}
+.thumb .film small {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+/* Podpis filmu przy wybranym innym kamieniu (Y.2): u góry, żeby nie zasłaniał przycisków odtwarzacza na dole. */
+.film-original {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  max-width: calc(100% - 24px);
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(34, 38, 42, 0.72);
+  color: #f3f4ef;
+  font-size: 13px;
+  line-height: 1.5;
+  pointer-events: none;
 }
 .product-info {
   flex: 1 1 400px;
@@ -1194,8 +1216,8 @@ summary::-webkit-details-marker {
   outline-offset: 2px;
 }
 .stone-variants-note {
-  max-width: 34em;
-  font-size: 14px;
+  max-width: 38em;
+  font-size: 13px;
   line-height: 1.5;
   color: var(--muted);
 }

@@ -236,6 +236,7 @@ describe('karta: wybrany kamień zmienia całą galerię', () => {
     expect(html).toContain(enc('/media/cyane-2.jpg'))
     expect(html).not.toContain(enc('/media/rubin-1.webp'))
     expect(html).toContain('Film o pierścionku')
+    expect(html).not.toContain('Film: oryginał')
   })
 
   it('wariant z galerią: tylko jego obrazy (także miniatury), „Wizualizacja”, alt z ujęciem; film zostaje', async () => {
@@ -246,7 +247,8 @@ describe('karta: wybrany kamień zmienia całą galerię', () => {
     expect(html).toContain('>Wizualizacja<')
     expect(html).toContain('alt="Pierścionek Cyane z rubinem (wizualizacja)"')
     expect(html).toContain('aria-label="Wizualizacja 2: rubin i diamenty"')
-    expect(html).toContain('Film o pierścionku')
+    // Y.2: przy innym kamieniu film ma podpis, że pokazuje oryginał.
+    expect(html).toContain('aria-label="Film: oryginał (diament niebieski, diamenty)"')
     // Ten sam kadr co zdjęcie karty: bez rozmytego tła pojedynczego obrazu.
     expect(html).not.toContain('ph-variant')
   })
@@ -279,7 +281,8 @@ describe('karta: wybrany kamień zmienia całą galerię', () => {
     expect(html).toContain(enc('/media/stary.webp'))
     expect(html).not.toContain(enc('/media/cyane-2.jpg'))
     expect(html).toContain('ph-variant')
-    expect(html).toContain('Film o pierścionku')
+    // Y.2: przy innym kamieniu film ma podpis, że pokazuje oryginał.
+    expect(html).toContain('aria-label="Film: oryginał (diament niebieski, diamenty)"')
   })
 
   it('wariant z jednym obrazem: tylko ten obraz (bez mieszania z oryginałem) na rozmytym tle', async () => {

@@ -239,7 +239,7 @@ describe('karta pierścionka', () => {
     expect(buttons).toHaveLength(4)
     expect(buttons[0]).toContain('aria-pressed="true"')
     expect(buttons[0]).toContain('aria-label="Oryginał: Diamenty niebieskie i białe"')
-    expect(html).toContain('Dostępność kamienia potwierdza')
+    expect(html).toContain('przed zamówieniem pokażemy Ci zdjęcie lub film kamienia')
     expect(html).not.toContain('>Wizualizacja<')
     expect(html).toContain('/kontakt?temat=kolekcja&amp;projekt=Aion"')
   })

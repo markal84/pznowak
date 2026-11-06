@@ -20,7 +20,14 @@
             "legacy/jewelry/556954558_122158670414616875_5977421602371462442_n-1024x683.jpg"
           ]
         }
-      ]
+      ],
+      "kontrola": {
+        "odcien": [
+          335,
+          45
+        ],
+        "chroma_min": 18
+      }
     },
     "szafir": {
       "nazwa": "Szafir",
@@ -205,7 +212,10 @@
           "pomocniczy": true
         }
       ],
-      "wzorce_uwaga_en": "The reference diamonds are emerald-cut: take ONLY their colour (colourless, icy white, no warm or blue tint) and the character of their brilliance; keep the cut, outline and facets of the stone in IMAGE 1."
+      "wzorce_uwaga_en": "The reference diamonds are emerald-cut: take ONLY their colour (colourless, icy white, no warm or blue tint) and the character of their brilliance; keep the cut, outline and facets of the stone in IMAGE 1.",
+      "kontrola": {
+        "bialy": true
+      }
     }
   },
   "fasony": [
@@ -240,7 +250,10 @@
           "zrodlo": [
             "facebook/media/122146302602616875_122146301918616875.jpg",
             "legacy/jewelry/516066180_122146302740616875_8768136860432387588_n-1024x683.jpg"
-          ]
+          ],
+          "kamien_oryginalu": {
+            "maska": "wiele"
+          }
         },
         {
           "zrodlo": [
@@ -255,7 +268,15 @@
         "rubin",
         "bialy-diament"
       ],
-      "uwaga": "Y (05.11, Marcin): jasny szafir z W usunięty – zostaje szafir granatowy."
+      "uwaga": "Y (05.11, Marcin): jasny szafir z W usunięty – zostaje szafir granatowy.",
+      "kamien_oryginalu": {
+        "odcien": [
+          165,
+          285
+        ],
+        "chroma_min": 10
+      },
+      "uwaga_y2": "Y.2 (05.11): technika wycinka – maska z niebieskiego diamentu oryginału; zdjęcie 3 (z boku) ma koronę i pawilon kamienia jako osobne plamy, stąd „wiele”."
     },
     {
       "slug": "daphne",
@@ -306,13 +327,15 @@
         "wzorce/aion-rozowy-szafir-4x5.jpg"
       ],
       "nazwa_wariantu": {
-        "domyslnie": "{nazwa} i diamenty"
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
       },
       "alt": {
         "szafir-granatowy": "Obrączka eternity Aion z granatowymi szafirami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
         "rubin": "Obrączka eternity Aion z rubinami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
         "szmaragd-stonowany": "Obrączka eternity Aion ze szmaragdami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
-        "domyslnie": "Obrączka eternity Aion z granatowymi szafirami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)"
+        "domyslnie": "Obrączka eternity Aion z granatowymi szafirami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "bialy-diament": "Obrączka eternity Aion z samymi białymi diamentami, w żółtym złocie (wizualizacja)"
       },
       "zmiana_en": "all the pink sapphires set around the band (they alternate with colourless white diamonds)",
       "zmiana_pl": "różowe szafiry (na przemian z białymi diamentami)",
@@ -321,8 +344,17 @@
       "kamienie": [
         "szafir-granatowy",
         "rubin",
-        "szmaragd-stonowany"
-      ]
+        "szmaragd-stonowany",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          330,
+          40
+        ],
+        "chroma_min": 20
+      },
+      "uwaga_y2": "Y.2 (05.11): technika wycinka – maska z różowych szafirów oryginału (klatka z filmu); biały diament = wszystkie kamienie białe."
     }
   ]
 }
