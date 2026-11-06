@@ -13,7 +13,7 @@ export default function SiteFooter() {
             <Image alt={SITE.name} className="footer-logo" height={79} src="/logo.png" width={150} />
             <span className="footer-muted" style={{ lineHeight: 1.55 }}>
               Rodzinna pracownia złotnicza. Pierścionki i obrączki na zamówienie, naprawy i przeróbki. Na miejscu
-              sklep z gotową biżuterią.
+              sklep z gotową biżuterią złotą i srebrną.
             </span>
           </div>
           <div className="footer-col">
