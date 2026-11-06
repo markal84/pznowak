@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
-import { originalFilmCaption, STONE_VARIANTS_NOTE, STONE_VARIANTS_NOTE_NATURAL, stoneVariantsNote } from '@/lib/stone-variants'
+import {
+  mainStoneName,
+  originalFilmCaption,
+  PHOTOGRAPHED_STONE_NOTE,
+  photographedStoneLabel,
+  STONE_VARIANTS_NOTE,
+  STONE_VARIANTS_NOTE_NATURAL,
+  stoneVariantsNote,
+} from '@/lib/stone-variants'
 import { cutoutCheckPrompt, cutoutPrompt, jobs, loadConfig } from '../../scripts/wizualizacje-w-logic'
 import { cropBox, hintRegion, inHue, originalStoneMask, verifyCutout } from '../../scripts/wizualizacje-wycinek-logic'
 
@@ -198,10 +206,18 @@ describe('Y.2: konfiguracja i prompty wycinka', () => {
 })
 
 describe('Y.2: film przy wariancie i dopisek pod kółkami', () => {
-  it('podpis filmu: „Film: oryginał (<kamień oryginału>)”, pierwsza litera mała', () => {
-    expect(originalFilmCaption('Diament niebieski')).toBe('Film: oryginał (diament niebieski)')
-    expect(originalFilmCaption('Topaz London Blue i diamenty')).toBe('Film: oryginał (topaz London Blue i diamenty)')
-    expect(originalFilmCaption('')).toBe('Film: oryginał')
+  it('podpis filmu: „Na filmie kamień: <kamień główny>”, pierwsza litera mała, bez „oryginał”', () => {
+    expect(originalFilmCaption('Diament niebieski')).toBe('Na filmie kamień: diament niebieski')
+    expect(originalFilmCaption('Diament niebieski, diamenty')).toBe('Na filmie kamień: diament niebieski')
+    expect(originalFilmCaption('Topaz London Blue i diamenty')).toBe('Na filmie kamień: topaz London Blue i diamenty')
+    expect(originalFilmCaption('')).toBe('Na filmie kamień ze zdjęć')
+  })
+
+  it('kółko kamienia ze zdjęć: nazwa kamienia (jak pozostałe), nie „Oryginał”', () => {
+    expect(mainStoneName('Diament niebieski, diamenty')).toBe('Diament niebieski')
+    expect(mainStoneName('  Topaz London Blue i diamenty ')).toBe('Topaz London Blue i diamenty')
+    expect(photographedStoneLabel('Diament niebieski, diamenty')).toBe('Diament niebieski, diamenty – kamień ze zdjęć')
+    expect(photographedStoneLabel('')).toBe('Kamień ze zdjęć')
   })
 
   it('dopisek: jeden tekst o kamieniach naturalnych', () => {
@@ -212,11 +228,13 @@ describe('Y.2: film przy wariancie i dopisek pod kółkami', () => {
 
 describe('dopisek pod kółkami zależy od rodzaju wariantów', () => {
   it('karta z wizualizacją dostaje zdanie o wizualizacjach', () => {
-    expect(stoneVariantsNote([{ isVisualization: false }, { isVisualization: true }])).toBe(STONE_VARIANTS_NOTE)
+    expect(stoneVariantsNote([{ isVisualization: false }, { isVisualization: true }])).toBe(
+      `${PHOTOGRAPHED_STONE_NOTE} ${STONE_VARIANTS_NOTE}`,
+    )
   })
   it('karta z samymi prawdziwymi zdjęciami (Urania) dostaje tylko zdanie o kamieniach naturalnych', () => {
     const note = stoneVariantsNote([{ isVisualization: false }, { isVisualization: false }])
-    expect(note).toBe(STONE_VARIANTS_NOTE_NATURAL)
+    expect(note).toBe(`${PHOTOGRAPHED_STONE_NOTE} ${STONE_VARIANTS_NOTE_NATURAL}`)
     expect(note).not.toMatch(/Wizualizacje/)
   })
 })
