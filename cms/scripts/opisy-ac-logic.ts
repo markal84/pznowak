@@ -11,7 +11,8 @@ import { OPISY_DIR, loadSpecs as loadSpecsU, lintSpec, type LintIssue } from './
 
 export const AC_PATH = path.join(OPISY_DIR, 'opisy-ac.json')
 
-export type AcSpec = { id: number; name: string; lead: string; description: string }
+/** `id` 0 + `slug`: karta bez stałego id w eksporcie (Thalia, Euterpe – szkice z importu opublikowane 06.11). */
+export type AcSpec = { id: number; slug?: string; name: string; lead: string; description: string }
 export type KnownText = { lead: string; description: string }
 
 export function loadAcSpecs(source: string = AC_PATH): AcSpec[] {
@@ -23,7 +24,8 @@ export function loadAcSpecs(source: string = AC_PATH): AcSpec[] {
       if (typeof item[key] !== 'string') throw new Error(`opisy-ac.json, pozycja ${index + 1}: brak tekstowego „${key}”`)
     }
     if (typeof item.id !== 'number') throw new Error(`opisy-ac.json, pozycja ${index + 1}: brak liczbowego „id”`)
-    const extra = Object.keys(item).filter((key) => !['id', 'name', 'lead', 'description'].includes(key))
+    if (item.id === 0 && typeof item.slug !== 'string') throw new Error(`opisy-ac.json, pozycja ${index + 1}: id 0 wymaga „slug”`)
+    const extra = Object.keys(item).filter((key) => !['id', 'slug', 'name', 'lead', 'description'].includes(key))
     if (extra.length) throw new Error(`opisy-ac.json, karta ${item.id}: nieznane pola ${extra.join(', ')}`)
     return item as AcSpec
   })
@@ -33,8 +35,23 @@ export function loadAcSpecs(source: string = AC_PATH): AcSpec[] {
  * Teksty, które karta ma prawo mieć przed zmianą: ze zlecenia U, a Urania – opis fasonu z AB. Inny tekst na stagingu
  * to ręczna poprawka w panelu i zostaje.
  */
-export function knownTexts(id: number): KnownText[] {
+const LEGACY_PATH = path.resolve(OPISY_DIR, '../../../data/legacy/collection.json')
+
+/** Teksty z WordPressa (import): karty, których zlecenie U nie objęło, bo były szkicami. */
+function legacyTexts(name: string): KnownText[] {
+  try {
+    const legacy = JSON.parse(readFileSync(LEGACY_PATH, 'utf8')) as { products: { name: string; lead?: string; description?: string }[] }
+    return legacy.products
+      .filter((product) => product.name === name)
+      .map((product) => ({ lead: product.lead ?? '', description: product.description ?? '' }))
+  } catch {
+    return []
+  }
+}
+
+export function knownTexts(id: number, name?: string): KnownText[] {
   const known: KnownText[] = []
+  if (name) known.push(...legacyTexts(name))
   const u = loadSpecsU().find((spec) => spec.id === id)
   if (u?.lead !== undefined && u.description !== undefined) known.push({ lead: u.lead, description: u.description })
   if (id === 17) known.push({ lead: URANIA_AB_TEXT.lead, description: URANIA_AB_TEXT.description })
@@ -48,8 +65,8 @@ export type AcPlan =
   | { action: 'zmien'; data: { lead: string; description: string }; note: string }
   | { action: 'juz' | 'pomin'; note: string }
 
-export function planAc(card: CardText | undefined, spec: AcSpec, known: KnownText[] = knownTexts(spec.id)): AcPlan {
-  if (!card) return { action: 'pomin', note: `nie ma karty o id ${spec.id}` }
+export function planAc(card: CardText | undefined, spec: AcSpec, known: KnownText[] = knownTexts(spec.id, spec.name)): AcPlan {
+  if (!card) return { action: 'pomin', note: `nie ma karty ${spec.id ? `o id ${spec.id}` : `„${spec.slug}”`}` }
   if (card.name !== spec.name) return { action: 'pomin', note: `nazwa „${card.name}” nie zgadza się z „${spec.name}”` }
   const sameLead = norm(card.lead) === norm(spec.lead)
   const sameDescription = norm(card.description) === norm(spec.description)

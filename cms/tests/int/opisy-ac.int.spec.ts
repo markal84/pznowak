@@ -8,8 +8,25 @@ import { knownTexts, lintAc, loadAcSpecs, planAc, STONE_OPENING } from '../../sc
 const specs = loadAcSpecs()
 
 describe('AC: treść opisy-ac.json', () => {
-  it('cztery karty z wariantami kamienia', () => {
-    expect(specs.map((s) => s.name).sort()).toEqual(['Aion', 'Cyane', 'Daphne', 'Urania'])
+  it('karty z wariantami (partia 1) i reszta opublikowanych bez Pyrrhy i Nyx (połączone z Uranią), z Thalią i Euterpe', () => {
+    const names = specs.map((s) => s.name)
+    expect(names.slice(0, 4)).toEqual(['Cyane', 'Daphne', 'Aion', 'Urania'])
+    expect(names).toContain('Thalia')
+    expect(names).toContain('Euterpe')
+    expect(names).not.toContain('Pyrrha')
+    expect(names).not.toContain('Nyx')
+    expect(new Set(names).size).toBe(names.length)
+  })
+
+  it('karty bez id mają slug', () => {
+    for (const spec of specs.filter((s) => s.id === 0)) expect(spec.slug).toMatch(/^[a-z-]+$/)
+  })
+
+  it('Thalia: tekst z WordPressa liczy się jako znany (nadpisujemy bez --nadpisz)', () => {
+    const thalia = specs.find((s) => s.name === 'Thalia')!
+    const legacy = knownTexts(0, 'Thalia')
+    expect(legacy.length).toBeGreaterThan(0)
+    expect(planAc({ id: 99, name: 'Thalia', ...legacy[0] }, thalia).action).toBe('zmien')
   })
 
   it.each(specs.map((s) => [s.name, s] as const))('%s: standard U + początek od fasonu', (_name, spec) => {

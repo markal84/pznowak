@@ -3,7 +3,7 @@
  *
  *   npm run staging:opisy-ac              sprawdzenie: nic nie zapisuje, pokazuje plan
  *   npm run staging:opisy-ac -- --apply   zapis; karta opublikowana zostaje opublikowana, szkic – szkicem
- *   npm run staging:opisy-ac -- --apply --nadpisz=46,17
+ *   npm run staging:opisy-ac -- --apply --nadpisz=46,17,thalia
  *                                         jak wyżej, ale te karty nadpisuje także po ręcznej zmianie w panelu;
  *                                         ich stary tekst idzie na ekran i do seed/opisy/opisy-ac-kopia.json
  *
@@ -19,12 +19,12 @@ import config from '../src/payload.config'
 import { AC_PATH, loadAcSpecs, planAc } from './opisy-ac-logic'
 
 const applyChanges = process.argv.includes('--apply')
-/** `--nadpisz=46,17`: id kart, które Marcin świadomie każe nadpisać mimo ręcznej zmiany w panelu. */
-const overwriteIds = new Set(
+/** `--nadpisz=46,17,thalia`: id albo slugi kart, które Marcin świadomie każe nadpisać mimo ręcznej zmiany w panelu. */
+const overwrite = new Set(
   (process.argv.find((arg) => arg.startsWith('--nadpisz='))?.slice('--nadpisz='.length) ?? '')
     .split(',')
-    .map((id) => Number(id.trim()))
-    .filter((id) => Number.isInteger(id) && id > 0),
+    .map((key) => key.trim())
+    .filter(Boolean),
 )
 const BACKUP_PATH = path.join(path.dirname(AC_PATH), 'opisy-ac-kopia.json')
 
@@ -51,50 +51,53 @@ try {
     pagination: false,
   })
   const cards = new Map(found.docs.map((doc) => [doc.id, doc]))
+  const bySlug = new Map(found.docs.map((doc) => [doc.slug, doc]))
   // Poza Next.js revalidateTag rzuciłby błąd; na końcu prośba o jeden zapis w panelu.
   const context = { skipFrontendRevalidation: true }
 
   const counts = { zmien: 0, juz: 0, pomin: 0, bledy: 0 }
   const backup: { id: number; name: string; lead: string; description: string }[] = []
   for (const spec of specs) {
-    const doc = cards.get(spec.id)
+    const doc = spec.id ? cards.get(spec.id) : bySlug.get(spec.slug ?? '')
+    const id = doc?.id ?? spec.id
+    const label = `#${id} ${spec.name}`
     let plan = planAc(doc && { id: doc.id, name: doc.name, lead: doc.lead, description: doc.description }, spec)
     const manual = plan.action === 'pomin' && doc?.name === spec.name
     if (manual) {
       // Pokaż, co jest teraz w panelu, żeby dało się zdecydować o nadpisaniu.
-      console.log(`  #${spec.id} ${spec.name} – teraz w panelu:\n    lead: ${doc?.lead ?? ''}\n    opis: ${(doc?.description ?? '').replace(/\n+/g, ' ¶ ')}`)
-      if (overwriteIds.has(spec.id)) {
-        backup.push({ id: spec.id, name: spec.name, lead: doc?.lead ?? '', description: doc?.description ?? '' })
+      console.log(`  ${label} – teraz w panelu:\n    lead: ${doc?.lead ?? ''}\n    opis: ${(doc?.description ?? '').replace(/\n+/g, ' ¶ ')}`)
+      if ((overwrite.has(String(id)) || (spec.slug !== undefined && overwrite.has(spec.slug)))) {
+        backup.push({ id, name: spec.name, lead: doc?.lead ?? '', description: doc?.description ?? '' })
         plan = { action: 'zmien', data: { lead: spec.lead, description: spec.description }, note: 'opis fasonu (nadpisany na prośbę, stary tekst w kopii)' }
       } else {
-        console.log(`  Nadpisanie tej karty: dodaj --nadpisz=${spec.id}`)
+        console.log(`  Nadpisanie tej karty: dodaj --nadpisz=${id}`)
       }
     }
     if (plan.action !== 'zmien') {
       counts[plan.action] += 1
-      console.log(`${plan.action === 'juz' ? '=' : '!'} #${spec.id} ${spec.name}: ${plan.note}`)
+      console.log(`${plan.action === 'juz' ? '=' : '!'} ${label}: ${plan.note}`)
       continue
     }
     if (!applyChanges) {
       counts.zmien += 1
-      console.log(`~ #${spec.id} ${spec.name}: ${plan.note}`)
+      console.log(`~ ${label}: ${plan.note}`)
       continue
     }
     const published = doc?._status === 'published'
     try {
       await payload.update({
         collection: 'products',
-        id: spec.id,
+        id,
         data: { ...plan.data, _status: published ? 'published' : 'draft' },
         draft: !published,
         overrideAccess: true,
         context,
       })
       counts.zmien += 1
-      console.log(`~ #${spec.id} ${spec.name}: ${plan.note}${published ? ', opublikowana' : ' (szkic)'}`)
+      console.log(`~ ${label}: ${plan.note}${published ? ', opublikowana' : ' (szkic)'}`)
     } catch (error) {
       counts.bledy += 1
-      console.log(`! #${spec.id} ${spec.name}: zapis nie przeszedł: ${problems(error)}`)
+      console.log(`! ${label}: zapis nie przeszedł: ${problems(error)}`)
     }
   }
 
