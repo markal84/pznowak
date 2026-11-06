@@ -218,6 +218,7 @@ const product = (name: string, extra: Partial<SiteProduct> = {}): SiteProduct =>
   featuredOnHome: false,
   homeOrder: 0,
   stoneVariants: [],
+  price: null,
   ...extra,
 })
 

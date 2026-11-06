@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
+import { PRICE_ON_REQUEST } from '@/lib/price'
 import { findVariant, inquiryHref, stoneVariantsNote, swatchHex, type StoneVariant, type SwatchId } from '@/lib/stone-variants'
 
 /**
@@ -119,4 +120,14 @@ export function StoneVariantPicker({ originalStone, originalSwatch }: { original
       <p className="stone-variants-note">{stoneVariantsNote(variants)}</p>
     </section>
   )
+}
+
+/**
+ * Wiersz „Cena” na karcie: cena z panelu dotyczy kamienia ze zdjęć. Po wyborze innego kamienia (warianty są bez ceny)
+ * pokazuje „Cena na zapytanie”.
+ */
+export function VariantPriceFact({ children }: { children: ReactNode }) {
+  const selected = useSelectedStoneVariant()
+  if (!selected) return <>{children}</>
+  return <>{PRICE_ON_REQUEST}</>
 }

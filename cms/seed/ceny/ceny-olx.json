@@ -1,0 +1,24 @@
+{
+  "zrodlo": "Ogłoszenia OLX pracowni, zebrane 05.11.2026 (docs/od-kamili/2026-11-05/ceny-olx.md na Macu Marcina). Ceny w pełnych złotych, dla kamienia ze zdjęć.",
+  "ceny": [
+    { "name": "Pelagia", "price": 5499, "uwaga": "ogłoszenie OLX zakończone 21.10; Marcin 06.11: cena zostaje, Michał może wykonać ponownie" },
+    { "name": "Aria", "price": 2949 },
+    { "name": "Helios", "price": 3999 },
+    { "name": "Daphne", "price": 3199 },
+    { "name": "Urania", "price": 3199 },
+    { "name": "Rhea", "price": 2399 },
+    { "name": "Rhodope", "price": 2200 },
+    { "name": "Erythea", "price": 3599 },
+    { "name": "Dione", "price": 2699, "uwaga": "w ogłoszeniu 0,13 ct, w panelu 0,23 ct – pytanie do Kamili" },
+    { "name": "Thalia", "price": 4199 },
+    { "name": "Euterpe", "price": 5550 },
+    { "name": "Celaeno", "price": 7199 },
+    { "name": "Chryse", "price": 2899 },
+    { "name": "Chloris", "price": 2290 },
+    { "name": "Prometheus", "price": 1590 }
+  ],
+  "bezKarty": [
+    { "olx": "Pierścionek zaręczynowy z diamentem złoty", "price": 1899, "pytanie": "Kamila: która to karta, albo czy trzeba dodać zdjęcia" },
+    { "olx": "Pierścionek złoty Andaluzyt Diamenty 585", "price": 3299, "pytanie": "Kamila: czy to Eos (w panelu morganit) i jaki to kamień" }
+  ]
+}

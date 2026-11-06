@@ -15,8 +15,10 @@ import {
   StoneVariantPicker,
   StoneVariantProvider,
   VariantInquiryLink,
+  VariantPriceFact,
   VariantStoneFact,
 } from '@/components/site/StoneVariants'
+import { formatPrice, PRICE_ON_REQUEST } from '@/lib/price'
 import { originalSwatch } from '@/lib/stone-variants'
 
 export const dynamic = 'force-dynamic'
@@ -119,7 +121,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
               </dd>
               <dt className="total">Cena</dt>
               <dd className="total">
-                <DoUzupelnienia fallback="Wycena przed rozpoczęciem pracy">od [X] zł w tej wersji</DoUzupelnienia>
+                <VariantPriceFact>{formatPrice(product.price) || PRICE_ON_REQUEST}</VariantPriceFact>
               </dd>
             </dl>
           </div>

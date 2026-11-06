@@ -145,6 +145,10 @@ export interface Product {
   slug: string;
   lead?: string | null;
   description?: string | null;
+  /**
+   * Cena pierścionka z kamieniem ze zdjęć, w pełnych złotych (np. 2949). Na stronie: „od 2949 zł” na liście i na karcie. Puste = „Cena na zapytanie” na karcie, a na liście bez ceny.
+   */
+  price?: number | null;
   metal?: string | null;
   stone?: string | null;
   carats?: string | null;
@@ -574,6 +578,7 @@ export interface ProductsSelect<T extends boolean = true> {
   slug?: T;
   lead?: T;
   description?: T;
+  price?: T;
   metal?: T;
   stone?: T;
   carats?: T;

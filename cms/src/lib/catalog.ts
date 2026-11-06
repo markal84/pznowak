@@ -1,4 +1,4 @@
-import type { PublicProduct as Jewel } from './public-products'
+import type { ProductPriceFields, PublicProduct as Jewel } from './public-products'
 
 export type StoneGroup = 'niebieskie' | 'zielone' | 'rozowe' | 'fioletowe' | 'zolte' | 'bezbarwne'
 export type GoldGroup = 'zolte' | 'zolte-biale' | 'biale'
@@ -131,9 +131,11 @@ export type CatalogRing = {
   goldGroup: GoldGroup | null
   image: string
   alt: string
+  /** cena z panelu w zł; `null` = bez ceny (na liście nic) */
+  price: number | null
 }
 
-export function toCatalogRing(product: Jewel): CatalogRing {
+export function toCatalogRing(product: Jewel & Partial<ProductPriceFields>): CatalogRing {
   const stone = formatStone(product.stone)
   return {
     id: product.id,
@@ -146,6 +148,7 @@ export function toCatalogRing(product: Jewel): CatalogRing {
     goldGroup: goldGroup(product.metal),
     image: product.images[0] ?? product.imagePath,
     alt: `Pierścionek ${product.name}${stone ? ': ' + stone.toLowerCase() : ''}`,
+    price: product.price ?? null,
   }
 }
 

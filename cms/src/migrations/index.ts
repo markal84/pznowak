@@ -12,6 +12,7 @@ import * as migration_20261102_100513_warianty_kamieni from './20261102_100513_w
 import * as migration_20261104_231900_warianty_cala_galeria from './20261104_231900_warianty_cala_galeria';
 import * as migration_20261105_092851_kolka_kolorow from './20261105_092851_kolka_kolorow';
 import * as migration_20261105_110548_ab_film_wariantu from './20261105_110548_ab_film_wariantu';
+import * as migration_20261106_100112_ceny_pierscionkow from './20261106_100112_ceny_pierscionkow';
 
 export const migrations = [
   {
@@ -82,6 +83,11 @@ export const migrations = [
   {
     up: migration_20261105_110548_ab_film_wariantu.up,
     down: migration_20261105_110548_ab_film_wariantu.down,
-    name: '20261105_110548_ab_film_wariantu'
+    name: '20261105_110548_ab_film_wariantu',
+  },
+  {
+    up: migration_20261106_100112_ceny_pierscionkow.up,
+    down: migration_20261106_100112_ceny_pierscionkow.down,
+    name: '20261106_100112_ceny_pierscionkow'
   },
 ];
