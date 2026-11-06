@@ -86,7 +86,7 @@ export default async function HomePage() {
       <JsonLd data={jewelryStoreJsonLd()} />
       <section className="wrap hero hero-home">
         <div className="hero-copy">
-          <h1 className="h1 h1-hero">Pierścionek zrobiony dla jednej osoby.</h1>
+          <h1 className="h1 h1-hero">Złotnictwo, które się dziedziczy.</h1>
           <p className="lead">
             Projektujemy i wykonujemy biżuterię na zamówienie w rodzinnej pracowni w Busku-Zdroju.
           </p>
