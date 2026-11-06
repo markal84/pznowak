@@ -256,8 +256,7 @@ export default async function HomePage() {
             <Link className="btn" href="/kontakt" style={{ alignSelf: 'flex-start' }}>Umów wizytę</Link>
             <p className="small">Na rozmowę o projekcie najlepiej umówić się wcześniej. Z naprawą możesz przyjść w godzinach otwarcia.</p>
             <p className="small" style={{ borderTop: '1px solid var(--line-soft)', paddingTop: 18, color: 'var(--graphite-2)' }}>
-              Na miejscu jest też sklep z gotową biżuterią
-              <DoUzupelnienia fallback=".">: kolczyki, wisiorki i inne [asortyment do potwierdzenia].</DoUzupelnienia>
+              Na miejscu jest też sklep z gotową biżuterią.
             </p>
           </aside>
         </div>
