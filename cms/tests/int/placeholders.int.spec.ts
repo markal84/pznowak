@@ -137,7 +137,8 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/pierscionki']).toContain('<span class="nm">Athena</span><span class="price">od\u00a05550\u00a0zł</span>')
     expect(p['/pierscionki']).toContain('<span class="nm">od\u00a02949\u00a0zł</span>')
     expect(p['/pierscionki']).toContain('Ostateczna cena zależy od wybranego kamienia i złota.')
-    expect(p['/naprawy']).toContain('po wycenie')
+    expect(p['/naprawy']).toContain('od 50 zł')
+    expect(p['/naprawy']).toContain('Pozostałe naprawy wyceniamy na miejscu')
     expect(p['/na-zamowienie']).not.toContain('Czy rozmowa o projekcie coś kosztuje?')
     // Opinii bez konfiguracji nie ma wcale, tak samo jak przedwczesnych sekcji ze zdjęciami.
     // Teksty realizacji „do potwierdzenia” na produkcji wyglądają zwyczajnie: bez ramki i bez znacznika czasu.

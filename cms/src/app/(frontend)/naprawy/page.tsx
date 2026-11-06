@@ -16,14 +16,14 @@ export const metadata: Metadata = pageMetadata({
 })
 
 const SERVICES: { name: string; text: string; time: string; price: string; icon: IconName }[] = [
-  { name: 'Zmiana rozmiaru pierścionka', text: 'Zmniejszenie lub powiększenie, z polerowaniem miejsca łączenia.', time: '[czas]', price: 'od [cena] zł', icon: 'rozmiar' },
-  { name: 'Czyszczenie i polerowanie', text: 'Połysk, mniej rys, czyste kamienie.', time: '[czas]', price: '[cena] zł', icon: 'czyszczenie' },
-  { name: 'Przegląd oprawy', text: 'Dociskamy kamień, zanim wypadnie.', time: '[czas]', price: '[cena] zł', icon: 'lupa' },
-  { name: 'Nowe łapki lub oprawa', text: 'Dolutowujemy łapki albo robimy nową koronę.', time: '[czas]', price: '[cena] zł', icon: 'oprawa' },
-  { name: 'Wymiana lub dosadzenie kamienia', text: 'Dobieramy kamień do oprawy i osadzamy ręcznie.', time: '[czas]', price: '[cena] zł', icon: 'kamien' },
-  { name: 'Naprawa łańcuszka lub bransoletki', text: 'Lutowanie ogniw, zapięcie, skrócenie.', time: '[czas]', price: '[cena] zł', icon: 'lancuszek' },
-  { name: 'Grawer', text: 'Daty, inicjały, krótkie napisy w obrączce.', time: '[czas]', price: '[cena] zł', icon: 'grawer' },
-  { name: 'Renowacja biżuterii z historią', text: 'Naprawa z zachowaniem charakteru starej biżuterii.', time: 'indywidualnie', price: 'po wycenie', icon: 'renowacja' },
+  { name: 'Zmiana rozmiaru pierścionka', text: 'Zmniejszenie lub powiększenie, z polerowaniem miejsca łączenia.', time: '[czas]', price: 'od 50 zł', icon: 'rozmiar' },
+  { name: 'Czyszczenie i polerowanie', text: 'Połysk, mniej rys, czyste kamienie.', time: '[czas]', price: 'od 40 zł', icon: 'czyszczenie' },
+  { name: 'Przegląd oprawy', text: 'Dociskamy kamień, zanim wypadnie.', time: '[czas]', price: 'od 40 zł', icon: 'lupa' },
+  { name: 'Nowe łapki lub oprawa', text: 'Dolutowujemy łapki albo robimy nową koronę.', time: '[czas]', price: 'od 60 zł', icon: 'oprawa' },
+  { name: 'Wymiana lub dosadzenie kamienia', text: 'Dobieramy kamień do oprawy i osadzamy ręcznie.', time: '[czas]', price: 'od 60 zł', icon: 'kamien' },
+  { name: 'Naprawa łańcuszka lub bransoletki', text: 'Lutowanie ogniw, zapięcie, skrócenie.', time: '[czas]', price: 'od 45 zł', icon: 'lancuszek' },
+  { name: 'Grawer', text: 'Daty, inicjały, krótkie napisy w obrączce.', time: '[czas]', price: '4 zł za znak', icon: 'grawer' },
+  { name: 'Renowacja biżuterii z historią', text: 'Naprawa z zachowaniem charakteru starej biżuterii.', time: 'indywidualnie', price: 'do uzgodnienia', icon: 'renowacja' },
 ]
 
 /** Czas i cena z nawiasem to placeholder: na produkcji w jego miejsce wchodzi `fallback`. */
@@ -89,7 +89,7 @@ export default function RepairsPage() {
 
       <section className="wrap stack" style={{ paddingTop: 24, paddingBottom: 104, gap: 40 }}>
         <SectionIntro
-          intro={byEnv('Ceny są orientacyjne.', undefined)}
+          intro="Ceny są orientacyjne. Pozostałe naprawy wyceniamy na miejscu, po obejrzeniu przedmiotu."
           title={byEnv('Co robimy i ile to trwa', 'Co robimy')}
         />
         <ul data-reveal="" style={{ listStyle: 'none', borderTop: '1px solid var(--graphite)' }}>

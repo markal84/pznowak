@@ -106,8 +106,7 @@ export default function StudioPage() {
             Pracownia mieści się przy ulicy {SITE.street} w Busku-Zdroju. Na rozmowę o projekcie umów się wcześniej, wtedy mamy dla Ciebie czas i kamienie do obejrzenia.
           </p>
           <p className="text" style={{ maxWidth: '30em' }}>
-            Przy pracowni działa sklep z gotową biżuterią
-            <DoUzupelnienia fallback=".">: kolczykami, wisiorkami i innymi [asortyment do potwierdzenia].</DoUzupelnienia>
+            Przy pracowni działa sklep z gotową biżuterią.
           </p>
           <dl className="hours" style={{ fontSize: 16 }}>
             {SITE.hours.map((h) => (
