@@ -2790,6 +2790,13 @@ fieldset.plain legend {
       animation-range: entry 18% entry 88%;
     }
   }
+  /* Na telefonie bez animacji przy przewijaniu: w dwóch kolumnach karty pojawiały się nierówno
+     (jedna już widoczna, druga jeszcze blada) i drgały razem z paskiem adresu Safari. */
+  @media (max-width: 720px) {
+    [data-reveal] > * {
+      animation: none;
+    }
+  }
 }
 
 @keyframes rise {
