@@ -19,7 +19,7 @@ export const Products: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'slug', '_status', 'archived', 'sortOrder', 'updatedAt'],
+    defaultColumns: ['name', 'slug', 'price', '_status', 'archived', 'sortOrder', 'updatedAt'],
     group: 'Katalog',
     listSearchableFields: ['name', 'slug', 'metal', 'stone'],
     description: 'Pierścionki widoczne w katalogu strony.',
@@ -74,6 +74,17 @@ export const Products: CollectionConfig = {
               name: 'description',
               type: 'textarea',
               label: 'Pełny opis',
+            },
+            {
+              name: 'price',
+              type: 'number',
+              label: 'Cena (zł)',
+              min: 0,
+              admin: {
+                step: 1,
+                description:
+                  'Cena pierścionka z kamieniem ze zdjęć, w pełnych złotych (np. 2949). Na stronie: „od 2949 zł” na przywieszce na liście i pod nazwą na karcie. Puste = „Na zapytanie” na karcie, a na liście bez ceny.',
+              },
             },
           ],
         },

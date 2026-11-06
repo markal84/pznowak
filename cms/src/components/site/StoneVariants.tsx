@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
+import { PRICE_ON_REQUEST_SHORT } from '@/lib/price'
+import PriceOffer from './PriceOffer'
 import { findVariant, inquiryHref, stoneVariantsNote, swatchHex, type StoneVariant, type SwatchId } from '@/lib/stone-variants'
 
 /**
@@ -118,5 +120,23 @@ export function StoneVariantPicker({ originalStone, originalSwatch }: { original
       </div>
       <p className="stone-variants-note">{stoneVariantsNote(variants)}</p>
     </section>
+  )
+}
+
+/**
+ * Cena na karcie pierścionka, pod nazwą i krótkim opisem: ta sama papierowa przywieszka co w nagłówku katalogu
+ * i przy obrączkach. Cena z panelu dotyczy kamienia ze zdjęć; po wyborze innego kamienia (warianty są bez ceny)
+ * przywieszka pokazuje „Na zapytanie”.
+ */
+export function ProductPrice({ price }: { price: string }) {
+  const selected = useSelectedStoneVariant()
+  const value = selected || !price ? PRICE_ON_REQUEST_SHORT : price
+  const label = selected ? 'Cena z innym kamieniem' : 'Cena'
+  return (
+    <PriceOffer
+      label={label}
+      note="Rozmiar, kolor złota i kamień mogą zmienić cenę. Wycenę dostajesz przed rozpoczęciem pracy."
+      price={value}
+    />
   )
 }

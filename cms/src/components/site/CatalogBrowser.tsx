@@ -85,6 +85,7 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
                 key={r.slug}
                 gold={r.goldLabel}
                 name={r.name}
+                price={r.price}
                 sizes="(max-width: 720px) 50vw, (max-width: 1320px) 30vw, 300px"
                 slug={r.slug}
                 stone={r.stone}

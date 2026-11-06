@@ -32,13 +32,14 @@ const product = (id: number, name: string, extra: Partial<SiteProduct> = {}): Si
   featuredOnHome: false,
   homeOrder: 0,
   stoneVariants: [],
+  price: null,
   ...extra,
 })
 
 const catalog = [
   product(1, 'Phoebe'),
-  product(2, 'Harmonia'),
-  product(3, 'Athena'),
+  product(2, 'Harmonia', { price: 2949 }),
+  product(3, 'Athena', { price: 5550 }),
   product(4, 'Urania'),
   product(5, 'Cyane'),
   product(6, 'Bez-kamienia', { stone: '', metal: '' }),
@@ -90,6 +91,7 @@ const pages = async () => ({
   '/': html(await HomePage()),
   '/pierscionki': html(await CatalogPage()),
   '/pierscionki/phoebe': html(await ProductPage({ params: Promise.resolve({ slug: 'phoebe' }), searchParams: Promise.resolve({}) })),
+  '/pierscionki/harmonia': html(await ProductPage({ params: Promise.resolve({ slug: 'harmonia' }), searchParams: Promise.resolve({}) })),
   '/pierscionki/bez-kamienia': html(await ProductPage({ params: Promise.resolve({ slug: 'bez-kamienia' }), searchParams: Promise.resolve({}) })),
   '/obraczki': html(await BandsPage()),
   '/na-zamowienie': html(await OnOrderPage()),
@@ -129,7 +131,12 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/']).toContain('Cenę i wygląd znasz, zanim zaczniemy.')
     expect(p['/']).not.toContain('mija zwykle')
     expect(p['/']).toContain('Na miejscu jest też sklep z gotową biżuterią')
-    expect(p['/pierscionki/phoebe']).toContain('Wycena przed rozpoczęciem pracy')
+    // Ceny (pole „Cena (zł)”): z ceną „od … zł”, bez ceny „Cena na zapytanie”; nagłówek katalogu = najniższa cena.
+    expect(p['/pierscionki/phoebe']).toContain('<span class="nm">Na zapytanie</span>')
+    expect(p['/pierscionki/harmonia']).toContain('<span class="sub">Cena</span><span class="nm">od\u00a02949\u00a0zł</span>')
+    expect(p['/pierscionki']).toContain('<span class="nm">Athena</span><span class="price">od\u00a05550\u00a0zł</span>')
+    expect(p['/pierscionki']).toContain('<span class="nm">od\u00a02949\u00a0zł</span>')
+    expect(p['/pierscionki']).toContain('Ostateczna cena zależy od wybranego kamienia i złota.')
     expect(p['/naprawy']).toContain('po wycenie')
     expect(p['/na-zamowienie']).not.toContain('Czy rozmowa o projekcie coś kosztuje?')
     // Opinii bez konfiguracji nie ma wcale, tak samo jak przedwczesnych sekcji ze zdjęciami.
@@ -164,7 +171,10 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/']).toContain('data-todo')
     expect(p['/']).toContain('[TERMIN, np. 4–6 tygodni]')
     expect(p['/']).toContain('Tu będą 3–4 opinie z Google')
-    expect(p['/pierscionki/phoebe']).toContain('od [X] zł w tej wersji')
+    // Cena nie jest już znacznikiem: karta bez ceny ma „Cena na zapytanie” także na podglądzie.
+    expect(p['/pierscionki/phoebe']).toContain('<span class="nm">Na zapytanie</span>')
+    expect(p['/pierscionki/phoebe']).not.toContain('od [X] zł w tej wersji')
+    expect(p['/pierscionki']).not.toContain('od [cena] zł')
     expect(p['/obraczki']).toContain('od [X] zł za parę')
     expect(p['/naprawy']).toContain('[czas]')
     expect(p['/realizacje']).toContain('[czas do uzupełnienia]')

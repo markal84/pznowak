@@ -480,6 +480,14 @@ summary::-webkit-details-marker {
   line-height: 1.4;
   color: var(--muted);
 }
+/* Cena na przywieszce kafelka (lista pierścionków): pod nazwą, tym samym krojem, w kolorze patyny. */
+.tag .price {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--patina);
+  margin-top: 1px;
+}
 .tag-md {
   --c: 16px;
   gap: 4px;
@@ -1135,6 +1143,11 @@ summary::-webkit-details-marker {
 }
 .facts dd.total {
   font-weight: 600;
+}
+
+/* Cena na karcie pierścionka: przywieszka (PriceOffer) zaraz pod nazwą i krótkim opisem. */
+.product-price .offer-tag .nm {
+  font-size: 30px;
 }
 
 /* ---------- „Zamów z innym kamieniem” (zlecenie V) ---------- */

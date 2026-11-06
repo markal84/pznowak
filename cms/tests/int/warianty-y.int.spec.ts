@@ -214,6 +214,7 @@ const product: SiteProduct = {
   updatedAt: '2026-11-05T00:00:00.000Z',
   featuredOnHome: false,
   homeOrder: 0,
+  price: null,
   stoneVariants: [
     ...galleryVariants,
     // Kształt sprzed Y (wpis z Data Cache zapisany starszym wdrożeniem): bez `images`.
