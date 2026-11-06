@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
-import { findVariant, inquiryHref, STONE_VARIANTS_NOTE, swatchHex, type StoneVariant, type SwatchId } from '@/lib/stone-variants'
+import { findVariant, inquiryHref, stoneVariantsNote, swatchHex, type StoneVariant, type SwatchId } from '@/lib/stone-variants'
 
 /**
  * „Zamów z innym kamieniem” (zlecenie V). Wybór kamienia jest wspólny dla kilku miejsc karty (galeria, parametr
@@ -116,7 +116,7 @@ export function StoneVariantPicker({ originalStone, originalSwatch }: { original
           )
         })}
       </div>
-      <p className="stone-variants-note">{STONE_VARIANTS_NOTE}</p>
+      <p className="stone-variants-note">{stoneVariantsNote(variants)}</p>
     </section>
   )
 }

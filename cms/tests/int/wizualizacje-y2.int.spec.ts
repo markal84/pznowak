@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { originalFilmCaption, STONE_VARIANTS_NOTE } from '@/lib/stone-variants'
+import { originalFilmCaption, STONE_VARIANTS_NOTE, STONE_VARIANTS_NOTE_NATURAL, stoneVariantsNote } from '@/lib/stone-variants'
 import { cutoutCheckPrompt, cutoutPrompt, jobs, loadConfig } from '../../scripts/wizualizacje-w-logic'
 import { cropBox, hintRegion, inHue, originalStoneMask, verifyCutout } from '../../scripts/wizualizacje-wycinek-logic'
 
@@ -207,5 +207,16 @@ describe('Y.2: film przy wariancie i dopisek pod kółkami', () => {
   it('dopisek: jeden tekst o kamieniach naturalnych', () => {
     expect(STONE_VARIANTS_NOTE).toMatch(/^Wizualizacje pokazują kolor kamienia\./)
     expect(STONE_VARIANTS_NOTE).toContain('przed zamówieniem pokażemy Ci zdjęcie lub film kamienia')
+  })
+})
+
+describe('dopisek pod kółkami zależy od rodzaju wariantów', () => {
+  it('karta z wizualizacją dostaje zdanie o wizualizacjach', () => {
+    expect(stoneVariantsNote([{ isVisualization: false }, { isVisualization: true }])).toBe(STONE_VARIANTS_NOTE)
+  })
+  it('karta z samymi prawdziwymi zdjęciami (Urania) dostaje tylko zdanie o kamieniach naturalnych', () => {
+    const note = stoneVariantsNote([{ isVisualization: false }, { isVisualization: false }])
+    expect(note).toBe(STONE_VARIANTS_NOTE_NATURAL)
+    expect(note).not.toMatch(/Wizualizacje/)
   })
 })

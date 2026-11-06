@@ -209,8 +209,17 @@ export function originalSwatch(stone: string): SwatchId {
  * Dopisek pod kółkami (Kamila 05.11, zlecenie Y.2): jeden tekst dla każdej karty z wariantami. Wizualizacja pokazuje
  * kolor, a kamień naturalny klient i tak zobaczy przed zamówieniem.
  */
-export const STONE_VARIANTS_NOTE =
-  'Wizualizacje pokazują kolor kamienia. Kamienie naturalne różnią się między sobą odcieniem i blaskiem – przed zamówieniem pokażemy Ci zdjęcie lub film kamienia, który dla Ciebie wybierzemy.'
+export const STONE_VARIANTS_NOTE_NATURAL =
+  'Kamienie naturalne różnią się między sobą odcieniem i blaskiem – przed zamówieniem pokażemy Ci zdjęcie lub film kamienia, który dla Ciebie wybierzemy.'
+export const STONE_VARIANTS_NOTE = `Wizualizacje pokazują kolor kamienia. ${STONE_VARIANTS_NOTE_NATURAL}`
+
+/**
+ * Dopisek dla konkretnej karty: zdanie o wizualizacjach tylko, gdy któryś wariant jest wizualizacją. Karta z samymi
+ * prawdziwymi zdjęciami (AB, np. Urania) dostaje tylko zdanie o kamieniach naturalnych.
+ */
+export function stoneVariantsNote(variants: readonly Pick<StoneVariant, 'isVisualization'>[]): string {
+  return variants.some((variant) => variant.isVisualization) ? STONE_VARIANTS_NOTE : STONE_VARIANTS_NOTE_NATURAL
+}
 
 /**
  * Podpis filmu, gdy wybrany jest inny kamień niż oryginał (zlecenie Y.2): filmu nie przemalowujemy, więc mówimy wprost,
