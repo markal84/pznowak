@@ -36,7 +36,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 test.describe('Nowy design: strony i nawigacja', () => {
   test('strona główna pokazuje hero, liczbę pierścionków i przywieszkę', async ({ page }) => {
     await visit(page, '/')
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Pierścionek zrobiony dla jednej osoby.')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Złotnictwo, które się dziedziczy.')
     await expect(page.getByRole('link', { name: /Zobacz \d+ pierścion/ })).toBeVisible()
     await expect(page.locator('.hero-tag .nm')).not.toBeEmpty()
     await noHorizontalScroll(page)
