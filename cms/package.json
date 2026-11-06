@@ -26,6 +26,7 @@
     "staging:polaczenie": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-polaczenie-ab.ts",
     "staging:ceny": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-ceny.ts",
     "staging:opisy": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-opisy-u.ts",
+    "staging:opisy-ac": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-opisy-ac.ts",
     "staging:realizacje": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-realizacje.ts",
     "staging:warianty": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-warianty-v.ts",
     "warianty:wizualizacje": "node --import=tsx/esm scripts/wizualizacje-codex.ts",

@@ -1084,12 +1084,7 @@ summary::-webkit-details-marker {
   font-size: 13px;
   font-weight: 600;
 }
-.thumb .film small {
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.2;
-}
-/* Podpis filmu przy wybranym innym kamieniu (Y.2): u góry, żeby nie zasłaniał przycisków odtwarzacza na dole. */
+/* Podpis filmu przy wybranym innym kamieniu („Na filmie kamień: …”): u góry, żeby nie zasłaniał przycisków odtwarzacza na dole. */
 .film-original {
   position: absolute;
   top: 12px;

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 
 import { expect, test, type Page } from '@playwright/test'
-import { originalFilmCaption, STONE_VARIANTS_NOTE } from '../../src/lib/stone-variants'
+import { originalFilmCaption, PHOTOGRAPHED_STONE_NOTE, STONE_VARIANTS_NOTE } from '../../src/lib/stone-variants'
 import { presetConsent } from '../helpers/consent'
 
 /**
@@ -41,9 +41,9 @@ test.describe('Zamów z innym kamieniem (zlecenie V)', () => {
     const options = section.getByRole('group', { name: 'Kamień' }).getByRole('button')
     await expect(options).toHaveCount(1 + aionVariants)
     await expect(options.first()).toHaveAttribute('aria-pressed', 'true')
-    await expect(options.first()).toHaveAccessibleName(/^Oryginał/)
+    await expect(options.first()).toHaveAccessibleName(/– kamień ze zdjęć$/)
     // Dopisek pod kółkami (Y.2): jeden tekst ze stałej, na każdej karcie z wariantami.
-    await expect(section.locator('.stone-variants-note')).toHaveText(STONE_VARIANTS_NOTE)
+    await expect(section.locator('.stone-variants-note')).toHaveText(`${PHOTOGRAPHED_STONE_NOTE} ${STONE_VARIANTS_NOTE}`)
     await expect(page.locator('.product-main .variant-tag')).toHaveCount(0)
 
     const originalSrc = await mainImage(page).getAttribute('src')
@@ -128,14 +128,14 @@ test.describe('Kamień zmienia całą galerię (zlecenie Y)', () => {
       await expect(mainImage(page)).toHaveAttribute('alt', /\(wizualizacja\)$/)
     }
 
-    await page.getByRole('button', { name: /^Oryginał/ }).click()
+    await page.getByRole('button', { name: /– kamień ze zdjęć$/ }).click()
     await expect(page.locator('.product-main .variant-tag')).toHaveCount(0)
     expect(await thumbSrcs()).toEqual(originalSrcs)
   })
 })
 
 test.describe('Film przy wybranym kamieniu (zlecenie Y.2)', () => {
-  test('Cyane: przy innym kamieniu film ma podpis „Film: oryginał (…)” na miniaturze i w odtwarzaczu, przy oryginale bez', async ({ page }) => {
+  test('Cyane: przy innym kamieniu film ma podpis „Na filmie kamień: …” w odtwarzaczu, przy kamieniu ze zdjęć bez', async ({ page }) => {
     const response = await visit(page, '/pierscionki/cyane')
     const ready =
       response?.ok() &&
@@ -145,10 +145,10 @@ test.describe('Film przy wybranym kamieniu (zlecenie Y.2)', () => {
 
     const originalStone = ((await stoneFact(page).textContent()) ?? '').trim()
     const caption = originalFilmCaption(originalStone)
-    expect(caption).toMatch(/^Film: oryginał \(.+\)$/)
+    expect(caption).toMatch(/^Na filmie kamień: .+$/)
     const thumbs = page.getByRole('group', { name: 'Zdjęcia pierścionka' }).getByRole('button')
 
-    // Oryginał: zwykły film, bez podpisu.
+    // Kamień ze zdjęć: zwykły film, bez podpisu.
     await expect(thumbs.filter({ hasText: 'Film' })).toHaveAccessibleName('Film o pierścionku')
     await thumbs.filter({ hasText: 'Film' }).click()
     await expect(page.locator('.product-main video')).toHaveCount(1)
@@ -158,7 +158,6 @@ test.describe('Film przy wybranym kamieniu (zlecenie Y.2)', () => {
     await page.locator('.stone-option').nth(1).click()
     const film = thumbs.filter({ hasText: 'Film' })
     await expect(film).toHaveAccessibleName(caption)
-    await expect(film).toContainText('oryginał')
     await film.click()
     await expect(page.locator('.product-main .film-original')).toHaveText(caption)
     await expect(page.locator('.product-main .film-original')).toBeVisible()
@@ -166,7 +165,7 @@ test.describe('Film przy wybranym kamieniu (zlecenie Y.2)', () => {
     await expect(page.locator('.product-main .film-original')).toBeVisible()
 
     // Powrót do oryginału: podpis znika.
-    await page.getByRole('button', { name: /^Oryginał/ }).click()
+    await page.getByRole('button', { name: /– kamień ze zdjęć$/ }).click()
     await expect(page.locator('.film-original')).toHaveCount(0)
     await expect(thumbs.filter({ hasText: 'Film' })).toHaveAccessibleName('Film o pierścionku')
   })

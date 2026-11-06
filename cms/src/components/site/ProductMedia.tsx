@@ -65,7 +65,7 @@ export default function ProductMedia({ name, images, video, originalStone, child
         label: `Zdjęcie ${i + 1}: ${IMAGE_LABELS[i] ?? 'kolejne ujęcie'}`,
       }))
   // Film: wariant z własnym filmem (AB) gra swój; inaczej gra film oryginału. Wtedy przy wybranym innym kamieniu
-  // podpis „Film: oryginał (…)” na miniaturze i w odtwarzaczu (Y.2). Własny film wariantu jest prawdziwy – bez podpisu.
+  // podpis „Na filmie kamień: …” w odtwarzaczu i w nazwie miniatury. Własny film wariantu jest prawdziwy – bez podpisu.
   const clip = galleryVideo(variant, variantSrcs, video, images)
   const filmCaption = variant && clip && clip.src === video ? originalFilmCaption(originalStone) : undefined
   if (clip) {
@@ -258,7 +258,6 @@ export default function ProductMedia({ name, images, video, originalStone, child
               {item.kind === 'video' ? (
                 <span aria-hidden="true" className="film">
                   Film
-                  {item.caption ? <small>oryginał</small> : null}
                 </span>
               ) : null}
             </button>

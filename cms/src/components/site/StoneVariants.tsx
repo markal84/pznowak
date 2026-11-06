@@ -5,7 +5,16 @@ import { createContext, useContext, useState, type ReactNode } from 'react'
 
 import { PRICE_ON_REQUEST_SHORT } from '@/lib/price'
 import PriceOffer from './PriceOffer'
-import { findVariant, inquiryHref, stoneVariantsNote, swatchHex, type StoneVariant, type SwatchId } from '@/lib/stone-variants'
+import {
+  findVariant,
+  inquiryHref,
+  mainStoneName,
+  photographedStoneLabel,
+  stoneVariantsNote,
+  swatchHex,
+  type StoneVariant,
+  type SwatchId,
+} from '@/lib/stone-variants'
 
 /**
  * „Zamów z innym kamieniem” (zlecenie V). Wybór kamienia jest wspólny dla kilku miejsc karty (galeria, parametr
@@ -81,8 +90,8 @@ export function StoneVariantPicker({ originalStone, originalSwatch }: { original
   const options: { slug: string | null; name: string; label: string; swatch: SwatchId }[] = [
     {
       slug: null,
-      name: 'Oryginał',
-      label: originalStone ? `Oryginał: ${originalStone}` : 'Oryginał',
+      name: mainStoneName(originalStone) || 'Ze zdjęć',
+      label: photographedStoneLabel(originalStone),
       swatch: originalSwatch,
     },
     ...variants.map((variant) => ({
@@ -106,7 +115,7 @@ export function StoneVariantPicker({ originalStone, originalSwatch }: { original
               aria-label={option.label}
               aria-pressed={pressed}
               className="stone-option"
-              key={option.slug ?? 'oryginal'}
+              key={option.slug ?? 'ze-zdjec'}
               onClick={() => select(option.slug)}
               type="button"
             >

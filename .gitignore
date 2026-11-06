@@ -76,3 +76,4 @@ docs/zlecenia/*raport*.md
 docs/zlecenia/archiwum/
 .pnpm-store/
 .claude/settings.local.json
+cms/seed/opisy/opisy-ac-kopia.json

@@ -218,18 +218,39 @@ export const STONE_VARIANTS_NOTE = `Wizualizacje pokazują kolor kamienia. ${STO
  * prawdziwymi zdjęciami (AB, np. Urania) dostaje tylko zdanie o kamieniach naturalnych.
  */
 export function stoneVariantsNote(variants: readonly Pick<StoneVariant, 'isVisualization'>[]): string {
-  return variants.some((variant) => variant.isVisualization) ? STONE_VARIANTS_NOTE : STONE_VARIANTS_NOTE_NATURAL
+  const rest = variants.some((variant) => variant.isVisualization) ? STONE_VARIANTS_NOTE : STONE_VARIANTS_NOTE_NATURAL
+  return `${PHOTOGRAPHED_STONE_NOTE} ${rest}`
 }
 
 /**
- * Podpis filmu, gdy wybrany jest inny kamień niż oryginał (zlecenie Y.2): filmu nie przemalowujemy, więc mówimy wprost,
- * że pokazuje oryginał, np. „Film: oryginał (diament niebieski)”. Bez nazwy kamienia na karcie – samo „Film: oryginał”.
+ * Kamień główny z pola karty do kółka i podpisu filmu: część przed pierwszym przecinkiem
+ * („Diament niebieski, diamenty” → „Diament niebieski”).
+ */
+export function mainStoneName(stone: string | null | undefined): string {
+  return (stone ?? '').split(',')[0].replace(/\s+/g, ' ').trim()
+}
+
+/**
+ * Pierwsze kółko to kamień, z którym pierścionek widać na prawdziwych zdjęciach. Nazywamy je kamieniem (jak pozostałe),
+ * a nie „oryginałem” (Marcin 06.11: „oryginał” brzmiał, jakby reszta była podróbką); znaczenie niesie to zdanie w dopisku.
+ */
+export const PHOTOGRAPHED_STONE_NOTE = 'Pierwszy kolor to kamień z prawdziwych zdjęć i filmu tego pierścionka.'
+
+/** Nazwa kółka zdjęciowego dla czytnika ekranu, np. „Diament niebieski, diamenty – kamień ze zdjęć”. */
+export function photographedStoneLabel(stone: string | null | undefined): string {
+  const full = (stone ?? '').trim()
+  return full ? `${full} – kamień ze zdjęć` : 'Kamień ze zdjęć'
+}
+
+/**
+ * Podpis filmu, gdy wybrany jest inny kamień, a gra film pierścionka ze zdjęć (filmu nie przemalowujemy), np.
+ * „Na filmie kamień: diament niebieski”. Bez nazwy kamienia na karcie – „Na filmie kamień ze zdjęć”.
  */
 export function originalFilmCaption(originalStone: string | null | undefined): string {
-  const stone = (originalStone ?? '').trim()
-  if (!stone) return 'Film: oryginał'
+  const stone = mainStoneName(originalStone)
+  if (!stone) return 'Na filmie kamień ze zdjęć'
   // Pierwsza litera mała („Diament niebieski” → „diament niebieski”), reszta bez zmian („London Blue” zostaje).
-  return `Film: oryginał (${stone.charAt(0).toLocaleLowerCase('pl')}${stone.slice(1)})`
+  return `Na filmie kamień: ${stone.charAt(0).toLocaleLowerCase('pl')}${stone.slice(1)}`
 }
 
 /** Adres formularza z karty: nazwa projektu i (gdy wybrany wariant) kamień. */
