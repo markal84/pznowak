@@ -120,10 +120,10 @@ describe('pluralRing', () => {
 
 describe('filtrowanie katalogu', () => {
   const rings: CatalogRing[] = [
-    { id: 1, slug: 'a', name: 'A', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte', image: '', alt: '' },
-    { id: 2, slug: 'b', name: 'B', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte-biale', image: '', alt: '' },
-    { id: 3, slug: 'c', name: 'C', stone: '', metal: '', goldLabel: '', stoneGroup: 'zielone', goldGroup: 'zolte', image: '', alt: '' },
-    { id: 4, slug: 'd', name: 'D', stone: '', metal: '', goldLabel: '', stoneGroup: null, goldGroup: null, image: '', alt: '' },
+    { id: 1, slug: 'a', name: 'A', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte', image: '', alt: '', price: null },
+    { id: 2, slug: 'b', name: 'B', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte-biale', image: '', alt: '', price: null },
+    { id: 3, slug: 'c', name: 'C', stone: '', metal: '', goldLabel: '', stoneGroup: 'zielone', goldGroup: 'zolte', image: '', alt: '', price: null },
+    { id: 4, slug: 'd', name: 'D', stone: '', metal: '', goldLabel: '', stoneGroup: null, goldGroup: null, image: '', alt: '', price: null },
   ]
   it('bez filtrów zwraca wszystko, także produkty bez grup', () => {
     expect(filterRings(rings, 'all', 'all')).toHaveLength(4)

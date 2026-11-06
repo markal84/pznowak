@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import DoUzupelnienia from './DoUzupelnienia'
+import { formatPrice } from '@/lib/price'
 import Photo from './Photo'
 import Tag from './Tag'
 
@@ -12,25 +12,25 @@ type RingCardProps = {
   sizes: string
   /** wariant katalogowy: opis pod zdjęciem zamiast podpisu na przywieszce */
   gold?: string
+  /** cena z panelu (tylko wariant katalogowy); bez ceny wiersza nie ma */
+  price?: number | null
   detailed?: boolean
 }
 
-export default function RingCard({ slug, name, stone, image, alt, sizes, gold, detailed = false }: RingCardProps) {
+export default function RingCard({ slug, name, stone, image, alt, sizes, gold, price, detailed = false }: RingCardProps) {
   const href = `/pierscionki/${slug}`
   if (detailed) {
+    const priceText = formatPrice(price)
     return (
       <li>
         <Link className="card card-body" href={href}>
           <span className="card-overlay">
             <Photo alt={alt} ratio="45" sizes={sizes} src={image} />
-            <Tag className="tag-corner" name={name} />
+            <Tag className="tag-corner" name={name} price={priceText || undefined} />
           </span>
           <span className="card-meta">
             <span>{stone || 'Projekt pracowni'}</span>
             {gold ? <span className="muted">Złoto: {gold.toLowerCase()}</span> : null}
-            <DoUzupelnienia>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>od [cena] zł</span>
-            </DoUzupelnienia>
           </span>
         </Link>
       </li>

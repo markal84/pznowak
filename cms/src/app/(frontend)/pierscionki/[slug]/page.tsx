@@ -12,11 +12,13 @@ import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import ProductMedia from '@/components/site/ProductMedia'
 import RingCard from '@/components/site/RingCard'
 import {
+  ProductPrice,
   StoneVariantPicker,
   StoneVariantProvider,
   VariantInquiryLink,
   VariantStoneFact,
 } from '@/components/site/StoneVariants'
+import { formatPrice } from '@/lib/price'
 import { originalSwatch } from '@/lib/stone-variants'
 
 export const dynamic = 'force-dynamic'
@@ -102,6 +104,10 @@ export default async function ProductPage({ params, searchParams }: Params & { s
             </p>
           </div>
 
+          <div className="product-price">
+            <ProductPrice price={formatPrice(product.price)} />
+          </div>
+
           <div className="tag tag-xl">
             <span aria-hidden="true" className="hole" />
             <dl className="facts">
@@ -116,10 +122,6 @@ export default async function ProductPage({ params, searchParams }: Params & { s
               <dt>Czas wykonania</dt>
               <dd>
                 <DoUzupelnienia fallback="Ustalamy przy zamówieniu">[TERMIN], ustalamy przy zamówieniu</DoUzupelnienia>
-              </dd>
-              <dt className="total">Cena</dt>
-              <dd className="total">
-                <DoUzupelnienia fallback="Wycena przed rozpoczęciem pracy">od [X] zł w tej wersji</DoUzupelnienia>
               </dd>
             </dl>
           </div>

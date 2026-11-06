@@ -5,6 +5,7 @@ import SectionIntro from '@/components/site/SectionIntro'
 import { getProducts } from '@/lib/collection'
 import { toCatalogRing } from '@/lib/catalog'
 import { byEnv } from '@/lib/placeholders'
+import { formatPrice, lowestPrice } from '@/lib/price'
 import CatalogBrowser from '@/components/site/CatalogBrowser'
 
 export const dynamic = 'force-dynamic'
@@ -16,6 +17,8 @@ export const metadata: Metadata = pageMetadata({
 
 export default async function CatalogPage() {
   const rings = (await getProducts()).map(toCatalogRing)
+  // Najniższa cena z kart z ceną; bez żadnej ceny zostaje dotychczasowy znacznik (podgląd) albo sam brak przywieszki (produkcja).
+  const lowest = lowestPrice(rings)
   return (
     <>
       <section className="wrap stack catalog-head">
@@ -27,8 +30,12 @@ export default async function CatalogPage() {
         <div className="catalog-offer">
           <PriceOffer
             label="Pierścionek z kolekcji"
-            note={byEnv('Ostateczna cena zależy od wybranego kamienia i złota.', undefined)}
-            price={byEnv('od [X] zł', undefined)}
+            note={
+              lowest !== null
+                ? 'Ostateczna cena zależy od wybranego kamienia i złota.'
+                : byEnv('Ostateczna cena zależy od wybranego kamienia i złota.', undefined)
+            }
+            price={lowest !== null ? formatPrice(lowest) : byEnv('od [X] zł', undefined)}
             size="sm"
           />
         </div>
