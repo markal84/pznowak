@@ -26,16 +26,11 @@ export default function RingCard({ slug, name, stone, image, alt, sizes, gold, p
         <Link className="card card-body" href={href}>
           <span className="card-overlay">
             <Photo alt={alt} ratio="45" sizes={sizes} src={image} />
-            <Tag className="tag-corner" name={name} />
+            <Tag className="tag-corner" name={name} price={priceText || undefined} />
           </span>
           <span className="card-meta">
             <span>{stone || 'Projekt pracowni'}</span>
             {gold ? <span className="muted">Złoto: {gold.toLowerCase()}</span> : null}
-            {priceText ? (
-              <span className="card-price" style={{ fontSize: 14, fontWeight: 500 }}>
-                {priceText}
-              </span>
-            ) : null}
           </span>
         </Link>
       </li>

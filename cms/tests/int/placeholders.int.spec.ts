@@ -132,9 +132,9 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/']).not.toContain('mija zwykle')
     expect(p['/']).toContain('Na miejscu jest też sklep z gotową biżuterią')
     // Ceny (pole „Cena (zł)”): z ceną „od … zł”, bez ceny „Cena na zapytanie”; nagłówek katalogu = najniższa cena.
-    expect(p['/pierscionki/phoebe']).toContain('<dd class="total">Cena na zapytanie</dd>')
-    expect(p['/pierscionki/harmonia']).toContain('<dd class="total">od\u00a02949\u00a0zł</dd>')
-    expect(p['/pierscionki']).toContain('<span class="card-price" style="font-size:14px;font-weight:500">od\u00a05550\u00a0zł</span>')
+    expect(p['/pierscionki/phoebe']).toContain('<span class="nm">Na zapytanie</span>')
+    expect(p['/pierscionki/harmonia']).toContain('<span class="sub">Cena</span><span class="nm">od\u00a02949\u00a0zł</span>')
+    expect(p['/pierscionki']).toContain('<span class="nm">Athena</span><span class="price">od\u00a05550\u00a0zł</span>')
     expect(p['/pierscionki']).toContain('<span class="nm">od\u00a02949\u00a0zł</span>')
     expect(p['/pierscionki']).toContain('Ostateczna cena zależy od wybranego kamienia i złota.')
     expect(p['/naprawy']).toContain('po wycenie')
@@ -172,7 +172,7 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/']).toContain('[TERMIN, np. 4–6 tygodni]')
     expect(p['/']).toContain('Tu będą 3–4 opinie z Google')
     // Cena nie jest już znacznikiem: karta bez ceny ma „Cena na zapytanie” także na podglądzie.
-    expect(p['/pierscionki/phoebe']).toContain('<dd class="total">Cena na zapytanie</dd>')
+    expect(p['/pierscionki/phoebe']).toContain('<span class="nm">Na zapytanie</span>')
     expect(p['/pierscionki/phoebe']).not.toContain('od [X] zł w tej wersji')
     expect(p['/pierscionki']).not.toContain('od [cena] zł')
     expect(p['/obraczki']).toContain('od [X] zł za parę')

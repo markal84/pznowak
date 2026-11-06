@@ -7,8 +7,8 @@
  */
 export const PRICE_PREFIX = 'od'
 
-/** Karta bez ceny w panelu, a także wybrany inny kamień (warianty są bez ceny). */
-export const PRICE_ON_REQUEST = 'Cena na zapytanie'
+/** Przywieszka „Cena” na karcie bez ceny w panelu, a także po wyborze innego kamienia (warianty są bez ceny). */
+export const PRICE_ON_REQUEST_SHORT = 'Na zapytanie'
 
 /**
  * Kwota po polsku: liczby czterocyfrowe bez odstępu (2949), od 10 000 z odstępem nierozdzielającym co trzy cyfry.
