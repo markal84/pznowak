@@ -174,7 +174,7 @@ export default function BandConfigurator() {
             Umów przymiarkę obrączek
           </Link>
           <span className="small" style={{ fontSize: 14, lineHeight: 1.5 }}>
-            Wybór zapiszemy w wiadomości. Na przymiarce pokażemy próbki szerokości i wykończeń na żywo. Cena zależy od szerokości, wagi i próby złota.
+            Wybór zapiszemy w wiadomości. Na przymiarce pokażemy próbki szerokości i wykończeń na żywo. Cena zależy od szerokości i wagi. Obrączki wykonujemy ze złota próby 585.
           </span>
         </div>
       </div>
