@@ -71,6 +71,11 @@ export type StoneVariant = {
    * z jednym obrazem (V/W). Po wyborze kamienia galeria pokazuje tylko te obrazy, oryginałów z nimi nie mieszamy.
    */
   images: string[]
+  /**
+   * Prawdziwy film wariantu (zlecenie AB: filmy kart połączonych w jeden fason); pusty = po wyborze kamienia gra film
+   * oryginału. Wpis z Data Cache sprzed AB nie ma tego pola, więc czytaj przez `variantVideo`.
+   */
+  video: string
   alt: string
   isVisualization: boolean
 }
@@ -92,6 +97,8 @@ export function serializeStoneVariants(entries: readonly VariantEntry[] | null |
       .map(populated)
       .filter((asset): asset is Media => Boolean(asset?.url) && !asset?.mimeType?.startsWith('video/'))
       .map((asset) => asset.url as string)
+    const clip = populated(entry.video)
+    const video = clip?.url && clip.mimeType?.startsWith('video/') ? clip.url : ''
     const swatch = SWATCH_IDS.find((id) => id === entry.swatch)
     if (!stone || !image || !swatch) continue
     const base = stoneSlug(stone) || 'kamien'
@@ -104,6 +111,7 @@ export function serializeStoneVariants(entries: readonly VariantEntry[] | null |
       swatch,
       image,
       images: [...new Set([image, ...more])],
+      video,
       alt: entry.alt?.trim() ?? '',
       // Brak wartości traktujemy jak wizualizację: etykieta „Wizualizacja” to bezpieczniejszy błąd niż jej brak.
       isVisualization: entry.isVisualization !== false,
@@ -120,6 +128,24 @@ export function variantImages(variant: Pick<StoneVariant, 'image'> & { images?: 
   const images = (variant.images ?? []).filter(Boolean)
   if (images.length) return [...images]
   return variant.image ? [variant.image] : []
+}
+
+/** Film wariantu, odporny na dane sprzed AB (wpis z Data Cache bez pola `video`). */
+export const variantVideo = (variant: { video?: string | null }): string => variant.video ?? ''
+
+/**
+ * Film w galerii karty. Wariant z własnym filmem (AB) pokazuje swój, z okładką z obrazu wariantu; w innym razie gra film
+ * oryginału z okładką oryginału (zlecenie Y). Brak filmu = `null`. `variantSrcs`: obrazy wybranego wariantu (puste = oryginał).
+ */
+export function galleryVideo(
+  variant: { video?: string | null } | null | undefined,
+  variantSrcs: readonly string[],
+  cardVideo: string,
+  cardImages: readonly string[],
+): { src: string; poster: string } | null {
+  const own = variant && variantSrcs.length ? variantVideo(variant) : ''
+  if (own) return { src: own, poster: variantSrcs[0] }
+  return cardVideo ? { src: cardVideo, poster: cardImages[0] ?? '' } : null
 }
 
 /**
