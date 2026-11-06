@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRef, useState, type ReactNode, type TouchEvent } from 'react'
 import type { Slide } from 'yet-another-react-lightbox'
 
-import { originalFilmCaption, variantImageAlt, variantImages } from '@/lib/stone-variants'
+import { galleryVideo, originalFilmCaption, variantImageAlt, variantImages } from '@/lib/stone-variants'
 
 import { useSelectedStoneVariant } from './StoneVariants'
 import Tag from './Tag'
@@ -64,14 +64,16 @@ export default function ProductMedia({ name, images, video, originalStone, child
         src,
         label: `Zdjęcie ${i + 1}: ${IMAGE_LABELS[i] ?? 'kolejne ujęcie'}`,
       }))
-  // Przy innym kamieniu film dalej pokazuje oryginał (zlecenie Y.2) – podpis na miniaturze i w odtwarzaczu.
-  const filmCaption = variant ? originalFilmCaption(originalStone) : undefined
-  if (video) {
+  // Film: wariant z własnym filmem (AB) gra swój; inaczej gra film oryginału. Wtedy przy wybranym innym kamieniu
+  // podpis „Film: oryginał (…)” na miniaturze i w odtwarzaczu (Y.2). Własny film wariantu jest prawdziwy – bez podpisu.
+  const clip = galleryVideo(variant, variantSrcs, video, images)
+  const filmCaption = variant && clip && clip.src === video ? originalFilmCaption(originalStone) : undefined
+  if (clip) {
     items.push({
       kind: 'video',
-      src: video,
+      src: clip.src,
       label: filmCaption ?? 'Film o pierścionku',
-      poster: images[0] ?? '',
+      poster: clip.poster,
       caption: filmCaption,
     })
   }

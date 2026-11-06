@@ -183,9 +183,13 @@ export interface Product {
          */
         image: number | Media;
         /**
-         * Ten sam kamień na 2., 3. … zdjęciu z „Zdjęcia i filmy”, w tej samej kolejności. Po wyborze kamienia galeria pokazuje tylko obrazy wariantu (film zostaje prawdziwy). Puste = jeden obraz.
+         * Ten sam kamień na 2., 3. … zdjęciu z „Zdjęcia i filmy”, w tej samej kolejności. Po wyborze kamienia galeria pokazuje tylko obrazy wariantu (film: pole „Film” wariantu, a bez niego film oryginału). Puste = jeden obraz.
          */
         moreImages?: (number | Media)[] | null;
+        /**
+         * Prawdziwy film wykonanego pierścionka z tym kamieniem (np. z karty, która została połączona z fasonem). Po wyborze kamienia galeria pokazuje ten film zamiast filmu oryginału. Puste = film oryginału.
+         */
+        video?: (number | null) | Media;
         alt?: string | null;
         /**
          * Na obrazie pojawia się etykieta „Wizualizacja”. Odznacz tylko przy prawdziwym zdjęciu wykonanego pierścionka.
@@ -258,8 +262,6 @@ export interface Media {
    * Pole techniczne używane podczas importu starego katalogu.
    */
   legacySourceUrl?: string | null;
-  prefix?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -589,6 +591,7 @@ export interface ProductsSelect<T extends boolean = true> {
         swatch?: T;
         image?: T;
         moreImages?: T;
+        video?: T;
         alt?: T;
         isVisualization?: T;
         id?: T;
@@ -628,8 +631,6 @@ export interface ProductsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   legacySourceUrl?: T;
-  prefix?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

@@ -11,6 +11,7 @@ import * as migration_20261101_101210_realizacje from './20261101_101210_realiza
 import * as migration_20261102_100513_warianty_kamieni from './20261102_100513_warianty_kamieni';
 import * as migration_20261104_231900_warianty_cala_galeria from './20261104_231900_warianty_cala_galeria';
 import * as migration_20261105_092851_kolka_kolorow from './20261105_092851_kolka_kolorow';
+import * as migration_20261105_110548_ab_film_wariantu from './20261105_110548_ab_film_wariantu';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20261105_092851_kolka_kolorow.up,
     down: migration_20261105_092851_kolka_kolorow.down,
-    name: '20261105_092851_kolka_kolorow'
+    name: '20261105_092851_kolka_kolorow',
+  },
+  {
+    up: migration_20261105_110548_ab_film_wariantu.up,
+    down: migration_20261105_110548_ab_film_wariantu.down,
+    name: '20261105_110548_ab_film_wariantu'
   },
 ];

@@ -39,8 +39,8 @@ const catalog = [
   product(1, 'Phoebe'),
   product(2, 'Harmonia'),
   product(3, 'Athena'),
-  product(4, 'Nyx'),
-  product(5, 'Pyrrha'),
+  product(4, 'Urania'),
+  product(5, 'Cyane'),
   product(6, 'Bez-kamienia', { stone: '', metal: '' }),
 ]
 
@@ -216,19 +216,19 @@ describe('wybrane pierścionki na główną', () => {
     product(1, 'Phoebe', { featuredOnHome: true }),
     product(2, 'Harmonia'),
     product(3, 'Athena', { featuredOnHome: true, homeOrder: 2 }),
-    product(4, 'Nyx', { featuredOnHome: true, homeOrder: 1 }),
-    product(5, 'Pyrrha'),
+    product(4, 'Urania', { featuredOnHome: true, homeOrder: 1 }),
+    product(5, 'Eirene'),
     product(6, 'Cyane'),
   ]
 
   it('bez zaznaczonych: lista zapasowa, bez pierścionka z hero', () => {
     const none = rings.map((r) => ({ ...r, featuredOnHome: false }))
-    expect(pickHomeRings(none, none[0]).map((r) => r.name)).toEqual(['Harmonia', 'Athena', 'Nyx', 'Pyrrha'])
+    expect(pickHomeRings(none, none[0]).map((r) => r.name)).toEqual(['Harmonia', 'Athena', 'Urania', 'Cyane'])
   })
 
   it('zaznaczone idą wg kolejności, hero się nie powtarza, brakujące uzupełnia lista zapasowa', () => {
     const names = pickHomeRings(rings, rings[0]).map((r) => r.name)
-    expect(names).toEqual(['Nyx', 'Athena', 'Harmonia', 'Pyrrha'])
+    expect(names).toEqual(['Urania', 'Athena', 'Harmonia', 'Cyane'])
     expect(names).not.toContain('Phoebe')
   })
 

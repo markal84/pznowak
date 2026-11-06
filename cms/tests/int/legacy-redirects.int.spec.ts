@@ -11,9 +11,11 @@ import {
   LEGACY_RING_SLUGS,
   LEGACY_UNCHANGED_PAGES,
   LEGACY_WITHOUT_COUNTERPART,
+  MERGED_RING_VARIANTS,
   RENAMED_RING_SLUGS,
   currentRingSlug,
   legacyRedirectRules,
+  ringPath,
 } from '../../src/lib/legacy-redirects'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -59,9 +61,12 @@ describe('przekierowania ze starej strony', () => {
   it('każdy cel to istniejąca strona nowego serwisu', () => {
     const slugs = new Set<string>(catalog.products.map((p) => currentRingSlug(p.slug)))
     for (const { from, to } of LEGACY_REDIRECTS) {
-      const product = /^\/pierscionki\/(.+)$/.exec(to)
+      const product = /^\/pierscionki\/([^?]+)(?:\?kamien=(.+))?$/.exec(to)
       const valid = product ? slugs.has(product[1]) : NEW_PAGES.includes(to)
       expect(valid, `${from} → ${to}`).toBe(true)
+      // Cel to zawsze fason (nie zarchiwizowana karta), a `?kamien=` występuje tylko przy połączonych kartach.
+      if (product) expect(product[1] in MERGED_RING_VARIANTS, `${from} → ${to} wskazuje zarchiwizowaną kartę`).toBe(false)
+      if (product?.[2]) expect(Object.values(MERGED_RING_VARIANTS).some((m) => m.kamien === product[2]), to).toBe(true)
     }
   })
 
@@ -95,6 +100,27 @@ describe('przekierowania ze starej strony', () => {
     expect(to('/pierscionki/pierscionek-12')).toBe('/pierscionki/athena')
     expect(to('/katalog/aria')).toBe('/pierscionki/aria')
     expect(to('/pierscionki/aria')).toBeUndefined()
+  })
+
+  it('Pyrrha i Nyx (zlecenie AB): wszystkie ich adresy idą jednym skokiem na fason Urania z wybranym kamieniem', () => {
+    const rubin = '/pierscionki/urania?kamien=rubin-i-diamenty'
+    const london = '/pierscionki/urania?kamien=topaz-london-blue-i-diamenty'
+    const to = (from: string) => LEGACY_REDIRECTS.find((r) => r.from === from)?.to
+    for (const from of ['/pierscionki/pyrrha', '/pierscionki/pierscionek-21', '/katalog/pierscionek-21', '/ring/pierscionek-21']) {
+      expect(to(from), from).toBe(rubin)
+    }
+    for (const from of ['/pierscionki/nyx', '/pierscionki/pierscionek-18', '/katalog/pierscionek-18', '/ring/pierscionek-18']) {
+      expect(to(from), from).toBe(london)
+    }
+    // Urania sama zostaje bez zmian: jej adres z numeru idzie na zwykły adres karty.
+    expect(to('/katalog/pierscionek-19')).toBe('/pierscionki/urania')
+    expect(to('/pierscionki/urania')).toBeUndefined()
+    expect(ringPath('pyrrha')).toBe(rubin)
+    expect(ringPath('aria')).toBe('/pierscionki/aria')
+    // Wersje ze skośnikiem na końcu (stare adresy WordPressa) też jednym skokiem.
+    const rules = legacyRedirectRules()
+    expect(rules).toContainEqual({ source: '/pierscionki/nyx/', destination: london, permanent: true })
+    expect(rules).toContainEqual({ source: '/katalog/pierscionek-21/', destination: rubin, permanent: true })
   })
 
   it('nie ma masowych przekierowań na stronę główną', () => {

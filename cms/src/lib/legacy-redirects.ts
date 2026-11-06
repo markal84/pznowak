@@ -116,23 +116,43 @@ export const RENAMED_RING_SLUGS: Readonly<Record<string, string>> = {
 export const currentRingSlug = (legacySlug: string): string => RENAMED_RING_SLUGS[legacySlug] ?? legacySlug
 
 /**
+ * Karty połączone w jeden fason (zlecenie AB): Pyrrha i Nyx to dziś warianty kamienia na karcie Urania, a ich własne
+ * karty są w archiwum. Adres takiej karty idzie od razu na fason z wybranym kamieniem (`?kamien=` = adres wariantu,
+ * patrz `stoneSlug` w `stone-variants.ts` i test). Wpisane tu na stałe: ten plik czyta `next.config.ts`, a on nie ma
+ * dostępu do bazy.
+ */
+export const MERGED_RING_VARIANTS: Readonly<Record<string, { slug: string; kamien: string }>> = {
+  pyrrha: { slug: 'urania', kamien: 'rubin-i-diamenty' },
+  nyx: { slug: 'urania', kamien: 'topaz-london-blue-i-diamenty' },
+}
+
+/** Adres w nowym serwisie dla karty o aktualnym slugu: połączona karta → fason z `?kamien=`, inaczej zwykły adres karty. */
+export function ringPath(slug: string): string {
+  const merged = MERGED_RING_VARIANTS[slug]
+  return merged ? `/pierscionki/${merged.slug}?kamien=${merged.kamien}` : `/pierscionki/${slug}`
+}
+
+/**
  * `/katalog/<slug>` (eksport statyczny, to indeksuje Google) i `/ring/<slug>` (zaplecze WordPress, adresy publiczne
  * na pznowak.pl, kanoniczne wskazują gdzie indziej). Cel to od razu nowy adres karty, bez przystanku na `merope-2`.
  */
+const reasonFor = (legacySlug: string, renamed: boolean, whenRenamed: string, otherwise: string) =>
+  MERGED_RING_VARIANTS[currentRingSlug(legacySlug)] ? 'Karta połączona z fasonem Urania (kamień jako wariant).' : renamed ? whenRenamed : otherwise
+
 const RINGS: LegacyRedirect[] = LEGACY_RING_SLUGS.flatMap((slug): LegacyRedirect[] => {
   const renamed = currentRingSlug(slug) !== slug
   return [
     {
       from: `/katalog/${slug}`,
-      to: `/pierscionki/${currentRingSlug(slug)}`,
+      to: ringPath(currentRingSlug(slug)),
       origin: 'static',
-      reason: renamed ? 'Ten sam pierścionek; adres z nazwy karty zamiast numeru.' : 'Ten sam pierścionek, ten sam slug.',
+      reason: reasonFor(slug, renamed, 'Ten sam pierścionek; adres z nazwy karty zamiast numeru.', 'Ten sam pierścionek, ten sam slug.'),
     },
     {
       from: `/ring/${slug}`,
-      to: `/pierscionki/${currentRingSlug(slug)}`,
+      to: ringPath(currentRingSlug(slug)),
       origin: 'wordpress',
-      reason: renamed ? 'Wpis WordPress „ring”; adres z nazwy karty zamiast numeru.' : 'Wpis WordPress „ring”; ten sam pierścionek.',
+      reason: reasonFor(slug, renamed, 'Wpis WordPress „ring”; adres z nazwy karty zamiast numeru.', 'Wpis WordPress „ring”; ten sam pierścionek.'),
     },
   ]
 })
@@ -140,9 +160,19 @@ const RINGS: LegacyRedirect[] = LEGACY_RING_SLUGS.flatMap((slug): LegacyRedirect
 /** Adresy kart w nowym serwisie sprzed zmiany nazwy adresu (podglądy, linki wysłane klientom, zapisane zakładki). */
 const RENAMED: LegacyRedirect[] = Object.entries(RENAMED_RING_SLUGS).map(([from, to]) => ({
   from: `/pierscionki/${from}`,
-  to: `/pierscionki/${to}`,
+  to: ringPath(to),
   origin: 'catalog',
-  reason: 'Adres z nazwy karty zamiast numeru ze starej strony.',
+  reason: MERGED_RING_VARIANTS[to]
+    ? 'Karta połączona z fasonem Urania (kamień jako wariant).'
+    : 'Adres z nazwy karty zamiast numeru ze starej strony.',
+}))
+
+/** Zarchiwizowane karty połączone w fason (zlecenie AB): ich adresy z nazwy też idą na fason, jednym skokiem. */
+const MERGED: LegacyRedirect[] = Object.entries(MERGED_RING_VARIANTS).map(([from, merged]) => ({
+  from: `/pierscionki/${from}`,
+  to: ringPath(from),
+  origin: 'catalog',
+  reason: `Karta połączona z fasonem ${merged.slug[0].toUpperCase()}${merged.slug.slice(1)}: ten sam pierścionek, kamień jako wariant.`,
 }))
 
 /** Elementy galerii WordPress (11 wpisów, w tym przykładowe) nie mają własnych stron w nowym układzie. */
@@ -167,7 +197,7 @@ const GALLERY: LegacyRedirect[] = LEGACY_GALLERY_SLUGS.map((slug) => ({
   reason: 'Wpis galerii WordPress; najbliższa lista to „Realizacje”.',
 }))
 
-export const LEGACY_REDIRECTS: readonly LegacyRedirect[] = [...PAGES, ...RINGS, ...RENAMED, ...GALLERY]
+export const LEGACY_REDIRECTS: readonly LegacyRedirect[] = [...PAGES, ...RINGS, ...RENAMED, ...MERGED, ...GALLERY]
 
 /**
  * Wbudowane przekierowanie skośnika na końcu (`/x/` → `/x`) w Next działa PRZED przekierowaniami z konfiguracji,
