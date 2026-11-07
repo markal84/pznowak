@@ -8,6 +8,10 @@ export type GoogleReview = {
   date: string
   /** Link do tej opinii w Google (opcjonalnie). */
   url?: string
+  /** Profil autora w Google (z Places API; wymagane przypisanie autora). */
+  authorUrl?: string
+  /** Zdjęcie profilowe autora (z Places API). */
+  photoUrl?: string
 }
 
 export type ReviewsConfig = {
@@ -24,16 +28,20 @@ export type ReviewsConfig = {
   sourceNote: string | null
   /** Wybrane 3–4 opinie. */
   reviews: GoogleReview[]
+  /** Skąd są dane: `google` = pobrane z Places API (wymaga podpisu „Google Maps”), `manual` = wpisane w tym pliku. */
+  source?: 'google' | 'manual'
 }
 
 /**
- * Opinie z Google na stronie głównej i w „Realizacjach”. Do czasu odzyskania dostępu do wizytówki puste:
- * podgląd pokazuje placeholder, produkcja nie renderuje sekcji. Nic nie jest pobierane z Google ani z API.
+ * Ręczna konfiguracja opinii: zapas, gdy nie ma klucza Google Places API (`GOOGLE_PLACES_API_KEY`
+ * i `GOOGLE_PLACE_ID`) albo Google nie odpowiada. Z kluczem sekcja bierze opinie automatycznie
+ * z wizytówki (`src/lib/google-places.ts`). Pusta: podgląd pokazuje placeholder, produkcja nie renderuje sekcji.
  */
 export const GOOGLE_REVIEWS: ReviewsConfig = {
   summary: null,
   sourceNote: null,
   reviews: [],
+  source: 'manual',
 }
 
 /** Sekcja ma prawo pojawić się na produkcji tylko z opiniami i z podsumowaniem (średnia + liczba) naraz. */
@@ -51,4 +59,17 @@ export function pluralReviews(count: number): string {
   const digit = count % 10
   const hundred = count % 100
   return digit >= 2 && digit <= 4 && (hundred < 12 || hundred > 14) ? 'opinie' : 'opinii'
+}
+
+const MONTHS = [
+  'styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec',
+  'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień',
+]
+
+/** „październik 2026” z daty ISO; pusty napis dla błędnej daty. */
+export function formatReviewMonth(iso: string | undefined): string {
+  if (!iso) return ''
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  return `${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`
 }
