@@ -108,7 +108,11 @@ export function serializePublicProduct(product: Product): PublicProduct {
   )
   const primaryEntry = imageEntries.find(({ isPrimary }) => isPrimary)
   const image = populatedMedia((primaryEntry ?? imageEntries[0])?.asset ?? 0)
-  const images = imageEntries
+  // Strony używają images[0] jako zdjęcia głównego, więc oznaczone isPrimary idzie na początek.
+  const orderedEntries = primaryEntry
+    ? [primaryEntry, ...imageEntries.filter((entry) => entry !== primaryEntry)]
+    : imageEntries
+  const images = orderedEntries
     .map(({ asset }) => populatedMedia(asset)?.url ?? '')
     .filter((url) => url.length > 0)
   const video = mediaEntries

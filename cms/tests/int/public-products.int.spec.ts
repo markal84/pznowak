@@ -72,8 +72,8 @@ describe('public products compatibility', () => {
       description: '',
       imagePath: 'https://example.public.blob.vercel-storage.com/cms/media/primary.jpg',
       images: [
-        'https://example.public.blob.vercel-storage.com/cms/media/secondary.jpg',
         'https://example.public.blob.vercel-storage.com/cms/media/primary.jpg',
+        'https://example.public.blob.vercel-storage.com/cms/media/secondary.jpg',
       ],
       video: 'https://example.public.blob.vercel-storage.com/cms/media/product.mp4',
       metal: 'Złoto',
