@@ -60,6 +60,17 @@
     "variants": []
   },
   {
+    "slug": "thalia",
+    "name": "Thalia",
+    "card": {
+      "onlyIfStone": [
+        "Szafir i diamenty"
+      ],
+      "stone": "Topaz London blue i diamenty"
+    },
+    "variants": []
+  },
+  {
     "slug": "cyane",
     "name": "Cyane",
     "variants": [

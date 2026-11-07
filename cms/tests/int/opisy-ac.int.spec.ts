@@ -32,6 +32,14 @@ describe('AC: treść opisy-ac.json', () => {
     expect(planAc({ id: 99, name: 'Thalia', ...legacy[0] }, thalia).action).toBe('zmien')
   })
 
+  it('Thalia: topaz London Blue w opisie; poprzedni opis z szafirem nadpisujemy bez --nadpisz', () => {
+    const thalia = specs.find((s) => s.name === 'Thalia')!
+    expect(thalia.description).toContain('topaz London Blue')
+    expect(thalia.description).not.toMatch(/szafir/iu)
+    const before = knownTexts(0, 'Thalia').find((text) => /szafir/iu.test(text.description))!
+    expect(planAc({ id: 99, name: 'Thalia', ...before }, thalia).action).toBe('zmien')
+  })
+
   it.each(specs.map((s) => [s.name, s] as const))('%s: standard U + początek od fasonu', (_name, spec) => {
     expect(lintAc(spec)).toEqual([])
   })

@@ -135,6 +135,13 @@ describe('warianty.json (dane na staging)', () => {
     expect(stoneGroup(aion.card!.stone)).toBe('rozowe')
   })
 
+  it('Thalia → topaz London blue (tylko z dawnego szafiru)', () => {
+    const thalia = loadSpecs().find((s) => s.slug === 'thalia')!
+    expect(thalia.card?.stone).toBe('Topaz London blue i diamenty')
+    expect(thalia.card?.onlyIfStone).toEqual(['Szafir i diamenty'])
+    expect(thalia.variants).toEqual([])
+  })
+
   it('nowe teksty kart trzymają standard opisów ze zlecenia U', () => {
     for (const [id, spec] of [[46, aion], [7, leto]] as const) {
       expect(lintSpec({ id, name: spec.name, lead: spec.card?.lead, description: spec.card?.description })).toEqual([])

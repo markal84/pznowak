@@ -51,6 +51,13 @@ function legacyTexts(name: string): KnownText[] {
   }
 }
 
+/** Opis Thalii z 06.11 (PR #51), z szafirem; od 07.11 karta ma topaz London Blue, więc ten tekst wolno nadpisać bez `--nadpisz`. */
+const THALIA_SAPPHIRE_TEXT: KnownText = {
+  lead: 'Okrągłe halo z diamentów, diamentowe ramiona i ażurowy koszyk w żółtym złocie.',
+  description:
+    'Pierścionek z żółtego złota w okrągłej oprawie halo. Kamień centralny w łapkach otacza pierścień drobnych diamentów, diamenty biegną też wzdłuż ramion szyny, a z boku widać ażurowy koszyk z geometrycznymi wycięciami.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest szafir w głębokim, królewskim błękicie.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.',
+}
+
 export function knownTexts(id: number, name?: string): KnownText[] {
   const known: KnownText[] = []
   if (name) known.push(...legacyTexts(name))
@@ -59,6 +66,7 @@ export function knownTexts(id: number, name?: string): KnownText[] {
   if (id === 17) known.push({ lead: URANIA_AB_TEXT.lead, description: URANIA_AB_TEXT.description })
   if (id === 20) known.push({ lead: HARMONIA_BEFORE_MERGE.lead, description: HARMONIA_BEFORE_MERGE.description })
   if (id === 46) known.push(AION_PREVIOUS_TEXT, AION_THALASSA_TEXT)
+  if (name === 'Thalia') known.push(THALIA_SAPPHIRE_TEXT)
   return known
 }
 
