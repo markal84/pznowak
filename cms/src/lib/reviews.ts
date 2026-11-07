@@ -38,9 +38,40 @@ export type ReviewsConfig = {
  * z wizytówki (`src/lib/google-places.ts`). Pusta: podgląd pokazuje placeholder, produkcja nie renderuje sekcji.
  */
 export const GOOGLE_REVIEWS: ReviewsConfig = {
-  summary: null,
-  sourceNote: null,
-  reviews: [],
+  // Stan wizytówki z 7.11.2026 (panel menedżera). Średnią i liczbę aktualizować raz w miesiącu.
+  summary: {
+    average: 4.7,
+    count: 15,
+    url: 'https://www.google.com/maps/search/?api=1&query=Pracownia%20Z%C5%82otnicza%20Micha%C5%82%20Nowak%20Busko-Zdr%C3%B3j',
+  },
+  sourceNote:
+    'Wybrane opinie z naszej wizytówki Google, przepisane bez zmian. Średnia i liczba obejmują wszystkie opinie (stan na listopad 2026).',
+  reviews: [
+    {
+      author: 'A.J.',
+      rating: 5,
+      date: 'listopad 2026',
+      text: 'Polecam ! Korzystalam wielokrotnie z uslug Pana Michala, ktory uratowal moja sentymentalna bizuterie. Wszystko zawsze na najwyzszym poziomie ! Ogromny wybor bizuterii zlotej i srebrnej, mila atmosfera.',
+    },
+    {
+      author: 'Damian Szo',
+      rating: 5,
+      date: 'listopad 2026',
+      text: 'Miła fachowa obsługa ,usługa w terminie i nawet czyszczenie gratis polecam i pozdrawiam !',
+    },
+    {
+      author: 'Przemysław',
+      rating: 5,
+      date: 'listopad 2026',
+      text: 'Szybko, fachowo i tanio. Polecam!',
+    },
+    {
+      author: 'Dominika Łachut',
+      rating: 5,
+      date: 'listopad 2026',
+      text: 'Bardzo miła i sprawna obsługa. Polecam serdecznie!',
+    },
+  ],
   source: 'manual',
 }
 
