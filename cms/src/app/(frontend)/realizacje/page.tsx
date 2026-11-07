@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { getWorks } from '@/lib/collection'
+import { getGoogleReviews } from '@/lib/google-reviews-source'
 import { showPlaceholders } from '@/lib/placeholders'
 import GoogleReviews from '@/components/site/GoogleReviews'
 import SectionIntro from '@/components/site/SectionIntro'
@@ -19,7 +20,7 @@ type WorksPageProps = {
 }
 
 export default async function WorksPage({ searchParams }: WorksPageProps) {
-  const works = await getWorks()
+  const [works, reviews] = await Promise.all([getWorks(), getGoogleReviews()])
   const { r } = await searchParams
   const initialSlug = Array.isArray(r) ? r[0] : r
 
@@ -36,7 +37,7 @@ export default async function WorksPage({ searchParams }: WorksPageProps) {
 
       <WorksBrowser initialSlug={initialSlug ?? null} markUnconfirmed={showPlaceholders()} works={works} />
 
-      <GoogleReviews title="Opinie klientów" />
+      <GoogleReviews config={reviews} title="Opinie klientów" />
 
       <section className="dark">
         <div className="wrap" style={{ paddingTop: 80, paddingBottom: 80, display: 'flex', flexWrap: 'wrap', gap: '24px 64px', alignItems: 'center', justifyContent: 'space-between' }}>

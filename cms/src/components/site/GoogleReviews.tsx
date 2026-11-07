@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { formatAverage, GOOGLE_REVIEWS, pluralReviews, reviewsReady, type GoogleReview, type ReviewsConfig } from '@/lib/reviews'
 import { showPlaceholders } from '@/lib/placeholders'
 import DoUzupelnienia from './DoUzupelnienia'
@@ -5,7 +6,7 @@ import SectionIntro from './SectionIntro'
 
 type GoogleReviewsProps = {
   title?: string
-  /** Domyślnie konfiguracja z `src/lib/reviews.ts`; parametr dla testów. */
+  /** Dane z `getGoogleReviews()` (strona pobiera je przed renderem). Domyślnie ręczna konfiguracja z `src/lib/reviews.ts`. */
   config?: ReviewsConfig
   /** Dodatkowy styl sekcji (odstępy zależą od miejsca na stronie). */
   className?: string
@@ -23,13 +24,33 @@ function Stars({ rating }: { rating: number }) {
   )
 }
 
+/** Dłuższe opinie przycina CSS (kilka linii); wtedy link do całości w Google. Treści nie skracamy w kodzie. */
+const LONG_REVIEW = 280
+
 function Review({ review }: { review: GoogleReview }) {
+  const long = review.text.length > LONG_REVIEW
   return (
     <li className="review">
       <Stars rating={review.rating} />
-      <blockquote>{review.text}</blockquote>
+      <blockquote className={long ? 'review-clamp' : undefined}>{review.text}</blockquote>
+      {long && review.url ? (
+        <a className="review-more" href={review.url} rel="noreferrer noopener" target="_blank">
+          Cała opinia w Google
+        </a>
+      ) : null}
       <p className="review-by">
-        <span>{review.author}</span>
+        <span className="review-author">
+          {review.photoUrl ? (
+            <Image alt="" className="review-avatar" height={32} referrerPolicy="no-referrer" src={review.photoUrl} width={32} />
+          ) : null}
+          {review.authorUrl ? (
+            <a href={review.authorUrl} rel="noreferrer noopener" target="_blank">
+              {review.author}
+            </a>
+          ) : (
+            review.author
+          )}
+        </span>
         <span className="muted">
           {review.url ? (
             <a href={review.url} rel="noreferrer noopener" target="_blank">
@@ -46,8 +67,10 @@ function Review({ review }: { review: GoogleReview }) {
 
 /**
  * Opinie z Google (zlecenie I, pkt 5): podsumowanie wizytówki (średnia i liczba opinii, zawsze razem z cytatami)
- * i 3–4 wybrane opinie z `src/lib/reviews.ts`. Pusta albo niepełna konfiguracja: podgląd pokazuje placeholder,
- * produkcja nie renderuje sekcji (nigdy cytatów bez oceny).
+ * i 3–4 opinie. Źródło: Places API (`getGoogleReviews`, oceny 4–5) albo ręczna konfiguracja z `src/lib/reviews.ts`.
+ * Pusta albo niepełna konfiguracja: podgląd pokazuje placeholder, produkcja nie renderuje sekcji (nigdy cytatów
+ * bez oceny). Wstawienie na kolejnej stronie: `const reviews = await getGoogleReviews()` w stronie
+ * (`@/lib/google-reviews-source`) i `<GoogleReviews config={reviews} />` (opcjonalnie `title`).
  */
 export default function GoogleReviews({ title = 'Opinie z Google', config = GOOGLE_REVIEWS, className }: GoogleReviewsProps) {
   const ready = reviewsReady(config)
@@ -92,7 +115,10 @@ export default function GoogleReviews({ title = 'Opinie z Google', config = GOOG
         ))}
       </ul>
       {sourceNote ? (
-        <p className="small">{sourceNote}</p>
+        <p className="small">
+          {sourceNote}
+          {config.source === 'google' ? <span className="review-attr"> Źródło: Google Maps</span> : null}
+        </p>
       ) : showPlaceholders() ? (
         <p className="small">
           <DoUzupelnienia>[Zdanie o tym, skąd pochodzą opinie: do potwierdzenia]</DoUzupelnienia>

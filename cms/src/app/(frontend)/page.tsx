@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
+import { getGoogleReviews } from '@/lib/google-reviews-source'
 import { toCatalogRing } from '@/lib/catalog'
 import { HERO_VITRINE, heroRing as pickHero, pickHomeRings } from '@/lib/home'
 import { showPlaceholders } from '@/lib/placeholders'
@@ -42,7 +43,7 @@ const faq = (): FaqItem[] => [
 ]
 
 export default async function HomePage() {
-  const products = await getProducts()
+  const [products, reviews] = await Promise.all([getProducts(), getGoogleReviews()])
   const count = products.length
   const hero = pickHero(products)
   const heroRing = hero ? toCatalogRing(hero) : null
@@ -221,7 +222,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <GoogleReviews />
+      <GoogleReviews config={reviews} />
 
       <section className="band">
         <div className="wrap sec-tight pracownia">
