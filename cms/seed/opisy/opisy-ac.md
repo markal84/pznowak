@@ -48,7 +48,7 @@ Wszystkie opublikowane karty (bez Pyrrhy i Nyx – połączone z Uranią) oraz T
 
 > Obrączka typu eternity z żółtego złota próby 585 (14k). Każdy kamień siedzi w osobnej kwadratowej oprawce na czterech łapkach, a oprawki łączą się w równy, nieprzerwany rząd dookoła palca.
 >
-> Obrączkę wykonaliśmy ręcznie od podstaw, na zamówienie złożone online – bez przymiarek w pracowni. Na zdjęciach różowe szafiry przeplatają się z diamentami.
+> Obrączkę wykonaliśmy ręcznie od podstaw, na zamówienie złożone online – bez przymiarek w pracowni. Na zdjęciach różowe szafiry przeplatają się z diamentami. Wersję z zielonymi i białymi diamentami pokazujemy na prawdziwych zdjęciach, pod galerią w sekcji „Zamów z innym kamieniem”.
 >
 > Ten fason wykonamy w wybranym rozmiarze, także z kamieniami w innym kolorze.
 

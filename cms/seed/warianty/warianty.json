@@ -13,15 +13,6 @@
     },
     "variants": [
       {
-        "stone": "Szmaragd i diamenty",
-        "swatch": "zielony",
-        "files": [
-          "aion-szmaragd-stonowany.webp"
-        ],
-        "alt": "Obrączka eternity Aion ze szmaragdami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
-        "isVisualization": true
-      },
-      {
         "stone": "Białe diamenty",
         "swatch": "bialy",
         "files": [
@@ -50,7 +41,8 @@
       }
     ],
     "removeStones": [
-      "Różowy szafir i diamenty"
+      "Różowy szafir i diamenty",
+      "Szmaragd i diamenty"
     ]
   },
   {
