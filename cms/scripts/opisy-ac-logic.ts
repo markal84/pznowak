@@ -88,7 +88,7 @@ export function planAc(card: CardText | undefined, spec: AcSpec, known: KnownTex
  * wersji fasonu, a po wyborze innego kółka taki początek zaprzeczał galerii.
  */
 export const STONE_OPENING =
-  /^(niebiesk|błękitn|różow|malinow|oliwkow|zielon|czerwon|fiolet|żółt|biał|granatow|diament|brylant|rubin|szafir|szmaragd|topaz|tanzanit|ametyst|turmalin|morganit|cytryn|oliwin|perydot|agat|mystic|naturaln|owaln)/iu
+  /^(niebiesk|błękitn|różow|malinow|oliwkow|zielon|czerwon|fiolet|żółt|biał|granatow|diament|brylant|rubin|szafir|szmaragd|topaz|tanzanit|ametyst|turmalin|morganit|cytryn|oliwin|perydot|agat|opal|andaluzyt|mystic|naturaln|owaln)/iu
 
 export function lintAc(spec: AcSpec): LintIssue[] {
   const issues = lintSpec(spec)
