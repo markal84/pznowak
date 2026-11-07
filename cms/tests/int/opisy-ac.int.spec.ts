@@ -15,6 +15,9 @@ describe('AC: treść opisy-ac.json', () => {
     expect(names).toContain('Euterpe')
     expect(names).not.toContain('Pyrrha')
     expect(names).not.toContain('Nyx')
+    expect(names).not.toContain('Eirene')
+    expect(names).not.toContain('Leto')
+    expect(names).toContain('Harmonia')
     expect(new Set(names).size).toBe(names.length)
   })
 

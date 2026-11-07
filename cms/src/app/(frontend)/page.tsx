@@ -51,7 +51,7 @@ export default async function HomePage() {
     const p = products.find((x) => x.name === v.name)
     if (!p) return []
     const r = toCatalogRing(p)
-    return [{ slug: p.slug, name: p.name, sub: [r.stone, r.metal.toLowerCase()].filter(Boolean).join(', '), alt: r.alt, src: v.src, pos: v.pos, posMobile: v.posMobile }]
+    return [{ slug: p.slug, name: p.name, sub: [v.stone ?? r.stone, r.metal.toLowerCase()].filter(Boolean).join(', '), alt: r.alt, src: v.src, pos: v.pos, posMobile: v.posMobile }]
   })
   if (vitrine.length === 0 && hero && heroRing) {
     vitrine.push({

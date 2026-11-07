@@ -116,28 +116,39 @@ export const RENAMED_RING_SLUGS: Readonly<Record<string, string>> = {
 export const currentRingSlug = (legacySlug: string): string => RENAMED_RING_SLUGS[legacySlug] ?? legacySlug
 
 /**
- * Karty połączone w jeden fason (zlecenie AB): Pyrrha i Nyx to dziś warianty kamienia na karcie Urania, a ich własne
- * karty są w archiwum. Adres takiej karty idzie od razu na fason z wybranym kamieniem (`?kamien=` = adres wariantu,
- * patrz `stoneSlug` w `stone-variants.ts` i test). Wpisane tu na stałe: ten plik czyta `next.config.ts`, a on nie ma
- * dostępu do bazy.
+ * Karty połączone w jeden fason (zlecenie AB: Pyrrha i Nyx → Urania; lista PZ Nowak: Eirene i Leto → Harmonia). Ich
+ * własne karty są w archiwum. Adres takiej karty idzie od razu na fason z wybranym kamieniem (`?kamien=` = adres
+ * wariantu, patrz `stoneSlug` w `stone-variants.ts` i test); bez `kamien` karta nie ma własnego wariantu (ten sam
+ * pierścionek i kamień co fason). Wpisane tu na stałe: ten plik czyta `next.config.ts`, a on nie ma dostępu do bazy.
  */
-export const MERGED_RING_VARIANTS: Readonly<Record<string, { slug: string; kamien: string }>> = {
+export const MERGED_RING_VARIANTS: Readonly<Record<string, { slug: string; kamien?: string }>> = {
   pyrrha: { slug: 'urania', kamien: 'rubin-i-diamenty' },
   nyx: { slug: 'urania', kamien: 'topaz-london-blue-i-diamenty' },
+  eirene: { slug: 'harmonia', kamien: 'turmalin-malinowy-i-diamenty' },
+  leto: { slug: 'harmonia' },
 }
 
 /** Adres w nowym serwisie dla karty o aktualnym slugu: połączona karta → fason z `?kamien=`, inaczej zwykły adres karty. */
 export function ringPath(slug: string): string {
   const merged = MERGED_RING_VARIANTS[slug]
-  return merged ? `/pierscionki/${merged.slug}?kamien=${merged.kamien}` : `/pierscionki/${slug}`
+  if (!merged) return `/pierscionki/${slug}`
+  return merged.kamien ? `/pierscionki/${merged.slug}?kamien=${merged.kamien}` : `/pierscionki/${merged.slug}`
 }
 
 /**
  * `/katalog/<slug>` (eksport statyczny, to indeksuje Google) i `/ring/<slug>` (zaplecze WordPress, adresy publiczne
  * na pznowak.pl, kanoniczne wskazują gdzie indziej). Cel to od razu nowy adres karty, bez przystanku na `merope-2`.
  */
-const reasonFor = (legacySlug: string, renamed: boolean, whenRenamed: string, otherwise: string) =>
-  MERGED_RING_VARIANTS[currentRingSlug(legacySlug)] ? 'Karta połączona z fasonem Urania (kamień jako wariant).' : renamed ? whenRenamed : otherwise
+const capitalize = (text: string) => `${text[0].toUpperCase()}${text.slice(1)}`
+const mergedReason = (merged: { slug: string; kamien?: string }) =>
+  merged.kamien
+    ? `Karta połączona z fasonem ${capitalize(merged.slug)} (kamień jako wariant).`
+    : `Karta połączona z fasonem ${capitalize(merged.slug)} (ten sam pierścionek).`
+
+const reasonFor = (legacySlug: string, renamed: boolean, whenRenamed: string, otherwise: string) => {
+  const merged = MERGED_RING_VARIANTS[currentRingSlug(legacySlug)]
+  return merged ? mergedReason(merged) : renamed ? whenRenamed : otherwise
+}
 
 const RINGS: LegacyRedirect[] = LEGACY_RING_SLUGS.flatMap((slug): LegacyRedirect[] => {
   const renamed = currentRingSlug(slug) !== slug
@@ -162,17 +173,15 @@ const RENAMED: LegacyRedirect[] = Object.entries(RENAMED_RING_SLUGS).map(([from,
   from: `/pierscionki/${from}`,
   to: ringPath(to),
   origin: 'catalog',
-  reason: MERGED_RING_VARIANTS[to]
-    ? 'Karta połączona z fasonem Urania (kamień jako wariant).'
-    : 'Adres z nazwy karty zamiast numeru ze starej strony.',
+  reason: MERGED_RING_VARIANTS[to] ? mergedReason(MERGED_RING_VARIANTS[to]) : 'Adres z nazwy karty zamiast numeru ze starej strony.',
 }))
 
-/** Zarchiwizowane karty połączone w fason (zlecenie AB): ich adresy z nazwy też idą na fason, jednym skokiem. */
+/** Zarchiwizowane karty połączone w fason (zlecenia AB i Harmonia): ich adresy z nazwy też idą na fason, jednym skokiem. */
 const MERGED: LegacyRedirect[] = Object.entries(MERGED_RING_VARIANTS).map(([from, merged]) => ({
   from: `/pierscionki/${from}`,
   to: ringPath(from),
   origin: 'catalog',
-  reason: `Karta połączona z fasonem ${merged.slug[0].toUpperCase()}${merged.slug.slice(1)}: ten sam pierścionek, kamień jako wariant.`,
+  reason: `Karta połączona z fasonem ${capitalize(merged.slug)}: ten sam pierścionek${merged.kamien ? ', kamień jako wariant' : ''}.`,
 }))
 
 /** Elementy galerii WordPress (11 wpisów, w tym przykładowe) nie mają własnych stron w nowym układzie. */

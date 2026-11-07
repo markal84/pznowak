@@ -4,7 +4,7 @@ Wszystkie opublikowane karty (bez Pyrrhy i Nyx – połączone z Uranią) oraz T
 
 ## Do decyzji
 
-- **Leto i Harmonia to ten sam pierścionek** – dwa zdjęcia są identyczne w obu kartach. Propozycja: zostawić Harmonię (morganit), Leto zarchiwizować z przekierowaniem.
+- ~~Leto i Harmonia to ten sam pierścionek~~ – rozstrzygnięte 07.11: Leto, Harmonia i Eirene to jedna karta Harmonia (morganit + wariant malinowy turmalin z zdjęć Eirene); `opisy-ac.json` ma już tylko opis Harmonii, sekcje Leto i Eirene niżej są nieaktualne.
 - **Thalia**: w WordPressie opisana jako topaz London Blue, na OLX jako szafir; w nowym opisie piszę „szafir” – do potwierdzenia.
 - Szkice z importu, nieopublikowane i bez opisu w nowym wzorze: **Taygete** (podobna płytka do Iris), **Cassiopeia**, **Egea** (fason jak Adamas, z szafirem). Do sprawdzenia, czy publikować, czy to duble.
 - Merope i Electra to ten sam fason z innym kamieniem; można je kiedyś połączyć jak Uranię.

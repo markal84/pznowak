@@ -123,6 +123,24 @@ describe('przekierowania ze starej strony', () => {
     expect(rules).toContainEqual({ source: '/katalog/pierscionek-21/', destination: rubin, permanent: true })
   })
 
+  it('Eirene i Leto (lista PZ Nowak): wszystkie ich adresy idą jednym skokiem na fason Harmonia', () => {
+    const turmalin = '/pierscionki/harmonia?kamien=turmalin-malinowy-i-diamenty'
+    const to = (from: string) => LEGACY_REDIRECTS.find((r) => r.from === from)?.to
+    for (const from of ['/pierscionki/eirene', '/pierscionki/pierscionek-17', '/katalog/pierscionek-17', '/ring/pierscionek-17']) {
+      expect(to(from), from).toBe(turmalin)
+    }
+    for (const from of ['/pierscionki/leto', '/pierscionki/leto-2', '/katalog/leto-2', '/ring/leto-2']) {
+      expect(to(from), from).toBe('/pierscionki/harmonia')
+    }
+    // Harmonia sama zostaje: jej adres z numeru idzie na zwykły adres karty.
+    expect(to('/katalog/pierscionek-16')).toBe('/pierscionki/harmonia')
+    expect(to('/pierscionki/harmonia')).toBeUndefined()
+    expect(ringPath('leto')).toBe('/pierscionki/harmonia')
+    expect(ringPath('eirene')).toBe(turmalin)
+    const rules = legacyRedirectRules()
+    expect(rules).toContainEqual({ source: '/pierscionki/leto/', destination: '/pierscionki/harmonia', permanent: true })
+  })
+
   it('nie ma masowych przekierowań na stronę główną', () => {
     const toHome = LEGACY_REDIRECTS.filter(({ to }) => to === '/')
     expect(toHome.map(({ from }) => from)).toEqual(['/index.html'])

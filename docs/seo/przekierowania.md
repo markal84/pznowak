@@ -53,8 +53,8 @@ Tabele poniżej generuje `npm run seo:redirects-doc` (w katalogu `cms`); test
 | `/ring/prometheus-2` | `/pierscionki/prometheus` | WordPress | nie | Wpis WordPress „ring”; adres z nazwy karty zamiast numeru. |
 | `/katalog/euterpe-2` | `/pierscionki/euterpe` | mapa witryny | nie | Ten sam pierścionek; adres z nazwy karty zamiast numeru. |
 | `/ring/euterpe-2` | `/pierscionki/euterpe` | WordPress | nie | Wpis WordPress „ring”; adres z nazwy karty zamiast numeru. |
-| `/katalog/leto-2` | `/pierscionki/leto` | mapa witryny | nie | Ten sam pierścionek; adres z nazwy karty zamiast numeru. |
-| `/ring/leto-2` | `/pierscionki/leto` | WordPress | nie | Wpis WordPress „ring”; adres z nazwy karty zamiast numeru. |
+| `/katalog/leto-2` | `/pierscionki/harmonia` | mapa witryny | nie | Karta połączona z fasonem Harmonia (ten sam pierścionek). |
+| `/ring/leto-2` | `/pierscionki/harmonia` | WordPress | nie | Karta połączona z fasonem Harmonia (ten sam pierścionek). |
 | `/katalog/celaeno` | `/pierscionki/celaeno` | mapa witryny | tak | Ten sam pierścionek, ten sam slug. |
 | `/ring/celaeno` | `/pierscionki/celaeno` | WordPress | nie | Wpis WordPress „ring”; ten sam pierścionek. |
 | `/katalog/taygete` | `/pierscionki/taygete` | mapa witryny | tak | Ten sam pierścionek, ten sam slug. |
@@ -77,8 +77,8 @@ Tabele poniżej generuje `npm run seo:redirects-doc` (w katalogu `cms`); test
 | `/ring/pierscionek-19` | `/pierscionki/urania` | WordPress | nie | Wpis WordPress „ring”; adres z nazwy karty zamiast numeru. |
 | `/katalog/pierscionek-18` | `/pierscionki/urania?kamien=topaz-london-blue-i-diamenty` | mapa witryny | nie | Karta połączona z fasonem Urania (kamień jako wariant). |
 | `/ring/pierscionek-18` | `/pierscionki/urania?kamien=topaz-london-blue-i-diamenty` | WordPress | nie | Karta połączona z fasonem Urania (kamień jako wariant). |
-| `/katalog/pierscionek-17` | `/pierscionki/eirene` | mapa witryny | nie | Ten sam pierścionek; adres z nazwy karty zamiast numeru. |
-| `/ring/pierscionek-17` | `/pierscionki/eirene` | WordPress | nie | Wpis WordPress „ring”; adres z nazwy karty zamiast numeru. |
+| `/katalog/pierscionek-17` | `/pierscionki/harmonia?kamien=turmalin-malinowy-i-diamenty` | mapa witryny | nie | Karta połączona z fasonem Harmonia (kamień jako wariant). |
+| `/ring/pierscionek-17` | `/pierscionki/harmonia?kamien=turmalin-malinowy-i-diamenty` | WordPress | nie | Karta połączona z fasonem Harmonia (kamień jako wariant). |
 | `/katalog/pierscionek-16` | `/pierscionki/harmonia` | mapa witryny | nie | Ten sam pierścionek; adres z nazwy karty zamiast numeru. |
 | `/ring/pierscionek-16` | `/pierscionki/harmonia` | WordPress | nie | Wpis WordPress „ring”; adres z nazwy karty zamiast numeru. |
 | `/katalog/pierscionek-15` | `/pierscionki/cyane` | mapa witryny | nie | Ten sam pierścionek; adres z nazwy karty zamiast numeru. |
@@ -117,13 +117,13 @@ Tabele poniżej generuje `npm run seo:redirects-doc` (w katalogu `cms`); test
 | `/pierscionki/electra-2` | `/pierscionki/electra` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/prometheus-2` | `/pierscionki/prometheus` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/euterpe-2` | `/pierscionki/euterpe` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
-| `/pierscionki/leto-2` | `/pierscionki/leto` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
+| `/pierscionki/leto-2` | `/pierscionki/harmonia` | nowy serwis | nie | Karta połączona z fasonem Harmonia (ten sam pierścionek). |
 | `/pierscionki/pierscionek-22` | `/pierscionki/daphne` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/pierscionek-21` | `/pierscionki/urania?kamien=rubin-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Urania (kamień jako wariant). |
 | `/pierscionki/pierscionek-20` | `/pierscionki/thalassa` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/pierscionek-19` | `/pierscionki/urania` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/pierscionek-18` | `/pierscionki/urania?kamien=topaz-london-blue-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Urania (kamień jako wariant). |
-| `/pierscionki/pierscionek-17` | `/pierscionki/eirene` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
+| `/pierscionki/pierscionek-17` | `/pierscionki/harmonia?kamien=turmalin-malinowy-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Harmonia (kamień jako wariant). |
 | `/pierscionki/pierscionek-16` | `/pierscionki/harmonia` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/pierscionek-15` | `/pierscionki/cyane` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/pierscionek-14` | `/pierscionki/hestia` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
@@ -137,6 +137,8 @@ Tabele poniżej generuje `npm run seo:redirects-doc` (w katalogu `cms`); test
 | `/pierscionki/pierscionek-1` | `/pierscionki/egea` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/pyrrha` | `/pierscionki/urania?kamien=rubin-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Urania: ten sam pierścionek, kamień jako wariant. |
 | `/pierscionki/nyx` | `/pierscionki/urania?kamien=topaz-london-blue-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Urania: ten sam pierścionek, kamień jako wariant. |
+| `/pierscionki/eirene` | `/pierscionki/harmonia?kamien=turmalin-malinowy-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Harmonia: ten sam pierścionek, kamień jako wariant. |
+| `/pierscionki/leto` | `/pierscionki/harmonia` | nowy serwis | nie | Karta połączona z fasonem Harmonia: ten sam pierścionek. |
 | `/gallery/przykladowe-zdjecie` | `/realizacje` | WordPress | nie | Wpis galerii WordPress; najbliższa lista to „Realizacje”. |
 | `/gallery/zdjecie-2` | `/realizacje` | WordPress | nie | Wpis galerii WordPress; najbliższa lista to „Realizacje”. |
 | `/gallery/galeria-3` | `/realizacje` | WordPress | nie | Wpis galerii WordPress; najbliższa lista to „Realizacje”. |

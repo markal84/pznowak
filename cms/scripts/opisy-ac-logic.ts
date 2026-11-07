@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { CARD_TEXT as URANIA_AB_TEXT } from './polaczenie-ab-logic'
+import { HARMONIA_BEFORE_MERGE } from './polaczenie-harmonia-logic'
 import { OPISY_DIR, loadSpecs as loadSpecsU, lintSpec, type LintIssue } from './opisy-u-logic'
 
 export const AC_PATH = path.join(OPISY_DIR, 'opisy-ac.json')
@@ -55,6 +56,7 @@ export function knownTexts(id: number, name?: string): KnownText[] {
   const u = loadSpecsU().find((spec) => spec.id === id)
   if (u?.lead !== undefined && u.description !== undefined) known.push({ lead: u.lead, description: u.description })
   if (id === 17) known.push({ lead: URANIA_AB_TEXT.lead, description: URANIA_AB_TEXT.description })
+  if (id === 20) known.push({ lead: HARMONIA_BEFORE_MERGE.lead, description: HARMONIA_BEFORE_MERGE.description })
   return known
 }
 
