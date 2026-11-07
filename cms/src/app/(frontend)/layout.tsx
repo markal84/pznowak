@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import CookieBanner from '@/components/site/CookieBanner'
 import HydrationFlag from '@/components/site/HydrationFlag'
+import RevealOnScroll from '@/components/site/RevealOnScroll'
 import SiteHeader from '@/components/site/SiteHeader'
 import SiteFooter from '@/components/site/SiteFooter'
 import { fontClassName } from '@/lib/fonts'
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <SiteFooter />
         {COOKIE_BANNER_ENABLED && <CookieBanner />}
         <HydrationFlag />
+        <RevealOnScroll />
       </body>
     </html>
   )

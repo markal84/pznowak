@@ -2769,34 +2769,26 @@ fieldset.plain legend {
     animation: sway 1100ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  /* Pojawianie się przy przewijaniu: animacja sterowana przewijaniem (CSS, bez JS i bez ukrywania treści
-     przed hydracją). Przeglądarki bez animation-timeline pokazują treść od razu. `forwards` bez `backwards`:
-     element poniżej ekranu jest widoczny (druk, zrzut, skok do kotwicy), a stan początkowy włącza się dopiero,
-     gdy jego górna krawędź dochodzi do dołu ekranu. */
-  @supports (animation-timeline: view()) {
-    [data-reveal] > * {
-      animation: rise linear forwards;
-      animation-timeline: view();
-      animation-range: entry 0% entry 70%;
-    }
-    [data-reveal] > :nth-child(4n + 2) {
-      animation-range: entry 6% entry 76%;
-    }
-    [data-reveal] > :nth-child(4n + 3) {
-      animation-range: entry 12% entry 82%;
-    }
-    [data-reveal] > :nth-child(4n + 4) {
-      animation-range: entry 18% entry 88%;
-    }
-  }
-}
-
-@keyframes rise {
-  from {
+  /* Pojawianie się przy przewijaniu: RevealOnScroll (IntersectionObserver) ustawia data-rv="wait" tylko na
+     elementach leżących w całości poniżej ekranu, potem "in". Bez JS i przy „ogranicz ruch” atrybutu nie ma,
+     więc treść jest po prostu widoczna. Opóźnienie (--rv-delay) liczy skrypt dla elementów wchodzących razem. */
+  [data-rv='wait'] {
     opacity: 0;
     transform: translateY(18px);
   }
+  [data-rv='in'] {
+    transition:
+      opacity 650ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--rv-delay, 0ms),
+      transform 650ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--rv-delay, 0ms);
+  }
 }
+@media print {
+  [data-rv] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 @keyframes icSpark {
   30% {
     transform: scale(0.3);
