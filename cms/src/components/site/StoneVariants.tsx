@@ -140,7 +140,7 @@ export function StoneVariantPicker({ originalStone, originalSwatch }: { original
 export function ProductPrice({ price }: { price: string }) {
   const selected = useSelectedStoneVariant()
   const value = selected || !price ? PRICE_ON_REQUEST_SHORT : price
-  const label = selected ? 'Cena z innym kamieniem' : 'Cena'
+  const label = selected ? 'Cena z wybranym kamieniem' : 'Cena'
   return (
     <PriceOffer
       label={label}
