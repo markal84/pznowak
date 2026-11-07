@@ -60,12 +60,24 @@ test.describe('Nowy design: strony i nawigacja', () => {
     }
   })
 
-  test('hero na komputerze: tekst po lewej, zdjęcie po prawej (bez zmian)', async ({ page }) => {
+  test('hero na komputerze: tekst po lewej, zdjęcie po prawej do krawędzi ekranu, każde zdanie tytułu w jednej linii', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 })
     await visit(page, '/')
     const fig = (await page.locator('.hero-fig').boundingBox())!
     const h1 = (await page.getByRole('heading', { level: 1 }).boundingBox())!
     expect(fig.x).toBeGreaterThan(h1.x + h1.width)
+    const viewportWidth = await page.evaluate(() => document.documentElement.clientWidth)
+    expect(Math.abs(fig.x + fig.width - viewportWidth)).toBeLessThanOrEqual(1)
+    // Tytuł zaczyna się na lewej krawędzi treści (jak logo w nagłówku), nie przy samej krawędzi okna.
+    expect(h1.x).toBeGreaterThanOrEqual(90)
+    const lines = await page.locator('.hero-home .h1-hero .hl').evaluateAll((els) =>
+      els.map((el) => {
+        const range = document.createRange()
+        range.selectNodeContents(el)
+        return new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size
+      }),
+    )
+    expect(lines).toEqual([1, 1])
   })
 
   test('całe zdjęcie w hero prowadzi do karty pierścionka (też dotykiem)', async ({ page }) => {

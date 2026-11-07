@@ -84,14 +84,20 @@ export default async function HomePage() {
   return (
     <>
       <JsonLd data={jewelryStoreJsonLd()} />
-      <section className="wrap hero hero-home">
+      {/* Hero: na komputerze tekst po lewej, zdjęcie na całą wysokość do prawej krawędzi ekranu; na telefonie zdjęcie nad tytułem. */}
+      <section className={`hero-home${hero && heroRing ? '' : ' hero-home-solo'}`}>
         <div className="hero-copy">
-          <h1 className="h1 h1-hero">Rzemiosło, które docenisz. Biżuteria, którą pokochasz.</h1>
-          <p className="lead">
-            Projektujemy i wykonujemy biżuterię na zamówienie w rodzinnej pracowni w Busku-Zdroju.
-          </p>
-          <div className="stack" style={{ gap: 18 }}>
-            <div className="row gap-14-28">
+          <div className="hero-main">
+            <h1 className="h1-hero">
+              <span className="hl">Rzemiosło, które docenisz.</span>{' '}
+              <em className="hl">Biżuteria, którą pokochasz.</em>
+            </h1>
+            <span aria-hidden="true" className="hero-rule" />
+            <p className="lead">
+              {/* Twarde spacje po „i” i „w”: jednoliterowe słowa nie zostają na końcu linii. */}
+              Projektujemy i{'\u00a0'}wykonujemy biżuterię na zamówienie w{'\u00a0'}rodzinnej pracowni w{'\u00a0'}Busku-Zdroju.
+            </p>
+            <div className="hero-cta">
               <Link className="btn" href="/kontakt">
                 Zapytaj o pierścionek
               </Link>
@@ -99,14 +105,14 @@ export default async function HomePage() {
                 {count > 0 ? `Zobacz ${count} ${pluralRing(count)} z pracowni` : 'Zobacz pierścionki z pracowni'}
               </Link>
             </div>
-            {trust.length > 0 ? (
-              <ul className="hero-trust">
-                {trust.map((t) => (
-                  <li key={t.text}>{t.confirmed ? t.text : <DoUzupelnienia>{t.text}</DoUzupelnienia>}</li>
-                ))}
-              </ul>
-            ) : null}
           </div>
+          {trust.length > 0 ? (
+            <ul className="hero-trust">
+              {trust.map((t) => (
+                <li key={t.text}>{t.confirmed ? t.text : <DoUzupelnienia>{t.text}</DoUzupelnienia>}</li>
+              ))}
+            </ul>
+          ) : null}
         </div>
         {hero && heroRing ? (
           <figure className="hero-fig">
@@ -114,10 +120,10 @@ export default async function HomePage() {
               <Photo
                 alt={`Pierścionek ${hero.name}${heroRing.stone ? ': ' + heroRing.stone.toLowerCase() : ''}`}
                 className="ph-hero"
-                position="55% 50%"
+                position="58% 50%"
                 priority
                 ratio="none"
-                sizes="(max-width: 960px) 100vw, 56vw"
+                sizes="(max-width: 960px) 100vw, 50vw"
                 src={hero.images[0] ?? hero.imagePath}
               />
               <span className="hero-tag">
