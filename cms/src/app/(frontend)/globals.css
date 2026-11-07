@@ -3405,8 +3405,8 @@ fieldset.plain legend {
 .review blockquote {
   margin: 0;
   font-family: var(--serif);
-  font-size: 21px;
-  line-height: 1.45;
+  font-size: 17px;
+  line-height: 1.55;
 }
 .review-by {
   display: flex;

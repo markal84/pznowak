@@ -1,3 +1,5 @@
+import opinieGoogle from './opinie-google.json'
+
 export type GoogleReview = {
   author: string
   /** Treść opinii, najwyżej 2–3 zdania; skracać tylko z zachowaniem sensu. */
@@ -28,50 +30,23 @@ export type ReviewsConfig = {
   sourceNote: string | null
   /** Wybrane 3–4 opinie. */
   reviews: GoogleReview[]
-  /** Skąd są dane: `google` = pobrane z Places API (wymaga podpisu „Google Maps”), `manual` = wpisane w tym pliku. */
+  /** Skąd są dane: `google` = pobrane z Places API (wymaga podpisu „Google Maps”), `manual` = wpisane w opinie-google.json. */
   source?: 'google' | 'manual'
 }
 
 /**
- * Ręczna konfiguracja opinii: zapas, gdy nie ma klucza Google Places API (`GOOGLE_PLACES_API_KEY`
- * i `GOOGLE_PLACE_ID`) albo Google nie odpowiada. Z kluczem sekcja bierze opinie automatycznie
- * z wizytówki (`src/lib/google-places.ts`). Pusta: podgląd pokazuje placeholder, produkcja nie renderuje sekcji.
+ * Ręczne opinie z `opinie-google.json`: jedyny plik do edycji przy aktualizacji (opis: cms/docs/opinie-google.md).
+ * Działają, gdy nie ma klucza Google Places API (`GOOGLE_PLACES_API_KEY` i `GOOGLE_PLACE_ID`) albo Google
+ * nie odpowiada; z kluczem sekcja bierze opinie automatycznie (`src/lib/google-places.ts`).
+ * Pusta lista albo `liczbaOpinii: 0`: podgląd pokazuje placeholder, produkcja nie renderuje sekcji.
  */
 export const GOOGLE_REVIEWS: ReviewsConfig = {
-  // Stan wizytówki z 7.11.2026 (panel menedżera). Średnią i liczbę aktualizować raz w miesiącu.
-  summary: {
-    average: 4.7,
-    count: 15,
-    url: 'https://www.google.com/maps/search/?api=1&query=Pracownia%20Z%C5%82otnicza%20Micha%C5%82%20Nowak%20Busko-Zdr%C3%B3j',
-  },
-  sourceNote:
-    'Wybrane opinie z naszej wizytówki Google, przepisane bez zmian. Średnia i liczba obejmują wszystkie opinie (stan na listopad 2026).',
-  reviews: [
-    {
-      author: 'A.J.',
-      rating: 5,
-      date: 'listopad 2026',
-      text: 'Polecam ! Korzystalam wielokrotnie z uslug Pana Michala, ktory uratowal moja sentymentalna bizuterie. Wszystko zawsze na najwyzszym poziomie ! Ogromny wybor bizuterii zlotej i srebrnej, mila atmosfera.',
-    },
-    {
-      author: 'Damian Szo',
-      rating: 5,
-      date: 'listopad 2026',
-      text: 'Miła fachowa obsługa ,usługa w terminie i nawet czyszczenie gratis polecam i pozdrawiam !',
-    },
-    {
-      author: 'Przemysław',
-      rating: 5,
-      date: 'listopad 2026',
-      text: 'Szybko, fachowo i tanio. Polecam!',
-    },
-    {
-      author: 'Dominika Łachut',
-      rating: 5,
-      date: 'listopad 2026',
-      text: 'Bardzo miła i sprawna obsługa. Polecam serdecznie!',
-    },
-  ],
+  summary:
+    opinieGoogle.liczbaOpinii > 0
+      ? { average: opinieGoogle.srednia, count: opinieGoogle.liczbaOpinii, url: opinieGoogle.linkDoWizytowki }
+      : null,
+  sourceNote: opinieGoogle.notatka || null,
+  reviews: opinieGoogle.opinie.map((o) => ({ author: o.autor, rating: o.ocena, date: o.data, text: o.tekst })),
   source: 'manual',
 }
 
