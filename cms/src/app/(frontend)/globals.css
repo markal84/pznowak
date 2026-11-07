@@ -1924,6 +1924,10 @@ fieldset.plain legend {
   height: 100%;
   object-fit: cover;
 }
+/* Natywny napis przeglądarki (iOS/WebKit) ukrywamy: etap pokazuje tylko przywieszka poniżej. */
+.studio-film video::-webkit-media-text-track-container {
+  display: none;
+}
 /* Napis etapu: przywieszka jak `.tag-corner` na kafelkach, półprzezroczysta, żeby była czytelna na jasnym i ciemnym kadrze. */
 .studio-film-caption {
   position: absolute;

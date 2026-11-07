@@ -10,7 +10,7 @@ const LABEL = 'Film z pracowni: topienie złota, praca przy stole, oprawa kamien
 /**
  * Film z pracowni (zlecenie T): 30 s, 4:5, bez dźwięku, w pętli.
  * - Napisy etapów z `pracownia-etapy.vtt` (źródło prawdy): ścieżka `captions` w trybie `hidden`, tekst
- *   aktywnego wpisu pokazujemy sami jako etykietę w lewym dolnym rogu (wygląd przywieszki `Tag`).
+ *   aktywnego wpisu pokazujemy sami (bez `default` na `<track>`: iOS Safari rysowałby wtedy własny, drugi napis) jako etykietę w lewym dolnym rogu (wygląd przywieszki `Tag`).
  * - Autoodtwarzanie włączamy dopiero w przeglądarce i tylko bez `prefers-reduced-motion: reduce`;
  *   wtedy zostaje okładka i przycisk odtwarzania. Bez JS film ma natywne kontrolki i działa bez napisów.
  * - Przycisk pauzy jest zawsze (WCAG 2.2.2: ruch dłuższy niż 5 s musi dać się zatrzymać).
@@ -107,7 +107,7 @@ export default function StudioFilm({ className, style }: { className?: string; s
         ref={videoRef}
       >
         <source src={SRC} type="video/mp4" />
-        <track default kind="captions" label="Etapy pracy" ref={trackRef} src={CAPTIONS} srcLang="pl" />
+        <track kind="captions" label="Etapy pracy" ref={trackRef} src={CAPTIONS} srcLang="pl" />
       </video>
       {enhanced ? (
         <>
