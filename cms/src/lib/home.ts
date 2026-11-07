@@ -4,6 +4,20 @@ import type { SiteProduct } from './public-products'
 /** Ile pierścionków pokazuje sekcja „Wybrane pierścionki” na stronie głównej. */
 export const HOME_RINGS_LIMIT = 4
 
+/**
+ * Witryna w hero strony głównej: pierścionki z katalogu (po nazwie) i ich najlepsze zdjęcia w pełnej rozdzielczości
+ * (sesja z Facebooka, 1320 × 1980 px, w `public/zdjecia/hero/`). Kolejność = kolejność miniatur; pierwszy pokazuje się od razu.
+ * `pos` to kadr na komputerze (wysoki panel), `posMobile` na telefonie (niski, szeroki kadr). Pierścionek, którego nie ma
+ * w opublikowanym katalogu, jest pomijany, więc zmiana nazwy w panelu niczego nie psuje.
+ */
+export const HERO_VITRINE: readonly { name: string; src: string; pos: string; posMobile: string }[] = [
+  { name: 'Phoebe', src: '/zdjecia/hero/phoebe.webp', pos: '50% 30%', posMobile: '50% 32%' },
+  { name: 'Thalia', src: '/zdjecia/hero/thalia.webp', pos: '50% 34%', posMobile: '50% 30%' },
+  { name: 'Cyane', src: '/zdjecia/hero/cyane.webp', pos: '50% 36%', posMobile: '50% 38%' },
+  { name: 'Eirene', src: '/zdjecia/hero/eirene.webp', pos: '50% 40%', posMobile: '50% 40%' },
+  { name: 'Athena', src: '/zdjecia/hero/athena.webp', pos: '50% 34%', posMobile: '50% 32%' },
+]
+
 /** Pierścionek z hero (po nazwie; bez niego pierwszy z katalogu). */
 export const HERO_RING_NAME = 'Phoebe'
 

@@ -2266,8 +2266,7 @@ fieldset.plain legend {
   .lead {
     font-size: 16.5px;
   }
-  /* Hero strony głównej na telefonie: jeden blok niżej („hero strony głównej – telefon”, max-width 760 px).
-     Reguły .hero powyżej zostają dla hero podstron (na zamówienie, naprawy). */
+  /* Hero strony głównej ma własny blok („hero strony głównej (przebudowa)”); reguły .hero tu są dla podstron. */
   .ring-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
@@ -2901,48 +2900,388 @@ fieldset.plain legend {
   text-underline-offset: 4px;
 }
 
-/* Jedna linijka zaufania pod przyciskami w hero. */
-.hero-trust {
-  list-style: none;
+/* ---------- hero strony głównej (przebudowa) ----------
+   Jedyny blok z wyglądem hero strony głównej. Podstrony (na zamówienie, naprawy) mają własne `.hero` wyżej.
+   Komputer (od 961 px): dwie równe kolumny na całą szerokość okna. Tekst trzyma lewą krawędź treści strony
+   (jak `.wrap`), zdjęcie pierścionka wypełnia prawą połowę od nagłówka do dołu hero i dochodzi do krawędzi ekranu.
+   Tytuł: dwa zdania w dwóch blokach, drugie kursywą w kolorze aksamitu; cienka złota linia oddziela go od opisu.
+   Zaufanie: krótka lista u dołu kolumny, nad nią linia jak w godzinach otwarcia, punkty jak węzły osi czasu z „Pracowni”.
+   Telefon i tablet (do 960 px): zdjęcie od krawędzi do krawędzi nad tytułem, tytuł płynie jednym akapitem. */
+.hero-home {
+  /* Lewa krawędź treści jak w `.wrap` (max 1320 px + 40 px). cqw = szerokość sekcji; vw jako zapas dla starszych przeglądarek. */
+  --hero-pad: max(40px, calc((100vw - 1320px) / 2 + 40px));
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: clamp(580px, calc(100svh - 99px), 780px);
+  margin-bottom: 104px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.hero-home .hero-copy {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 48px;
+  min-width: 0;
+  padding: 64px 56px 44px var(--hero-pad);
+}
+.hero-home .hero-main {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  max-width: 640px;
+}
+/* Każde zdanie w jednej linii: rozmiar liczony z szerokości kolumny (zdanie ≈ 10,4 em), od 40 do 58 px; bez cqw: 4vw.
+   Na węższych ekranach zdanie łamie się na dwie zrównoważone linie. */
+.hero-home .h1-hero {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(40px, 4vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--graphite);
+}
+.hero-home .h1-hero .hl {
+  display: block;
+  text-wrap: balance;
+}
+.hero-home .h1-hero em {
+  font-style: italic;
+  color: var(--velvet);
+  letter-spacing: -0.012em;
+  margin-top: 0.06em;
+}
+@supports (width: 1cqw) {
+  .hero-home > * {
+    --hero-pad: max(40px, calc((100cqw - 1320px) / 2 + 40px));
+  }
+  .hero-home .h1-hero {
+    font-size: clamp(40px, calc((50cqw - var(--hero-pad) - 56px) / 10.5), 58px);
+  }
+}
+/* Cienka złota linia: krótki akcent jubilerski między tytułem a opisem. */
+.hero-home .hero-rule {
+  display: block;
+  width: 64px;
+  height: 1px;
+  margin: 36px 0 28px;
+  background: var(--gold);
+  transform-origin: left center;
+}
+.hero-home .lead {
+  max-width: 27em;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--graphite-2);
+  text-wrap: pretty;
+}
+.hero-home .hero-cta {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--muted);
+  align-items: center;
+  gap: 14px 28px;
+  margin-top: 36px;
 }
-.hero-trust li + li::before {
-  content: '·';
-  margin: 0 10px;
+.hero-home .hero-trust {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--muted);
+  max-width: 600px;
+}
+.hero-home .hero-trust li {
+  position: relative;
+  padding-left: 20px;
+}
+.hero-home .hero-trust li::before {
+  content: '';
+  position: absolute;
+  left: 1px;
+  top: 0.5em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--patina);
+}
+/* Główny przycisk hero prowadzi do pierścionków; strzałka przesuwa się przy wskazaniu. */
+.hero-home .btn-browse {
+  gap: 12px;
+  padding: 0 24px 0 28px;
+  min-height: 52px;
+  font-size: 15.5px;
+}
+.hero-home .btn-arrow {
+  display: inline-block;
+  font-size: 17px;
+  line-height: 1;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hero-home .btn-browse:hover .btn-arrow,
+.hero-home .btn-browse:focus-visible .btn-arrow {
+  transform: translateX(4px);
 }
 
-/* ---------- hero strony głównej – telefon (zlecenie M) ----------
-   Jedyny blok z układem hero strony głównej na telefonie; desktop bez zmian.
-   Na pierwszym ekranie: zdjęcie pierścionka (pod nagłówkiem, od krawędzi do krawędzi), tytuł, opis i przycisk.
-   Wysokość zdjęcia w svh (mały widok przeglądarki), więc nie skacze przy chowaniu paska adresu (bez CLS). */
-@media (max-width: 760px) {
+/* ---------- witryna pod lupą (HeroVitrine) ----------
+   Komputer: zdjęcia leżą jedno na drugim i przenikają się; po prawej pionowy rząd miniatur jak półka w witrynie
+   (wskazanie albo kliknięcie zmienia pierścionek). Nad zdjęciem kursor jest lupą jubilerską (×2) ze złotą obwódką.
+   Telefon i tablet: zdjęcia przesuwa się palcem, miniatury zamieniają się w kropki. */
+.hero-home .hv {
+  position: relative;
+  min-width: 0;
+  background: #0e0c0a;
+}
+.hv-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.hv-track {
+  position: absolute;
+  inset: 0;
+}
+.hero-home .hv-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hero-home .hv-slide[data-active] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.hero-home .hv .ph-hero {
+  height: 100%;
+  aspect-ratio: auto;
+  background: #0e0c0a;
+}
+.hero-home .hv-slide img {
+  object-position: var(--pos);
+}
+.hv-tag-m {
+  display: none;
+}
+.hero-home .hv-tag-d {
+  left: 32px;
+  bottom: 32px;
+  pointer-events: none;
+}
+.hv-lens {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  width: 208px;
+  height: 208px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background-color: #0e0c0a;
+  background-repeat: no-repeat;
+  box-shadow:
+    0 0 0 1px rgba(200, 161, 90, 0.95),
+    0 0 0 6px rgba(14, 12, 10, 0.28),
+    0 0 0 7px rgba(200, 161, 90, 0.35),
+    0 22px 48px rgba(0, 0, 0, 0.5),
+    inset 0 0 22px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.2s;
+  will-change: transform;
+}
+.hv-lens[data-on] {
+  opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hv-stage:hover {
+    cursor: none;
+  }
+}
+.hv-thumbs {
+  position: absolute;
+  right: 28px;
+  top: 50%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transform: translateY(-50%);
+}
+.hv-thumb {
+  position: relative;
+  display: block;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: #0e0c0a;
+  cursor: pointer;
+  opacity: 0.62;
+  box-shadow: 0 0 0 1px rgba(243, 241, 234, 0.28);
+  transition:
+    opacity 0.25s,
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.25s;
+}
+.hv-thumb img {
+  object-fit: cover;
+}
+.hv-thumb:hover {
+  opacity: 0.9;
+}
+.hv-thumb[aria-pressed='true'] {
+  opacity: 1;
+  transform: translateX(-6px);
+  box-shadow:
+    0 0 0 1px var(--gold),
+    0 8px 20px rgba(0, 0, 0, 0.45);
+}
+.hv-thumb:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+/* Bez pierścionka (pusty katalog): sam tekst na całą szerokość. */
+.hero-home-solo {
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+.hero-home-solo .hero-copy {
+  padding-right: var(--hero-pad);
+}
+
+/* Wejście (tylko komputer, bez ruchu przy prefers-reduced-motion): zdjęcie łagodnie się „ustawia” (także po zmianie w witrynie),
+   złota linia rysuje się od lewej. Tekst jest widoczny od razu (nie opóźnia pierwszego wyświetlenia). */
+@media (min-width: 961px) and (prefers-reduced-motion: no-preference) {
+  .hero-home .hv-slide[data-active] img {
+    animation: heroSettle 1600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .hero-home .hero-rule {
+    animation: heroRule 900ms 250ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+@keyframes heroSettle {
+  0% {
+    transform: scale(1.045);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes heroRule {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+/* Tablet i telefon: zdjęcie nad tytułem, od krawędzi do krawędzi. Wysokość w svh (mały widok przeglądarki),
+   więc nie skacze przy chowaniu paska adresu (bez CLS). */
+@media (max-width: 960px) {
   .hero-home {
-    flex-direction: column;
-    align-items: stretch;
-    flex-wrap: nowrap;
-    gap: 20px;
-    padding: 0 20px 40px;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    margin-bottom: 72px;
   }
   .hero-home .hero-fig {
     order: -1;
-    flex: none;
-    margin: 0 -20px;
+    height: min(56svh, 560px);
   }
-  .hero-home .ph-hero {
-    aspect-ratio: auto;
+  /* Witryna: tor przewijany palcem, z przyciąganiem do zdjęcia. */
+  .hero-home .hv-track {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .hero-home .hv-track::-webkit-scrollbar {
+    display: none;
+  }
+  .hero-home .hv-slide {
+    position: relative;
+    inset: auto;
+    flex: 0 0 100%;
+    opacity: 1;
+    pointer-events: auto;
+    scroll-snap-align: start;
+  }
+  .hero-home .hv-slide img {
+    object-position: var(--pos-m);
+  }
+  .hero-home .hv-tag-d,
+  .hv-lens {
+    display: none;
+  }
+  .hero-home .hv-tag-m {
+    display: block;
+    left: 20px;
+    bottom: 20px;
+  }
+  /* Miniatury jako kropki (pole dotyku 24 px, widoczna kropka 6 px; aktywna wydłużona). */
+  .hv-thumbs {
+    top: auto;
+    right: 10px;
+    bottom: 12px;
+    flex-direction: row;
+    gap: 0;
+    transform: none;
+  }
+  .hv-thumb,
+  .hv-thumb[aria-pressed='true'] {
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    box-shadow: none;
+    opacity: 1;
+    transform: none;
+  }
+  .hv-thumb img {
+    display: none;
+  }
+  .hv-thumb::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 -3px;
+    border-radius: 3px;
+    background: rgba(243, 241, 234, 0.5);
+    transition:
+      width 0.3s,
+      margin 0.3s,
+      background-color 0.3s;
+  }
+  .hv-thumb[aria-pressed='true']::after {
+    width: 16px;
+    margin-left: -8px;
+    background: #f3f1ea;
+  }
+  .hero-home .hero-copy {
+    padding: 44px 40px 40px;
+    gap: 36px;
+  }
+  .hero-home .h1-hero {
+    font-size: clamp(40px, 6.4vw, 56px);
+  }
+}
+@media (max-width: 760px) {
+  .hero-home {
+    margin-bottom: 56px;
+  }
+  .hero-home .hero-fig {
     height: 42vh;
-    height: min(42svh, 380px);
+    height: min(44svh, 390px);
   }
-  /* Kadr: kamień (prawa część zdjęcia) i obrączka zostają w kadrze. */
-  .hero-home .ph-hero img {
-    object-position: 62% 48% !important;
-  }
-  .hero-home .hero-tag {
+  .hero-home .hv-tag-m {
     left: 12px;
     bottom: 12px;
   }
@@ -2967,43 +3306,35 @@ fieldset.plain legend {
     font-size: 11.5px;
   }
   .hero-home .hero-copy {
-    flex: none;
-    gap: 14px;
+    padding: 22px 20px 32px;
+    gap: 28px;
   }
+  /* Tytuł jednym akapitem: dwa zdania w trzech liniach zamiast czterech. */
   .hero-home .h1-hero {
-    font-size: clamp(30px, 9vw, 40px);
-    line-height: 1.04;
+    font-size: clamp(30px, 8.6vw, 38px);
+    line-height: 1.06;
+    letter-spacing: -0.018em;
     text-wrap: balance;
   }
-  .hero-home .hero-copy p {
-    font-size: 15.5px;
-    line-height: 1.5;
-    text-wrap: pretty;
-  }
-  .hero-home .hero-copy > .stack {
-    gap: 14px !important;
-  }
-  .hero-home .gap-14-28 {
-    gap: 12px 24px;
-  }
-  /* Linia zaufania: jeden ciągły tekst z cienkim separatorem zamiast listy w punktach. */
-  .hero-home .hero-trust {
-    display: block;
-    font-size: 12.5px;
-    line-height: 1.55;
-  }
-  .hero-home .hero-trust li {
+  .hero-home .h1-hero .hl {
     display: inline;
   }
-  .hero-home .hero-trust li + li::before {
-    content: '';
-    display: inline-block;
-    width: 1px;
-    height: 0.9em;
-    margin: 0 8px;
-    vertical-align: -0.1em;
-    background: currentColor;
-    opacity: 0.4;
+  .hero-home .hero-rule {
+    width: 48px;
+    margin: 18px 0 14px;
+  }
+  .hero-home .lead {
+    font-size: 15.5px;
+    line-height: 1.5;
+  }
+  .hero-home .hero-cta {
+    margin-top: 20px;
+    gap: 14px 24px;
+  }
+  .hero-home .hero-trust {
+    padding-top: 16px;
+    gap: 6px;
+    font-size: 13px;
   }
 }
 
