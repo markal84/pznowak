@@ -254,6 +254,9 @@ describe('karta pierścionka', () => {
     expect(html).toContain('alt="Aion ze szmaragdami (wizualizacja)"')
     expect(html).toMatch(/\/_next\/image\?url=%2Fmedia%2Fs\.webp/)
     expect(html).toContain('kamien=Szmaragd+i+diamenty')
+    // Przywieszka ceny mówi o wybranym wariancie, nie o „innym” kamieniu (mylące przy oglądaniu wizualizacji).
+    expect(html).toContain('Cena z wybranym kamieniem')
+    expect(html).not.toContain('Cena z innym kamieniem')
   })
 
   it('nieznany ?kamien= = oryginał, a adres kanoniczny zawsze bez parametru', async () => {
