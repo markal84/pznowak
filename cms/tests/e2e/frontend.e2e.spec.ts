@@ -37,8 +37,12 @@ test.describe('Nowy design: strony i nawigacja', () => {
   test('strona główna pokazuje hero, liczbę pierścionków i przywieszkę', async ({ page }) => {
     await visit(page, '/')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Rzemiosło, które docenisz. Biżuteria, którą pokochasz.')
-    await expect(page.getByRole('link', { name: /Zobacz \d+ pierścion/ })).toBeVisible()
-    await expect(page.locator('.hero-tag .nm')).not.toBeEmpty()
+    // Główny przycisk hero prowadzi do pierścionków (bez liczby w napisie); rozmowa o projekcie jest drugim linkiem.
+    const browse = page.locator('.hero-home .btn')
+    await expect(browse).toHaveText(/^Zobacz pierścionki z pracowni/)
+    await expect(browse).toHaveAttribute('href', '/pierscionki')
+    await expect(page.locator('.hero-home .hero-cta')).not.toContainText(/\d/)
+    await expect(page.locator('.hero-tag .nm').first()).not.toBeEmpty()
     await noHorizontalScroll(page)
   })
 
@@ -80,9 +84,28 @@ test.describe('Nowy design: strony i nawigacja', () => {
     expect(lines).toEqual([1, 1])
   })
 
+  test('witryna w hero: miniatura zmienia pierścionek i przywieszkę, nad zdjęciem pojawia się lupa', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Miniatury i lupa są na komputerze; na telefonie zdjęcia przesuwa się palcem.')
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await visit(page, '/')
+    const thumbs = page.locator('.hv-thumb')
+    test.skip((await thumbs.count()) < 2, 'W katalogu jest mniej niż dwa pierścionki z witryny.')
+    const first = await page.locator('a.hero-link[data-active]').getAttribute('href')
+    await thumbs.nth(1).click()
+    await expect(thumbs.nth(1)).toHaveAttribute('aria-pressed', 'true')
+    const second = await page.locator('a.hero-link[data-active]').getAttribute('href')
+    expect(second).not.toBe(first)
+    const name = (await thumbs.nth(1).getAttribute('aria-label'))!.replace('Pokaż pierścionek ', '')
+    await expect(page.locator('.hv-tag-d .nm')).toHaveText(name)
+    const stage = (await page.locator('.hv-stage').boundingBox())!
+    await page.mouse.move(stage.x + stage.width / 2, stage.y + stage.height / 2)
+    await page.mouse.move(stage.x + stage.width / 2 + 10, stage.y + stage.height / 2 + 10)
+    await expect(page.locator('.hv-lens')).toHaveAttribute('data-on', '')
+  })
+
   test('całe zdjęcie w hero prowadzi do karty pierścionka (też dotykiem)', async ({ page }) => {
     await visit(page, '/')
-    const link = page.locator('a.hero-link')
+    const link = page.locator('a.hero-link[data-active]')
     await expect(link).toHaveAttribute('aria-label', /^Pierścionek .+ – zobacz szczegóły$/)
     expect(await link.locator('a').count()).toBe(0)
     await link.scrollIntoViewIfNeeded()
@@ -91,14 +114,14 @@ test.describe('Nowy design: strony i nawigacja', () => {
     await expect(page).toHaveURL(/\/pierscionki\/[^/]+$/)
   })
 
-  test('hero: główny przycisk to „Zapytaj o pierścionek”, a wybrane pierścionki to cztery karty bez powtórki z hero', async ({ page }) => {
+  test('hero: „Zapytaj o pierścionek” prowadzi do kontaktu, a wybrane pierścionki to cztery karty bez powtórki z witryny w hero', async ({ page }) => {
     await visit(page, '/')
     await expect(page.getByRole('link', { name: 'Zapytaj o pierścionek' }).first()).toHaveAttribute('href', '/kontakt')
-    const heroHref = await page.locator('a.hero-link').getAttribute('href')
+    const heroHrefs = await page.locator('a.hero-link').evaluateAll((els) => els.map((e) => e.getAttribute('href')))
     const cards = page.locator('ul.ring-grid-4 a')
     await expect(cards).toHaveCount(4)
     const hrefs = await cards.evaluateAll((els) => els.map((e) => e.getAttribute('href')))
-    expect(hrefs).not.toContain(heroHref)
+    for (const href of heroHrefs) expect(hrefs).not.toContain(href)
   })
 
   test('kafelki: w spoczynku bez złotej linii, pod wskaźnikiem linia rośnie', async ({ page, isMobile }) => {

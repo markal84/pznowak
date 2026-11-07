@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
-import { pluralRing, toCatalogRing } from '@/lib/catalog'
-import { heroRing as pickHero, pickHomeRings } from '@/lib/home'
+import { toCatalogRing } from '@/lib/catalog'
+import { HERO_VITRINE, heroRing as pickHero, pickHomeRings } from '@/lib/home'
 import { showPlaceholders } from '@/lib/placeholders'
 import { pageMetadata } from '@/lib/seo'
 import { CUSTOM_ORDER_LINK, FAMILY, HERO_TRUST, RING_CREATOR_ENABLED, SITE, openingHoursText } from '@/lib/site'
@@ -10,12 +10,12 @@ import { jewelryStoreJsonLd } from '@/lib/structured-data'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Faq, { type FaqItem } from '@/components/site/Faq'
 import GoogleReviews from '@/components/site/GoogleReviews'
+import HeroVitrine, { type VitrineSlide } from '@/components/site/HeroVitrine'
 import Icon, { type IconName } from '@/components/site/Icon'
 import JsonLd from '@/components/site/JsonLd'
 import Photo from '@/components/site/Photo'
 import RingCard from '@/components/site/RingCard'
 import SectionIntro from '@/components/site/SectionIntro'
-import Tag from '@/components/site/Tag'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = pageMetadata({
@@ -45,8 +45,31 @@ export default async function HomePage() {
   const products = await getProducts()
   const count = products.length
   const hero = pickHero(products)
-  const featured = pickHomeRings(products, hero).map(toCatalogRing)
   const heroRing = hero ? toCatalogRing(hero) : null
+  // Witryna w hero: pierścionki z listy HERO_VITRINE, które są w katalogu; bez żadnego z nich – pierścionek z hero i jego zdjęcie.
+  const vitrine: VitrineSlide[] = HERO_VITRINE.flatMap((v) => {
+    const p = products.find((x) => x.name === v.name)
+    if (!p) return []
+    const r = toCatalogRing(p)
+    return [{ slug: p.slug, name: p.name, sub: [r.stone, r.metal.toLowerCase()].filter(Boolean).join(', '), alt: r.alt, src: v.src, pos: v.pos, posMobile: v.posMobile }]
+  })
+  if (vitrine.length === 0 && hero && heroRing) {
+    vitrine.push({
+      slug: hero.slug,
+      name: hero.name,
+      sub: [heroRing.stone, heroRing.metal.toLowerCase()].filter(Boolean).join(', '),
+      alt: heroRing.alt,
+      src: hero.images[0] ?? hero.imagePath,
+      pos: '55% 50%',
+      posMobile: '62% 48%',
+    })
+  }
+  // Pierścionki z witryny nie powtarzają się w „Wybranych pierścionkach”.
+  const inVitrine = new Set(vitrine.map((v) => v.slug))
+  const featured = pickHomeRings(
+    products.filter((p) => !inVitrine.has(p.slug)),
+    hero,
+  ).map(toCatalogRing)
   const trust = HERO_TRUST.filter((t) => t.confirmed || showPlaceholders())
   // Ceny i dłuższe opisy są na podstronach; tu kafelek prowadzi dalej.
   const offers: { icon: IconName; title: string; text: string; href: string; link: string }[] = [
@@ -85,7 +108,8 @@ export default async function HomePage() {
     <>
       <JsonLd data={jewelryStoreJsonLd()} />
       {/* Hero: na komputerze tekst po lewej, zdjęcie na całą wysokość do prawej krawędzi ekranu; na telefonie zdjęcie nad tytułem. */}
-      <section className={`hero-home${hero && heroRing ? '' : ' hero-home-solo'}`}>
+      {/* Hero: na komputerze tekst po lewej, witryna pod lupą na całą wysokość do prawej krawędzi ekranu; na telefonie witryna nad tytułem. */}
+      <section className={`hero-home${vitrine.length > 0 ? '' : ' hero-home-solo'}`}>
         <div className="hero-copy">
           <div className="hero-main">
             <h1 className="h1-hero">
@@ -97,12 +121,16 @@ export default async function HomePage() {
               {/* Twarde spacje po „i” i „w”: jednoliterowe słowa nie zostają na końcu linii. */}
               Projektujemy i{'\u00a0'}wykonujemy biżuterię na zamówienie w{'\u00a0'}rodzinnej pracowni w{'\u00a0'}Busku-Zdroju.
             </p>
+            {/* Główne wezwanie: przeglądanie pierścionków; rozmowa o projekcie jako drugi krok. */}
             <div className="hero-cta">
-              <Link className="btn" href="/kontakt">
-                Zapytaj o pierścionek
+              <Link className="btn btn-browse" href="/pierscionki">
+                Zobacz pierścionki z pracowni
+                <span aria-hidden="true" className="btn-arrow">
+                  →
+                </span>
               </Link>
-              <Link className="tl" href="/pierscionki">
-                {count > 0 ? `Zobacz ${count} ${pluralRing(count)} z pracowni` : 'Zobacz pierścionki z pracowni'}
+              <Link className="tl" href="/kontakt">
+                Zapytaj o pierścionek
               </Link>
             </div>
           </div>
@@ -114,27 +142,7 @@ export default async function HomePage() {
             </ul>
           ) : null}
         </div>
-        {hero && heroRing ? (
-          <figure className="hero-fig">
-            <Link aria-label={`Pierścionek ${hero.name} – zobacz szczegóły`} className="hero-link" href={`/pierscionki/${hero.slug}`}>
-              <Photo
-                alt={`Pierścionek ${hero.name}${heroRing.stone ? ': ' + heroRing.stone.toLowerCase() : ''}`}
-                className="ph-hero"
-                position="58% 50%"
-                priority
-                ratio="none"
-                sizes="(max-width: 960px) 100vw, 50vw"
-                src={hero.images[0] ?? hero.imagePath}
-              />
-              <span className="hero-tag">
-                <svg aria-hidden="true" height="70" viewBox="0 0 90 70" width="90">
-                  <path d="M3 64 C 0 40, 30 22, 88 2" fill="none" stroke="#F3F1EA" strokeOpacity="0.85" strokeWidth="1.2" />
-                </svg>
-                <Tag className="hang" name={hero.name} size="md" sub={[heroRing.stone, heroRing.metal.toLowerCase()].filter(Boolean).join(', ')} />
-              </span>
-            </Link>
-          </figure>
-        ) : null}
+        {vitrine.length > 0 ? <HeroVitrine slides={vitrine} /> : null}
       </section>
 
       {featured.length > 0 ? (
