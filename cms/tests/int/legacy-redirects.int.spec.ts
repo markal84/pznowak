@@ -59,7 +59,8 @@ describe('przekierowania ze starej strony', () => {
   })
 
   it('każdy cel to istniejąca strona nowego serwisu', () => {
-    const slugs = new Set<string>(catalog.products.map((p) => currentRingSlug(p.slug)))
+    // Aion powstał po imporcie katalogu (karta nr 46), ale jest fasonem, na który prowadzi Thalassa.
+    const slugs = new Set<string>([...catalog.products.map((p) => currentRingSlug(p.slug)), 'aion'])
     for (const { from, to } of LEGACY_REDIRECTS) {
       const product = /^\/pierscionki\/([^?]+)(?:\?kamien=(.+))?$/.exec(to)
       const valid = product ? slugs.has(product[1]) : NEW_PAGES.includes(to)
@@ -100,6 +101,17 @@ describe('przekierowania ze starej strony', () => {
     expect(to('/pierscionki/pierscionek-12')).toBe('/pierscionki/athena')
     expect(to('/katalog/aria')).toBe('/pierscionki/aria')
     expect(to('/pierscionki/aria')).toBeUndefined()
+  })
+
+  it('Thalassa → Aion: wszystkie jej adresy idą jednym skokiem na fason Aion z zielonym wariantem', () => {
+    const green = '/pierscionki/aion?kamien=zielone-i-biale-diamenty'
+    const to = (from: string) => LEGACY_REDIRECTS.find((r) => r.from === from)?.to
+    for (const from of ['/pierscionki/thalassa', '/pierscionki/pierscionek-20', '/katalog/pierscionek-20', '/ring/pierscionek-20']) {
+      expect(to(from), from).toBe(green)
+    }
+    expect(ringPath('thalassa')).toBe(green)
+    expect(to('/pierscionki/aion')).toBeUndefined()
+    expect(legacyRedirectRules()).toContainEqual({ source: '/pierscionki/thalassa/', destination: green, permanent: true })
   })
 
   it('Pyrrha i Nyx (zlecenie AB): wszystkie ich adresy idą jednym skokiem na fason Urania z wybranym kamieniem', () => {

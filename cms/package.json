@@ -25,6 +25,7 @@
     "staging:nazwy": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-nazwy-s.ts",
     "staging:polaczenie": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-polaczenie-ab.ts",
     "staging:harmonia": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-polaczenie-harmonia.ts",
+    "staging:thalassa": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-polaczenie-thalassa.ts",
     "staging:ceny": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-ceny.ts",
     "staging:opisy": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-opisy-u.ts",
     "staging:opisy-ac": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-opisy-ac.ts",

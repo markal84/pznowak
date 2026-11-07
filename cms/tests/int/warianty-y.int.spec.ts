@@ -146,7 +146,8 @@ describe('warianty.json po Y: próbka Cyane, Daphne, Aion', () => {
     expect(variant('daphne', 'Szafir granatowy').files).toHaveLength(3)
     expect(variant('daphne', 'Szmaragd').files).toEqual(['daphne-szmaragd-stonowany.webp', 'daphne-szmaragd-stonowany-2.webp', 'daphne-szmaragd-stonowany-3.webp'])
     expect(variant('daphne', 'Rubin').files).toHaveLength(3)
-    expect(variant('aion', 'Szmaragd i diamenty').files).toEqual(['aion-szmaragd-stonowany.webp'])
+    // Aion: zielony wariant to od 07.11 prawdziwe zdjęcia Thalassy (staging:thalassa), nie wizualizacja z pliku.
+    expect(specs.find((s) => s.slug === 'aion')!.variants.some((v) => v.swatch === 'zielony')).toBe(false)
     expect(checkImages(specs)).toEqual([])
   })
 
