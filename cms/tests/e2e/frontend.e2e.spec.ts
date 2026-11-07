@@ -153,6 +153,33 @@ test.describe('Nowy design: strony i nawigacja', () => {
     })
   }
 
+  test('pojawianie się przy przewijaniu: nic widocznego nie znika, a na końcu wszystko jest widoczne', async ({ page }) => {
+    await visit(page, '/')
+    const result = await page.evaluate(async () => {
+      const items = [...document.querySelectorAll<HTMLElement>('[data-reveal] > *')]
+      const last = new Map<HTMLElement, number>()
+      let drops = 0
+      for (let y = 0; y < document.documentElement.scrollHeight; y += 40) {
+        window.scrollTo(0, y)
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+        for (const el of items) {
+          const box = el.getBoundingClientRect()
+          const opacity = Number(getComputedStyle(el).opacity)
+          if (box.bottom > 0 && box.top < innerHeight) {
+            if (opacity < (last.get(el) ?? 0) - 0.01) drops++
+            last.set(el, opacity)
+          } else last.delete(el)
+        }
+      }
+      return { count: items.length, drops }
+    })
+    expect(result.count).toBeGreaterThan(0)
+    expect(result.drops).toBe(0)
+    await expect
+      .poll(() => page.evaluate(() => [...document.querySelectorAll('[data-reveal] > *')].filter((el) => getComputedStyle(el).opacity !== '1').length))
+      .toBe(0)
+  })
+
   test('/kontakt na telefonie: mapa „Jak dojechać” mieści się w kolumnie, bez poziomego przewijania', async ({ page }) => {
     // Wcześniej min-height mapy (280 px) przenosił się przez aspect-ratio 4:3 na szerokość 373 px i mapa wystawała.
     for (const [width, height] of [
