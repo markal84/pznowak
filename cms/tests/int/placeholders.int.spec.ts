@@ -140,13 +140,15 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/naprawy']).toContain('od 50 zł')
     expect(p['/naprawy']).toContain('Pozostałe naprawy wyceniamy na miejscu')
     expect(p['/na-zamowienie']).not.toContain('Czy rozmowa o projekcie coś kosztuje?')
-    // Opinii bez konfiguracji nie ma wcale, tak samo jak przedwczesnych sekcji ze zdjęciami.
+    // Opinie z Google: wpisane ręcznie w reviews.ts (listopad 2026), więc sekcja jest na produkcji.
     // Teksty realizacji „do potwierdzenia” na produkcji wyglądają zwyczajnie: bez ramki i bez znacznika czasu.
     expect(p['/realizacje']).toContain('Pierścionek zrobiliśmy ręcznie od podstaw.')
     expect(p['/realizacje']).not.toContain('data-todo')
     expect(p['/realizacje']).not.toContain('[czas do uzupełnienia]')
-    expect(p['/']).not.toContain('Opinie z Google')
-    expect(p['/realizacje']).not.toContain('Opinie klientów')
+    expect(p['/']).toContain('Opinie z Google')
+    expect(p['/']).toContain('15 opinii w Google')
+    expect(p['/realizacje']).toContain('Opinie klientów')
+    expect(p['/']).not.toContain('Tu będą 3–4 opinie z Google')
     // Obrączki z pracowni: prawdziwe zdjęcia zostają, placeholder graweru znika.
     expect(p['/obraczki']).toContain('Obrączki z pracowni')
     expect(p['/obraczki']).not.toContain('[Zdjęcie graweru')
@@ -171,7 +173,7 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     vi.stubEnv(name, value)
     const p = await pages()
     expect(p['/']).toContain('data-todo')
-    expect(p['/']).toContain('Tu będą 3–4 opinie z Google')
+    expect(p['/']).toContain('Opinie z Google')
     // Cena nie jest już znacznikiem: karta bez ceny ma „Cena na zapytanie” także na podglądzie.
     expect(p['/pierscionki/phoebe']).toContain('<span class="nm">Na zapytanie</span>')
     expect(p['/pierscionki/phoebe']).not.toContain('od [X] zł w tej wersji')

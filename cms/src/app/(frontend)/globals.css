@@ -3405,8 +3405,8 @@ fieldset.plain legend {
 .review blockquote {
   margin: 0;
   font-family: var(--serif);
-  font-size: 21px;
-  line-height: 1.45;
+  font-size: 17px;
+  line-height: 1.55;
 }
 .review-by {
   display: flex;
@@ -3421,6 +3421,32 @@ fieldset.plain legend {
 }
 .review-by a {
   color: inherit;
+}
+.review-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  line-clamp: 7;
+  overflow: hidden;
+}
+.review-more {
+  margin-top: -6px;
+  font-size: 14px;
+  color: var(--graphite-2);
+}
+.review-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.review-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.review-attr {
+  white-space: nowrap;
 }
 .review-empty {
   padding: 32px;

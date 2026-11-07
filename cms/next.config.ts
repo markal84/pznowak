@@ -27,6 +27,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.public.blob.vercel-storage.com',
       },
+      // Zdjęcia autorów opinii Google (Places API). Przez next/image, więc przeglądarka klienta nie łączy się z Google.
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
     ],
     localPatterns: [
       {

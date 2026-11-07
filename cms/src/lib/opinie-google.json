@@ -1,0 +1,34 @@
+{
+  "_jak_aktualizowac": "Instrukcja: docs/opinie-google.md. Zmieniaj tylko ten plik.",
+  "stanNa": "2026-11-07",
+  "srednia": 4.7,
+  "liczbaOpinii": 15,
+  "linkDoWizytowki": "https://www.google.com/maps/search/?api=1&query=Pracownia%20Z%C5%82otnicza%20Micha%C5%82%20Nowak%20Busko-Zdr%C3%B3j",
+  "notatka": "Wybrane opinie z naszej wizytówki Google, przepisane bez zmian. Średnia i liczba obejmują wszystkie opinie (stan na listopad 2026).",
+  "opinie": [
+    {
+      "autor": "A.J.",
+      "ocena": 5,
+      "data": "listopad 2026",
+      "tekst": "Polecam ! Korzystalam wielokrotnie z uslug Pana Michala, ktory uratowal moja sentymentalna bizuterie. Wszystko zawsze na najwyzszym poziomie ! Ogromny wybor bizuterii zlotej i srebrnej, mila atmosfera."
+    },
+    {
+      "autor": "Damian Szo",
+      "ocena": 5,
+      "data": "listopad 2026",
+      "tekst": "Miła fachowa obsługa ,usługa w terminie i nawet czyszczenie gratis polecam i pozdrawiam !"
+    },
+    {
+      "autor": "Przemysław",
+      "ocena": 5,
+      "data": "listopad 2026",
+      "tekst": "Szybko, fachowo i tanio. Polecam!"
+    },
+    {
+      "autor": "Dominika Łachut",
+      "ocena": 5,
+      "data": "listopad 2026",
+      "tekst": "Bardzo miła i sprawna obsługa. Polecam serdecznie!"
+    }
+  ]
+}
