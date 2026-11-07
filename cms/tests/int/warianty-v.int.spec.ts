@@ -96,11 +96,9 @@ describe('warianty.json (dane na staging)', () => {
   const aion = specs.find((s) => s.slug === 'aion')!
   const leto = specs.find((s) => s.slug === 'leto')!
 
-  it('Aion: trzy wizualizacje od Kamili + szafir granatowy z W; różowa wersja to oryginał, więc wypada z wariantów', () => {
-    expect(aion.removeStones).toEqual(['Różowy szafir i diamenty'])
-    // Y: szmaragd od Kamili zastąpiony spokojniejszą zielenią (Michał 04.11: za bardzo nasycony).
+  it('Aion: dwie wizualizacje od Kamili + szafir granatowy z W; różowa wersja to oryginał, zielony wariant to prawdziwe zdjęcia Thalassy (staging:thalassa)', () => {
+    expect(aion.removeStones).toEqual(['Różowy szafir i diamenty', 'Szmaragd i diamenty'])
     expect(aion.variants.map((v) => [v.stone, v.swatch, v.files[0], v.isVisualization])).toEqual([
-      ['Szmaragd i diamenty', 'zielony', 'aion-szmaragd-stonowany.webp', true],
       ['Białe diamenty', 'bialy', 'eternity-diamenty-biale.webp', true],
       ['Diamenty niebieskie i białe', 'niebieski', 'eternity-niebieskie-diamenty.webp', true],
       ['Szafir granatowy i diamenty', 'granatowy', 'aion-szafir-granatowy.webp', true],
@@ -164,7 +162,7 @@ describe('plan skryptu staging:warianty (idempotencja)', () => {
       { stone: 'Szmaragd i diamenty' },
       { stone: 'Rubin' },
     ]
-    expect(keptVariants(current, aion.removeStones).map((v) => v.stone)).toEqual(['Szmaragd i diamenty', 'Rubin'])
+    expect(keptVariants(current, aion.removeStones).map((v) => v.stone)).toEqual(['Rubin'])
     expect(keptVariants(current, [])).toHaveLength(3)
   })
 
