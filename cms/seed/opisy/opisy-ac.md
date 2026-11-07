@@ -5,7 +5,7 @@ Wszystkie opublikowane karty (bez Pyrrhy i Nyx – połączone z Uranią) oraz T
 ## Do decyzji
 
 - ~~Leto i Harmonia to ten sam pierścionek~~ – rozstrzygnięte 07.11: Leto, Harmonia i Eirene to jedna karta Harmonia (morganit + wariant malinowy turmalin z zdjęć Eirene); `opisy-ac.json` ma już tylko opis Harmonii, sekcje Leto i Eirene niżej są nieaktualne.
-- **Thalia**: w WordPressie opisana jako topaz London Blue, na OLX jako szafir; w nowym opisie piszę „szafir” – do potwierdzenia.
+- ~~Thalia: topaz czy szafir~~ – rozstrzygnięte 07.11: topaz London Blue (kamień w parametrach i opis); cena 4199 zł bez zmian.
 - Szkice z importu, nieopublikowane i bez opisu w nowym wzorze: **Taygete** (podobna płytka do Iris), **Cassiopeia**, **Egea** (fason jak Adamas, z szafirem). Do sprawdzenia, czy publikować, czy to duble.
 - Merope i Electra to ten sam fason z innym kamieniem; można je kiedyś połączyć jak Uranię.
 
@@ -594,7 +594,7 @@ Każdy kamień oprawiamy ręcznie, z największą precyzją
 
 > Pierścionek z żółtego złota w okrągłej oprawie halo. Kamień centralny w łapkach otacza pierścień drobnych diamentów, diamenty biegną też wzdłuż ramion szyny, a z boku widać ażurowy koszyk z geometrycznymi wycięciami.
 >
-> Kamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest szafir w głębokim, królewskim błękicie.
+> Kamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest topaz London Blue w głębokim, stalowym błękicie.
 >
 > Model wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.
 
