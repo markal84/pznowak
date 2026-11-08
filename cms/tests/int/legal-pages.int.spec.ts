@@ -31,9 +31,9 @@ describe('regulamin i polityka prywatności', () => {
     expect(contact?.children.map((c) => c.text)).toEqual(['E-mail: kontakt@pznowak.pl', 'Telefon: +48 501 321 347'])
   })
 
-  it('treść dokumentów zawiera dane z pliku i zachowuje znacznik daty publikacji', () => {
+  it('treść dokumentów zawiera dane z pliku i datę obowiązywania', () => {
     expect(POLITYKA_PRYWATNOSCI.join('\n')).toContain('AE:PL-20448-91937-GVVTB-23')
-    expect(REGULAMIN.join('\n')).toContain('Data obowiązywania: [data publikacji]')
+    expect(REGULAMIN.join('\n')).toContain('Data obowiązywania: 11.11.2026')
   })
 
   it('zgoda w formularzu: „Regulamin” i „Polityka prywatności” są linkami, reszta zostaje tekstem', () => {

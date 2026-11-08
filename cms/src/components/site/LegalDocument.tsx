@@ -1,5 +1,4 @@
 import { Fragment, type ReactNode } from 'react'
-import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import { type LegalItem, parseLegal } from '@/lib/legal-markdown'
 
 /** Pogrubienia `**…**` w tekście dokumentu. */
@@ -45,13 +44,6 @@ export default function LegalDocument({ lines }: { lines: readonly string[] }) {
               </ul>
             )
           case 'p':
-            // Data obowiązywania: na podglądzie wyróżniona, na produkcji znika, dopóki pracownia nie poda daty.
-            if (block.text.includes('[data publikacji]'))
-              return (
-                <DoUzupelnienia as="div" key={i}>
-                  <p className="legal-p">{inline(block.text)}</p>
-                </DoUzupelnienia>
-              )
             return (
               <p className="legal-p" key={i}>
                 {inline(block.text)}

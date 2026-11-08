@@ -1,7 +1,7 @@
 /**
  * Teksty dokumentów prawnych, przepisane 1:1 z plików dostarczonych przez pracownię (8.11.2026).
  * Każdy wiersz to osobny element tablicy; `lib/legal-markdown.ts` zamienia je na nagłówki, akapity i listy.
- * Znacznik „[data publikacji]” pokazujemy tylko na podglądzie (DoUzupelnienia); na produkcji wiersz znika.
+ * Data obowiązywania obu dokumentów: 11.11.2026.
  */
 
 export const POLITYKA_PRYWATNOSCI = [
@@ -9,7 +9,7 @@ export const POLITYKA_PRYWATNOSCI = [
   "",
   "**Pracownia Złotnicza Michał Nowak**",
   "",
-  "Data obowiązywania: [data publikacji]",
+  "Data obowiązywania: 11.11.2026",
   "",
   "## § 1. Informacje ogólne",
   "",
@@ -138,7 +138,7 @@ export const REGULAMIN = [
   "",
   "**Pracownia Złotnicza Michał Nowak**",
   "",
-  "Data obowiązywania: [data publikacji]",
+  "Data obowiązywania: 11.11.2026",
   "",
   "## § 1. Postanowienia ogólne",
   "",

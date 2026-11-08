@@ -179,9 +179,9 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     const p = await pages()
     expect(p['/']).toContain('data-todo')
     expect(p['/']).toContain('Opinie z Google')
-    // Dokumenty prawne: data obowiązywania ma znacznik na podglądzie.
-    expect(p['/regulamin']).toContain('[data publikacji]')
-    expect(p['/polityka-prywatnosci']).toContain('[data publikacji]')
+    // Dokumenty prawne: data obowiązywania jest już ustawiona (11.11.2026).
+    expect(p['/regulamin']).toContain('Data obowiązywania: 11.11.2026')
+    expect(p['/polityka-prywatnosci']).toContain('Data obowiązywania: 11.11.2026')
     // Cena nie jest już znacznikiem: karta bez ceny ma „Cena na zapytanie” także na podglądzie.
     expect(p['/pierscionki/phoebe']).toContain('<span class="nm">Na zapytanie</span>')
     expect(p['/pierscionki/phoebe']).not.toContain('od [X] zł w tej wersji')
