@@ -3060,13 +3060,15 @@ fieldset.plain legend {
 .hero-home .hv-slide img {
   object-position: var(--pos);
 }
-.hv-tag-m {
-  display: none;
-}
+/* Przywieszka pod dolną krawędzią zdjęcia (poza `.hv-stage`, które przycina). Cień pada na biel pod zdjęciem. */
 .hero-home .hv-tag-d {
   left: 32px;
-  bottom: 32px;
+  top: 100%;
+  bottom: auto;
+  z-index: 4;
+  margin-top: -8px;
   pointer-events: none;
+  filter: drop-shadow(0 6px 8px rgba(14, 12, 10, 0.22));
 }
 .hv-lens {
   position: absolute;
@@ -3211,14 +3213,14 @@ fieldset.plain legend {
   .hero-home .hv-slide img {
     object-position: var(--pos-m);
   }
-  .hero-home .hv-tag-d,
   .hv-lens {
     display: none;
   }
-  .hero-home .hv-tag-m {
-    display: block;
+  .hero-home .hv-tag-d {
     left: 20px;
-    bottom: 20px;
+  }
+  .hero-home .hero-ask {
+    display: none;
   }
   /* Miniatury jako kropki (pole dotyku 24 px, widoczna kropka 6 px; aktywna wydłużona). */
   .hv-thumbs {
@@ -3262,7 +3264,7 @@ fieldset.plain legend {
     background: #f3f1ea;
   }
   .hero-home .hero-copy {
-    padding: 44px 40px 40px;
+    padding: 112px 40px 40px; /* miejsce na przywieszkę wiszącą pod zdjęciem */
     gap: 36px;
   }
   .hero-home .h1-hero {
@@ -3277,12 +3279,8 @@ fieldset.plain legend {
     height: 42vh;
     height: min(44svh, 390px);
   }
-  .hero-home .hv-tag-m {
+  .hero-home .hv-tag-d {
     left: 12px;
-    bottom: 12px;
-  }
-  .hero-home .hero-tag svg {
-    display: none;
   }
   .hero-home .hero-tag .tag-md {
     --c: 11px;
@@ -3302,7 +3300,7 @@ fieldset.plain legend {
     font-size: 11.5px;
   }
   .hero-home .hero-copy {
-    padding: 22px 20px 32px;
+    padding: 78px 20px 32px; /* miejsce na przywieszkę wiszącą pod zdjęciem */
     gap: 28px;
   }
   /* Tytuł jednym akapitem: dwa zdania w trzech liniach zamiast czterech. */

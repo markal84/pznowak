@@ -28,7 +28,6 @@ export const SITE = {
  */
 export const HERO_TRUST: readonly { text: string; confirmed: boolean }[] = [
   { text: 'Zamówienia wysyłamy do klientów w całej Polsce', confirmed: true },
-  { text: 'Rozmowa o projekcie także przez wideo [do potwierdzenia]', confirmed: false },
   { text: 'Pierścionek na zamówienie gotowy zwykle w 4–6 tygodni', confirmed: true },
 ]
 
