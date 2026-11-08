@@ -119,22 +119,15 @@ export default function HeroVitrine({ slides }: { slides: VitrineSlide[] }) {
                   src={s.src}
                 />
               </span>
-              {/* Na telefonie każde zdjęcie ma własną przywieszkę (przesuwa się razem z nim). */}
-              <span className="hero-tag hv-tag-m">
-                <Tag name={s.name} size="md" sub={s.sub} />
-              </span>
             </Link>
           ))}
         </div>
         <span aria-hidden="true" className="hv-lens" ref={lens} />
-        {/* Komputer: jedna przywieszka zmienia treść razem ze zdjęciem; `key` powtarza animację zawieszenia. */}
-        <span aria-hidden="true" className="hero-tag hv-tag-d">
-          <svg height="70" viewBox="0 0 90 70" width="90">
-            <path d="M3 64 C 0 40, 30 22, 88 2" fill="none" stroke="#F3F1EA" strokeOpacity="0.85" strokeWidth="1.2" />
-          </svg>
-          <Tag className="hang" key={current.slug} name={current.name} size="md" sub={current.sub} />
-        </span>
       </div>
+      {/* Przywieszka wisi pod dolną krawędzią zdjęcia, jakby była do niego przypięta; `key` powtarza animację zawieszenia. */}
+      <span aria-hidden="true" className="hero-tag hv-tag-d">
+        <Tag className="hang" key={current.slug} name={current.name} size="md" sub={current.sub} />
+      </span>
       {slides.length > 1 ? (
         <div aria-label="Pierścionki w witrynie" className="hv-thumbs" role="group">
           {slides.map((s, i) => (

@@ -130,7 +130,7 @@ export default async function HomePage() {
                   →
                 </span>
               </Link>
-              <Link className="tl" href="/kontakt">
+              <Link className="tl hero-ask" href="/kontakt">
                 Zapytaj o pierścionek
               </Link>
             </div>
