@@ -3897,3 +3897,51 @@ fieldset.plain legend {
     display: none;
   }
 }
+
+/* ---------- regulamin i polityka prywatności ---------- */
+.legal {
+  max-width: 760px;
+  padding-top: 72px;
+  padding-bottom: 96px;
+  color: var(--graphite-2);
+}
+.legal-title {
+  font-size: clamp(42px, 5vw, 64px);
+  margin-bottom: 32px;
+}
+.legal-h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.2;
+  color: var(--graphite);
+  margin: 48px 0 16px;
+}
+.legal-p {
+  font-size: 17px;
+  line-height: 1.65;
+  margin: 0 0 14px;
+}
+.legal-list {
+  font-size: 17px;
+  line-height: 1.65;
+  padding-left: 1.5em;
+  margin: 0 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.legal-list ul {
+  list-style: disc;
+  padding-left: 1.2em;
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.legal-p strong,
+.legal-list strong {
+  color: var(--graphite);
+  font-weight: 600;
+}
+

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import {
   CONSENT_OPEN_EVENT,
@@ -100,13 +101,13 @@ export default function CookieBanner() {
                 </button>
               </>
             )}
-            {/* [do uzupełnienia] link „Szczegóły” do polityki prywatności, gdy pracownia dostarczy treść */}
           </p>
           <p className="cookie-long">
             Używamy niezbędnych plików cookies: zapamiętują Twój wybór i chronią formularze przed spamem.
             Opcjonalne, czyli interaktywną mapę Google, a w przyszłości statystyki i reklamę, włączamy tylko za
             Twoją zgodą. <span className="cookie-extra">Wybór zmienisz w każdej chwili w stopce strony.</span>
-            {/* [do uzupełnienia] link do polityki prywatności, gdy pracownia dostarczy treść */}
+            {' '}
+            Szczegóły w <Link href="/polityka-prywatnosci">polityce prywatności</Link>.
           </p>
           {detail && (
             <div className="cookie-cats">

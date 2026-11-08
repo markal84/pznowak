@@ -81,6 +81,8 @@ const { default: OnOrderPage } = await import('@/app/(frontend)/na-zamowienie/pa
 const { default: RepairsPage } = await import('@/app/(frontend)/naprawy/page')
 const { default: WorksPage } = await import('@/app/(frontend)/realizacje/page')
 const { default: StudioPage } = await import('@/app/(frontend)/pracownia/page')
+const { default: RegulaminPage } = await import('@/app/(frontend)/regulamin/page')
+const { default: PolitykaPage } = await import('@/app/(frontend)/polityka-prywatnosci/page')
 const { default: ContactPage } = await import('@/app/(frontend)/kontakt/page')
 const { default: SiteFooter } = await import('@/components/site/SiteFooter')
 const { default: GoogleReviews } = await import('@/components/site/GoogleReviews')
@@ -98,6 +100,8 @@ const pages = async () => ({
   '/naprawy': html(await RepairsPage()),
   '/realizacje': html(await WorksPage({ searchParams: Promise.resolve({}) })),
   '/pracownia': html(createElement(StudioPage)),
+  '/regulamin': html(createElement(RegulaminPage)),
+  '/polityka-prywatnosci': html(createElement(PolitykaPage)),
   '/kontakt': html(await ContactPage({ searchParams: Promise.resolve({}) })),
   '/kontakt?temat=nowy': html(await ContactPage({ searchParams: Promise.resolve({ temat: 'nowy' }) })),
   'stopka': html(createElement(SiteFooter)),
@@ -127,7 +131,8 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/kontakt?temat=nowy']).toContain('Budżet')
     expect(p['/kontakt?temat=nowy']).toContain('powyżej 10 000 zł')
     expect(p['/kontakt']).toContain('Zgadzam się na kontakt w sprawie mojej wiadomości. Dane przetwarzamy tylko w tym celu.')
-    expect(p['stopka']).not.toContain('Regulamin')
+    // Regulamin i polityka są gotowe, więc linki są też na produkcji.
+    expect(p['stopka']).toContain('href="/regulamin"')
     expect(p['/']).toContain('Cenę i wygląd znasz, zanim zaczniemy.')
     expect(p['/']).toContain('Od rozmowy do odbioru mija zwykle 4–6 tygodni.')
     expect(p['/']).toContain('Na miejscu jest też sklep z gotową biżuterią')
@@ -174,6 +179,9 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     const p = await pages()
     expect(p['/']).toContain('data-todo')
     expect(p['/']).toContain('Opinie z Google')
+    // Dokumenty prawne: data obowiązywania jest już ustawiona (11.11.2026).
+    expect(p['/regulamin']).toContain('Data obowiązywania: 11.11.2026')
+    expect(p['/polityka-prywatnosci']).toContain('Data obowiązywania: 11.11.2026')
     // Cena nie jest już znacznikiem: karta bez ceny ma „Cena na zapytanie” także na podglądzie.
     expect(p['/pierscionki/phoebe']).toContain('<span class="nm">Na zapytanie</span>')
     expect(p['/pierscionki/phoebe']).not.toContain('od [X] zł w tej wersji')
@@ -186,8 +194,10 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/pierscionki/bez-kamienia']).toContain('[do uzupełnienia]')
     expect(p['/kontakt?temat=nowy']).toContain('4 000–10 000 zł')
     expect(p['/kontakt?temat=nowy']).not.toContain('[przedział')
-    expect(p['/kontakt']).toContain('Polityka prywatności [wkrótce]')
-    expect(p['stopka']).toContain('Regulamin [wkrótce]')
+    // Regulamin i polityka są gotowe: linki zamiast znaczników „wkrótce”.
+    expect(p['/kontakt']).toContain('href="/polityka-prywatnosci"')
+    expect(p['stopka']).toContain('href="/regulamin"')
+    expect(p['stopka']).not.toContain('[wkrótce]')
     expect(findPlaceholders(p['/']).length).toBeGreaterThan(0)
   })
 })

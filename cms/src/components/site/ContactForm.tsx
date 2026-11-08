@@ -21,6 +21,7 @@ import {
 } from '@/lib/submissions/options'
 import { validateContact } from '@/lib/submissions/validation'
 import Attachments, { AttachmentsNote } from './Attachments'
+import ConsentLabel from './ConsentLabel'
 import { effectiveMeeting, useContactPlan } from './ContactPlan'
 import { FieldError, FormNotice, Honeypot, invalidProps } from './FormParts'
 import Turnstile from './Turnstile'
@@ -341,7 +342,9 @@ export default function ContactForm({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <label className="check">
           <input data-field="consent" name="zgoda" type="checkbox" {...err('consent', 'k-zgoda-err')} />
-          <span>{consentText}</span>
+          <span>
+            <ConsentLabel text={consentText} />
+          </span>
         </label>
         <FieldError id="k-zgoda-err" message={fieldErrors.consent} />
         {/* Widżet pojawia się tu tylko wtedy, gdy Cloudflare poprosi człowieka o interakcję. */}
