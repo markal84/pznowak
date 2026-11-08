@@ -126,7 +126,10 @@ export default function HeroVitrine({ slides }: { slides: VitrineSlide[] }) {
       </div>
       {/* Przywieszka wisi pod dolną krawędzią zdjęcia, jakby była do niego przypięta; `key` powtarza animację zawieszenia. */}
       <span aria-hidden="true" className="hero-tag hv-tag-d">
-        <Tag className="hang" key={current.slug} name={current.name} size="md" sub={current.sub} />
+        <span className="hv-hanger" key={current.slug}>
+          <span className="hv-cord" />
+          <Tag className="hang" name={current.name} size="md" sub={current.sub} />
+        </span>
       </span>
       {slides.length > 1 ? (
         <div aria-label="Pierścionki w witrynie" className="hv-thumbs" role="group">
