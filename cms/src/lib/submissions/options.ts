@@ -181,9 +181,9 @@ export const LIMITS = {
 
 /** Treść zgody pokazywana przy formularzu. Serwer zapisuje ją przy zgłoszeniu (rozliczalność, RODO). */
 export const CONSENT_TEXT = {
-  kreator: 'Zgadzam się na kontakt w sprawie projektu. Polityka prywatności [wkrótce]',
+  kreator: 'Zgadzam się na kontakt w sprawie projektu. Akceptuję Regulamin i Politykę prywatności.',
   kontakt:
-    'Zgadzam się na kontakt w sprawie mojej wiadomości. Dane przetwarzamy tylko w tym celu. Polityka prywatności [wkrótce]',
+    'Zgadzam się na kontakt w sprawie mojej wiadomości. Dane przetwarzamy tylko w tym celu. Akceptuję Regulamin i Politykę prywatności.',
 } as const
 
 export type FormKind = keyof typeof CONSENT_TEXT

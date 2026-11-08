@@ -8,7 +8,18 @@ import { absoluteUrl } from '@/lib/seo'
 export const dynamic = 'force-dynamic'
 
 /** Publiczne podstrony. Bez /kreator, /admin, /api i szkiców; dopisując stronę do serwisu, dopisz ją tutaj. */
-const PAGES = ['/', '/pierscionki', '/obraczki', '/na-zamowienie', '/naprawy', '/realizacje', '/pracownia', '/kontakt']
+const PAGES = [
+  '/',
+  '/pierscionki',
+  '/obraczki',
+  '/na-zamowienie',
+  '/naprawy',
+  '/realizacje',
+  '/pracownia',
+  '/kontakt',
+  '/regulamin',
+  '/polityka-prywatnosci',
+]
 
 /**
  * Mapa strony: podstrony i opublikowane pierścionki. Na podglądach też istnieje, ale `robots` i nagłówek

@@ -18,6 +18,7 @@ import { PREVIEW_NOTICE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/s
 import { LIMITS, METALS, OCCASIONS, PAVES, SETTINGS, WIDTHS, type OccasionId } from '@/lib/submissions/options'
 import { describeCreator } from '@/lib/submissions/summary'
 import { validateCreator } from '@/lib/submissions/validation'
+import ConsentLabel from './ConsentLabel'
 import { FieldError, FormNotice, Honeypot, invalidProps } from './FormParts'
 import Turnstile from './Turnstile'
 import { useSubmission } from './useSubmission'
@@ -408,7 +409,9 @@ export default function RingCreator({ priceNote, consentText }: { priceNote?: Re
                     type="checkbox"
                     {...invalidProps('kr-zgoda-err', fieldErrors.consent)}
                   />
-                  <span>{consentText}</span>
+                  <span>
+                    <ConsentLabel text={consentText} />
+                  </span>
                 </label>
                 <FieldError id="kr-zgoda-err" message={fieldErrors.consent} />
                 {/* Widżet pojawia się tu tylko wtedy, gdy Cloudflare poprosi człowieka o interakcję. */}
