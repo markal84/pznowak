@@ -96,8 +96,14 @@ export default async function ProductPage({ params, searchParams }: Params & { s
         </ProductMedia>
 
         <div className="product-info">
-          <div className="stack" style={{ gap: 16 }}>
-            <h1 className="h1-product">{product.name}</h1>
+          <div className="stack product-head" style={{ gap: 16 }}>
+            {/* Na telefonie i tablecie nazwa z ceną stoi nad zdjęciem, żeby cena była na pierwszym ekranie (globals.css). */}
+            <div className="product-title">
+              <h1 className="h1-product">{product.name}</h1>
+              <div className="product-price-compact">
+                <ProductPrice compact price={formatPrice(product.price)} />
+              </div>
+            </div>
             <p className="product-lead">
               {product.lead ||
                 'Poznaj projekt naszej pracowni. Porozmawiajmy o jego detalach i możliwościach dopasowania do Ciebie.'}
@@ -108,7 +114,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
             <ProductPrice price={formatPrice(product.price)} />
           </div>
 
-          <div className="tag tag-xl">
+          <div className="tag tag-xl product-facts">
             <span aria-hidden="true" className="hole" />
             <dl className="facts">
               {facts.map(([k, v]) => (
@@ -127,7 +133,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           </div>
 
           {description.length ? (
-            <div className="stack" style={{ gap: 12 }}>
+            <div className="stack product-desc" style={{ gap: 12 }}>
               {description.map((paragraph, index) => (
                 <p className="text" key={index} style={{ fontSize: 16 }}>
                   {paragraph}
@@ -136,7 +142,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
             </div>
           ) : null}
 
-          <div className="stack" style={{ gap: 14 }}>
+          <div className="stack product-cta" style={{ gap: 14 }}>
             <div className="row" style={{ gap: '12px 20px' }}>
               <VariantInquiryLink className="btn" projectName={product.name}>
                 Zapytaj o ten pierścionek
@@ -152,7 +158,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
             </p>
           </div>
 
-          <div className="stack" style={{ gap: 14, borderTop: '1px solid var(--line)', paddingTop: 24 }}>
+          <div className="stack product-changes" style={{ gap: 14, borderTop: '1px solid var(--line)', paddingTop: 24 }}>
             <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 26, lineHeight: 1.15 }}>Co możesz zmienić</h2>
             <ul style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 15.5, lineHeight: 1.55, color: 'var(--graphite-2)' }}>
               <li>Kamień główny, na przykład szafir zamiast tanzanitu</li>

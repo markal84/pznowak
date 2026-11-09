@@ -135,12 +135,14 @@ export function StoneVariantPicker({ originalStone, originalSwatch }: { original
 /**
  * Cena na karcie pierścionka, pod nazwą i krótkim opisem: ta sama papierowa przywieszka co w nagłówku katalogu
  * i przy obrączkach. Cena z panelu dotyczy kamienia ze zdjęć; po wyborze innego kamienia (warianty są bez ceny)
- * przywieszka pokazuje „Na zapytanie”.
+ * przywieszka pokazuje „Na zapytanie”. `compact`: wersja obok nazwy na węższym ekranie (karta pierścionka).
  */
-export function ProductPrice({ price }: { price: string }) {
+export function ProductPrice({ price, compact }: { price: string; compact?: boolean }) {
   const selected = useSelectedStoneVariant()
   const value = selected || !price ? PRICE_ON_REQUEST_SHORT : price
   const label = selected ? 'Cena z wybranym kamieniem' : 'Cena'
+  // Mała przywieszka obok nazwy (telefon, tablet): bez notki, która zostaje przy pełnej cenie niżej.
+  if (compact) return <PriceOffer label={selected ? 'Z wybranym kamieniem' : label} price={value} size="sm" />
   return (
     <PriceOffer
       label={label}
