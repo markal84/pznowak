@@ -213,5 +213,103 @@
     "removeStones": [
       "Szafir"
     ]
+  },
+  {
+    "slug": "maia",
+    "name": "Maia",
+    "variants": [
+      {
+        "stone": "Szafir granatowy",
+        "swatch": "granatowy",
+        "files": [
+          "maia-szafir-granatowy.webp",
+          "maia-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Maia z granatowym szafirem w oprawie na szynie wysadzanej drobnymi kamieniami, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd",
+        "swatch": "zielony",
+        "files": [
+          "maia-szmaragd-stonowany.webp",
+          "maia-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Maia ze szmaragdem w oprawie na szynie wysadzanej drobnymi kamieniami, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin",
+        "swatch": "czerwony",
+        "files": [
+          "maia-rubin.webp",
+          "maia-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Maia z rubinem w oprawie na szynie wysadzanej drobnymi kamieniami, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "pelagia",
+    "name": "Pelagia",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "pelagia-szafir-granatowy.webp",
+          "pelagia-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Pelagia z granatowym szafirem w oprawie z diamentów, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "pelagia-szmaragd-stonowany.webp",
+          "pelagia-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Pelagia ze szmaragdem w oprawie z diamentów, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "pelagia-rubin.webp",
+          "pelagia-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Pelagia z rubinem w oprawie z diamentów, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "athena",
+    "name": "Athena",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "athena-szafir-granatowy.webp",
+          "athena-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Athena z granatowym szafirem w oprawie art déco z diamentów, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "athena-rubin.webp",
+          "athena-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Athena z rubinem w oprawie art déco z diamentów, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]

@@ -355,6 +355,157 @@
         "chroma_min": 20
       },
       "uwaga_y2": "Y.2 (05.11): technika wycinka – maska z różowych szafirów oryginału (klatka z filmu); biały diament = wszystkie kamienie białe."
+    },
+    {
+      "slug": "maia",
+      "name": "Maia",
+      "zrodlo": [
+        "legacy/jewelry/1-25-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa}"
+      },
+      "alt": "Pierścionek Maia {z} w oprawie na szynie wysadzanej drobnymi kamieniami, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/3-25-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          265,
+          340
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "AA (09.11): oryginał to tanzanit; 4 kolory; 2 obrazy (zdjęcie karty + widok z boku)."
+    },
+    {
+      "slug": "delos",
+      "name": "Delos",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-13-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Delos {z} w otoczeniu diamentów, w stylu art deco, w żółtym i białym złocie (wizualizacja)",
+      "kamienie": [
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-12-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          235,
+          300
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "AA (09.11): oryginał to szafir granatowy – bez szafiru granatowego; 2 obrazy (zdjęcie karty + widok z boku)."
+    },
+    {
+      "slug": "pelagia",
+      "name": "Pelagia",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-26-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Pelagia {z} w oprawie z diamentów, w żółtym i białym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-18-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          260,
+          330
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "AA (09.11): oryginał to szafir w średnim, szafirowym błękicie (jaśniejszy niż granatowy) – szafir granatowy zostaje; 2 obrazy."
+    },
+    {
+      "slug": "athena",
+      "name": "Athena",
+      "zrodlo": [
+        "legacy/jewelry/470198967_122111882990616875_4420467916375926706_n-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Athena {z} w oprawie art déco z diamentów, w żółtym i białym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/470215298_122111883002616875_3986850744892988808_n-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          130,
+          200
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "AA (09.11): oryginał to szmaragd – bez szmaragdu; 2 obrazy (zdjęcie karty + widok z boku)."
     }
   ]
 }
