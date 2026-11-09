@@ -22,6 +22,11 @@ export type SeedWork = {
   product?: { postIds?: string[]; name?: string; /** Inne nazwy tej samej karty (np. imię po zleceniu S); dopasowanie jak do `name`. */ altNames?: string[] }
   /** Pliki z `cms/seed/realizacje` w kolejności wyświetlania; pierwszy to okładka. */
   photos: { file: string; alt: string }[]
+  /**
+   * Filmy realizacji (pole „Filmy” w panelu): plik mp4 leży w katalogu filmów z eksportu FB (`data/facebook/media`, poza gitem;
+   * `--filmy` w `staging:realizacje`), podpis widać pod odtwarzaczem. Okładką filmu jest pierwsze zdjęcie realizacji.
+   */
+  videos?: { file: string; caption: string }[]
   /** Poprzedni układ zdjęć z wcześniejszej wersji seeda (do jednorazowej, bezpiecznej poprawki istniejącej realizacji). */
   previousPhotos?: { file: string; alt: string }[]
 }
@@ -127,6 +132,24 @@ export const SEED_WORKS: SeedWork[] = [
       { file: '6-tanzanit_01_przed-wisiorek-pioro.webp', alt: 'Złoty wisiorek w kształcie pióra widziany przez lupę, przed przeróbką' },
       { file: '6-tanzanit_02_po.webp', alt: 'Pierścionek z tanzanitem w zielonym, aksamitnym pudełku, po przeróbce' },
       { file: '6-tanzanit_03_po.webp', alt: 'Pierścionek z tanzanitem w pudełku trzymanym w dłoni, po przeróbce' },
+    ],
+  },
+  {
+    slug: 'kolczyki-z-czarnymi-i-bialymi-diamentami',
+    title: 'Kolczyki z czarnymi i białymi diamentami',
+    kind: 'zamowienie',
+    jewelryType: 'kolczyki',
+    year: 2026,
+    task: 'Klientka zaprojektowała kolczyki z diamentami w dwóch kolorach: białym i czarnym.',
+    whatWeDid: 'Kolczyki ze złota zrobiliśmy ręcznie od podstaw, z białymi i czarnymi diamentami. Pierwszy film pokazuje, jak powstają, drugi gotowe kolczyki.',
+    // Źródło: posty z 01.07 (film z procesu, 122188581944616875) i 02.07 (gotowy reel, 122188660712616875); zdjęcia to klatki z filmów.
+    photos: [
+      { file: '7-kolczyki_01_gotowe-z-filmu.webp', alt: 'Dwa złote kolczyki w kształcie fali z czarnymi i białymi diamentami, w pudełku na białej tacce' },
+      { file: '7-kolczyki_02_proces-z-filmu.webp', alt: 'Jubiler w czasie pracy nad złotymi kolczykami w kształcie fali, osadzonymi w czerwonej masie' },
+    ],
+    videos: [
+      { file: '122188581944616875_2241603543342592.mp4', caption: 'Film z procesu: kolczyki powstają od podstaw' },
+      { file: '122188660712616875_1524283909489310.mp4', caption: 'Gotowe kolczyki' },
     ],
   },
 ]
