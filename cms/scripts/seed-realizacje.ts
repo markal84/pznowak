@@ -71,7 +71,14 @@ try {
   if (!tableReady) {
     console.log('Tabele „Realizacje” (w tym nowa tabela filmów) nie są jeszcze w bazie: z --apply najpierw wykona się oczekująca migracja,')
     console.log('potem wgranie zdjęć i filmów oraz utworzenie realizacji kolczyków. Zapis: npm run staging:realizacje -- --apply --filmy <katalog>')
-    if (!applyChanges) process.exit(0)
+    if (!applyChanges) {
+      console.log('Plan realizacji (po migracji):')
+      for (const work of SEED_WORKS) {
+        console.log(`  ${work.slug}: zdjęcia ${work.photos.length}, filmy ${work.videos?.length ?? 0}${work.videos?.some((v) => missingVideos.has(v.file)) ? ' (brakuje pliku filmu, patrz uwagi wyżej)' : ''}`)
+      }
+      console.log('Migracja do zastosowania: kolczyki_filmy_realizacji (20261109_133130).')
+      process.exit(0)
+    }
     throw new Error('Po migracji nie ma tabeli cms_works')
   }
 
