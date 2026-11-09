@@ -63,12 +63,14 @@ try {
 
   let tableReady = true
   try {
-    await payload.count({ collection: 'works', overrideAccess: true })
+    // `find` dotyka też tabeli filmów (nowa migracja), a samo `count` jej nie czyta.
+    await payload.find({ collection: 'works', depth: 0, limit: 1, overrideAccess: true })
   } catch {
     tableReady = false
   }
   if (!tableReady) {
-    console.log('Tabela „Realizacje” jeszcze nie istnieje: z --apply najpierw wykona się migracja.')
+    console.log('Tabele „Realizacje” (w tym nowa tabela filmów) nie są jeszcze w bazie: z --apply najpierw wykona się oczekująca migracja,')
+    console.log('potem wgranie zdjęć i filmów oraz utworzenie realizacji kolczyków. Zapis: npm run staging:realizacje -- --apply --filmy <katalog>')
     if (!applyChanges) process.exit(0)
     throw new Error('Po migracji nie ma tabeli cms_works')
   }
