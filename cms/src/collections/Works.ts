@@ -173,6 +173,54 @@ export const Works: CollectionConfig = {
       ],
     },
     {
+      name: 'videos',
+      type: 'array',
+      label: 'Filmy',
+      labels: { singular: 'Film', plural: 'Filmy' },
+      admin: {
+        description:
+          'Opcjonalne filmy realizacji (np. film z procesu i gotowa biżuteria). Pokazują się w oknie realizacji po zdjęciach, z odtwarzaczem.',
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          name: 'file',
+          type: 'upload',
+          relationTo: 'media',
+          label: 'Film',
+          required: true,
+          filterOptions: {
+            mimeType: {
+              contains: 'video/',
+            },
+          },
+        },
+        {
+          name: 'caption',
+          type: 'text',
+          label: 'Podpis',
+          required: true,
+          admin: {
+            description: 'Krótko, co to za film, np. „Film z procesu” albo „Gotowe kolczyki”. Czytają go też osoby niewidzące.',
+          },
+        },
+        {
+          name: 'poster',
+          type: 'upload',
+          relationTo: 'media',
+          label: 'Okładka filmu (opcjonalnie)',
+          filterOptions: {
+            mimeType: {
+              contains: 'image/',
+            },
+          },
+          admin: {
+            description: 'Klatka widoczna, zanim ktoś włączy film. Bez niej użyjemy okładki realizacji.',
+          },
+        },
+      ],
+    },
+    {
       name: 'product',
       type: 'relationship',
       relationTo: 'products',

@@ -24,6 +24,13 @@ export type PublicWorkPhoto = {
   height: number | null
 }
 
+/** Film realizacji: `poster` to klatka przed odtworzeniem (okładka filmu albo, gdy jej nie ma, okładka realizacji). */
+export type PublicWorkVideo = {
+  src: string
+  caption: string
+  poster: string | null
+}
+
 export type PublicWork = {
   id: number
   slug: string
@@ -40,6 +47,7 @@ export type PublicWork = {
   /** Teksty czekają na potwierdzenie Michała: na podglądzie dostają żółtą ramkę, na produkcji nic się nie zmienia. */
   needsConfirmation: boolean
   photos: PublicWorkPhoto[]
+  videos: PublicWorkVideo[]
   /** Pierścionek z katalogu (tylko opublikowany, niezarchiwizowany), do linku „Zobacz w katalogu”. */
   product: { slug: string; name: string } | null
 }
@@ -56,6 +64,13 @@ export function serializePublicWork(work: Work): PublicWork | null {
     return [{ src: media.url, alt: photo.alt, width: media.width ?? null, height: media.height ?? null }]
   })
   if (photos.length === 0) return null
+
+  const videos = (work.videos ?? []).flatMap((entry): PublicWorkVideo[] => {
+    const file = populated<Media>(entry.file)
+    if (!file?.url || !file.mimeType?.startsWith('video/')) return []
+    const poster = populated<Media>(entry.poster)
+    return [{ src: file.url, caption: entry.caption, poster: poster?.url ?? photos[0].src }]
+  })
 
   const product = populated<Product>(work.product)
   const published = product && product._status === 'published' && !product.archived
@@ -77,6 +92,7 @@ export function serializePublicWork(work: Work): PublicWork | null {
     featured: Boolean(work.featured),
     needsConfirmation: Boolean(work.needsConfirmation),
     photos,
+    videos,
     product: published && product.slug ? { slug: product.slug, name: product.name } : null,
   }
 }

@@ -352,6 +352,23 @@ export interface Work {
     id?: string | null;
   }[];
   /**
+   * Opcjonalne filmy realizacji (np. film z procesu i gotowa biżuteria). Pokazują się w oknie realizacji po zdjęciach, z odtwarzaczem.
+   */
+  videos?:
+    | {
+        file: number | Media;
+        /**
+         * Krótko, co to za film, np. „Film z procesu” albo „Gotowe kolczyki”. Czytają go też osoby niewidzące.
+         */
+        caption: string;
+        /**
+         * Klatka widoczna, zanim ktoś włączy film. Bez niej użyjemy okładki realizacji.
+         */
+        poster?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Jeśli taki pierścionek jest też w katalogu, przy realizacji pojawi się link „Zobacz w katalogu”. Można zostawić puste.
    */
   product?: (number | null) | Product;
@@ -687,6 +704,14 @@ export interface WorksSelect<T extends boolean = true> {
     | {
         image?: T;
         alt?: T;
+        id?: T;
+      };
+  videos?:
+    | T
+    | {
+        file?: T;
+        caption?: T;
+        poster?: T;
         id?: T;
       };
   product?: T;

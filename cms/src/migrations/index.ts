@@ -13,6 +13,7 @@ import * as migration_20261104_231900_warianty_cala_galeria from './20261104_231
 import * as migration_20261105_092851_kolka_kolorow from './20261105_092851_kolka_kolorow';
 import * as migration_20261105_110548_ab_film_wariantu from './20261105_110548_ab_film_wariantu';
 import * as migration_20261106_100112_ceny_pierscionkow from './20261106_100112_ceny_pierscionkow';
+import * as migration_20261109_133130_kolczyki_filmy_realizacji from './20261109_133130_kolczyki_filmy_realizacji';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20261106_100112_ceny_pierscionkow.up,
     down: migration_20261106_100112_ceny_pierscionkow.down,
-    name: '20261106_100112_ceny_pierscionkow'
+    name: '20261106_100112_ceny_pierscionkow',
+  },
+  {
+    up: migration_20261109_133130_kolczyki_filmy_realizacji.up,
+    down: migration_20261109_133130_kolczyki_filmy_realizacji.down,
+    name: '20261109_133130_kolczyki_filmy_realizacji'
   },
 ];

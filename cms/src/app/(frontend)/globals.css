@@ -3767,6 +3767,30 @@ fieldset.plain legend {
 .work-thumb img {
   object-fit: cover;
 }
+.work-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+.work-video-caption {
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+/* Miniatura filmu: klatka z odznaką odtwarzania. */
+.work-thumb[data-video]::after {
+  content: '▶';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.35);
+}
 .work-thumb:hover,
 .work-thumb[aria-current='true'] {
   opacity: 1;

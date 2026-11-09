@@ -8,8 +8,12 @@
  * Istniejącej realizacji nie nadpisuje, bo Michał mógł już poprawić teksty w panelu; drugie uruchomienie niczego nie dubluje.
  * Wyjątki (tylko gdy nikt tego ręcznie nie zmieniał): dopina brakujący link do karty katalogu i poprawia układ zdjęć
  * wprowadzony błędnie przez pierwszą wersję seeda (patrz `previousPhotos` w `realizacje-data.ts`).
+ * Filmy realizacji (`videos`): mp4 z katalogu `--filmy <katalog>` albo `NOWE_KARTY_FILMY`/`REALIZACJE_FILMY` (domyślnie `data/facebook/media`
+ * w repo, poza gitem). Brak pliku = ostrzeżenie, realizacja powstaje bez tego filmu. Filmy dopina się też do istniejącej realizacji, ale
+ * tylko gdy nie ma jeszcze żadnego filmu (ręcznie dodanych w panelu nie ruszamy).
  * Dane nie mają prawa trafić na produkcję: skrypt działa tylko z NEON_BRANCH=staging (jak `seed-staging.ts`).
  */
+import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -24,15 +28,33 @@ import { matchProduct, planPhotos, type CatalogProduct, type ProductMatch } from
 const applyChanges = process.argv.includes('--apply')
 const photosDir = fileURLToPath(new URL('../seed/realizacje', import.meta.url))
 const sourceKey = (file: string) => `seed://realizacje/${file}`
+const filmyArg = process.argv.indexOf('--filmy')
+const videosDir = path.resolve(
+  (filmyArg >= 0 ? process.argv[filmyArg + 1] : undefined) ??
+    process.env.REALIZACJE_FILMY ??
+    fileURLToPath(new URL('../../data/facebook/media', import.meta.url)),
+)
+const videoKey = (file: string) => `seed://realizacje/film/${file}`
 
 if (process.env.NEON_BRANCH !== 'staging') {
   throw new Error('staging:realizacje musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
 }
 
 // Sprawdzenie plików nie dotyka bazy: brakujące zdjęcie przerywa od razu.
-const photoFiles = SEED_WORKS.flatMap((work) => work.photos.map((photo) => photo.file))
+const photoFiles = SEED_WORKS.flatMap((work) => [
+  ...work.photos.map((photo) => photo.file),
+  ...(work.videos ?? []).flatMap((video) => (video.poster ? [video.poster] : [])),
+])
 for (const file of photoFiles) await readFile(path.join(photosDir, file))
 console.log(`Pliki: zdjęcia ${photoFiles.length} dla realizacji ${SEED_WORKS.length} są w cms/seed/realizacje.`)
+
+const missingVideos = new Set<string>()
+for (const work of SEED_WORKS) {
+  for (const video of work.videos ?? []) {
+    if (!existsSync(path.join(videosDir, video.file))) missingVideos.add(video.file)
+  }
+}
+for (const file of missingVideos) console.log(`  Uwaga: brak filmu ${file} w ${videosDir} (realizacja powstanie bez niego).`)
 
 const payload = await getPayload({ config: await config })
 
@@ -44,13 +66,22 @@ try {
 
   let tableReady = true
   try {
-    await payload.count({ collection: 'works', overrideAccess: true })
+    // `find` dotyka też tabeli filmów (nowa migracja), a samo `count` jej nie czyta.
+    await payload.find({ collection: 'works', depth: 0, limit: 1, overrideAccess: true })
   } catch {
     tableReady = false
   }
   if (!tableReady) {
-    console.log('Tabela „Realizacje” jeszcze nie istnieje: z --apply najpierw wykona się migracja.')
-    if (!applyChanges) process.exit(0)
+    console.log('Tabele „Realizacje” (w tym nowa tabela filmów) nie są jeszcze w bazie: z --apply najpierw wykona się oczekująca migracja,')
+    console.log('potem wgranie zdjęć i filmów oraz utworzenie realizacji kolczyków. Zapis: npm run staging:realizacje -- --apply --filmy <katalog>')
+    if (!applyChanges) {
+      console.log('Plan realizacji (po migracji):')
+      for (const work of SEED_WORKS) {
+        console.log(`  ${work.slug}: zdjęcia ${work.photos.length}, filmy ${work.videos?.length ?? 0}${work.videos?.some((v) => missingVideos.has(v.file)) ? ' (brakuje pliku filmu, patrz uwagi wyżej)' : ''}`)
+      }
+      console.log('Migracja do zastosowania: kolczyki_filmy_realizacji (20261109_133130).')
+      process.exit(0)
+    }
     throw new Error('Po migracji nie ma tabeli cms_works')
   }
 
@@ -109,6 +140,33 @@ try {
     }
     return result
   }
+  const ensureVideo = async (file: string, caption: string): Promise<Media> => {
+    const existing = await payload.find({
+      collection: 'media',
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      where: { legacySourceUrl: { equals: videoKey(file) } },
+    })
+    if (existing.docs[0]) return existing.docs[0]
+    const data = await readFile(path.join(videosDir, file))
+    return payload.create({
+      collection: 'media',
+      data: { alt: caption, legacySourceUrl: videoKey(file) },
+      file: { data, mimetype: 'video/mp4', name: file, size: data.byteLength },
+      overrideAccess: true,
+    })
+  }
+  const buildVideos = async (work: SeedWork) => {
+    const result = []
+    for (const video of work.videos ?? []) {
+      if (missingVideos.has(video.file)) continue
+      const media = await ensureVideo(video.file, video.caption)
+      const poster = video.poster ? await ensureMedia(video.poster, `Klatka z filmu: ${video.caption}`) : null
+      result.push({ file: media.id, caption: video.caption, poster: poster?.id ?? null })
+    }
+    return result
+  }
   // Skrypt działa poza Next.js: odświeżanie strony (revalidateTag) rzuciłoby tu błąd.
   const context = { skipFrontendRevalidation: true }
 
@@ -121,7 +179,7 @@ try {
 
     if (!existing) {
       if (!applyChanges) {
-        console.log(`+ ${work.slug}: zdjęcia: ${work.photos.length}, ${productNote}`)
+        console.log(`+ ${work.slug}: zdjęcia: ${work.photos.length}, filmy: ${work.videos?.length ?? 0}, ${productNote}`)
         continue
       }
       await payload.create({
@@ -136,6 +194,7 @@ try {
           task: work.task,
           whatWeDid: work.whatWeDid,
           photos: await buildPhotos(work.photos),
+          videos: await buildVideos(work),
           product: match?.product.id ?? null,
           needsConfirmation: true,
           featured: Boolean(work.featured),
@@ -147,7 +206,7 @@ try {
         context,
       })
       created += 1
-      console.log(`+ ${work.slug}: utworzona (zdjęcia: ${work.photos.length}, ${productNote})`)
+      console.log(`+ ${work.slug}: utworzona (zdjęcia: ${work.photos.length}, filmy: ${work.videos?.length ?? 0}, ${productNote})`)
       continue
     }
 
@@ -161,6 +220,18 @@ try {
       changes.product = match.product.id
       willChange = true
       notes.push(`dopięty link do „${match.product.name}” (po ${match.by === 'post' ? 'poście z Facebooka' : 'nazwie'})`)
+    }
+    const wantedVideos = (work.videos ?? []).filter((video) => !missingVideos.has(video.file))
+    const currentVideos = existing.videos ?? []
+    if (wantedVideos.length && !currentVideos.length) {
+      willChange = true
+      if (applyChanges) changes.videos = await buildVideos(work)
+      notes.push(`dopięte filmy: ${wantedVideos.length}`)
+    } else if (wantedVideos.some((video) => video.poster) && currentVideos.length && currentVideos.every((video) => !video.poster)) {
+      // Filmy z pierwszej wersji seeda (bez własnych klatek): dopinamy klatki, tylko gdy nikt nie ustawił ich ręcznie.
+      willChange = true
+      if (applyChanges) changes.videos = await buildVideos(work)
+      notes.push('klatki filmów (poster) dopięte')
     }
     const current = (existing.photos ?? []).map((photo) => {
       const media = typeof photo.image === 'object' ? photo.image : null

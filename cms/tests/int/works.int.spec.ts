@@ -36,6 +36,41 @@ const work = (extra: Partial<Work> = {}): Work => ({
   ...extra,
 })
 
+describe('serializePublicWork: filmy', () => {
+  const video = (id: number) => media(id, { mimeType: 'video/mp4', url: `https://x.public.blob.vercel-storage.com/f${id}.mp4`, width: 1080, height: 1920 })
+
+  it('bez filmów daje pustą listę', () => {
+    expect(serializePublicWork(work())?.videos).toEqual([])
+  })
+
+  it('pokazuje filmy z podpisem; okładką filmu jest jego klatka albo, gdy jej nie ma, okładka realizacji', () => {
+    const result = serializePublicWork(
+      work({
+        videos: [
+          { id: 'v1', file: video(10), caption: 'Film z procesu', poster: media(11) },
+          { id: 'v2', file: video(12), caption: 'Gotowe kolczyki' },
+        ],
+      }),
+    )
+    expect(result?.videos).toEqual([
+      { src: 'https://x.public.blob.vercel-storage.com/f10.mp4', caption: 'Film z procesu', poster: 'https://x.public.blob.vercel-storage.com/m11.webp' },
+      { src: 'https://x.public.blob.vercel-storage.com/f12.mp4', caption: 'Gotowe kolczyki', poster: 'https://x.public.blob.vercel-storage.com/m1.webp' },
+    ])
+  })
+
+  it('pomija wpis, w którym plik nie jest filmem albo nie jest wczytany', () => {
+    const result = serializePublicWork(
+      work({
+        videos: [
+          { id: 'v1', file: media(10), caption: 'To zdjęcie' },
+          { id: 'v2', file: 99, caption: 'Nie wczytany' },
+        ],
+      }),
+    )
+    expect(result?.videos).toEqual([])
+  })
+})
+
 describe('serializePublicWork', () => {
   it('returns only what the page needs, with labels from kind and jewelry type', () => {
     const result = serializePublicWork(work({ jewelryType: 'obraczka', kind: 'przerobka' }))

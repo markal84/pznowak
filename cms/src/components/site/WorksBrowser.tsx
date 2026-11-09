@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
-import { pickSelectedWork, type PublicWork, type PublicWorkPhoto, type WorkKind } from '@/lib/works'
+import { pickSelectedWork, type PublicWork, type WorkKind } from '@/lib/works'
 import Photo from './Photo'
 import Tag from './Tag'
 
@@ -120,16 +120,20 @@ export default function WorksBrowser({ works, initialSlug = null, markUnconfirme
   )
 }
 
-/** Zdjęcie „pionowe” wypełnia ramkę, „poziome” mieści się w całości na rozmytym tle z tego samego zdjęcia. */
-function fitFor(photo: PublicWorkPhoto): 'cover' | 'contain' {
-  return photo.width && photo.height && photo.width > photo.height ? 'contain' : 'cover'
-}
+type Slide =
+  | { kind: 'photo'; src: string; alt: string; width: number | null; height: number | null }
+  | { kind: 'video'; src: string; caption: string; poster: string | null }
 
 function WorkWindow({ work, markUnconfirmed }: { work: Work; markUnconfirmed: boolean }) {
   const [index, setIndex] = useState(0)
-  // Po zmianie realizacji komponent powstaje od nowa (key), więc `index` zawsze zaczyna od okładki.
-  const photo = work.photos[Math.min(index, work.photos.length - 1)]
-  const fit = fitFor(photo)
+  // Zdjęcia, potem filmy. Po zmianie realizacji komponent powstaje od nowa (key), więc `index` zawsze zaczyna od okładki.
+  const slides: Slide[] = [
+    ...work.photos.map((p): Slide => ({ kind: 'photo', ...p })),
+    ...work.videos.map((v): Slide => ({ kind: 'video', ...v })),
+  ]
+  const slide = slides[Math.min(index, slides.length - 1)]
+  // Zdjęcie „pionowe” wypełnia ramkę, „poziome” mieści się w całości na rozmytym tle z tego samego zdjęcia.
+  const fit = slide.kind === 'photo' && slide.width && slide.height && slide.width > slide.height ? 'contain' : 'cover'
   const meta = [work.kindLabel, work.year ? String(work.year) : null].filter(Boolean).join(', ')
   const mark = markUnconfirmed && work.needsConfirmation
 
@@ -149,23 +153,42 @@ function WorkWindow({ work, markUnconfirmed }: { work: Work; markUnconfirmed: bo
     <article className="feature work-window">
       <div className="work-gallery">
         <div className="work-frame" data-fit={fit}>
-          {fit === 'contain' ? (
-            <Image alt="" aria-hidden className="work-backdrop" fill sizes="96px" src={photo.src} />
-          ) : null}
-          <Image alt={photo.alt} className="work-main" fill priority sizes="(max-width: 960px) 100vw, 640px" src={photo.src} />
+          {slide.kind === 'video' ? (
+            <video
+              aria-label={`Film: ${slide.caption}`}
+              className="work-video"
+              controls
+              key={slide.src}
+              playsInline
+              poster={slide.poster ?? undefined}
+              preload="metadata"
+              src={slide.src}
+            />
+          ) : (
+            <>
+              {fit === 'contain' ? <Image alt="" aria-hidden className="work-backdrop" fill sizes="96px" src={slide.src} /> : null}
+              <Image alt={slide.alt} className="work-main" fill priority sizes="(max-width: 960px) 100vw, 640px" src={slide.src} />
+            </>
+          )}
         </div>
-        {work.photos.length > 1 ? (
-          <ul aria-label="Zdjęcia tej realizacji" className="work-thumbs">
-            {work.photos.map((p, i) => (
+        {slide.kind === 'video' ? <p className="work-video-caption">{slide.caption}</p> : null}
+        {slides.length > 1 ? (
+          <ul aria-label="Zdjęcia i filmy tej realizacji" className="work-thumbs">
+            {slides.map((p, i) => (
               <li key={p.src}>
                 <button
                   aria-current={i === index ? 'true' : undefined}
-                  aria-label={`Zdjęcie ${i + 1} z ${work.photos.length}`}
+                  aria-label={p.kind === 'video' ? `Film: ${p.caption}` : `Zdjęcie ${i + 1} z ${work.photos.length}`}
                   className="work-thumb"
+                  data-video={p.kind === 'video' ? '' : undefined}
                   onClick={() => setIndex(i)}
                   type="button"
                 >
-                  <Image alt="" fill sizes="72px" src={p.src} />
+                  {p.kind === 'video' ? (
+                    p.poster ? <Image alt="" fill sizes="72px" src={p.poster} /> : null
+                  ) : (
+                    <Image alt="" fill sizes="72px" src={p.src} />
+                  )}
                 </button>
               </li>
             ))}
