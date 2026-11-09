@@ -141,6 +141,8 @@ export type ExistingCard = { id: number; name: string; status: 'draft' | 'publis
 export type NewCardPlan =
   | { action: 'utworz'; photos: PlannedPhoto[]; note: string }
   | { action: 'dodaj'; photos: PlannedPhoto[]; note: string }
+  /** Karta opublikowana: dopinamy wyłącznie film (media produktu), bez ruszania reszty i statusu. */
+  | { action: 'film'; photos: PlannedPhoto[]; note: string }
   | { action: 'juz' | 'pomin'; note: string }
 
 export function planNewCard(existing: ExistingCard | undefined, spec: NewCardSpec, photos: PlannedPhoto[]): NewCardPlan {
@@ -149,10 +151,13 @@ export function planNewCard(existing: ExistingCard | undefined, spec: NewCardSpe
     return { action: 'utworz', photos, note: `nowy szkic, zdjęć: ${photos.length}${spec.price ? `, cena ${spec.price} zł` : ', bez ceny'}` }
   }
   if (existing.name !== spec.name) return { action: 'pomin', note: `slug „${spec.slug}” ma już karta „${existing.name}”` }
+  if (existing.status === 'published') {
+    // Opublikowanej karty nie dotykamy poza filmem: zdjęcia i teksty zostają, jak są (zdjęcia dodaje się w panelu).
+    const film = photos.filter((photo) => photo.mimetype.startsWith('video/') && !existing.photoKeys.includes(photo.key))
+    if (film.length) return { action: 'film', photos: film, note: `film do dopięcia: tak (${film[0].file}); karta opublikowana, reszty nie ruszam` }
+    return { action: 'juz', note: 'karta opublikowana; film do dopięcia: nie (jest już albo nie podano pliku)' }
+  }
   const fresh = photos.filter((photo) => !existing.photoKeys.includes(photo.key))
   if (!fresh.length) return { action: 'juz', note: 'karta już jest, wszystkie zdjęcia na miejscu' }
-  if (existing.status === 'published') {
-    return { action: 'pomin', note: `karta opublikowana, nowych zdjęć (${fresh.length}) nie dopinam – dodaj je w panelu` }
-  }
   return { action: 'dodaj', photos: fresh, note: `dopinam zdjęcia: ${fresh.map((photo) => photo.file).join(', ')}` }
 }

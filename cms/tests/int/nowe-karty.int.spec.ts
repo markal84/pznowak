@@ -57,7 +57,8 @@ describe('nowe karty: zdjęcia od Kamili i plan', () => {
     const plan = planNewCard(draft, hesperia, [...photos, extra])
     expect(plan.action).toBe('dodaj')
     expect(plan.action === 'dodaj' && plan.photos.map((p) => p.file)).toEqual(['IMG_0056.jpg'])
-    expect(planNewCard({ ...draft, status: 'published' }, hesperia, [...photos, extra]).action).toBe('pomin')
+    // opublikowanej karty nie ruszamy poza filmem: nowe zdjęcia dodaje się w panelu
+    expect(planNewCard({ ...draft, status: 'published' }, hesperia, [...photos, extra]).action).toBe('juz')
     expect(planNewCard({ ...draft, name: 'Inna' }, hesperia, photos).action).toBe('pomin')
   })
 })
@@ -91,5 +92,22 @@ describe('nowe karty: film karty (Hesperia)', () => {
     const plan = planNewCard(draft, hesperia, [...photos, video!])
     expect(plan.action).toBe('dodaj')
     expect(plan.action === 'dodaj' && plan.photos.map((p) => p.file)).toEqual([hesperia.video!.file])
+  })
+
+  it('opublikowana karta: dopina tylko film, idempotentnie, zdjęć nie rusza', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'filmy-'))
+    writeFileSync(path.join(dir, hesperia.video!.file), 'x')
+    const { video } = collectVideo(hesperia, { videoDir: dir })
+    const published = { id: 60, name: 'Hesperia', status: 'published' as const, photoKeys: ['inne/zdjecie.jpg'] }
+    const plan = planNewCard(published, hesperia, [video!])
+    expect(plan.action).toBe('film')
+    expect(plan.action === 'film' && plan.photos.map((p) => p.file)).toEqual([hesperia.video!.file])
+    expect(plan.note).toContain('film do dopięcia: tak')
+    // drugi przebieg: film już jest w mediach karty
+    const again = planNewCard({ ...published, photoKeys: [video!.key] }, hesperia, [video!])
+    expect(again.action).toBe('juz')
+    expect(again.note).toContain('film do dopięcia: nie')
+    // bez pliku filmu nic się nie dzieje
+    expect(planNewCard(published, hesperia, []).action).toBe('juz')
   })
 })
