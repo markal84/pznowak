@@ -23,11 +23,16 @@ describe('treść startowa „Realizacje”', () => {
       '122188660712616875_1524283909489310.mp4',
     ])
     expect(earrings.photos[0].file).toBe('7-kolczyki_01_gotowe-z-filmu.webp')
+    // Żadne dwie klatki (zdjęcia i okładki filmów) nie są tym samym plikiem; film z procesu ma klatkę z procesu.
+    const frames = [...earrings.photos.map((p) => p.file), ...earrings.videos!.map((v) => v.poster)]
+    expect(frames.every(Boolean)).toBe(true)
+    expect(new Set(frames).size).toBe(frames.length)
+    expect(earrings.videos![0].poster).not.toBe(earrings.photos[0].file)
     for (const video of earrings.videos!) expect(video.caption.length).toBeGreaterThan(5)
   })
 
   it('uses every photo from cms/seed/realizacje exactly once, each with a concrete Polish alt', () => {
-    const used = SEED_WORKS.flatMap((w) => w.photos.map((p) => p.file))
+    const used = SEED_WORKS.flatMap((w) => [...w.photos.map((p) => p.file), ...(w.videos ?? []).flatMap((v) => (v.poster ? [v.poster] : []))])
     expect([...used].sort()).toEqual(readdirSync(photosDir).filter((f) => f.endsWith('.webp')).sort())
     for (const photo of SEED_WORKS.flatMap((w) => w.photos)) {
       expect(photo.alt.length, photo.file).toBeGreaterThan(20)

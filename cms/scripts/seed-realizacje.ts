@@ -41,7 +41,10 @@ if (process.env.NEON_BRANCH !== 'staging') {
 }
 
 // Sprawdzenie plików nie dotyka bazy: brakujące zdjęcie przerywa od razu.
-const photoFiles = SEED_WORKS.flatMap((work) => work.photos.map((photo) => photo.file))
+const photoFiles = SEED_WORKS.flatMap((work) => [
+  ...work.photos.map((photo) => photo.file),
+  ...(work.videos ?? []).flatMap((video) => (video.poster ? [video.poster] : [])),
+])
 for (const file of photoFiles) await readFile(path.join(photosDir, file))
 console.log(`Pliki: zdjęcia ${photoFiles.length} dla realizacji ${SEED_WORKS.length} są w cms/seed/realizacje.`)
 
@@ -159,7 +162,8 @@ try {
     for (const video of work.videos ?? []) {
       if (missingVideos.has(video.file)) continue
       const media = await ensureVideo(video.file, video.caption)
-      result.push({ file: media.id, caption: video.caption })
+      const poster = video.poster ? await ensureMedia(video.poster, `Klatka z filmu: ${video.caption}`) : null
+      result.push({ file: media.id, caption: video.caption, poster: poster?.id ?? null })
     }
     return result
   }
@@ -218,10 +222,16 @@ try {
       notes.push(`dopięty link do „${match.product.name}” (po ${match.by === 'post' ? 'poście z Facebooka' : 'nazwie'})`)
     }
     const wantedVideos = (work.videos ?? []).filter((video) => !missingVideos.has(video.file))
-    if (wantedVideos.length && !(existing.videos ?? []).length) {
+    const currentVideos = existing.videos ?? []
+    if (wantedVideos.length && !currentVideos.length) {
       willChange = true
       if (applyChanges) changes.videos = await buildVideos(work)
       notes.push(`dopięte filmy: ${wantedVideos.length}`)
+    } else if (wantedVideos.some((video) => video.poster) && currentVideos.length && currentVideos.every((video) => !video.poster)) {
+      // Filmy z pierwszej wersji seeda (bez własnych klatek): dopinamy klatki, tylko gdy nikt nie ustawił ich ręcznie.
+      willChange = true
+      if (applyChanges) changes.videos = await buildVideos(work)
+      notes.push('klatki filmów (poster) dopięte')
     }
     const current = (existing.photos ?? []).map((photo) => {
       const media = typeof photo.image === 'object' ? photo.image : null

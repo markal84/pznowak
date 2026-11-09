@@ -24,9 +24,9 @@ export type SeedWork = {
   photos: { file: string; alt: string }[]
   /**
    * Filmy realizacji (pole „Filmy” w panelu): plik mp4 leży w katalogu filmów z eksportu FB (`data/facebook/media`, poza gitem;
-   * `--filmy` w `staging:realizacje`), podpis widać pod odtwarzaczem. Okładką filmu jest pierwsze zdjęcie realizacji.
+   * `--filmy` w `staging:realizacje`), podpis widać pod odtwarzaczem. Bez `poster` okładką filmu jest pierwsze zdjęcie realizacji.
    */
-  videos?: { file: string; caption: string }[]
+  videos?: { file: string; caption: string; /** Klatka przed odtworzeniem (plik z `cms/seed/realizacje`); film z procesu ma klatkę z procesu, nie gotowy efekt. */ poster?: string }[]
   /** Poprzedni układ zdjęć z wcześniejszej wersji seeda (do jednorazowej, bezpiecznej poprawki istniejącej realizacji). */
   previousPhotos?: { file: string; alt: string }[]
 }
@@ -145,11 +145,16 @@ export const SEED_WORKS: SeedWork[] = [
     // Źródło: posty z 01.07 (film z procesu, 122188581944616875) i 02.07 (gotowy reel, 122188660712616875); zdjęcia to klatki z filmów.
     photos: [
       { file: '7-kolczyki_01_gotowe-z-filmu.webp', alt: 'Dwa złote kolczyki w kształcie fali z czarnymi i białymi diamentami, w pudełku na białej tacce' },
+      { file: '7-kolczyki_03_proces-oprawianie.webp', alt: 'Jubiler oprawia czarne i białe diamenty w złotym kolczyku zamocowanym w czerwonej masie' },
+    ],
+    // Zdjęcia i klatki filmów to cztery różne ujęcia: gotowe (okładka), proces (zdjęcie 2), klatka filmu z procesu, drugi kadr reelu.
+    previousPhotos: [
+      { file: '7-kolczyki_01_gotowe-z-filmu.webp', alt: 'Dwa złote kolczyki w kształcie fali z czarnymi i białymi diamentami, w pudełku na białej tacce' },
       { file: '7-kolczyki_02_proces-z-filmu.webp', alt: 'Jubiler w czasie pracy nad złotymi kolczykami w kształcie fali, osadzonymi w czerwonej masie' },
     ],
     videos: [
-      { file: '122188581944616875_2241603543342592.mp4', caption: 'Film z procesu: kolczyki powstają od podstaw' },
-      { file: '122188660712616875_1524283909489310.mp4', caption: 'Gotowe kolczyki' },
+      { file: '122188581944616875_2241603543342592.mp4', caption: 'Film z procesu: kolczyki powstają od podstaw', poster: '7-kolczyki_02_proces-z-filmu.webp' },
+      { file: '122188660712616875_1524283909489310.mp4', caption: 'Gotowe kolczyki', poster: '7-kolczyki_04_gotowe-kadr-2.webp' },
     ],
   },
 ]
