@@ -15,7 +15,12 @@ export const PHOTOS_DIR = path.join(NOWE_KARTY_DIR, 'obrazy')
 /** Folder w repo, do którego Marcin kopiuje zdjęcia Kamili z iMessage (punkt 6.3 listy). */
 export const KAMILA_DIR = path.resolve(OPISY_DIR, '../../../docs/od-kamili/2026-11-06')
 
+/** Folder z filmami z eksportu FB (poza gitem); można zmienić zmienną NOWE_KARTY_FILMY albo opcją `--filmy`. */
+export const FILMY_DIR = path.resolve(OPISY_DIR, '../../../data/facebook/media')
+
 export type NewCardPhoto = { file: string; alt: string }
+/** Film karty: plik mp4 z `FILMY_DIR` (nie wchodzi do gita) i opis; trafia do `media` karty po zdjęciach. */
+export type NewCardVideo = { file: string; alt: string }
 export type NewCardSpec = {
   slug: string
   name: string
@@ -27,9 +32,11 @@ export type NewCardSpec = {
   photos: NewCardPhoto[]
   /** Nazwy plików z iMessage bez rozszerzenia (np. IMG_0056); brakujące są pomijane. */
   photosFromKamila: string[]
+  /** Opcjonalny film karty (zlecenie: film Hesperii). */
+  video?: NewCardVideo
 }
 
-const KEYS = ['slug', 'name', 'lead', 'description', 'price', 'metal', 'stone', 'photos', 'photosFromKamila']
+const KEYS = ['slug', 'name', 'lead', 'description', 'price', 'metal', 'stone', 'photos', 'photosFromKamila', 'video']
 
 export function loadNewCards(source: string = NOWE_KARTY_PATH): NewCardSpec[] {
   const raw: unknown = JSON.parse(readFileSync(source, 'utf8'))
@@ -52,6 +59,12 @@ export function loadNewCards(source: string = NOWE_KARTY_PATH): NewCardSpec[] {
     }
     if (!Array.isArray(item.photosFromKamila) || item.photosFromKamila.some((name) => typeof name !== 'string')) {
       throw new Error(`${where}: „photosFromKamila” to lista nazw`)
+    }
+    if (item.video !== undefined) {
+      const video = item.video as Record<string, unknown>
+      if (typeof video?.file !== 'string' || !/\.mp4$/i.test(video.file) || typeof video.alt !== 'string' || !video.alt.trim()) {
+        throw new Error(`${where}: film potrzebuje „file” (.mp4) i „alt”`)
+      }
     }
     const extra = Object.keys(item).filter((key) => !KEYS.includes(key))
     if (extra.length) throw new Error(`${where}: nieznane pola ${extra.join(', ')}`)
@@ -105,6 +118,23 @@ export function collectPhotos(
     })
   }
   return { photos, missing }
+}
+
+/**
+ * Film karty z `videoDir`. Brak pliku to nie błąd: skrypt pokazuje to w planie, a kartę zakłada bez filmu
+ * (film dopnie przy następnym uruchomieniu, gdy plik się pojawi).
+ */
+export function collectVideo(
+  spec: NewCardSpec,
+  { videoDir = FILMY_DIR }: { videoDir?: string } = {},
+): { video: PlannedPhoto | null; missing: string | null } {
+  if (!spec.video) return { video: null, missing: null }
+  const fullPath = path.join(videoDir, spec.video.file)
+  if (!existsSync(fullPath)) return { video: null, missing: `${spec.video.file} (film, szukam w ${videoDir})` }
+  return {
+    video: { key: photoKey(`film/${spec.video.file}`), file: spec.video.file, fullPath, alt: spec.video.alt, mimetype: 'video/mp4' },
+    missing: null,
+  }
 }
 
 export type ExistingCard = { id: number; name: string; status: 'draft' | 'published' | null | undefined; photoKeys: string[] }
