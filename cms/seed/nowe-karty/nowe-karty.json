@@ -10,7 +10,8 @@
     "photos": [
       { "file": "hesperia-andaluzyt-1.jpg", "alt": "Pierścionek Hesperia z andaluzytem i diamentami w żółtym złocie, zbliżenie oprawy" }
     ],
-    "photosFromKamila": ["IMG_0056", "IMG_0057", "IMG_0058", "IMG_0059", "IMG_0060"]
+    "photosFromKamila": ["IMG_0056", "IMG_0057", "IMG_0058", "IMG_0059", "IMG_0060"],
+    "video": { "file": "122176461776616875_1527052111727601.mp4", "alt": "Film: pierścionek Hesperia z andaluzytem, kamień zmienia kolor w świetle" }
   },
   {
     "slug": "selene",

@@ -2,20 +2,24 @@
  * Nowe karty pierścionków jako szkice na staging: `seed/nowe-karty/nowe-karty.json` (Hesperia z andaluzytem, Selene z opalem).
  *
  *   npm run staging:nowe-karty              sprawdzenie: nic nie zapisuje, pokazuje plan i brakujące zdjęcia
- *   npm run staging:nowe-karty -- --apply   zapis: zakłada szkice, wgrywa zdjęcia (prefiks mediów stagingu)
+ *   npm run staging:nowe-karty -- --apply   zapis: zakłada szkice, wgrywa zdjęcia i film (prefiks mediów stagingu)
+ *   opcja --filmy <katalog> (albo NOWE_KARTY_FILMY): gdzie leżą mp4 z eksportu FB (domyślnie data/facebook/media w repo)
  *
  * Kartę szuka po slugu. Istniejącej nie nadpisuje tekstów; do szkicu dopina tylko zdjęcia, których jeszcze nie ma
  * (np. zdjęcia Kamili skopiowane później do docs/od-kamili/2026-11-06/). Opublikowanej karty nie rusza.
  * Idempotentne. Działa tylko z NEON_BRANCH=staging. Publikuje Marcin w panelu, po obejrzeniu.
  */
 import { readFile } from 'node:fs/promises'
+import path from 'node:path'
 
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
-import { collectPhotos, KAMILA_DIR, loadNewCards, planNewCard, type PlannedPhoto } from './nowe-karty-logic'
+import { collectPhotos, collectVideo, FILMY_DIR, KAMILA_DIR, loadNewCards, planNewCard, type PlannedPhoto } from './nowe-karty-logic'
 
 const applyChanges = process.argv.includes('--apply')
+const filmyArg = process.argv.indexOf('--filmy')
+const videoDir = path.resolve((filmyArg >= 0 ? process.argv[filmyArg + 1] : undefined) ?? process.env.NOWE_KARTY_FILMY ?? FILMY_DIR)
 
 if (process.env.NEON_BRANCH !== 'staging') {
   throw new Error('staging:nowe-karty musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
@@ -67,8 +71,13 @@ try {
 
   const counts = { zmien: 0, juz: 0, pomin: 0, bledy: 0 }
   for (const spec of specs) {
-    const { photos, missing } = collectPhotos(spec)
     const doc = bySlug.get(spec.slug)
+    // Karta opublikowana: zdjęć nie sprawdzamy (nie dopinamy ich), liczy się tylko film.
+    const published = doc?._status === 'published'
+    const { photos: stills, missing } = published ? { photos: [], missing: [] as string[] } : collectPhotos(spec)
+    const { video, missing: missingVideo } = collectVideo(spec, { videoDir })
+    if (missingVideo) missing.push(missingVideo)
+    const photos = video ? [...stills, video] : stills
     const existing = doc && {
       id: doc.id,
       name: doc.name,
@@ -80,7 +89,7 @@ try {
     const plan = planNewCard(existing, spec, photos)
     const label = `${spec.name} (${spec.slug})`
     if (missing.length) console.log(`  ${label}: brak zdjęć: ${missing.join(', ')}`)
-    if (plan.action !== 'utworz' && plan.action !== 'dodaj') {
+    if (plan.action !== 'utworz' && plan.action !== 'dodaj' && plan.action !== 'film') {
       counts[plan.action] += 1
       console.log(`${plan.action === 'juz' ? '=' : '!'} ${label}: ${plan.note}`)
       continue
@@ -115,6 +124,22 @@ try {
           context,
         })
         console.log(`+ ${label}: ${plan.note} – szkic #${created.id}`)
+      } else if (plan.action === 'film') {
+        // Opublikowana karta: tylko dopisanie filmu do mediów, status zostaje „opublikowana” (bez nowej wersji roboczej).
+        const current = (doc?.media ?? []).map((entry) => ({
+          asset: mediaId(entry.asset as MediaRef) as number,
+          alt: entry.alt,
+          isPrimary: entry.isPrimary,
+        }))
+        await payload.update({
+          collection: 'products',
+          id: doc!.id,
+          data: { media: [...current, ...newEntries], _status: 'published' },
+          draft: false,
+          overrideAccess: true,
+          context,
+        })
+        console.log(`~ ${label}: ${plan.note} (karta #${doc!.id}, status bez zmian)`)
       } else {
         const current = (doc?.media ?? []).map((entry) => ({
           asset: mediaId(entry.asset as MediaRef) as number,
@@ -142,9 +167,9 @@ try {
     `Kart w nowe-karty.json: ${specs.length}; do zapisu: ${counts.zmien}, już gotowych: ${counts.juz}, pominiętych: ${counts.pomin}` +
       `${counts.bledy ? `, błędów zapisu: ${counts.bledy}` : ''}.`,
   )
-  console.log(`Zdjęcia Kamili czytam z: ${KAMILA_DIR}`)
+  console.log(`Zdjęcia Kamili czytam z: ${KAMILA_DIR}; filmy z: ${videoDir}`)
   if (!applyChanges) console.log('To było sprawdzenie. Zapis: npm run staging:nowe-karty -- --apply')
-  else if (counts.zmien) console.log('Karty są szkicami: obejrzyj je w panelu (Pierścionki) i opublikuj, gdy pasują.')
+  else if (counts.zmien) console.log('Nowe karty są szkicami: obejrzyj je w panelu (Pierścionki) i opublikuj, gdy pasują. Film dopięty do opublikowanej karty widać od razu.')
   if (counts.bledy) process.exitCode = 1
 } finally {
   await payload.destroy()

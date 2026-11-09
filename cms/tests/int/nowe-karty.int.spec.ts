@@ -5,7 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { lintAc } from '../../scripts/opisy-ac-logic'
-import { collectPhotos, loadNewCards, photoKey, planNewCard } from '../../scripts/nowe-karty-logic'
+import { collectPhotos, collectVideo, loadNewCards, photoKey, planNewCard } from '../../scripts/nowe-karty-logic'
 
 /** Nowe karty (andaluzyt, opal): szkice na staging, opis według wzoru AC (od fasonu). */
 const specs = loadNewCards()
@@ -57,7 +57,57 @@ describe('nowe karty: zdjęcia od Kamili i plan', () => {
     const plan = planNewCard(draft, hesperia, [...photos, extra])
     expect(plan.action).toBe('dodaj')
     expect(plan.action === 'dodaj' && plan.photos.map((p) => p.file)).toEqual(['IMG_0056.jpg'])
-    expect(planNewCard({ ...draft, status: 'published' }, hesperia, [...photos, extra]).action).toBe('pomin')
+    // opublikowanej karty nie ruszamy poza filmem: nowe zdjęcia dodaje się w panelu
+    expect(planNewCard({ ...draft, status: 'published' }, hesperia, [...photos, extra]).action).toBe('juz')
     expect(planNewCard({ ...draft, name: 'Inna' }, hesperia, photos).action).toBe('pomin')
+  })
+})
+
+describe('nowe karty: film karty (Hesperia)', () => {
+  const hesperia = specs.find((s) => s.slug === 'hesperia')!
+
+  it('Hesperia ma film z reelu andaluzytu, Selene bez filmu', () => {
+    expect(hesperia.video?.file).toBe('122176461776616875_1527052111727601.mp4')
+    expect(specs.find((s) => s.slug === 'selene')!.video).toBeUndefined()
+  })
+
+  it('film jest wymaganym plikiem poza gitem: brak pliku zgłasza, jest plik dopina jako video/mp4', () => {
+    expect(collectVideo(hesperia, { videoDir: pustyFolder })).toEqual({
+      video: null,
+      missing: expect.stringContaining('122176461776616875_1527052111727601.mp4'),
+    })
+    const dir = mkdtempSync(path.join(tmpdir(), 'filmy-'))
+    writeFileSync(path.join(dir, hesperia.video!.file), 'x')
+    const { video, missing } = collectVideo(hesperia, { videoDir: dir })
+    expect(missing).toBeNull()
+    expect(video).toMatchObject({ mimetype: 'video/mp4', key: photoKey(`film/${hesperia.video!.file}`) })
+  })
+
+  it('do istniejącego szkicu karty dopina sam film', () => {
+    const { photos } = collectPhotos(hesperia, { kamilaDir: pustyFolder })
+    const dir = mkdtempSync(path.join(tmpdir(), 'filmy-'))
+    writeFileSync(path.join(dir, hesperia.video!.file), 'x')
+    const { video } = collectVideo(hesperia, { videoDir: dir })
+    const draft = { id: 60, name: 'Hesperia', status: 'draft' as const, photoKeys: photos.map((p) => p.key) }
+    const plan = planNewCard(draft, hesperia, [...photos, video!])
+    expect(plan.action).toBe('dodaj')
+    expect(plan.action === 'dodaj' && plan.photos.map((p) => p.file)).toEqual([hesperia.video!.file])
+  })
+
+  it('opublikowana karta: dopina tylko film, idempotentnie, zdjęć nie rusza', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'filmy-'))
+    writeFileSync(path.join(dir, hesperia.video!.file), 'x')
+    const { video } = collectVideo(hesperia, { videoDir: dir })
+    const published = { id: 60, name: 'Hesperia', status: 'published' as const, photoKeys: ['inne/zdjecie.jpg'] }
+    const plan = planNewCard(published, hesperia, [video!])
+    expect(plan.action).toBe('film')
+    expect(plan.action === 'film' && plan.photos.map((p) => p.file)).toEqual([hesperia.video!.file])
+    expect(plan.note).toContain('film do dopięcia: tak')
+    // drugi przebieg: film już jest w mediach karty
+    const again = planNewCard({ ...published, photoKeys: [video!.key] }, hesperia, [video!])
+    expect(again.action).toBe('juz')
+    expect(again.note).toContain('film do dopięcia: nie')
+    // bez pliku filmu nic się nie dzieje
+    expect(planNewCard(published, hesperia, []).action).toBe('juz')
   })
 })
