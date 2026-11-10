@@ -340,6 +340,8 @@ async function cutoutAttempt(job: Job, n: number, hint: string | undefined): Pro
     at: new Date().toISOString(),
   }
   if (!file) {
+    // Kod ≠ 0 = awaria Codexa (zerwane połączenie, limit konta) – to nie jest próba odrzucona, nie wlicza się do limitu prób.
+    if (run.code !== 0) throw new Error(`awaria Codexa (limit konta albo zerwane połączenie), kod ${run.code}: ${run.tail.slice(-160)}`)
     attempt.reason = `brak obrazu (kod ${run.code}): ${run.tail.slice(-160)}`
     return { attempt, hint }
   }
@@ -421,6 +423,7 @@ async function runJob(job: Job) {
       reason: '',
     }
     if (!file) {
+      if (run.code !== 0) throw new Error(`awaria Codexa (limit konta albo zerwane połączenie), kod ${run.code}: ${run.tail.slice(-160)}`)
       attempt.reason = `brak obrazu (kod ${run.code}): ${run.tail.slice(-160)}`
     } else {
       attempt.hashDistance = hamming(original, await dHash(file))

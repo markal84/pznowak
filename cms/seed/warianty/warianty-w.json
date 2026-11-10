@@ -159,5 +159,41 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "iole",
+    "name": "Iole",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "iole-szafir-granatowy.webp",
+          "iole-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Iole z granatowym szafirem w szlifie oktagon z diamentami, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "iole-rubin.webp",
+          "iole-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Iole z rubinem w szlifie oktagon z diamentami, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "iole-bialy-diament.webp",
+          "iole-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Iole z białym diamentem w szlifie oktagon z diamentami, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]

@@ -853,6 +853,193 @@
         "chroma_min": 14
       },
       "uwaga_aa": "Partia 3 (10.11): oryginał to szafir; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "rhodope",
+      "name": "Rhodope",
+      "zrodlo": [
+        "facebook/media/122168640332616875_122168640026616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Rhodope {z} w oprawie halo, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122168640332616875_122168640050616875.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          320,
+          20
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to różowy turmalin; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "iole",
+      "name": "Iole",
+      "zrodlo": [
+        "facebook/media/122179662746616875_122179662398616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Iole {z} w szlifie oktagon z diamentami, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122179662746616875_122179662650616875.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          285,
+          360
+        ],
+        "chroma_min": 8
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to ametyst; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "helios",
+      "name": "Helios",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-25-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Helios {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-20-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          190,
+          280
+        ],
+        "chroma_min": 12
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to topaz; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "amphitrite",
+      "name": "Amphitrite",
+      "zrodlo": [
+        "facebook/media/122160075698616875_122160075320616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Amphitrite {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122160075698616875_122160075344616875.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          165,
+          285
+        ],
+        "chroma_min": 10
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to niebieski diament; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "calypso",
+      "name": "Calypso",
+      "zrodlo": [
+        "facebook/media/122191080194616875_122191080002616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Calypso {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          165,
+          285
+        ],
+        "chroma_min": 10
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to niebieski diament; 2 obrazy, 2 próby. Drugie zdjęcie pominięte: maska kamienia się nie znalazła."
     }
   ]
 }
