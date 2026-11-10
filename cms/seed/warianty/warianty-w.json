@@ -1,0 +1,59 @@
+[
+  {
+    "slug": "aion",
+    "name": "Aion",
+    "variants": [
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "aion-szmaragd-stonowany.webp"
+        ],
+        "alt": "Obrączka eternity Aion ze szmaragdami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "erythea",
+    "name": "Erythea",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "erythea-szafir-granatowy.webp",
+          "erythea-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Erythea z granatowym szafirem w oprawie halo z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "erythea-rubin.webp",
+          "erythea-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Erythea z rubinem w oprawie halo z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "merope",
+    "name": "Merope",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "merope-rubin.webp",
+          "merope-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Merope z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  }
+]

@@ -506,6 +506,162 @@
         "chroma_min": 14
       },
       "uwaga_aa": "AA (09.11): oryginał to szmaragd – bez szmaragdu; 2 obrazy (zdjęcie karty + widok z boku)."
+    },
+    {
+      "slug": "aria",
+      "name": "Aria",
+      "zrodlo": [
+        "legacy/jewelry/2_1-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Aria {z} w oprawie pavé z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/2_2-683x1024.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          250,
+          340
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 2 (10.11): oryginał to ametyst; 4 kolory; 2 obrazy."
+    },
+    {
+      "slug": "ianthe",
+      "name": "Ianthe",
+      "zrodlo": [
+        "facebook/media/122179662746616875_122179662632616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Ianthe {z} w owalu z diamentami, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122179662746616875_122179662434616875.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          285,
+          360
+        ],
+        "chroma_min": 8
+      },
+      "uwaga_aa": "Partia 2 (10.11): oryginał to ametyst owalny; 4 kolory; 2 obrazy."
+    },
+    {
+      "slug": "erythea",
+      "name": "Erythea",
+      "zrodlo": [
+        "facebook/media/122167969748616875_122167969424616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Erythea {z} w oprawie halo z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122167969748616875_122167969304616875.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          320,
+          20
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 2 (10.11): oryginał to malinowy turmalin; 4 kolory; 2 obrazy."
+    },
+    {
+      "slug": "merope",
+      "name": "Merope",
+      "zrodlo": [
+        "legacy/jewelry/1-57-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Merope {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/2-58-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          320,
+          20
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 2 (10.11): oryginał to różowy turmalin; 4 kolory; 2 obrazy."
     }
   ]
 }
