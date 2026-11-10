@@ -147,7 +147,7 @@ export const formatZloty = (amount: number) =>
  */
 export const MEETING_MODES = [
   { id: 'pracownia', label: 'W pracowni w Busku-Zdroju' },
-  { id: 'zdalnie', label: 'Telefonicznie albo przez wideo – mieszkam dalej' },
+  { id: 'zdalnie', label: 'Telefonicznie – mieszkam dalej' },
 ] as const
 
 export type MeetingModeId = (typeof MEETING_MODES)[number]['id']

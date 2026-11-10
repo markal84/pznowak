@@ -51,7 +51,6 @@ const faq = (): FaqItem[] => [
     a: (
       <>
         Pierwszą rozmowę możemy przeprowadzić przez telefon. Na przymiarkę i odbiór zapraszamy do Buska-Zdroju. Gotową biżuterię wysyłamy kurierem.
-        <DoUzupelnienia> [Do potwierdzenia: rozmowy wideo.]</DoUzupelnienia>
       </>
     ),
   },

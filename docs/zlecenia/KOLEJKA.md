@@ -76,7 +76,7 @@ Otwarte po K: mystic topaz bez koloru w filtrze.
 
 ## Od Michała / Kamili (otwarte)
 - **Próbka Y (05.11):** ocena kolorów na całej galerii + propozycja „2 zdjęcia na kolor” i dopisek na stronie, że wizualizacja pokazuje kolor, a prawdziwy kamień pokazują przed zamówieniem.
-- **Żółte pola (pytania wysłane 04.11):** ceny „od” i widełki na zamówienie; czas wykonania (na zamówienie, obrączki); bezpłatna pierwsza rozmowa / zaliczka; rozmowy wideo; skąd kamienie, certyfikaty, laboratoryjne; asortyment poza pierścionkami.
+- **Żółte pola (pytania wysłane 04.11):** ceny „od” i widełki na zamówienie; czas wykonania (na zamówienie, obrączki); bezpłatna pierwsza rozmowa / zaliczka; skąd kamienie, certyfikaty, laboratoryjne; asortyment poza pierścionkami.
 - Prawdziwe zdjęcie Aion (dziś tylko klatka z filmu).
 - Czy pracownia robi skup złota – od tego zależy domknięcie odwołania kategorii w Google (bez wysokiego priorytetu).
 - Zatwierdzenie i redakcja 11 szkiców z FB (po przeglądzie Marcina).

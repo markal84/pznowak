@@ -138,7 +138,7 @@ describe('Jak wolisz porozmawiać?', () => {
     const remote = validateContact(contact({ meeting: 'zdalnie', ringSizeKnown: 'unknown' }))
     if (!remote.ok) throw new Error('niepoprawne dane testu')
     const text = rowsToText(describeContact(remote.value))
-    expect(text).toContain('Rozmowa: Telefonicznie albo przez wideo – mieszkam dalej')
+    expect(text).toContain('Rozmowa: Telefonicznie – mieszkam dalej')
     expect(text).toContain('Rozmiar: nie zna, zmierzy u jubilera w swojej okolicy')
     expect(text).not.toMatch(/wysył|miark/i)
     const local = validateContact(contact({ meeting: 'pracownia', ringSizeKnown: 'unknown' }))

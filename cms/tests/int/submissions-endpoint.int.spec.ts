@@ -668,7 +668,7 @@ describe('POST /api/zgloszenia: przyjęcie', () => {
     expect(draft.summary).toBe(
       [
         'Temat: Pierścionek lub obrączki na zamówienie',
-        'Rozmowa: Telefonicznie albo przez wideo – mieszkam dalej',
+        'Rozmowa: Telefonicznie – mieszkam dalej',
         'Preferowany kontakt: E-mail',
         'Budżet: 6 500 zł (kwota podana przez klienta)',
         'Grawer: bez graweru',
