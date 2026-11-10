@@ -55,5 +55,109 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "phoebe",
+    "name": "Phoebe",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "phoebe-rubin.webp",
+          "phoebe-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Phoebe z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "phoebe-bialy-diament.webp",
+          "phoebe-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Phoebe z białym diamentem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "ione",
+    "name": "Ione",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "ione-szafir-granatowy.webp",
+          "ione-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Ione z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "ione-rubin.webp",
+          "ione-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Ione z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "ione-bialy-diament.webp",
+          "ione-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Ione z białym diamentem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "gaia",
+    "name": "Gaia",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "gaia-szafir-granatowy.webp",
+          "gaia-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Gaia z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "gaia-rubin.webp",
+          "gaia-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Gaia z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "asteria",
+    "name": "Asteria",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "asteria-rubin.webp",
+          "asteria-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Asteria z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]

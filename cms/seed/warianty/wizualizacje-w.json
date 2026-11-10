@@ -662,6 +662,197 @@
         "chroma_min": 14
       },
       "uwaga_aa": "Partia 2 (10.11): oryginał to różowy turmalin; 4 kolory; 2 obrazy."
+    },
+    {
+      "slug": "phoebe",
+      "name": "Phoebe",
+      "zrodlo": [
+        "legacy/jewelry/470051606_122111366966616875_6671083676677230809_n-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Phoebe {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/470221135_122111366882616875_2857160378326643557_n-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          265,
+          340
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to tanzanit; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "iris",
+      "name": "Iris",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-24-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Iris {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-22-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          265,
+          340
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to tanzanit; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "ione",
+      "name": "Ione",
+      "zrodlo": [
+        "legacy/jewelry/467481960_122106045326616875_260965368173001066_n-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Ione {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/467501627_122106045338616875_8084844742246764250_n-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          265,
+          340
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to tanzanit; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "gaia",
+      "name": "Gaia",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-15-683x1024.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Gaia {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-3-683x1024.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          130,
+          200
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to szmaragd; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "asteria",
+      "name": "Asteria",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-16-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Asteria {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-17-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          240,
+          320
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to szafir; 2 obrazy, 2 próby."
     }
   ]
 }
