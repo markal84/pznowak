@@ -26,6 +26,11 @@ export type OriginalStoneHint = {
    * (przyjęty wcześniej wariant), a bez obu – cały kadr.
    */
   obszar?: [number, number, number, number]
+  /**
+   * Kamień bezbarwny albo wielobarwny (diament, mystic topaz): maska = elipsa wpisana w `obszar`, bez szukania koloru.
+   * Wymaga `obszar` dokładnie obejmującego kamień.
+   */
+  maska_z_obszaru?: boolean
   /** `wiele`: każda plama koloru osobno (kilka kamieni albo kamień z boku: korona i pawilon rozdzielone oprawą). */
   maska?: 'jeden' | 'wiele'
 }
@@ -174,6 +179,19 @@ export function originalStoneMask(
   grow = 2,
 ) {
   const n = width * height
+  if (hint.maska_z_obszaru && hint.obszar) {
+    const [x0, y0, x1, y1] = hint.obszar
+    const cx = ((x0 + x1) / 2) * width
+    const cy = ((y0 + y1) / 2) * height
+    const rx = ((x1 - x0) / 2) * width
+    const ry = ((y1 - y0) / 2) * height
+    const ellipse = new Uint8Array(n)
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1) ellipse[y * width + x] = 1
+    }
+    const area = ellipse.reduce((sum, v) => sum + v, 0)
+    return area ? { mask: Uint8Array.from(ellipse, (v) => (v ? 255 : 0)), area: area / n } : null
+  }
   const { C, H } = lch(rgb, n)
   const chromaMin = hint.chroma_min ?? 14
   const on = new Uint8Array(n)

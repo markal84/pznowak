@@ -78,5 +78,72 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "electra",
+    "name": "Electra",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "electra-szafir-granatowy.webp"
+        ],
+        "alt": "Pierścionek Electra z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "electra-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Electra ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "electra-rubin.webp"
+        ],
+        "alt": "Pierścionek Electra z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "hestia",
+    "name": "Hestia",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "hestia-szafir-granatowy.webp",
+          "hestia-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Hestia z granatowym szafirem w oprawie zaręczynowej, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "hestia-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Hestia ze szmaragdem w oprawie zaręczynowej, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "hestia-rubin.webp"
+        ],
+        "alt": "Pierścionek Hestia z rubinem w oprawie zaręczynowej, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]
