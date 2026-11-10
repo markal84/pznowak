@@ -1040,6 +1040,43 @@
         "chroma_min": 10
       },
       "uwaga_aa": "Partia 4 (10.11): oryginał to niebieski diament; 2 obrazy, 2 próby. Drugie zdjęcie pominięte: maska kamienia się nie znalazła."
+    },
+    {
+      "slug": "urania",
+      "name": "Urania",
+      "zrodlo": [
+        "legacy/jewelry/557903524_122158637246616875_2692591890710495238_n-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Urania {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/557930792_122158637264616875_6448592044616193409_n-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          190,
+          280
+        ],
+        "chroma_min": 12
+      },
+      "uwaga_aa": "Uzupełnienie (11.11): oryginał to topaz błękitny; rubin to prawdziwe zdjęcie; 2 obrazy, 2 próby."
     }
   ]
 }
