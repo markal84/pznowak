@@ -15,6 +15,22 @@
     ]
   },
   {
+    "slug": "delos",
+    "name": "Delos",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "delos-rubin.webp",
+          "delos-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Delos z rubinem w otoczeniu diamentów, w stylu art deco, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
     "slug": "eos",
     "name": "Eos",
     "variants": [

@@ -414,7 +414,21 @@
         {
           "zrodlo": [
             "legacy/jewelry/Michalnowak.com_.pl-12-1024x683.jpg"
-          ]
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.153,
+              0.261,
+              0.226,
+              0.444
+            ],
+            "odcien": [
+              235,
+              300
+            ],
+            "chroma_min": 14,
+            "maska_z_obszaru": true
+          }
         }
       ],
       "cala_galeria": [
@@ -423,11 +437,18 @@
         "bialy-diament"
       ],
       "kamien_oryginalu": {
+        "obszar": [
+          0.4435,
+          0.4834,
+          0.5945,
+          0.6806
+        ],
         "odcien": [
           235,
           300
         ],
-        "chroma_min": 14
+        "chroma_min": 14,
+        "maska_z_obszaru": true
       },
       "uwaga_aa": "AA (09.11): oryginał to szafir granatowy – bez szafiru granatowego; 2 obrazy (zdjęcie karty + widok z boku)."
     },
