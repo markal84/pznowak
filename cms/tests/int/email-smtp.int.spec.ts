@@ -152,7 +152,7 @@ describe('wiadomość do pracowni przez transport testowy', () => {
         phone: '+48 501 321 347',
         email: 'klientka@example.pl',
         summary:
-          'Temat: Pierścionek lub obrączki na zamówienie\nRozmowa: Telefonicznie albo przez wideo – mieszkam dalej\nPreferowany kontakt: E-mail\nBudżet: 6 000 zł (kwota podana przez klienta)',
+          'Temat: Pierścionek lub obrączki na zamówienie\nRozmowa: Telefonicznie – mieszkam dalej\nPreferowany kontakt: E-mail\nBudżet: 6 000 zł (kwota podana przez klienta)',
         message: '<b>Nie pogrubiaj</b> https://example.com',
         createdAt: '2026-11-02T10:00:00.000Z',
       },

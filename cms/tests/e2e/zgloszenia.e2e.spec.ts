@@ -350,7 +350,7 @@ test.describe('Formularz kontaktowy: rozmowa, kontakt i budżet (zlecenie X)', (
     await expect(steps).toContainText('W pracowni oglądasz kamienie i projekty.')
     await expect(page.getByText(/Zmierzymy palec w pracowni/)).toBeVisible()
 
-    await page.getByRole('radio', { name: 'Telefonicznie albo przez wideo – mieszkam dalej' }).check()
+    await page.getByRole('radio', { name: 'Telefonicznie – mieszkam dalej' }).check()
     await expect(steps).toHaveAttribute('data-meeting', 'zdalnie')
     await expect(steps).toContainText('Pokazujemy kamienie i projekty na zdjęciach i filmach.')
     await expect(steps).not.toContainText('W pracowni oglądasz')

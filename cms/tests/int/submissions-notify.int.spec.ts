@@ -139,13 +139,13 @@ describe('powiadomienie pracowni', () => {
       kind: 'contact',
       topic: 'obraczki',
       summary:
-        'Temat: Obrączki ślubne\nRozmowa: Telefonicznie albo przez wideo – mieszkam dalej\nPreferowany kontakt: E-mail',
+        'Temat: Obrączki ślubne\nRozmowa: Telefonicznie – mieszkam dalej\nPreferowany kontakt: E-mail',
     }
     const mail = buildStudioMail(contact, { to: 'pracownia@example.pl', adminUrl: 'https://x/a' })
     expect(mail.subject).toBe('Obrączki ślubne – Anna (nr 17)')
     expect(mail.replyTo).toBe('anna@example.pl')
     expect(mail.to).toBe('pracownia@example.pl')
-    expect(mail.text).toContain('Rozmowa: Telefonicznie albo przez wideo – mieszkam dalej')
+    expect(mail.text).toContain('Rozmowa: Telefonicznie – mieszkam dalej')
     expect(mail.text).toContain('Preferowany kontakt: E-mail')
     expect(mail.text).toContain('„Odpowiedz” na tę wiadomość trafi do klienta')
   })
