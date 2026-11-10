@@ -45,7 +45,7 @@
     "seo:redirects-doc": "node --import=tsx/esm scripts/seo-redirects-doc.ts",
     "staging:mirror": "node --import=tsx/esm scripts/staging-mirror.ts",
     "staging:cleanup-tests": "node --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-cleanup-submissions.ts",
-    "warianty:wdroz": "node --import=tsx/esm scripts/warianty-wdroz.ts && npm run staging:warianty -- --apply"
+    "warianty:wdroz": "node --import=tsx/esm scripts/warianty-w-odswiez.ts && node --import=tsx/esm scripts/warianty-wdroz.ts && npm run staging:warianty -- --apply"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
