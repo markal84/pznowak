@@ -17,7 +17,7 @@ const proposalsPath = path.join(dir, 'warianty-w.json')
 const targetPath = path.join(dir, 'warianty.json')
 
 type Variant = { stone: string; files: string[]; [key: string]: unknown }
-type Card = { slug: string; name: string; variants: Variant[]; [key: string]: unknown }
+type Card = { slug: string; name: string; variants: Variant[]; removeStones?: string[]; [key: string]: unknown }
 
 if (!existsSync(proposalsPath)) {
   console.log('Brak warianty-w.json – nic do wpięcia.')
@@ -36,6 +36,11 @@ for (const entry of proposals) {
     continue
   }
   for (const variant of entry.variants) {
+    // Kamień celowo wycofany z karty (removeStones, np. szmaragd Aiona = prawdziwe zdjęcia Thalassy) nie wraca jako wizualizacja.
+    if (card.removeStones?.includes(variant.stone)) {
+      console.log(`Pomijam ${entry.slug}: „${variant.stone}” jest w removeStones.`)
+      continue
+    }
     const index = card.variants.findIndex((item) => item.stone === variant.stone)
     if (index >= 0) {
       card.variants[index] = variant
