@@ -25,7 +25,7 @@ type ProductMediaProps = {
   children?: ReactNode
 }
 
-/** `cover`: obraz w kadrze oryginału (cała galeria z Y) – kadrujemy jak zdjęcie karty; inaczej cały obraz na rozmytym tle. */
+/** `cover` (tylko miniatury): wariant z wieloma obrazami ma ten sam kadr co zdjęcie karty; pojedynczy pionowy obraz miniaturka przycina do środka. Główny widok zawsze pokazuje cały kadr. */
 type VariantInfo = { stone: string; isVisualization: boolean; alt: string; cover: boolean }
 
 type Item =
@@ -132,43 +132,19 @@ export default function ProductMedia({ name, images, video, originalStone, child
             ref={zoomRef}
             type="button"
           >
-            {current.variant && !current.variant.cover ? (
-              // Pojedynczy obraz wariantu bywa pionowy: cały pierścionek w kadrze, tło z tego samego obrazu (rozmyte).
-              <span className="ph ph-variant">
-                <Image alt="" aria-hidden="true" className="ph-variant-bg" fill sizes="(max-width: 960px) 100vw, 55vw" src={current.src} />
-                <Image
-                  alt={current.variant.alt}
-                  fill
-                  priority
-                  sizes="(max-width: 960px) 100vw, 55vw"
-                  src={current.src}
-                  style={{ objectFit: 'contain' }}
-                />
-              </span>
-            ) : current.variant ? (
-              // Obraz z kadru zdjęcia karty: ten sam kadr co oryginał, więc przełączanie kamieni nie przesuwa pierścionka.
-              <span className="ph">
-                <Image
-                  alt={current.variant.alt}
-                  fill
-                  priority={index === 0}
-                  sizes="(max-width: 960px) 100vw, 55vw"
-                  src={current.src}
-                  style={{ objectFit: 'cover' }}
-                />
-              </span>
-            ) : (
-              <span className="ph">
-                <Image
-                  alt={`${name}: ${current.label.toLowerCase()}`}
-                  fill
-                  priority={index === 0}
-                  sizes="(max-width: 960px) 100vw, 55vw"
-                  src={current.src}
-                  style={{ objectFit: 'cover' }}
-                />
-              </span>
-            )}
+            {/* Zdjęcia bywają pionowe, a ramka jest pozioma (3:2): zawsze cały kadr (contain), tło to ten sam obraz rozmyty.
+                Wcześniej `cover` ucinał pierścionek do samej góry oczka i szyny. */}
+            <span className="ph ph-variant">
+              <Image alt="" aria-hidden="true" className="ph-variant-bg" fill sizes="(max-width: 960px) 100vw, 55vw" src={current.src} />
+              <Image
+                alt={current.variant ? current.variant.alt : `${name}: ${current.label.toLowerCase()}`}
+                fill
+                priority={index === 0}
+                sizes="(max-width: 960px) 100vw, 55vw"
+                src={current.src}
+                style={{ objectFit: 'contain' }}
+              />
+            </span>
           </button>
         ) : (
           <>
