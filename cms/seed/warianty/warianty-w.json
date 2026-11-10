@@ -145,5 +145,29 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "adamas",
+    "name": "Adamas",
+    "variants": [
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "adamas-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Adamas ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "adamas-rubin.webp"
+        ],
+        "alt": "Pierścionek Adamas z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]

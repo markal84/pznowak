@@ -1535,6 +1535,118 @@
         ]
       },
       "uwaga_aa": "Tura 11.11: oryginał to szafir (London blue); 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "adamas",
+      "name": "Adamas",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-9-683x1024.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Adamas {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-10-1024x683.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.279,
+              0.432,
+              0.338,
+              0.518
+            ],
+            "maska_z_obszaru": true,
+            "odcien": [
+              0,
+              360
+            ]
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.321,
+          0.368,
+          0.474,
+          0.47
+        ],
+        "maska_z_obszaru": true,
+        "odcien": [
+          0,
+          360
+        ]
+      },
+      "uwaga_aa": "Tura 11.11: oryginał to diament; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "prometheus",
+      "name": "Prometheus",
+      "zrodlo": [
+        "legacy/jewelry/1-51-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Prometheus {z} w oprawie z kolorowymi szafirami, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/2-52-1024x683.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.402,
+              0.363,
+              0.506,
+              0.573
+            ],
+            "odcien": [
+              130,
+              200
+            ],
+            "chroma_min": 14,
+            "maska_z_obszaru": true
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.328,
+          0.237,
+          0.426,
+          0.447
+        ],
+        "odcien": [
+          130,
+          200
+        ],
+        "chroma_min": 14,
+        "maska_z_obszaru": true
+      },
+      "uwaga_aa": "Tura 11.11: oryginał to szmaragd; 2 obrazy, 2 próby."
     }
   ]
 }
