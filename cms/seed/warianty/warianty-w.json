@@ -15,6 +15,22 @@
     ]
   },
   {
+    "slug": "aria",
+    "name": "Aria",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "aria-rubin.webp",
+          "aria-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Aria z rubinem w oprawie pavé z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
     "slug": "erythea",
     "name": "Erythea",
     "variants": [
@@ -26,6 +42,16 @@
           "erythea-szafir-granatowy-2.webp"
         ],
         "alt": "Pierścionek Erythea z granatowym szafirem w oprawie halo z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "erythea-szmaragd-stonowany.webp",
+          "erythea-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Erythea ze szmaragdem w oprawie halo z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       },
       {
