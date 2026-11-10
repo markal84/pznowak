@@ -221,5 +221,21 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "chloris",
+    "name": "Chloris",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "chloris-rubin.webp",
+          "chloris-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Chloris z rubinem w szlifie emerald, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]

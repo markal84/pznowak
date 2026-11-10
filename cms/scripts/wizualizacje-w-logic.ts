@@ -206,8 +206,13 @@ export function proposals(config: Config, accepted: Set<string>) {
       slug: design.slug,
       name: design.name,
       variants: variantGroups(jobs(config, [design.slug]))
-        .filter((photos) => photos.every((job) => accepted.has(job.id)))
-        .map((photos) => variantSpec(photos[0], photos)),
+        // Reguła Kamy (09.11): wystarczy 1–2 ładne zdjęcia – wariant trafia na listę, gdy przyjęto zdjęcie karty;
+        // zdjęcia galerii, które nie wyszły, są pomijane (np. widok z boku przy białym diamencie).
+        .filter((photos) => accepted.has(photos[0].id))
+        .map((photos) => {
+          const ok = photos.filter((job) => accepted.has(job.id))
+          return variantSpec(ok[0], ok)
+        }),
     }))
     .filter((entry) => entry.variants.length > 0)
 }
