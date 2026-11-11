@@ -523,6 +523,18 @@
         ],
         "alt": "Pierścionek Iris z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
+      },
+      {
+        "stone": "Oliwin i diamenty",
+        "swatch": "oliwkowy",
+        "files": [
+          "iris-oliwin.webp",
+          "iris-oliwin-2.webp",
+          "iris-oliwin-3.webp",
+          "iris-oliwin-4.webp"
+        ],
+        "alt": "Pierścionek Iris z oliwinem w oprawie z diamentów, w żółtym złocie",
+        "isVisualization": false
       }
     ]
   },

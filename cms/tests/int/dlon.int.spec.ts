@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
-import { checkImages, isHandMedia, loadSpecs, planAdd, withoutHand } from '../../scripts/dlon-logic'
+import {
+  checkImages,
+  isHandMedia,
+  loadSpecs,
+  planAdd,
+  planAddToVariant,
+  variantsWithoutHand,
+  withoutHand,
+} from '../../scripts/dlon-logic'
+import { MERGED_RING_VARIANTS } from '../../src/lib/legacy-redirects'
 
 const photo = (id: number, filename: string, legacySourceUrl: string | null = null) => ({ id, filename, legacySourceUrl })
 
@@ -37,5 +46,33 @@ describe('zdjęcia na dłoni', () => {
     expect(removed).toBe(2)
     expect(kept.map((e) => (e.asset as { id: number }).id)).toEqual([1, 3])
     expect(kept[0].isPrimary).toBe(true)
+  })
+
+  it('połączone karty idą do wariantu fasonu, nie do archiwalnej karty', () => {
+    const specs = loadSpecs()
+    for (const old of Object.keys(MERGED_RING_VARIANTS)) {
+      expect(specs.some((s) => s.name.toLowerCase() === old)).toBe(false)
+    }
+    const targets = Object.values(MERGED_RING_VARIANTS).map((m) => `${m.slug}:${m.kamien}`)
+    for (const spec of specs.filter((s) => s.kamien)) {
+      expect(targets).toContain(`${spec.name.toLowerCase()}:${spec.kamien}`)
+    }
+  })
+
+  it('wariant: dopisanie raz, cofnięcie zostawia pierwszy obraz', () => {
+    const card = {
+      stoneVariants: [
+        { stone: 'Rubin i diamenty', image: photo(1, 'r.webp'), moreImages: [] },
+        { stone: 'Oliwin i diamenty', image: photo(2, 'o.webp'), moreImages: [photo(3, 'o2.webp')] },
+      ],
+    }
+    expect(planAddToVariant(card, 'oliwin-i-diamenty').action).toBe('dodaj')
+    expect(planAddToVariant(card, 'szmaragd-i-diamenty').action).toBe('brak')
+    card.stoneVariants[1].moreImages.push(photo(4, 'iris-oliwin-dlon.webp', 'seed://dlon/iris-oliwin-dlon.webp'))
+    expect(planAddToVariant(card, 'oliwin-i-diamenty').action).toBe('juz')
+    const { kept, removed } = variantsWithoutHand(card.stoneVariants)
+    expect(removed).toBe(1)
+    expect(kept[1].image).toEqual(photo(2, 'o.webp'))
+    expect(kept[1].moreImages.map((a) => a.id)).toEqual([3])
   })
 })

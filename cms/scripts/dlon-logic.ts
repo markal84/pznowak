@@ -6,17 +6,24 @@ import { existsSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { stoneSlug } from '../src/lib/stone-variants'
+
 export const SEED_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../seed/dlon')
 export const IMAGES_DIR = path.join(SEED_DIR, 'obrazy')
 export const MAX_IMAGE_BYTES = 300 * 1024
 export const SOURCE_PREFIX = 'seed://dlon/'
 
-export type HandSpec = { name: string; file: string; source?: string }
+/**
+ * `kamien`: zdjęcie trafia do wariantu karty (adres wariantu = `stoneSlug(stone)`, jak `?kamien=`), a nie do galerii
+ * oryginału. Tak jest przy kartach połączonych w jeden fason (Nyx → Urania, Eirene → Harmonia, Taygete → Iris).
+ */
+export type HandSpec = { name: string; file: string; kamien?: string; source?: string }
 export type HandMedia = { filename?: string | null; legacySourceUrl?: string | null }
 export type GalleryEntry<A> = { asset: A; alt?: string | null; isPrimary?: boolean | null }
 
 export const sourceKey = (file: string): string => `${SOURCE_PREFIX}${file}`
-export const handAlt = (name: string): string => `Pierścionek ${name} na dłoni`
+export const handAlt = (name: string, stone?: string): string =>
+  stone ? `Pierścionek ${name} (${stone.toLowerCase()}) na dłoni` : `Pierścionek ${name} na dłoni`
 
 export function loadSpecs(file: string = path.join(SEED_DIR, 'dlon.json')): HandSpec[] {
   return JSON.parse(readFileSync(file, 'utf8')) as HandSpec[]
@@ -60,4 +67,37 @@ export function withoutHand<A extends HandMedia | number>(media: readonly Galler
   const all = media ?? []
   const kept = all.filter((entry) => !isHandMedia(entry.asset))
   return { kept, removed: all.length - kept.length }
+}
+
+export type VariantImages<A> = { stone?: string | null; image?: A | null; moreImages?: readonly A[] | null }
+
+/** Wariant o adresie `kamien` (porównanie jak w `?kamien=`). */
+export function findVariant<V extends { stone?: string | null }>(variants: readonly V[] | null | undefined, kamien: string) {
+  return (variants ?? []).find((variant) => stoneSlug(variant.stone ?? '') === kamien)
+}
+
+export function planAddToVariant<A extends HandMedia | number>(
+  card: { stoneVariants?: readonly VariantImages<A>[] | null } | undefined,
+  kamien: string,
+): AddPlan {
+  if (!card) return { action: 'brak', note: 'nie ma takiej karty na stagingu, pomijam' }
+  const variant = findVariant(card.stoneVariants, kamien)
+  if (!variant) return { action: 'brak', note: `karta nie ma wariantu „${kamien}” (najpierw staging:warianty?), pomijam` }
+  const images = [variant.image, ...(variant.moreImages ?? [])]
+  if (images.some((asset) => isHandMedia(asset ?? null))) {
+    return { action: 'juz', note: `wariant „${variant.stone}” ma już zdjęcie na dłoni, bez zmian` }
+  }
+  return { action: 'dodaj', note: `dopisuję zdjęcie na dłoni na koniec wariantu „${variant.stone}”` }
+}
+
+/** Warianty bez zdjęć na dłoni w „Kolejnych obrazach” (cofnięcie). Pierwszy obraz wariantu zostaje. */
+export function variantsWithoutHand<A extends HandMedia | number, V extends VariantImages<A>>(variants: readonly V[] | null | undefined) {
+  let removed = 0
+  const kept = (variants ?? []).map((variant) => {
+    const more = variant.moreImages ?? []
+    const rest = more.filter((asset) => !isHandMedia(asset))
+    removed += more.length - rest.length
+    return { ...variant, moreImages: rest }
+  })
+  return { kept, removed }
 }
