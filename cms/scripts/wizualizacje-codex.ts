@@ -84,6 +84,8 @@ const applyChanges = process.argv.includes('--apply')
 const redoAccepted = process.argv.includes('--od-nowa')
 /** Poprawka lokalna najlepszych odrzuconych prób wycinka zamiast generowania (najwyżej 2 próby na obraz). */
 const fixMode = process.argv.includes('--poprawka')
+/** Z --poprawka: źródłem mogą być też próby odrzucone automatycznie za resztki starego koloru (bez oceny Terry). */
+const leftoverMode = process.argv.includes('--stary-kolor')
 /** `--od-nowa` i `--poprawka` obejmują też `--ponow`: każdy obraz z --tylko dostaje nową serię prób. */
 const retryRejected = process.argv.includes('--ponow') || redoAccepted || fixMode
 /** Przyjęcie ręczne (bez Codexa) – zastępuje --tylko listą jobów z --przyjmij. */
@@ -182,7 +184,16 @@ function fixSources(job: Job) {
   const usable = history
     .filter((a) => a.technique === 'wycinek' && a.check?.verdict === 'odrzuc' && a.cutout?.ok && existsSync(path.join(workDir, rawOf(a))))
     .sort((a, b) => b.check!.score - a.check!.score)
-  const candidates = usable.filter((a) => fixQualifies(a.check!).ok).slice(0, 2)
+  let candidates = usable.filter((a) => fixQualifies(a.check!).ok).slice(0, 2)
+  if (!candidates.length && leftoverMode) {
+    // --stary-kolor: próby odrzucone przez kontrolę automatyczną za resztki starego koloru w kamieniu
+    // (Terra ich nie widziała) – poprawka koloru przy krawędzi celuje dokładnie w ten zarzut
+    const leftover = (a: Attempt) => Number(/zostało ([\d.]+) % starego koloru/.exec(a.reason ?? '')?.[1] ?? NaN)
+    candidates = history
+      .filter((a) => a.technique === 'wycinek' && !a.check && Number.isFinite(leftover(a)) && existsSync(path.join(workDir, rawOf(a))))
+      .sort((a, b) => leftover(a) - leftover(b))
+      .slice(0, 2)
+  }
   const skipped = candidates.length ? '' : usable.length ? fixQualifies(usable[0].check!).why_pl : 'brak odrzuconych prób z surowym plikiem'
   return { candidates, skipped }
 }
@@ -202,7 +213,7 @@ for (const job of runnable) {
   const { candidates, skipped } = fixMode ? fixSources(job) : { candidates: [], skipped: '' }
   const how = fixMode
     ? candidates.length
-      ? ` · poprawka z: ${candidates.map((a) => `${path.basename(rawOf(a))} (score ${a.check!.score}; ${fixQualifies(a.check!).why_pl.slice(0, 90)})`).join(', ')}`
+      ? ` · poprawka z: ${candidates.map((a) => `${path.basename(rawOf(a))} (${a.check ? `score ${a.check.score}; ${fixQualifies(a.check).why_pl.slice(0, 90)}` : a.reason.slice(0, 90)})`).join(', ')}`
       : ` · pominięty: ${skipped}`
     : job.hint
       ? ' · wycinek'
@@ -462,7 +473,7 @@ async function fixAttempt(job: Job, n: number, fileN: number, source: Attempt, s
     accepted: false,
     reason: '',
     technique: 'poprawka',
-    source: { file: rawOf(source), n: source.n, score: source.check!.score, reason: source.reason },
+    source: { file: rawOf(source), n: source.n, score: source.check?.score ?? 0, reason: source.reason },
     fix: { strength, stats: pasted.fixStats },
     cutout: pasted.verdict,
     placement: { area: cut.mask.reduce((s, v) => s + (v ? 1 : 0), 0) / cut.mask.length, alignment: pasted.alignment },
