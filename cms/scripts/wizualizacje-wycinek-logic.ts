@@ -342,15 +342,19 @@ export function verifyCutout(
     width: number
     height: number
     feather: number
+    /** Poprawka: pas wokół maski, w którym zmiany są zamierzone (0/1); dalej – jak zwykle bez zmian. */
+    band?: Uint8Array
   },
   originalHue: HueRange,
   check: StoneCheck | undefined,
 ): CutoutVerdict {
-  const { original, result, generated, mask, width, height, feather } = input
+  const { original, result, generated, mask, width, height, feather, band } = input
   const n = width * height
   const bin = Uint8Array.from(mask, (v) => (v ? 1 : 0))
-  const outer = growMask(bin, width, feather + 1)
-  const ring = growMask(outer, width, Math.max(3, Math.round(Math.sqrt(bin.reduce((s, v) => s + v, 0)) * 0.12)))
+  const grownMask = growMask(bin, width, feather + 1)
+  const outer = band ? Uint8Array.from(grownMask, (v, i) => (v || band[i] ? 1 : 0)) : grownMask
+  // pierścień oprawy zawsze wokół maski (nie wokół pasu poprawki): generator nie może przesunąć oprawy tuż przy kamieniu
+  const ring = growMask(grownMask, width, Math.max(3, Math.round(Math.sqrt(bin.reduce((s, v) => s + v, 0)) * 0.12)))
   // rdzeń: maska zwężona o szerokość miękkiej krawędzi (odwrotność poszerzenia tła)
   const core = Uint8Array.from(growMask(Uint8Array.from(bin, (v) => 1 - v), width, feather), (v) => 1 - v)
 
@@ -374,10 +378,10 @@ export function verifyCutout(
   let fire = 0
   let coreCount = 0
   for (let i = 0; i < n; i++) {
+    if (ring[i] && !grownMask[i]) ringValues.push(de(o, g, i))
     if (!outer[i]) {
       outsideCount++
       if (de(o, r, i) > 2) outsideChanged++
-      if (ring[i]) ringValues.push(de(o, g, i))
       continue
     }
     if (!core[i]) continue
@@ -447,4 +451,627 @@ export function cutoutHint(verdict: CutoutVerdict, check: StoneCheck | undefined
     }
   } else if (check?.odcien) parts.push('make the colour clearly and evenly the target gemstone colour')
   return parts.length ? `${parts.join('; ')}.` : ''
+}
+
+// ---------- poprawka (bez generatora) ----------
+
+/** Lab → sRGB (0–255), odwrotność `rgbToLab`. */
+export function labToRgb(L: number, a: number, b: number): [number, number, number] {
+  const fy = (L + 16) / 116
+  const fx = fy + a / 500
+  const fz = fy - b / 200
+  const inv = (f: number) => (f ** 3 > 0.008856 ? f ** 3 : (f - 16 / 116) / 7.787)
+  const X = inv(fx) * 0.95047
+  const Y = inv(fy)
+  const Z = inv(fz) * 1.08883
+  const gamma = (c: number) => {
+    const v = Math.min(1, Math.max(0, c))
+    return Math.round(Math.min(255, Math.max(0, (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055) * 255)))
+  }
+  return [
+    gamma(3.2406 * X - 1.5372 * Y - 0.4986 * Z),
+    gamma(-0.9689 * X + 1.8758 * Y + 0.0415 * Z),
+    gamma(0.0557 * X - 0.204 * Y + 1.057 * Z),
+  ]
+}
+
+/** Rozmycie Gaussa (separowalne, brzegi powielone). */
+export function gaussBlur(values: Float32Array, width: number, height: number, sigma: number): Float32Array {
+  const k = Math.ceil(3 * sigma)
+  const kernel = Array.from({ length: 2 * k + 1 }, (_, i) => Math.exp(-((i - k) ** 2) / (2 * sigma * sigma)))
+  const sum = kernel.reduce((s, v) => s + v, 0)
+  for (let i = 0; i < kernel.length; i++) kernel[i] /= sum
+  const tmp = new Float32Array(values.length)
+  const out = new Float32Array(values.length)
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let s = 0
+      for (let j = -k; j <= k; j++) s += kernel[j + k] * values[y * width + Math.min(width - 1, Math.max(0, x + j))]
+      tmp[y * width + x] = s
+    }
+  }
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let s = 0
+      for (let j = -k; j <= k; j++) s += kernel[j + k] * tmp[Math.min(height - 1, Math.max(0, y + j)) * width + x]
+      out[y * width + x] = s
+    }
+  }
+  return out
+}
+
+/** Poszerzenie maski kołem o promieniu `radius` px (odległość euklidesowa, przybliżenie fazowe 3–4). */
+export function dilateDisc(mask: Uint8Array, width: number, height: number, radius: number): Uint8Array {
+  const INF = 1e9
+  const d = new Float32Array(mask.length).fill(INF)
+  for (let i = 0; i < mask.length; i++) if (mask[i]) d[i] = 0
+  const at = (x: number, y: number) => (x < 0 || y < 0 || x >= width || y >= height ? INF : d[y * width + x])
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x
+      d[i] = Math.min(d[i], at(x - 1, y) + 3, at(x, y - 1) + 3, at(x - 1, y - 1) + 4, at(x + 1, y - 1) + 4)
+    }
+  }
+  for (let y = height - 1; y >= 0; y--) {
+    for (let x = width - 1; x >= 0; x--) {
+      const i = y * width + x
+      d[i] = Math.min(d[i], at(x + 1, y) + 3, at(x, y + 1) + 3, at(x + 1, y + 1) + 4, at(x - 1, y + 1) + 4)
+    }
+  }
+  return Uint8Array.from(d, (v) => (v <= radius * 3 ? 1 : 0))
+}
+
+/** Odległość kątowa odcieni (stopnie, 0–180). */
+const hueDistance = (a: number, b: number) => {
+  const d = Math.abs(a - b) % 360
+  return d > 180 ? 360 - d : d
+}
+
+export type StoneFixOptions = {
+  /** Odcień kamienia oryginału (`kamien_oryginalu.odcien`); pełne koło [0, 360] = niebieski [200, 280]. */
+  originalHue: HueRange
+  /** Pas wokół maski (ułamek większego wymiaru kamienia); domyślnie 0.12, czyli promień ≈ 6 %. */
+  bandFrac?: number
+  /** Szafir granatowy: docelowa mediana L w masce (gamma na L/100), np. 12 albo 14. */
+  lift?: number
+  /** Mnożnik nasycenia w masce (np. 0.85 – stonowany szmaragd). */
+  calm?: number
+  /** Detal faset z oryginału: L += detail · (L_oryg − blur(L_oryg, σ 2.5)). */
+  detail?: number
+  /**
+   * Drugi, szerszy pas (ułamek większego wymiaru kamienia, np. 0.25) na odbicia starego kamienia w diamentach bocznych
+   * i metalu: jasne piksele (L ≥ 45) w odcieniu starego kamienia ±20°, C ≥ 6, poza maską – odbarwione (C × 0.35), złoto nietknięte.
+   */
+  reflectFrac?: number
+}
+
+export type StoneFixStats = {
+  bandPx: number
+  spillPx: number
+  /** Odbarwione odbicia starego koloru (drugi pas). */
+  reflectPx?: number
+  maskPx: number
+  targetHue: number
+  targetChroma: number
+  lift?: [number, number]
+}
+
+/**
+ * Poprawka lokalna wyniku po wklejeniu (bez generatora): stary kolor przy krawędzi kamienia (także tuż za maską –
+ * rondysta i pawilon widoczne pod galerią) dostaje odcień docelowy z wnętrza kamienia; szafir granatowy opcjonalnie
+ * rozjaśniony (gamma na L), szmaragd opcjonalnie stonowany i z detalem faset oryginału. Zmienia wyłącznie piksele
+ * w pasie `band` (maska poszerzona o ≈ 6 % wymiaru kamienia). Obrazy RGB w tej samej rozdzielczości, `mask` 0/1.
+ */
+export function stoneFix(
+  result: Uint8Array | Buffer,
+  original: Uint8Array | Buffer,
+  mask: Uint8Array,
+  width: number,
+  height: number,
+  options: StoneFixOptions,
+): { rgb: Uint8Array; band: Uint8Array; stats: StoneFixStats } {
+  const n = width * height
+  const L = new Float32Array(n)
+  const A = new Float32Array(n)
+  const B = new Float32Array(n)
+  const C = new Float32Array(n)
+  const H = new Float32Array(n)
+  for (let i = 0; i < n; i++) {
+    const [l, a, b] = rgbToLab(result[i * 3], result[i * 3 + 1], result[i * 3 + 2])
+    L[i] = l
+    A[i] = a
+    B[i] = b
+    C[i] = Math.hypot(a, b)
+    H[i] = ((Math.atan2(b, a) * 180) / Math.PI + 360) % 360
+  }
+  let [x0, y0, x1, y1] = [width, height, -1, -1]
+  let maskPx = 0
+  for (let i = 0; i < n; i++) {
+    if (!mask[i]) continue
+    maskPx++
+    const x = i % width
+    const y = (i - x) / width
+    x0 = Math.min(x0, x)
+    x1 = Math.max(x1, x)
+    y0 = Math.min(y0, y)
+    y1 = Math.max(y1, y)
+  }
+  const size = Math.max(x1 - x0, y1 - y0, 1)
+  const radius = Math.max(2, Math.round((size * (options.bandFrac ?? 0.12)) / 2))
+  const inner = dilateDisc(mask, width, height, radius)
+  const wide = options.reflectFrac ? dilateDisc(mask, width, height, Math.max(radius, Math.round((size * options.reflectFrac) / 2))) : inner
+  const band = Uint8Array.from(inner, (v, i) => (v || wide[i] ? 1 : 0))
+
+  // odcień docelowy: moda histogramu odcienia (kosze 10°, wygładzone ±1 kosz, ważone C) w masce, bez złota
+  const hist = new Float64Array(36)
+  for (let i = 0; i < n; i++) if (mask[i] && C[i] >= 12 && !inHue(H[i], GOLD)) hist[Math.min(35, Math.floor(H[i] / 10))] += C[i]
+  let best = 0
+  let bestValue = -1
+  for (let k = 0; k < 36; k++) {
+    const v = hist[(k + 35) % 36] + hist[k] + hist[(k + 1) % 36]
+    if (v > bestValue) [best, bestValue] = [k, v]
+  }
+  const target = best * 10 + 5
+  const near = (h: number) => hueDistance(h, target) <= 28
+
+  // „stary kolor”: odcień kamienia oryginału ±20°, z dala od docelowego
+  const [from, to] = options.originalHue
+  const full = to - from >= 355 || (to - from + 360) % 360 >= 355
+  const old: HueRange = full ? [200, 280] : [(from - 20 + 360) % 360, (to + 20) % 360]
+  const spill = new Float32Array(n)
+  const reflect = new Float32Array(n)
+  let spillPx = 0
+  let reflectPx = 0
+  for (let i = 0; i < n; i++) {
+    if (!band[i] || !inHue(H[i], old) || near(H[i]) || inHue(H[i], GOLD)) continue
+    // jasne odbicia poza maską (diamenty boczne, metal): odbarwić, nie przemalowywać na kolor docelowy
+    if (options.reflectFrac && !mask[i] && L[i] >= 45 && C[i] >= 6) {
+      reflect[i] = 1
+      reflectPx++
+    } else if (inner[i] && C[i] >= 5 && L[i] >= 12) {
+      spill[i] = 1
+      spillPx++
+    }
+  }
+  const good: number[] = []
+  const colored: number[] = []
+  for (let i = 0; i < n; i++) {
+    if (!mask[i]) continue
+    if (C[i] >= 12) colored.push(C[i])
+    if (near(H[i]) && C[i] >= 10) good.push(C[i])
+  }
+  const targetChroma = good.length > 50 ? quantile(good, 0.75) : quantile(colored, 0.5)
+  const th = (target * Math.PI) / 180
+  const w = gaussBlur(spill, width, height, 1.5)
+  for (let i = 0; i < n; i++) {
+    const wi = band[i] ? Math.min(1, w[i]) : 0
+    if (!wi) continue
+    const c = Math.min(C[i], targetChroma)
+    A[i] = A[i] * (1 - wi) + c * Math.cos(th) * wi
+    B[i] = B[i] * (1 - wi) + c * Math.sin(th) * wi
+  }
+  if (reflectPx) {
+    const wr = gaussBlur(reflect, width, height, 1.5)
+    for (let i = 0; i < n; i++) {
+      // tylko piksele odcienia starego kamienia (rozmycie nie przechodzi na złoto ani na sąsiednie kolory)
+      const wi = band[i] && !mask[i] && inHue(H[i], old) && !near(H[i]) && !inHue(H[i], GOLD) ? Math.min(1, Math.max(reflect[i], wr[i])) : 0
+      if (!wi) continue
+      // oznaczony piksel w pełni (drobne iskry), rozmycie tylko miękko domyka brzeg
+      const m = 1 - wi * 0.65
+      A[i] *= m
+      B[i] *= m
+    }
+  }
+
+  const stats: StoneFixStats = { bandPx: band.reduce((s, v) => s + v, 0), spillPx, maskPx, targetHue: target, targetChroma }
+  if (options.reflectFrac) stats.reflectPx = reflectPx
+  const soft = gaussBlur(Float32Array.from(mask), width, height, 2)
+  if (options.lift) {
+    const inside: number[] = []
+    for (let i = 0; i < n; i++) if (mask[i]) inside.push(L[i])
+    const p50 = quantile(inside, 0.5)
+    if (p50 < options.lift) {
+      const g = Math.log(options.lift / 100) / Math.log(Math.max(p50, 1) / 100)
+      for (let i = 0; i < n; i++) {
+        if (!soft[i]) continue
+        const Ln = 100 * (Math.min(100, Math.max(0, L[i])) / 100) ** g
+        const ratio = Math.min(1.6, Math.max(1, (Ln + 1) / (L[i] + 1)))
+        const m = 1 - soft[i] + soft[i] * ratio
+        A[i] *= m
+        B[i] *= m
+        L[i] = L[i] * (1 - soft[i]) + Ln * soft[i]
+      }
+      const after: number[] = []
+      for (let i = 0; i < n; i++) if (mask[i]) after.push(L[i])
+      stats.lift = [Number(p50.toFixed(1)), Number(quantile(after, 0.5).toFixed(1))]
+    }
+  }
+  if (options.detail) {
+    const Lo = new Float32Array(n)
+    for (let i = 0; i < n; i++) Lo[i] = rgbToLab(original[i * 3], original[i * 3 + 1], original[i * 3 + 2])[0]
+    const blurred = gaussBlur(Lo, width, height, 2.5)
+    for (let i = 0; i < n; i++) L[i] += options.detail * (Lo[i] - blurred[i]) * soft[i]
+  }
+  if (options.calm !== undefined && options.calm !== 1) {
+    for (let i = 0; i < n; i++) {
+      const m = 1 - soft[i] + soft[i] * options.calm
+      A[i] *= m
+      B[i] *= m
+    }
+  }
+  const rgb = Uint8Array.from(result)
+  for (let i = 0; i < n; i++) {
+    if (!band[i]) continue
+    const [r, g, b] = labToRgb(Math.min(100, Math.max(0, L[i])), A[i], B[i])
+    rgb[i * 3] = r
+    rgb[i * 3 + 1] = g
+    rgb[i * 3 + 2] = b
+  }
+  return { rgb, band, stats }
+}
+
+/** Siła poprawki dla kamienia: próba 1 łagodna, próba 2 mocniejsza (szafir: jaśniej, szmaragd: stonowany + detal faset). */
+export function stoneFixOptions(stoneKey: string, originalHue: HueRange, strength: 1 | 2): StoneFixOptions {
+  const options: StoneFixOptions = { originalHue, reflectFrac: 0.25 }
+  if (stoneKey.startsWith('szafir')) options.lift = strength === 1 ? 12 : 14
+  if (stoneKey.startsWith('szmaragd') && strength === 2) {
+    options.calm = 0.85
+    options.detail = 0.4
+  }
+  return options
+}
+
+/** Zarzut geometrii w ocenie Terry (obrys, szlif, rozmiar, położenie, „wklejony”) – tego poprawka koloru nie naprawi. */
+const GEOMETRY = /obrys|szlif|kształt|rozmiar|wielkoś|położeni|przesun|większ|mniejsz|wklejon|zniekształc|proporcj/i
+const NEGATIVE = /\bnie\b|zmien|większ|mniejsz|przesun|wklejon|odbieg|niezgod|zniekształc|\binn[yaei]\b|sugeruj|zaburz/i
+/** Zarzut koloru: stary kolor, obwódka, fiolet/róż/turkus/niebieski przy krawędzi, za ciemny/czarny, za intensywny. */
+const COLOUR =
+  /star\w* (kolor|barw)|pozostałoś|resztk|obwódk|poświat|fiolet|różow|turkus|niebiesk|(za|zbyt|bardziej) (ciemn|intensywn|mocn|nasycon)|spokojniejsz|czarn|pierwotn\w* barw/i
+/** Zdanie stwierdzające brak wady („nie widać poświaty”) nie jest zarzutem. */
+const DENIAL = /nie widać|\bbrak\w*\b|\bbez\b/i
+
+export type FixQualification = { ok: boolean; why_pl: string }
+
+/** Czy odrzucona próba nadaje się na źródło poprawki (score ≥ 72, ten sam pierścionek i szlif, zarzut koloru, nie geometrii). */
+export function fixQualifies(check: {
+  score: number
+  same_ring: boolean
+  stone_cut_preserved: boolean
+  reason_pl: string
+  artifacts_pl: string[]
+}): FixQualification {
+  if (check.score < 72) return { ok: false, why_pl: `score ${check.score} < 72` }
+  if (!check.same_ring || !check.stone_cut_preserved) return { ok: false, why_pl: 'zarzut geometrii (same_ring / stone_cut_preserved = false)' }
+  const sentences = [check.reason_pl, ...check.artifacts_pl].flatMap((t) => t.split(/(?<=[.;])\s+/))
+  const geometry = sentences.find((t) => GEOMETRY.test(t) && NEGATIVE.test(t))
+  if (geometry) return { ok: false, why_pl: `zarzut geometrii: „${geometry.trim()}”` }
+  const colour = sentences.find((t) => COLOUR.test(t) && !DENIAL.test(t))
+  if (!colour) return { ok: false, why_pl: 'zarzut nie dotyczy koloru' }
+  return { ok: true, why_pl: `zarzut koloru: „${colour.trim()}”` }
+}
+
+// ---------- kamienie bezbarwne: maska i przemalowanie lokalne (prototyp Celaeno) ----------
+
+/** Wąski pas wzdłuż łamanej (rząd pavé): punkty w ułamkach kadru, `szerokosc` – połowa szerokości pasa (ułamek szerokości kadru). */
+export type PaveStrip = {
+  punkty: [number, number][]
+  szerokosc: number
+  /** Plamy dalej od linii niż `odchylenie` × połowa szerokości to nie kamienie rzędu (domyślnie 1 – cały pas). */
+  odchylenie?: number
+}
+
+/** Maska pasów (0/1): piksele w odległości ≤ połowa szerokości od którejś łamanej. */
+export function stripMask(width: number, height: number, strips: PaveStrip[]): Uint8Array {
+  const out = new Uint8Array(width * height)
+  for (const strip of strips) {
+    const r = strip.szerokosc * width
+    const pts = strip.punkty.map(([x, y]) => [x * width, y * height] as const)
+    for (let s = 0; s + 1 < pts.length; s++) {
+      const [ax, ay] = pts[s]
+      const [bx, by] = pts[s + 1]
+      const [x0, x1] = [Math.max(0, Math.floor(Math.min(ax, bx) - r)), Math.min(width - 1, Math.ceil(Math.max(ax, bx) + r))]
+      const [y0, y1] = [Math.max(0, Math.floor(Math.min(ay, by) - r)), Math.min(height - 1, Math.ceil(Math.max(ay, by) + r))]
+      const len2 = (bx - ax) ** 2 + (by - ay) ** 2 || 1
+      for (let y = y0; y <= y1; y++) {
+        for (let x = x0; x <= x1; x++) {
+          const t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / len2))
+          if ((x - ax - t * (bx - ax)) ** 2 + (y - ay - t * (by - ay)) ** 2 <= r * r) out[y * width + x] = 1
+        }
+      }
+    }
+  }
+  return out
+}
+
+/** Zwężenie maski o `steps` px (odwrotność `growMask`). */
+export const shrinkMask = (mask: Uint8Array, width: number, steps: number) =>
+  Uint8Array.from(growMask(Uint8Array.from(mask, (v) => 1 - v), width, steps), (v) => 1 - v)
+
+/**
+ * Maska drobnych kamieni bezbarwnych (diamenty pavé) w pasach rzędów. Pojedynczy piksel nie wystarcza: ciemne fasety
+ * diamentu odbijają złoto (ciepłe, C 11–24), a błyski złotych kulek oprawy są prawie bezbarwne (C 4–11, odcień 80–115).
+ * Dlatego liczymy gęstość pikseli neutralnych (C < `chromaMax`, bez ciepłych błysków złota) w kółku o promieniu `radius`:
+ * kamień to zwarta plama neutralnych pikseli, kulka złota – nie. Z maski wyjęte nasycone złoto (C ≥ 20, odcień 55–100),
+ * potem domknięcie i poszerzenie o `grow` px na ciemne fasety na brzegu kamienia.
+ */
+export function colourlessMask(
+  rgb: Uint8Array | Buffer,
+  width: number,
+  height: number,
+  strips: PaveStrip[],
+  options: { chromaMax?: number; density?: number; radius?: number; grow?: number } = {},
+): Uint8Array {
+  const { chromaMax = 10, density = 0.45, radius = 3, grow = 1 } = options
+  const n = width * height
+  const { L, C, H } = lch(rgb, n)
+  const zone = stripMask(width, height, strips)
+  const goldSpecular = (i: number) => L[i] > 80 && C[i] >= 4 && inHue(H[i], [70, 125])
+  const neutral = Uint8Array.from({ length: n }, (_, i) => (C[i] < chromaMax && L[i] > 6 && !goldSpecular(i) ? 1 : 0))
+  // gęstość: suma w kwadracie (2r+1)² z obrazu całkowego
+  const sum = new Float64Array((width + 1) * (height + 1))
+  for (let y = 0; y < height; y++) {
+    let row = 0
+    for (let x = 0; x < width; x++) {
+      row += neutral[y * width + x]
+      sum[(y + 1) * (width + 1) + x + 1] = sum[y * (width + 1) + x + 1] + row
+    }
+  }
+  const area = (2 * radius + 1) ** 2
+  const gold = (i: number) => C[i] >= 20 && inHue(H[i], GOLD)
+  const dense = new Uint8Array(n)
+  for (let y = radius; y < height - radius; y++) {
+    for (let x = radius; x < width - radius; x++) {
+      const i = y * width + x
+      if (!zone[i] || gold(i)) continue
+      const [x0, y0, x1, y1] = [x - radius, y - radius, x + radius + 1, y + radius + 1]
+      const k = sum[y1 * (width + 1) + x1] - sum[y0 * (width + 1) + x1] - sum[y1 * (width + 1) + x0] + sum[y0 * (width + 1) + x0]
+      if (k / area >= density) dense[i] = 1
+    }
+  }
+  const closed = growMask(shrinkMask(growMask(dense, width, 1), width, 1), width, grow)
+  return Uint8Array.from(closed, (v, i) => (v && zone[i] && !gold(i) ? 1 : 0))
+}
+
+/** Odcień (moda, kosze 10°) i nasycenie (P75) kamienia na zdjęciu wzorca: nasycone piksele poza złotem w zakresie `range`. */
+export function referenceColour(
+  rgb: Uint8Array | Buffer,
+  n: number,
+  range: HueRange = [0, 360],
+  minChroma = 15,
+): { hue: number; chroma: number } {
+  const { C, H } = lch(rgb, n)
+  const hist = new Float64Array(36)
+  // `range`: odcień kamienia (tło i oprawa wzorca bywają nasycone, np. brązowe tło ~45°)
+  for (let i = 0; i < n; i++) if (C[i] >= minChroma && !inHue(H[i], GOLD) && inHue(H[i], range)) hist[Math.min(35, Math.floor(H[i] / 10))] += C[i]
+  let best = 0
+  for (let k = 1; k < 36; k++) {
+    const v = (k: number) => hist[(k + 35) % 36] + hist[k] + hist[(k + 1) % 36]
+    if (v(k) > v(best)) best = k
+  }
+  const hue = best * 10 + 5
+  const near: number[] = []
+  for (let i = 0; i < n; i++) if (C[i] >= minChroma && inHue(H[i], range) && hueDistance(H[i], hue) <= 20) near.push(C[i])
+  return { hue, chroma: quantile(near, 0.75) }
+}
+
+/**
+ * Przemalowanie lokalne kamieni bezbarwnych na kolorowe (bez generatora): w masce odcień i C wzorca, jasność
+ * przemapowana liniowo L' = a + b·L (fasety oryginału zostają), najjaśniejsze błyski (L > `highlight`) jaśniejsze
+ * i mniej nasycone – jak odblask; miękka krawędź (σ `soft` px).
+ */
+export function recolourColourless(
+  rgb: Uint8Array | Buffer,
+  mask: Uint8Array,
+  width: number,
+  height: number,
+  target: { hue: number; chroma: number },
+  options: { a?: number; b?: number; highlight?: number; soft?: number } = {},
+): Uint8Array {
+  const { a = 12, b = 0.45, highlight = 90, soft = 1 } = options
+  const n = width * height
+  const alpha = gaussBlur(Float32Array.from(mask), width, height, soft)
+  const th = (target.hue * Math.PI) / 180
+  const out = Uint8Array.from(rgb)
+  const top = a + b * highlight
+  for (let i = 0; i < n; i++) {
+    const w = Math.min(1, mask[i] ? 1 : alpha[i] * 1.5)
+    if (w < 0.01) continue
+    const [L, A, B] = rgbToLab(rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2])
+    const Ln = L > highlight ? top + ((L - highlight) / (100 - highlight)) * (95 - top) : a + b * L
+    // błysk: im jaśniej, tym mniej nasycony (biało-niebieski odblask zamiast jednolitej plamy)
+    const C = target.chroma * (1 - 0.7 * Math.max(0, Math.min(1, (L - highlight + 10) / 20)))
+    const [r, g, bl] = labToRgb(L * (1 - w) + Ln * w, A * (1 - w) + C * Math.cos(th) * w, B * (1 - w) + C * Math.sin(th) * w)
+    out[i * 3] = r
+    out[i * 3 + 1] = g
+    out[i * 3 + 2] = bl
+  }
+  return out
+}
+
+// ---------- kamienie pavé jako koła (Celaeno) ----------
+
+export type PaveStone = { strip: number; x: number; y: number; r: number; added: boolean; t: number; /** odległość od linii pasa (px) */ off: number }
+
+/** Rzut punktu na łamaną: długość łuku od początku (px). */
+function arcPosition(points: [number, number][], x: number, y: number) {
+  let best = { d: Infinity, t: 0 }
+  let acc = 0
+  for (let s = 0; s + 1 < points.length; s++) {
+    const [ax, ay] = points[s]
+    const [bx, by] = points[s + 1]
+    const len = Math.hypot(bx - ax, by - ay) || 1
+    const u = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / (len * len)))
+    const d = Math.hypot(x - ax - u * (bx - ax), y - ay - u * (by - ay))
+    if (d < best.d) best = { d, t: acc + u * len }
+    acc += len
+  }
+  return { ...best, length: acc }
+}
+
+/** Wielomian stopnia `deg` (najmniejsze kwadraty) y(t); przy za małej liczbie punktów niższy stopień. */
+export function polyFit(ts: number[], ys: number[], deg: number): (t: number) => number {
+  const d = Math.max(0, Math.min(deg, ts.length - 1))
+  const m = d + 1
+  const A = Array.from({ length: m }, () => new Array<number>(m + 1).fill(0))
+  for (let k = 0; k < ts.length; k++) {
+    const pow = Array.from({ length: 2 * m }, (_, j) => ts[k] ** j)
+    for (let i = 0; i < m; i++) {
+      for (let j = 0; j < m; j++) A[i][j] += pow[i + j]
+      A[i][m] += ys[k] * pow[i]
+    }
+  }
+  for (let i = 0; i < m; i++) {
+    let p = i
+    for (let r = i + 1; r < m; r++) if (Math.abs(A[r][i]) > Math.abs(A[p][i])) p = r
+    ;[A[i], A[p]] = [A[p], A[i]]
+    const div = A[i][i] || 1e-12
+    for (let j = i; j <= m; j++) A[i][j] /= div
+    for (let r = 0; r < m; r++) {
+      if (r === i) continue
+      const f = A[r][i]
+      for (let j = i; j <= m; j++) A[r][j] -= f * A[i][j]
+    }
+  }
+  const c = A.map((row) => row[m])
+  return (t: number) => c.reduce((s, ci, j) => s + ci * t ** j, 0)
+}
+
+/**
+ * Kamienie pavé z plam maski. Plamy jednego kamienia (np. górna i dolna połówka – błysk i faseta) scalone, gdy leżą
+ * blisko wzdłuż rzędu (Δ łuku < 0.4 rozstawu). Kamień = koło: środek = centroid, średnica z zasięgu scalonej plamy,
+ * nie mniej niż 0.8 mediany rzędu i nie więcej niż 0.9 × odległość do sąsiada (na Celaeno kamienie nie zawsze się
+ * stykają – między nimi bywają złote kulki). Plama dalej od linii pasa niż `odchylenie` × połowa szerokości odpada – to
+ * błysk obrzeża albo żeberka, nie kamień. Wzdłuż rzędu krzywa (wielomian 2–3 st. po długości łuku pasa); w przerwach
+ * ≈ k × rozstaw k − 1 nowych kamieni, o ile koło nie leży w > 50 % na złocie (C ≥ 12, odcień 55–100).
+ */
+export function paveStones(rgb: Uint8Array | Buffer, mask: Uint8Array, width: number, height: number, strips: PaveStrip[]) {
+  const n = width * height
+  const { C, H } = lch(rgb, n)
+  const { label, sizes } = components(mask, width)
+  const K = sizes.length
+  const sx = new Float64Array(K)
+  const sy = new Float64Array(K)
+  const bx0 = new Float64Array(K).fill(Infinity)
+  const by0 = new Float64Array(K).fill(Infinity)
+  const bx1 = new Float64Array(K).fill(-Infinity)
+  const by1 = new Float64Array(K).fill(-Infinity)
+  for (let i = 0; i < n; i++) {
+    const k = label[i]
+    if (!k) continue
+    const x = i % width
+    const y = (i - x) / width
+    sx[k] += x
+    sy[k] += y
+    bx0[k] = Math.min(bx0[k], x)
+    bx1[k] = Math.max(bx1[k], x)
+    by0[k] = Math.min(by0[k], y)
+    by1[k] = Math.max(by1[k], y)
+  }
+  const goldShare = (x: number, y: number, r: number) => {
+    let gold = 0
+    let all = 0
+    for (let yy = Math.floor(y - r); yy <= Math.ceil(y + r); yy++) {
+      for (let xx = Math.floor(x - r); xx <= Math.ceil(x + r); xx++) {
+        if (xx < 0 || yy < 0 || xx >= width || yy >= height || (xx - x) ** 2 + (yy - y) ** 2 > r * r) continue
+        all++
+        const i = yy * width + xx
+        if (C[i] >= 12 && inHue(H[i], GOLD)) gold++
+      }
+    }
+    return all ? gold / all : 1
+  }
+  const median = (v: number[]) => (v.length ? [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)] : 0)
+  type Blob = { x: number; y: number; t: number; d: number; size: number; box: [number, number, number, number] }
+  const stones: PaveStone[] = []
+  /** Brakujące miejsca odrzucone, bo koło leży w > 50 % na złocie. */
+  const skipped: { strip: number; x: number; y: number; gold: number }[] = []
+  const before: number[] = []
+  const after: number[] = []
+  for (const [s, strip] of strips.entries()) {
+    const pts = strip.punkty.map(([x, y]) => [x * width, y * height] as [number, number])
+    const half = strip.szerokosc * width
+    const found: Blob[] = []
+    for (let k = 1; k < K; k++) {
+      if (sizes[k] < 4) continue
+      const x = sx[k] / sizes[k]
+      const y = sy[k] / sizes[k]
+      const pos = arcPosition(pts, x, y)
+      if (pos.d <= half) found.push({ x, y, t: pos.t, d: pos.d, size: sizes[k], box: [bx0[k], by0[k], bx1[k], by1[k]] })
+    }
+    found.sort((a, b) => a.t - b.t)
+    before.push(found.length)
+    if (!found.length) {
+      after.push(0)
+      continue
+    }
+    // scalanie: przerwy wzdłuż rzędu krótsze niż 0.4 typowego rozstawu (mediana przerw ≥ połowy P75)
+    const tGaps = found.slice(1).map((p, i) => p.t - found[i].t)
+    const p75 = [...tGaps].sort((a, b) => a - b)[Math.floor(tGaps.length * 0.75)] ?? 0
+    const tau = 0.4 * median(tGaps.filter((g) => g >= 0.5 * p75))
+    const merged: Blob[] = []
+    for (const blob of found) {
+      const last = merged[merged.length - 1]
+      if (last && blob.t - last.t < tau) {
+        const size = last.size + blob.size
+        merged[merged.length - 1] = {
+          x: (last.x * last.size + blob.x * blob.size) / size,
+          y: (last.y * last.size + blob.y * blob.size) / size,
+          t: (last.t * last.size + blob.t * blob.size) / size,
+          d: (last.d * last.size + blob.d * blob.size) / size,
+          size,
+          box: [Math.min(last.box[0], blob.box[0]), Math.min(last.box[1], blob.box[1]), Math.max(last.box[2], blob.box[2]), Math.max(last.box[3], blob.box[3])],
+        }
+      } else merged.push(blob)
+    }
+    // plama obok rzędu (błysk na obrzeżu albo żeberku, nie kamień): dalej od linii pasa niż `maxOff` – odpada
+    const diameterOf = (b: Blob) => Math.max(b.box[2] - b.box[0], b.box[3] - b.box[1]) + 1
+    const maxOff = (strip.odchylenie ?? 1) * half
+    for (let i = merged.length - 1; i >= 0; i--) if (merged[i].d > maxOff) merged.splice(i, 1)
+    const spacing = merged.length > 1 ? median(merged.slice(1).map((p, i) => p.t - merged[i].t)) : 0
+    const own = merged.map(diameterOf)
+    const rowDiameter = median(own)
+    const row: (PaveStone & { own: number })[] = merged.map((p, i) => ({ strip: s, x: p.x, y: p.y, r: 0, added: false, t: p.t, off: p.d, own: own[i] }))
+    if (spacing > 0) {
+      const deg = merged.length >= 6 ? 3 : 2
+      const fx = polyFit(merged.map((p) => p.t), merged.map((p) => p.x), deg)
+      const fy = polyFit(merged.map((p) => p.t), merged.map((p) => p.y), deg)
+      for (let i = 0; i + 1 < merged.length; i++) {
+        const gap = merged[i + 1].t - merged[i].t
+        const k = Math.round(gap / spacing)
+        for (let j = 1; j < k; j++) {
+          const t = merged[i].t + (gap * j) / k
+          const [x, y] = [fx(t), fy(t)]
+          const gold = goldShare(x, y, rowDiameter / 2)
+          if (gold <= 0.5) row.push({ strip: s, x, y, r: 0, added: true, t, off: 0, own: rowDiameter })
+          else skipped.push({ strip: s, x, y, gold })
+        }
+      }
+    }
+    row.sort((a, b) => a.t - b.t)
+    for (const [i, stone] of row.entries()) {
+      const near = [row[i - 1], row[i + 1]].filter(Boolean).map((o) => Math.hypot(o.x - stone.x, o.y - stone.y))
+      const cap = near.length ? 0.9 * Math.min(...near) : Infinity
+      stone.r = Math.min(cap, Math.max(stone.own, 0.8 * rowDiameter)) / 2
+      const { own: _own, ...plain } = stone
+      stones.push(plain)
+    }
+    after.push(row.length)
+  }
+  return { stones, before, after, skipped }
+}
+
+/** Maska z kół kamieni (0/1), przycięta do „nie-złota” (C ≥ 20 w odcieniu złota zostaje metalem). */
+export function stoneCircleMask(rgb: Uint8Array | Buffer, stones: PaveStone[], width: number, height: number): Uint8Array {
+  const n = width * height
+  const { C, H } = lch(rgb, n)
+  const out = new Uint8Array(n)
+  for (const { x, y, r } of stones) {
+    for (let yy = Math.max(0, Math.floor(y - r)); yy <= Math.min(height - 1, Math.ceil(y + r)); yy++) {
+      for (let xx = Math.max(0, Math.floor(x - r)); xx <= Math.min(width - 1, Math.ceil(x + r)); xx++) {
+        const i = yy * width + xx
+        if ((xx - x) ** 2 + (yy - y) ** 2 <= r * r && !(C[i] >= 20 && inHue(H[i], GOLD))) out[i] = 1
+      }
+    }
+  }
+  return out
 }

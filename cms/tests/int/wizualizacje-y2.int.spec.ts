@@ -9,8 +9,32 @@ import {
   STONE_VARIANTS_NOTE_NATURAL,
   stoneVariantsNote,
 } from '@/lib/stone-variants'
-import { cutoutCheckPrompt, cutoutPrompt, jobs, loadConfig } from '../../scripts/wizualizacje-w-logic'
-import { cropBox, hintRegion, inHue, originalStoneMask, verifyCutout } from '../../scripts/wizualizacje-wycinek-logic'
+import {
+  attemptToken,
+  cutoutCheckPrompt,
+  cutoutPrompt,
+  findAttempt,
+  jobs,
+  loadConfig,
+  parseAcceptList,
+} from '../../scripts/wizualizacje-w-logic'
+import {
+  colourlessMask,
+  cropBox,
+  fixQualifies,
+  hintRegion,
+  inHue,
+  lch,
+  labToRgb,
+  originalStoneMask,
+  paveStones,
+  recolourColourless,
+  rgbToLab,
+  stoneFix,
+  stripMask,
+  stoneFixOptions,
+  verifyCutout,
+} from '../../scripts/wizualizacje-wycinek-logic'
 
 /** Zlecenie Y.2: wizualizacje w wycinku (maska z oryginału, kontrola automatyczna), podpis filmu i dopisek pod kółkami. */
 
@@ -236,5 +260,164 @@ describe('dopisek pod kółkami zależy od rodzaju wariantów', () => {
     const note = stoneVariantsNote([{ isVisualization: false }, { isVisualization: false }])
     expect(note).toBe(`${PHOTOGRAPHED_STONE_NOTE} ${STONE_VARIANTS_NOTE_NATURAL}`)
     expect(note).not.toMatch(/Wizualizacje/)
+  })
+})
+
+describe('poprawka bez generatora (stoneFix)', () => {
+  const GREEN: Px = [40, 150, 90]
+  const PURPLE: Px = [150, 60, 150]
+  const NAVY: Px = [10, 12, 40]
+  const mask = Uint8Array.from({ length: W * H }, (_, i) => (disk(i % W, Math.floor(i / W), 60, 50, 20) ? 1 : 0))
+  const hueAt = (rgb: Uint8Array, x: number, y: number) => lch(rgb.subarray((y * W + x) * 3, (y * W + x) * 3 + 3), 1).H[0]
+
+  it('Lab → RGB odwraca RGB → Lab', () => {
+    for (const px of [GREEN, PURPLE, NAVY, GOLD, WHITE]) {
+      expect(labToRgb(...rgbToLab(...px)).map((v, i) => Math.abs(v - px[i]) <= 1)).toEqual([true, true, true])
+    }
+  })
+
+  it('stary kolor tuż za maską dostaje odcień kamienia; dalej obraz bez zmian', () => {
+    // zielony kamień, fioletowy pas 5 px za maską (rondysta), dalej fioletowa plama poza pasem (promień pasu 6 px)
+    const result = image((x, y) => (disk(x, y, 60, 50, 20) ? GREEN : disk(x, y, 60, 50, 25) ? PURPLE : x < 8 ? PURPLE : GREY))
+    const options = { ...stoneFixOptions('szmaragd-stonowany', [285, 360], 1), bandFrac: 0.3 }
+    const { rgb, band, stats } = stoneFix(result, result, mask, W, H, options)
+    expect(stats.spillPx).toBeGreaterThan(0)
+    expect(Math.abs(stats.targetHue - hueAt(result, 60, 50))).toBeLessThan(10)
+    expect(Math.abs(hueAt(rgb, 82, 50) - stats.targetHue)).toBeLessThan(15)
+    expect(band[2 * W + 2]).toBe(0)
+    for (let i = 0; i < W * H; i++) if (!band[i]) expect([rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]]).toEqual([...result.subarray(i * 3, i * 3 + 3)])
+  })
+
+  it('jasne odbicia starego koloru w szerszym pasie są odbarwione, nie przemalowane', () => {
+    const PINK: Px = [235, 170, 215]
+    // jasna różowa iskra (diament boczny) 3–5 px za maską: poza pasem 1 (2 px), w pasie odbić (5 px)
+    const result = image((x, y) => (disk(x, y, 60, 50, 20) ? GREEN : disk(x, y, 84, 50, 1) ? PINK : GREY))
+    const { rgb, stats } = stoneFix(result, result, mask, W, H, stoneFixOptions('szmaragd-stonowany', [285, 360], 1))
+    expect(stats.reflectPx).toBeGreaterThan(0)
+    const before = lch(result.subarray((50 * W + 84) * 3, (50 * W + 84) * 3 + 3), 1)
+    const after = lch(rgb.subarray((50 * W + 84) * 3, (50 * W + 84) * 3 + 3), 1)
+    expect(after.C[0]).toBeLessThan(before.C[0] * 0.5)
+    expect(Math.abs(after.L[0] - before.L[0])).toBeLessThan(2)
+  })
+
+  it('filtr źródeł poprawki: zarzut koloru tak, geometrii nie', () => {
+    const base = { score: 82, same_ring: true, stone_cut_preserved: true, artifacts_pl: [] as string[] }
+    expect(fixQualifies({ ...base, reason_pl: 'Szlif, obrys i położenie kamienia są zachowane. Jednak różowo-fioletowy ślad przy krawędzi osłabia efekt.' }).ok).toBe(true)
+    expect(fixQualifies({ ...base, reason_pl: 'Kolor jest bliski, ale obrys kamienia nie odpowiada dostatecznie wiernie oryginałowi.' }).ok).toBe(false)
+    expect(fixQualifies({ ...base, reason_pl: 'Pierścionek zachowany, jednak kamień wygląda na większy w dolnej części; różowy fragment.' }).ok).toBe(false)
+    expect(fixQualifies({ ...base, reason_pl: 'Nie widać resztek niebieskiego koloru na krawędzi. Fasety są miękkie.' }).ok).toBe(false)
+    expect(fixQualifies({ ...base, reason_pl: 'Kamień wymaga jednak spokojniejszej zieleni.' }).ok).toBe(true)
+    expect(fixQualifies({ ...base, score: 70, reason_pl: 'Różowy ślad przy krawędzi.' }).ok).toBe(false)
+    expect(fixQualifies({ ...base, stone_cut_preserved: false, reason_pl: 'Różowy ślad.' }).ok).toBe(false)
+  })
+
+  it('szafir granatowy: mediana L w masce podniesiona do celu', () => {
+    const result = image((x, y) => (disk(x, y, 60, 50, 20) ? NAVY : GREY))
+    const strong = stoneFix(result, result, mask, W, H, stoneFixOptions('szafir-granatowy', [265, 340], 2))
+    expect(strong.stats.lift?.[0]).toBeLessThan(10)
+    expect(strong.stats.lift?.[1]).toBeCloseTo(14, 0)
+  })
+
+  it('weryfikacja z pasem: zmiana w pasie dozwolona, poza nim nie', () => {
+    const original = image((x, y) => (disk(x, y, 60, 50, 20) ? BLUE : GREY))
+    const changed = image((x, y) => (disk(x, y, 60, 50, 20) ? GREEN : disk(x, y, 60, 50, 24) ? WHITE : GREY))
+    const band = Uint8Array.from({ length: W * H }, (_, i) => (disk(i % W, Math.floor(i / W), 60, 50, 25) ? 1 : 0))
+    // generator zmienił tylko kamień; biały pas za maską to poprawka
+    const generated = image((x, y) => (disk(x, y, 60, 50, 20) ? GREEN : GREY))
+    const input = { original, result: changed, generated, mask: Uint8Array.from(mask, (v) => v * 255), width: W, height: H, feather: 1 }
+    expect(verifyCutout(input, [180, 240], undefined).ok).toBe(false)
+    expect(verifyCutout({ ...input, band }, [180, 240], undefined).ok).toBe(true)
+  })
+})
+
+describe('przyjęcie ręczne (--przyjmij)', () => {
+  const id = 'iole-szmaragd-stonowany'
+  const history = [
+    { file: 'proby/iole-szmaragd-stonowany-w6-kompozycja.png' },
+    { file: 'proby/iole-szmaragd-stonowany-w6-p7-kompozycja.png' },
+    { file: 'proby/iole-szmaragd-stonowany-2-w1-kompozycja.png' },
+  ]
+
+  it('lista job:próba, także kilka pozycji i wersja lokalna', () => {
+    expect(parseAcceptList('iole-szmaragd-stonowany:w6-p7, merope-szmaragd-stonowany:w3-lagodna')).toEqual([
+      { job: 'iole-szmaragd-stonowany', token: 'w6-p7' },
+      { job: 'merope-szmaragd-stonowany', token: 'w3-lagodna' },
+    ])
+    expect(() => parseAcceptList('iole-szmaragd-stonowany')).toThrow(/<job>:<próba>/)
+    expect(() => parseAcceptList('iole-szmaragd-stonowany:')).toThrow()
+  })
+
+  it('token próby z nazwy pliku; plik innego zdjęcia tego samego wariantu nie pasuje', () => {
+    expect(attemptToken(id, history[0].file)).toBe('w6')
+    expect(attemptToken(id, history[1].file)).toBe('w6-p7')
+    expect(attemptToken(id, history[2].file)).toBeNull()
+    expect(attemptToken(id, 'proby/iole-szmaragd-stonowany-w6.png')).toBeNull()
+  })
+
+  it('wyszukanie próby po tokenie', () => {
+    expect(findAttempt(history, id, 'w6-p7')).toBe(history[1])
+    expect(findAttempt(history, id, 'w1')).toBeNull()
+    expect(findAttempt(history, 'iole-szmaragd-stonowany-2', 'w1')).toBe(history[2])
+  })
+})
+
+describe('kamienie bezbarwne: maska pavé i przemalowanie lokalne', () => {
+  // rząd: dwa szare diamenty (r 4) i złota kulka między nimi, w pasie wzdłuż y = 50
+  const DIAMOND: Px = [200, 200, 205]
+  const strips = [{ punkty: [[0.1, 0.5], [0.9, 0.5]] as [number, number][], szerokosc: 8 / W }]
+  const rgb = image((x, y) => (disk(x, y, 40, 50, 4) || disk(x, y, 80, 50, 4) ? DIAMOND : disk(x, y, 60, 50, 3) ? GOLD : [60, 40, 20]))
+
+  it('pas łamanej ma zadaną szerokość', () => {
+    const zone = stripMask(W, H, strips)
+    expect(zone[50 * W + 60]).toBe(1)
+    expect(zone[57 * W + 60]).toBe(1)
+    expect(zone[60 * W + 60]).toBe(0)
+  })
+
+  it('maska łapie diamenty, nie złotą kulkę', () => {
+    const mask = colourlessMask(rgb, W, H, strips, { density: 0.35, radius: 2, grow: 0 })
+    expect(mask[50 * W + 40]).toBe(1)
+    expect(mask[50 * W + 80]).toBe(1)
+    expect(mask[50 * W + 60]).toBe(0)
+    expect(mask[20 * W + 40]).toBe(0)
+  })
+
+  it('przemalowanie: odcień docelowy, jaśniejsze piksele zostają jaśniejsze, poza maską bez zmian', () => {
+    const mask = Uint8Array.from({ length: W * H }, (_, i) => (disk(i % W, Math.floor(i / W), 40, 50, 4) ? 1 : 0))
+    const two = image((x, y) => (disk(x, y, 40, 50, 4) ? (x < 40 ? [230, 230, 230] : [120, 120, 120]) : [60, 40, 20]))
+    const out = recolourColourless(two, mask, W, H, { hue: 290, chroma: 35 }, { soft: 0.5 })
+    const at = (x: number, y: number) => lch(out.subarray((y * W + x) * 3, (y * W + x) * 3 + 3), 1)
+    expect(Math.abs(at(38, 50).H[0] - 290)).toBeLessThan(15)
+    expect(at(38, 50).L[0]).toBeGreaterThan(at(42, 50).L[0])
+    expect([...out.subarray((10 * W + 10) * 3, (10 * W + 10) * 3 + 3)]).toEqual([60, 40, 20])
+  })
+})
+
+describe('kamienie pavé jako koła (paveStones)', () => {
+  // rząd wzdłuż y = 50: kamienie co 16 px (x 20, 36, 52, 68, 84); plama kamienia 36 rozbita na górę i dół, kamień 68 nie
+  // ma plamy (luka 2 × rozstaw); plama obok rzędu (y 61) dalej niż 0.6 połowy pasa
+  const blob = (x: number, y: number, cx: number, cy: number) => disk(x, y, cx, cy, 3)
+  const mask = Uint8Array.from({ length: W * H }, (_, i) => {
+    const [x, y] = [i % W, Math.floor(i / W)]
+    return blob(x, y, 20, 50) || blob(x, y, 36, 45) || blob(x, y, 36, 55) || blob(x, y, 52, 50) || blob(x, y, 84, 50) || blob(x, y, 60, 61) ? 1 : 0
+  })
+  const rgb = image(() => [90, 90, 95])
+  const strips = [{ punkty: [[0.05, 0.5], [0.95, 0.5]] as [number, number][], szerokosc: 14 / W, odchylenie: 0.6 }]
+
+  it('scala połówki, odrzuca plamę obok rzędu i uzupełnia lukę', () => {
+    const { stones, before, after } = paveStones(rgb, mask, W, H, strips)
+    expect(before[0]).toBe(6)
+    expect(after[0]).toBe(5)
+    const xs = stones.map((s) => Math.round(s.x))
+    expect(xs).toEqual([20, 36, 52, 68, 84])
+    expect(stones.find((s) => Math.round(s.x) === 68)?.added).toBe(true)
+    expect(stones.every((s) => s.r > 2 && s.r <= 0.9 * 16 / 2 + 0.01)).toBe(true)
+  })
+
+  it('luka na złocie zostaje pusta', () => {
+    const golden = image((x, y) => (disk(x, y, 68, 50, 7) ? GOLD : [90, 90, 95]))
+    const { stones, skipped } = paveStones(golden, mask, W, H, strips)
+    expect(stones.some((s) => Math.round(s.x) === 68)).toBe(false)
+    expect(skipped).toHaveLength(1)
   })
 })

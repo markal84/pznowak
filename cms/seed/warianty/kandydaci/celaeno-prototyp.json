@@ -1,0 +1,51 @@
+{
+ "rows": [
+  {
+   "name": "lewy brzeg",
+   "blobs": 4,
+   "stones": 4
+  },
+  {
+   "name": "górna żyłka",
+   "blobs": 4,
+   "stones": 3
+  },
+  {
+   "name": "środkowa żyłka",
+   "blobs": 3,
+   "stones": 3
+  },
+  {
+   "name": "dolny rząd",
+   "blobs": 10,
+   "stones": 6
+  }
+ ],
+ "skipped": 1,
+ "stones": [
+  {
+   "key": "szafir",
+   "name": "szafir granatowy",
+   "hue": 295,
+   "chroma": 35,
+   "a": 5,
+   "b": 0.32
+  },
+  {
+   "key": "szmaragd",
+   "name": "szmaragd stonowany",
+   "hue": 155,
+   "chroma": 29,
+   "a": 14,
+   "b": 0.34
+  },
+  {
+   "key": "rubin",
+   "name": "rubin",
+   "hue": 25,
+   "chroma": 46.9,
+   "a": 8,
+   "b": 0.32
+  }
+ ]
+}

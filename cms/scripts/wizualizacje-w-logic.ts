@@ -710,3 +710,33 @@ ${cards}
 </body></html>
 `
 }
+
+// ---------- przyjęcie ręczne (bez Codexa) ----------
+
+/** Token próby = część nazwy pliku między id joba a `-kompozycja.png` (np. `w6`, `w6-p7`, `w6-lagodna`). */
+export function attemptToken(jobId: string, file: string): string | null {
+  const base = file.replace(/^.*\//, '')
+  const prefix = `${jobId}-`
+  if (!base.startsWith(prefix) || !base.endsWith('-kompozycja.png')) return null
+  const token = base.slice(prefix.length, -'-kompozycja.png'.length)
+  // id innego joba z tym samym początkiem (np. `iole-szmaragd-stonowany-2-w1` dla `iole-szmaragd-stonowany`)
+  return /^w\d+(-[a-z0-9]+)*$/.test(token) ? token : null
+}
+
+/** `--przyjmij job:próba[,job:próba…]` → lista par; próba to token (`w6`, `w6-p7`, `w6-lagodna`). */
+export function parseAcceptList(value: string): { job: string; token: string }[] {
+  return value
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const i = part.lastIndexOf(':')
+      if (i <= 0 || i === part.length - 1) throw new Error(`--przyjmij: „${part}” – oczekuję <job>:<próba>, np. iole-szmaragd-stonowany:w6-p7`)
+      return { job: part.slice(0, i), token: part.slice(i + 1) }
+    })
+}
+
+/** Próba z historii joba o danym tokenie (po pliku kompozycji). */
+export function findAttempt<T extends { file: string }>(history: T[], jobId: string, token: string): T | null {
+  return history.find((a) => attemptToken(jobId, a.file) === token) ?? null
+}
