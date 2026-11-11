@@ -896,7 +896,21 @@
         {
           "zrodlo": [
             "facebook/media/122168640332616875_122168640050616875.jpg"
-          ]
+          ],
+          "kamien_oryginalu": {
+            "odcien": [
+              320,
+              20
+            ],
+            "chroma_min": 14,
+            "obszar": [
+              0.4402,
+              0.1091,
+              0.5938,
+              0.2819
+            ],
+            "maska_z_obszaru": true
+          }
         }
       ],
       "cala_galeria": [
@@ -910,7 +924,14 @@
           320,
           20
         ],
-        "chroma_min": 14
+        "chroma_min": 14,
+        "obszar": [
+          0.4528,
+          0.1398,
+          0.6102,
+          0.3612
+        ],
+        "maska_z_obszaru": true
       },
       "uwaga_aa": "Partia 4 (10.11): oryginał to różowy turmalin; 2 obrazy, 2 próby."
     },
@@ -1012,7 +1033,21 @@
         {
           "zrodlo": [
             "facebook/media/122160075698616875_122160075344616875.jpg"
-          ]
+          ],
+          "kamien_oryginalu": {
+            "odcien": [
+              165,
+              285
+            ],
+            "chroma_min": 10,
+            "obszar": [
+              0.5273,
+              0.245,
+              0.6617,
+              0.437
+            ],
+            "maska_z_obszaru": true
+          }
         }
       ],
       "cala_galeria": [
@@ -1025,7 +1060,14 @@
           165,
           285
         ],
-        "chroma_min": 10
+        "chroma_min": 10,
+        "obszar": [
+          0.4673,
+          0.36,
+          0.5927,
+          0.534
+        ],
+        "maska_z_obszaru": true
       },
       "uwaga_aa": "Partia 4 (10.11): oryginał to niebieski diament; 2 obrazy, 2 próby."
     },
@@ -1046,7 +1088,27 @@
         "rubin",
         "bialy-diament"
       ],
-      "zdjecia": [],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122191080194616875_122191079822616875.jpg"
+          ],
+          "kamien_oryginalu": {
+            "odcien": [
+              165,
+              285
+            ],
+            "chroma_min": 10,
+            "obszar": [
+              0.4559,
+              0.1816,
+              0.5851,
+              0.3044
+            ],
+            "maska_z_obszaru": true
+          }
+        }
+      ],
       "cala_galeria": [
         "szafir-granatowy",
         "szmaragd-stonowany",
@@ -1058,7 +1120,14 @@
           165,
           285
         ],
-        "chroma_min": 10
+        "chroma_min": 10,
+        "obszar": [
+          0.5265,
+          0.27,
+          0.6775,
+          0.508
+        ],
+        "maska_z_obszaru": true
       },
       "uwaga_aa": "Partia 4 (10.11): oryginał to niebieski diament; 2 obrazy, 2 próby. Drugie zdjęcie pominięte: maska kamienia się nie znalazła."
     },
@@ -1181,16 +1250,17 @@
           ],
           "kamien_oryginalu": {
             "obszar": [
-              0.583,
-              0.285,
-              0.734,
-              0.512
+              0.5619,
+              0.2532,
+              0.7551,
+              0.5438
             ],
             "odcien": [
               0,
               60
             ],
-            "chroma_min": 5
+            "chroma_min": 5,
+            "maska_z_obszaru": true
           }
         }
       ],
@@ -1202,16 +1272,17 @@
       ],
       "kamien_oryginalu": {
         "obszar": [
-          0.364,
-          0.32,
-          0.508,
-          0.527
+          0.3438,
+          0.291,
+          0.5282,
+          0.556
         ],
         "odcien": [
           0,
           60
         ],
-        "chroma_min": 5
+        "chroma_min": 5,
+        "maska_z_obszaru": true
       },
       "uwaga_aa": "Ręczny obszar kamienia (11.11): oryginał to morganit; 2 obrazy, 2 próby."
     },
@@ -1412,10 +1483,10 @@
           ],
           "kamien_oryginalu": {
             "obszar": [
-              0.515,
-              0.609,
-              0.572,
-              0.641
+              0.507,
+              0.6045,
+              0.58,
+              0.6455
             ],
             "maska_z_obszaru": true,
             "odcien": [
@@ -1432,10 +1503,10 @@
       ],
       "kamien_oryginalu": {
         "obszar": [
-          0.39,
-          0.305,
-          0.49,
-          0.42
+          0.376,
+          0.2889,
+          0.504,
+          0.4361
         ],
         "maska_z_obszaru": true,
         "odcien": [
@@ -1524,10 +1595,10 @@
           ],
           "kamien_oryginalu": {
             "obszar": [
-              0.518,
-              0.328,
-              0.716,
-              0.46
+              0.4903,
+              0.3095,
+              0.7437,
+              0.4785
             ],
             "maska_z_obszaru": true,
             "odcien": [
@@ -1544,10 +1615,10 @@
       ],
       "kamien_oryginalu": {
         "obszar": [
-          0.451,
-          0.132,
-          0.535,
-          0.224
+          0.4392,
+          0.1191,
+          0.5468,
+          0.2369
         ],
         "maska_z_obszaru": true,
         "odcien": [
