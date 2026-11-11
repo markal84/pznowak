@@ -749,3 +749,136 @@ export function fixQualifies(check: {
   if (!colour) return { ok: false, why_pl: 'zarzut nie dotyczy koloru' }
   return { ok: true, why_pl: `zarzut koloru: „${colour.trim()}”` }
 }
+
+// ---------- kamienie bezbarwne: maska i przemalowanie lokalne (prototyp Celaeno) ----------
+
+/** Wąski pas wzdłuż łamanej (rząd pavé): punkty w ułamkach kadru, `szerokosc` – połowa szerokości pasa (ułamek szerokości kadru). */
+export type PaveStrip = { punkty: [number, number][]; szerokosc: number }
+
+/** Maska pasów (0/1): piksele w odległości ≤ połowa szerokości od którejś łamanej. */
+export function stripMask(width: number, height: number, strips: PaveStrip[]): Uint8Array {
+  const out = new Uint8Array(width * height)
+  for (const strip of strips) {
+    const r = strip.szerokosc * width
+    const pts = strip.punkty.map(([x, y]) => [x * width, y * height] as const)
+    for (let s = 0; s + 1 < pts.length; s++) {
+      const [ax, ay] = pts[s]
+      const [bx, by] = pts[s + 1]
+      const [x0, x1] = [Math.max(0, Math.floor(Math.min(ax, bx) - r)), Math.min(width - 1, Math.ceil(Math.max(ax, bx) + r))]
+      const [y0, y1] = [Math.max(0, Math.floor(Math.min(ay, by) - r)), Math.min(height - 1, Math.ceil(Math.max(ay, by) + r))]
+      const len2 = (bx - ax) ** 2 + (by - ay) ** 2 || 1
+      for (let y = y0; y <= y1; y++) {
+        for (let x = x0; x <= x1; x++) {
+          const t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / len2))
+          if ((x - ax - t * (bx - ax)) ** 2 + (y - ay - t * (by - ay)) ** 2 <= r * r) out[y * width + x] = 1
+        }
+      }
+    }
+  }
+  return out
+}
+
+/** Zwężenie maski o `steps` px (odwrotność `growMask`). */
+export const shrinkMask = (mask: Uint8Array, width: number, steps: number) =>
+  Uint8Array.from(growMask(Uint8Array.from(mask, (v) => 1 - v), width, steps), (v) => 1 - v)
+
+/**
+ * Maska drobnych kamieni bezbarwnych (diamenty pavé) w pasach rzędów. Pojedynczy piksel nie wystarcza: ciemne fasety
+ * diamentu odbijają złoto (ciepłe, C 11–24), a błyski złotych kulek oprawy są prawie bezbarwne (C 4–11, odcień 80–115).
+ * Dlatego liczymy gęstość pikseli neutralnych (C < `chromaMax`, bez ciepłych błysków złota) w kółku o promieniu `radius`:
+ * kamień to zwarta plama neutralnych pikseli, kulka złota – nie. Z maski wyjęte nasycone złoto (C ≥ 20, odcień 55–100),
+ * potem domknięcie i poszerzenie o `grow` px na ciemne fasety na brzegu kamienia.
+ */
+export function colourlessMask(
+  rgb: Uint8Array | Buffer,
+  width: number,
+  height: number,
+  strips: PaveStrip[],
+  options: { chromaMax?: number; density?: number; radius?: number; grow?: number } = {},
+): Uint8Array {
+  const { chromaMax = 10, density = 0.45, radius = 3, grow = 1 } = options
+  const n = width * height
+  const { L, C, H } = lch(rgb, n)
+  const zone = stripMask(width, height, strips)
+  const goldSpecular = (i: number) => L[i] > 80 && C[i] >= 4 && inHue(H[i], [70, 125])
+  const neutral = Uint8Array.from({ length: n }, (_, i) => (C[i] < chromaMax && L[i] > 6 && !goldSpecular(i) ? 1 : 0))
+  // gęstość: suma w kwadracie (2r+1)² z obrazu całkowego
+  const sum = new Float64Array((width + 1) * (height + 1))
+  for (let y = 0; y < height; y++) {
+    let row = 0
+    for (let x = 0; x < width; x++) {
+      row += neutral[y * width + x]
+      sum[(y + 1) * (width + 1) + x + 1] = sum[y * (width + 1) + x + 1] + row
+    }
+  }
+  const area = (2 * radius + 1) ** 2
+  const gold = (i: number) => C[i] >= 20 && inHue(H[i], GOLD)
+  const dense = new Uint8Array(n)
+  for (let y = radius; y < height - radius; y++) {
+    for (let x = radius; x < width - radius; x++) {
+      const i = y * width + x
+      if (!zone[i] || gold(i)) continue
+      const [x0, y0, x1, y1] = [x - radius, y - radius, x + radius + 1, y + radius + 1]
+      const k = sum[y1 * (width + 1) + x1] - sum[y0 * (width + 1) + x1] - sum[y1 * (width + 1) + x0] + sum[y0 * (width + 1) + x0]
+      if (k / area >= density) dense[i] = 1
+    }
+  }
+  const closed = growMask(shrinkMask(growMask(dense, width, 1), width, 1), width, grow)
+  return Uint8Array.from(closed, (v, i) => (v && zone[i] && !gold(i) ? 1 : 0))
+}
+
+/** Odcień (moda, kosze 10°) i nasycenie (P75) kamienia na zdjęciu wzorca: nasycone piksele poza złotem w zakresie `range`. */
+export function referenceColour(
+  rgb: Uint8Array | Buffer,
+  n: number,
+  range: HueRange = [0, 360],
+  minChroma = 15,
+): { hue: number; chroma: number } {
+  const { C, H } = lch(rgb, n)
+  const hist = new Float64Array(36)
+  // `range`: odcień kamienia (tło i oprawa wzorca bywają nasycone, np. brązowe tło ~45°)
+  for (let i = 0; i < n; i++) if (C[i] >= minChroma && !inHue(H[i], GOLD) && inHue(H[i], range)) hist[Math.min(35, Math.floor(H[i] / 10))] += C[i]
+  let best = 0
+  for (let k = 1; k < 36; k++) {
+    const v = (k: number) => hist[(k + 35) % 36] + hist[k] + hist[(k + 1) % 36]
+    if (v(k) > v(best)) best = k
+  }
+  const hue = best * 10 + 5
+  const near: number[] = []
+  for (let i = 0; i < n; i++) if (C[i] >= minChroma && inHue(H[i], range) && hueDistance(H[i], hue) <= 20) near.push(C[i])
+  return { hue, chroma: quantile(near, 0.75) }
+}
+
+/**
+ * Przemalowanie lokalne kamieni bezbarwnych na kolorowe (bez generatora): w masce odcień i C wzorca, jasność
+ * przemapowana liniowo L' = a + b·L (fasety oryginału zostają), najjaśniejsze błyski (L > `highlight`) jaśniejsze
+ * i mniej nasycone – jak odblask; miękka krawędź (σ `soft` px).
+ */
+export function recolourColourless(
+  rgb: Uint8Array | Buffer,
+  mask: Uint8Array,
+  width: number,
+  height: number,
+  target: { hue: number; chroma: number },
+  options: { a?: number; b?: number; highlight?: number; soft?: number } = {},
+): Uint8Array {
+  const { a = 12, b = 0.45, highlight = 90, soft = 1 } = options
+  const n = width * height
+  const alpha = gaussBlur(Float32Array.from(mask), width, height, soft)
+  const th = (target.hue * Math.PI) / 180
+  const out = Uint8Array.from(rgb)
+  const top = a + b * highlight
+  for (let i = 0; i < n; i++) {
+    const w = Math.min(1, mask[i] ? 1 : alpha[i] * 1.5)
+    if (w < 0.01) continue
+    const [L, A, B] = rgbToLab(rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2])
+    const Ln = L > highlight ? top + ((L - highlight) / (100 - highlight)) * (95 - top) : a + b * L
+    // błysk: im jaśniej, tym mniej nasycony (biało-niebieski odblask zamiast jednolitej plamy)
+    const C = target.chroma * (1 - 0.7 * Math.max(0, Math.min(1, (L - highlight + 10) / 20)))
+    const [r, g, bl] = labToRgb(L * (1 - w) + Ln * w, A * (1 - w) + C * Math.cos(th) * w, B * (1 - w) + C * Math.sin(th) * w)
+    out[i * 3] = r
+    out[i * 3 + 1] = g
+    out[i * 3 + 2] = bl
+  }
+  return out
+}

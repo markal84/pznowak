@@ -19,6 +19,7 @@ import {
   parseAcceptList,
 } from '../../scripts/wizualizacje-w-logic'
 import {
+  colourlessMask,
   cropBox,
   fixQualifies,
   hintRegion,
@@ -26,8 +27,10 @@ import {
   lch,
   labToRgb,
   originalStoneMask,
+  recolourColourless,
   rgbToLab,
   stoneFix,
+  stripMask,
   stoneFixOptions,
   verifyCutout,
 } from '../../scripts/wizualizacje-wycinek-logic'
@@ -354,5 +357,37 @@ describe('przyjęcie ręczne (--przyjmij)', () => {
     expect(findAttempt(history, id, 'w6-p7')).toBe(history[1])
     expect(findAttempt(history, id, 'w1')).toBeNull()
     expect(findAttempt(history, 'iole-szmaragd-stonowany-2', 'w1')).toBe(history[2])
+  })
+})
+
+describe('kamienie bezbarwne: maska pavé i przemalowanie lokalne', () => {
+  // rząd: dwa szare diamenty (r 4) i złota kulka między nimi, w pasie wzdłuż y = 50
+  const DIAMOND: Px = [200, 200, 205]
+  const strips = [{ punkty: [[0.1, 0.5], [0.9, 0.5]] as [number, number][], szerokosc: 8 / W }]
+  const rgb = image((x, y) => (disk(x, y, 40, 50, 4) || disk(x, y, 80, 50, 4) ? DIAMOND : disk(x, y, 60, 50, 3) ? GOLD : [60, 40, 20]))
+
+  it('pas łamanej ma zadaną szerokość', () => {
+    const zone = stripMask(W, H, strips)
+    expect(zone[50 * W + 60]).toBe(1)
+    expect(zone[57 * W + 60]).toBe(1)
+    expect(zone[60 * W + 60]).toBe(0)
+  })
+
+  it('maska łapie diamenty, nie złotą kulkę', () => {
+    const mask = colourlessMask(rgb, W, H, strips, { density: 0.35, radius: 2, grow: 0 })
+    expect(mask[50 * W + 40]).toBe(1)
+    expect(mask[50 * W + 80]).toBe(1)
+    expect(mask[50 * W + 60]).toBe(0)
+    expect(mask[20 * W + 40]).toBe(0)
+  })
+
+  it('przemalowanie: odcień docelowy, jaśniejsze piksele zostają jaśniejsze, poza maską bez zmian', () => {
+    const mask = Uint8Array.from({ length: W * H }, (_, i) => (disk(i % W, Math.floor(i / W), 40, 50, 4) ? 1 : 0))
+    const two = image((x, y) => (disk(x, y, 40, 50, 4) ? (x < 40 ? [230, 230, 230] : [120, 120, 120]) : [60, 40, 20]))
+    const out = recolourColourless(two, mask, W, H, { hue: 290, chroma: 35 }, { soft: 0.5 })
+    const at = (x: number, y: number) => lch(out.subarray((y * W + x) * 3, (y * W + x) * 3 + 3), 1)
+    expect(Math.abs(at(38, 50).H[0] - 290)).toBeLessThan(15)
+    expect(at(38, 50).L[0]).toBeGreaterThan(at(42, 50).L[0])
+    expect([...out.subarray((10 * W + 10) * 3, (10 * W + 10) * 3 + 3)]).toEqual([60, 40, 20])
   })
 })

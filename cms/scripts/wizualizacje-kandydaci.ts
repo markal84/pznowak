@@ -10,7 +10,7 @@
  * Wynik: `seed/warianty/kandydaci-<data>.html` i obrazy webp w `seed/warianty/kandydaci/`. Przyjęcie wybranych:
  * `npm run warianty:wizualizacje -- --przyjmij <job>:<próba>[,…]`.
  */
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 import sharp from 'sharp'
@@ -46,8 +46,9 @@ type State = { jobs: Record<string, { attempts: Attempt[]; accepted: string | nu
 const state: State = JSON.parse(readFileSync(path.join(workDir, 'stan.json'), 'utf8'))
 const config = loadConfig()
 
-rmSync(outDir, { recursive: true, force: true })
+// obrazy kandydatów od nowa; prototypy (`celaeno-…-prototyp-*`) robi osobny skrypt – zostają
 mkdirSync(outDir, { recursive: true })
+for (const file of readdirSync(outDir)) if (!file.includes('-prototyp-')) rmSync(path.join(outDir, file), { force: true })
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
 
@@ -174,6 +175,21 @@ const sections = rows
   )
   .join('\n')
 const candidates = rows.reduce((sum, row) => sum + row.cards.length, 0)
+// prototyp Celaeno (przemalowanie lokalne drobnych diamentów, `wizualizacje-celaeno-prototyp.ts`), jeśli jest
+const proto = (name: string) => `kandydaci/celaeno-szafir-prototyp-${name}.webp`
+const prototype = existsSync(path.join(WARIANTY_DIR, proto('porownanie')))
+  ? `<section class="proto"><h2>Prototyp: Celaeno – szafir granatowy <small>przemalowanie lokalne, bez generatora, zdjęcie 1</small></h2>
+<p class="lead">Drobne diamenty pavé przemalowane w Lab (odcień i nasycenie ze wzorców szafiru granatowego, jasność L' = 5 + 0.32·L,
+najjaśniejsze błyski zostają jaśniejsze). Maska: kamienie bezbarwne w czterech pasach wzdłuż rzędów, złoto wykluczone. To podgląd do oceny metody – nie do przyjęcia.</p>
+<div class="cards">
+<article class="card local"><header><code>celaeno-szafir-granatowy (prototyp)</code><span class="score">bez oceny</span></header>
+<figure><img loading="lazy" src="${proto('porownanie')}" alt="Celaeno – oryginał i prototyp z szafirami"><figcaption>oryginał | prototyp</figcaption></figure>
+<figure class="full"><img loading="lazy" src="${proto('zblizenie')}" alt="Celaeno – zbliżenie rzędów pavé przed i po"><figcaption>zbliżenie trzech rzędów pavé: oryginał | prototyp</figcaption></figure></article>
+<article class="card local"><header><code>maska</code><span class="score">czerwone = przemalowane</span></header>
+<figure><img loading="lazy" src="${proto('maska')}" alt="Celaeno – maska kamieni na zdjęciu"><figcaption>czerwone: maska kamieni, żółte: granice pasów rzędów pavé</figcaption></figure>
+<figure class="full"><img loading="lazy" src="${proto('wynik')}" alt="Celaeno – prototyp, całe zdjęcie"><figcaption>cały kadr po przemalowaniu</figcaption></figure></article>
+</div></section>`
+  : ''
 const html = `<!doctype html>
 <html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kandydaci wizualizacji ${esc(date)}</title>
@@ -195,6 +211,7 @@ zbliżenie oryginału obok wyniku, pod spodem cała kompozycja, na dole ocena Te
 poprawce koloru zrobione lokalnie – Terra ich nie oceniała.</p>
 <p class="lead">${esc(date)} · obrazów: ${rows.length} · kandydatów: ${candidates} (w tym lokalnych poprawek: ${localFixes}) · obrazy bez kandydata: ${rows.filter((r) => r.note).length}.
 Przyjęcie: <code>npm run warianty:wizualizacje -- --przyjmij &lt;nazwa&gt;[,&lt;nazwa&gt;…]</code></p>
+${prototype}
 ${sections}
 </body></html>
 `
