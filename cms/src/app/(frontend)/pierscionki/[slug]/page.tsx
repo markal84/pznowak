@@ -8,6 +8,7 @@ import { productPath, productSeoDescription, productSeoTitle } from '@/lib/produ
 import { pageMetadata } from '@/lib/seo'
 import { showPlaceholders } from '@/lib/placeholders'
 import { SHOW_GOLD_FINENESS, SITE } from '@/lib/site'
+import CatalogCrumb from '@/components/site/CatalogCrumb'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import ProductMedia from '@/components/site/ProductMedia'
 import RingCard from '@/components/site/RingCard'
@@ -83,7 +84,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
       <nav aria-label="Ścieżka" className="wrap crumbs">
         <ol>
           <li>
-            <Link href="/pierscionki">Pierścionki</Link>
+            <CatalogCrumb slug={product.slug} />
           </li>
           <li aria-hidden="true">/</li>
           <li aria-current="page">{product.name}</li>

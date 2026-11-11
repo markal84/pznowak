@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 import {
   GOLD_FILTERS,
   STONE_FILTERS,
@@ -13,10 +14,18 @@ import {
   type CatalogRing,
   type CatalogParams,
 } from '@/lib/catalog'
+import { rememberCatalogRing, ringAnchorId, takeCatalogReturn } from '@/lib/catalog-return'
 import RingCard from './RingCard'
 
 export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
   const router = useRouter()
+  // Powrót z karty pierścionka (okruszek albo „wstecz”): przewiń do rzędu klikniętej karty.
+  useEffect(() => {
+    const slug = takeCatalogReturn()
+    if (!slug) return
+    const card = document.getElementById(ringAnchorId(slug))
+    if (card) card.scrollIntoView({ block: 'center' })
+  }, [])
   const searchParams = useSearchParams()
   // Filtry i numer strony żyją w adresie: odświeżenie, link i „wstecz” przeglądarki wracają do tego samego widoku.
   const { stone, gold, page: requestedPage } = parseCatalogParams((key) => searchParams.get(key))
@@ -89,7 +98,13 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
       <section className="wrap" style={{ paddingTop: 28, paddingBottom: 104 }}>
         {all.length > 0 ? (
           <>
-            <ul className="ring-grid ring-grid-lg">
+            <ul
+              className="ring-grid ring-grid-lg"
+              onClickCapture={(event) => {
+                const link = (event.target as HTMLElement).closest<HTMLElement>('a[data-ring-slug]')
+                if (link?.dataset.ringSlug) rememberCatalogRing(link.dataset.ringSlug)
+              }}
+            >
               {items.map((r) => (
                 <RingCard
                   alt={r.alt}
