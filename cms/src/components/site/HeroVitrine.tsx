@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Tag from './Tag'
+import HangingTag from './HangingTag'
 
 export type VitrineSlide = {
   slug: string
@@ -20,7 +20,7 @@ const ZOOM = 2
 const RADIUS = 104
 
 /**
- * Witryna pod lupą: duże zdjęcie pierścionka, przywieszka z nazwą i rząd miniatur do przełączania (komputer).
+ * Witryna pod lupą: duże zdjęcie pierścionka, wisząca przywieszka z nazwą i rząd miniatur do przełączania (komputer).
  * Nad zdjęciem kursor zamienia się w lupę jubilerską, która pokazuje oprawę i szlif z bliska.
  * Na telefonie zdjęcia przesuwa się palcem (przewijanie z przyciąganiem), a kropki pokazują, które jest widoczne.
  * Każde zdjęcie jest linkiem do karty pierścionka.
@@ -124,10 +124,8 @@ export default function HeroVitrine({ slides }: { slides: VitrineSlide[] }) {
         </div>
         <span aria-hidden="true" className="hv-lens" ref={lens} />
       </div>
-      {/* Przywieszka wisi pod dolną krawędzią zdjęcia, jakby była do niego przypięta; `key` powtarza animację zawieszenia. */}
-      <span aria-hidden="true" className="hero-tag hv-tag-d">
-        <Tag className="hang" key={current.slug} name={current.name} size="md" sub={current.sub} />
-      </span>
+      {/* Przywieszka wisi na sznurku pod dolną krawędzią zdjęcia i kołysze się jak prawdziwa (HangingTag). */}
+      <HangingTag index={active} name={current.name} sub={current.sub} />
       {slides.length > 1 ? (
         <div aria-label="Pierścionki w witrynie" className="hv-thumbs" role="group">
           {slides.map((s, i) => (
