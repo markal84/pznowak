@@ -1318,5 +1318,38 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "celaeno",
+    "name": "Celaeno",
+    "variants": [
+      {
+        "stone": "Szafir granatowy",
+        "swatch": "granatowy",
+        "files": [
+          "celaeno-szafir-granatowy.webp"
+        ],
+        "alt": "Pierścionek Celaeno z drobnymi granatowymi szafirami w oprawie pavé, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd",
+        "swatch": "zielony",
+        "files": [
+          "celaeno-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Celaeno z drobnymi szmaragdami w oprawie pavé, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin",
+        "swatch": "czerwony",
+        "files": [
+          "celaeno-rubin.webp"
+        ],
+        "alt": "Pierścionek Celaeno z drobnymi rubinami w oprawie pavé, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]
