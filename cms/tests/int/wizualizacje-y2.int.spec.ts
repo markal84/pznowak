@@ -27,6 +27,7 @@ import {
   lch,
   labToRgb,
   originalStoneMask,
+  paveStones,
   recolourColourless,
   rgbToLab,
   stoneFix,
@@ -389,5 +390,34 @@ describe('kamienie bezbarwne: maska pavé i przemalowanie lokalne', () => {
     expect(Math.abs(at(38, 50).H[0] - 290)).toBeLessThan(15)
     expect(at(38, 50).L[0]).toBeGreaterThan(at(42, 50).L[0])
     expect([...out.subarray((10 * W + 10) * 3, (10 * W + 10) * 3 + 3)]).toEqual([60, 40, 20])
+  })
+})
+
+describe('kamienie pavé jako koła (paveStones)', () => {
+  // rząd wzdłuż y = 50: kamienie co 16 px (x 20, 36, 52, 68, 84); plama kamienia 36 rozbita na górę i dół, kamień 68 nie
+  // ma plamy (luka 2 × rozstaw); plama obok rzędu (y 61) dalej niż 0.6 połowy pasa
+  const blob = (x: number, y: number, cx: number, cy: number) => disk(x, y, cx, cy, 3)
+  const mask = Uint8Array.from({ length: W * H }, (_, i) => {
+    const [x, y] = [i % W, Math.floor(i / W)]
+    return blob(x, y, 20, 50) || blob(x, y, 36, 45) || blob(x, y, 36, 55) || blob(x, y, 52, 50) || blob(x, y, 84, 50) || blob(x, y, 60, 61) ? 1 : 0
+  })
+  const rgb = image(() => [90, 90, 95])
+  const strips = [{ punkty: [[0.05, 0.5], [0.95, 0.5]] as [number, number][], szerokosc: 14 / W, odchylenie: 0.6 }]
+
+  it('scala połówki, odrzuca plamę obok rzędu i uzupełnia lukę', () => {
+    const { stones, before, after } = paveStones(rgb, mask, W, H, strips)
+    expect(before[0]).toBe(6)
+    expect(after[0]).toBe(5)
+    const xs = stones.map((s) => Math.round(s.x))
+    expect(xs).toEqual([20, 36, 52, 68, 84])
+    expect(stones.find((s) => Math.round(s.x) === 68)?.added).toBe(true)
+    expect(stones.every((s) => s.r > 2 && s.r <= 0.9 * 16 / 2 + 0.01)).toBe(true)
+  })
+
+  it('luka na złocie zostaje pusta', () => {
+    const golden = image((x, y) => (disk(x, y, 68, 50, 7) ? GOLD : [90, 90, 95]))
+    const { stones, skipped } = paveStones(golden, mask, W, H, strips)
+    expect(stones.some((s) => Math.round(s.x) === 68)).toBe(false)
+    expect(skipped).toHaveLength(1)
   })
 })

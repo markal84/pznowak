@@ -753,7 +753,12 @@ export function fixQualifies(check: {
 // ---------- kamienie bezbarwne: maska i przemalowanie lokalne (prototyp Celaeno) ----------
 
 /** Wąski pas wzdłuż łamanej (rząd pavé): punkty w ułamkach kadru, `szerokosc` – połowa szerokości pasa (ułamek szerokości kadru). */
-export type PaveStrip = { punkty: [number, number][]; szerokosc: number }
+export type PaveStrip = {
+  punkty: [number, number][]
+  szerokosc: number
+  /** Plamy dalej od linii niż `odchylenie` × połowa szerokości to nie kamienie rzędu (domyślnie 1 – cały pas). */
+  odchylenie?: number
+}
 
 /** Maska pasów (0/1): piksele w odległości ≤ połowa szerokości od którejś łamanej. */
 export function stripMask(width: number, height: number, strips: PaveStrip[]): Uint8Array {
@@ -879,6 +884,194 @@ export function recolourColourless(
     out[i * 3] = r
     out[i * 3 + 1] = g
     out[i * 3 + 2] = bl
+  }
+  return out
+}
+
+// ---------- kamienie pavé jako koła (Celaeno) ----------
+
+export type PaveStone = { strip: number; x: number; y: number; r: number; added: boolean; t: number; /** odległość od linii pasa (px) */ off: number }
+
+/** Rzut punktu na łamaną: długość łuku od początku (px). */
+function arcPosition(points: [number, number][], x: number, y: number) {
+  let best = { d: Infinity, t: 0 }
+  let acc = 0
+  for (let s = 0; s + 1 < points.length; s++) {
+    const [ax, ay] = points[s]
+    const [bx, by] = points[s + 1]
+    const len = Math.hypot(bx - ax, by - ay) || 1
+    const u = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / (len * len)))
+    const d = Math.hypot(x - ax - u * (bx - ax), y - ay - u * (by - ay))
+    if (d < best.d) best = { d, t: acc + u * len }
+    acc += len
+  }
+  return { ...best, length: acc }
+}
+
+/** Wielomian stopnia `deg` (najmniejsze kwadraty) y(t); przy za małej liczbie punktów niższy stopień. */
+export function polyFit(ts: number[], ys: number[], deg: number): (t: number) => number {
+  const d = Math.max(0, Math.min(deg, ts.length - 1))
+  const m = d + 1
+  const A = Array.from({ length: m }, () => new Array<number>(m + 1).fill(0))
+  for (let k = 0; k < ts.length; k++) {
+    const pow = Array.from({ length: 2 * m }, (_, j) => ts[k] ** j)
+    for (let i = 0; i < m; i++) {
+      for (let j = 0; j < m; j++) A[i][j] += pow[i + j]
+      A[i][m] += ys[k] * pow[i]
+    }
+  }
+  for (let i = 0; i < m; i++) {
+    let p = i
+    for (let r = i + 1; r < m; r++) if (Math.abs(A[r][i]) > Math.abs(A[p][i])) p = r
+    ;[A[i], A[p]] = [A[p], A[i]]
+    const div = A[i][i] || 1e-12
+    for (let j = i; j <= m; j++) A[i][j] /= div
+    for (let r = 0; r < m; r++) {
+      if (r === i) continue
+      const f = A[r][i]
+      for (let j = i; j <= m; j++) A[r][j] -= f * A[i][j]
+    }
+  }
+  const c = A.map((row) => row[m])
+  return (t: number) => c.reduce((s, ci, j) => s + ci * t ** j, 0)
+}
+
+/**
+ * Kamienie pavé z plam maski. Plamy jednego kamienia (np. górna i dolna połówka – błysk i faseta) scalone, gdy leżą
+ * blisko wzdłuż rzędu (Δ łuku < 0.4 rozstawu). Kamień = koło: środek = centroid, średnica z zasięgu scalonej plamy,
+ * nie mniej niż 0.8 mediany rzędu i nie więcej niż 0.9 × odległość do sąsiada (na Celaeno kamienie nie zawsze się
+ * stykają – między nimi bywają złote kulki). Plama dalej od linii pasa niż `odchylenie` × połowa szerokości odpada – to
+ * błysk obrzeża albo żeberka, nie kamień. Wzdłuż rzędu krzywa (wielomian 2–3 st. po długości łuku pasa); w przerwach
+ * ≈ k × rozstaw k − 1 nowych kamieni, o ile koło nie leży w > 50 % na złocie (C ≥ 12, odcień 55–100).
+ */
+export function paveStones(rgb: Uint8Array | Buffer, mask: Uint8Array, width: number, height: number, strips: PaveStrip[]) {
+  const n = width * height
+  const { C, H } = lch(rgb, n)
+  const { label, sizes } = components(mask, width)
+  const K = sizes.length
+  const sx = new Float64Array(K)
+  const sy = new Float64Array(K)
+  const bx0 = new Float64Array(K).fill(Infinity)
+  const by0 = new Float64Array(K).fill(Infinity)
+  const bx1 = new Float64Array(K).fill(-Infinity)
+  const by1 = new Float64Array(K).fill(-Infinity)
+  for (let i = 0; i < n; i++) {
+    const k = label[i]
+    if (!k) continue
+    const x = i % width
+    const y = (i - x) / width
+    sx[k] += x
+    sy[k] += y
+    bx0[k] = Math.min(bx0[k], x)
+    bx1[k] = Math.max(bx1[k], x)
+    by0[k] = Math.min(by0[k], y)
+    by1[k] = Math.max(by1[k], y)
+  }
+  const goldShare = (x: number, y: number, r: number) => {
+    let gold = 0
+    let all = 0
+    for (let yy = Math.floor(y - r); yy <= Math.ceil(y + r); yy++) {
+      for (let xx = Math.floor(x - r); xx <= Math.ceil(x + r); xx++) {
+        if (xx < 0 || yy < 0 || xx >= width || yy >= height || (xx - x) ** 2 + (yy - y) ** 2 > r * r) continue
+        all++
+        const i = yy * width + xx
+        if (C[i] >= 12 && inHue(H[i], GOLD)) gold++
+      }
+    }
+    return all ? gold / all : 1
+  }
+  const median = (v: number[]) => (v.length ? [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)] : 0)
+  type Blob = { x: number; y: number; t: number; d: number; size: number; box: [number, number, number, number] }
+  const stones: PaveStone[] = []
+  /** Brakujące miejsca odrzucone, bo koło leży w > 50 % na złocie. */
+  const skipped: { strip: number; x: number; y: number; gold: number }[] = []
+  const before: number[] = []
+  const after: number[] = []
+  for (const [s, strip] of strips.entries()) {
+    const pts = strip.punkty.map(([x, y]) => [x * width, y * height] as [number, number])
+    const half = strip.szerokosc * width
+    const found: Blob[] = []
+    for (let k = 1; k < K; k++) {
+      if (sizes[k] < 4) continue
+      const x = sx[k] / sizes[k]
+      const y = sy[k] / sizes[k]
+      const pos = arcPosition(pts, x, y)
+      if (pos.d <= half) found.push({ x, y, t: pos.t, d: pos.d, size: sizes[k], box: [bx0[k], by0[k], bx1[k], by1[k]] })
+    }
+    found.sort((a, b) => a.t - b.t)
+    before.push(found.length)
+    if (!found.length) {
+      after.push(0)
+      continue
+    }
+    // scalanie: przerwy wzdłuż rzędu krótsze niż 0.4 typowego rozstawu (mediana przerw ≥ połowy P75)
+    const tGaps = found.slice(1).map((p, i) => p.t - found[i].t)
+    const p75 = [...tGaps].sort((a, b) => a - b)[Math.floor(tGaps.length * 0.75)] ?? 0
+    const tau = 0.4 * median(tGaps.filter((g) => g >= 0.5 * p75))
+    const merged: Blob[] = []
+    for (const blob of found) {
+      const last = merged[merged.length - 1]
+      if (last && blob.t - last.t < tau) {
+        const size = last.size + blob.size
+        merged[merged.length - 1] = {
+          x: (last.x * last.size + blob.x * blob.size) / size,
+          y: (last.y * last.size + blob.y * blob.size) / size,
+          t: (last.t * last.size + blob.t * blob.size) / size,
+          d: (last.d * last.size + blob.d * blob.size) / size,
+          size,
+          box: [Math.min(last.box[0], blob.box[0]), Math.min(last.box[1], blob.box[1]), Math.max(last.box[2], blob.box[2]), Math.max(last.box[3], blob.box[3])],
+        }
+      } else merged.push(blob)
+    }
+    // plama obok rzędu (błysk na obrzeżu albo żeberku, nie kamień): dalej od linii pasa niż `maxOff` – odpada
+    const diameterOf = (b: Blob) => Math.max(b.box[2] - b.box[0], b.box[3] - b.box[1]) + 1
+    const maxOff = (strip.odchylenie ?? 1) * half
+    for (let i = merged.length - 1; i >= 0; i--) if (merged[i].d > maxOff) merged.splice(i, 1)
+    const spacing = merged.length > 1 ? median(merged.slice(1).map((p, i) => p.t - merged[i].t)) : 0
+    const own = merged.map(diameterOf)
+    const rowDiameter = median(own)
+    const row: (PaveStone & { own: number })[] = merged.map((p, i) => ({ strip: s, x: p.x, y: p.y, r: 0, added: false, t: p.t, off: p.d, own: own[i] }))
+    if (spacing > 0) {
+      const deg = merged.length >= 6 ? 3 : 2
+      const fx = polyFit(merged.map((p) => p.t), merged.map((p) => p.x), deg)
+      const fy = polyFit(merged.map((p) => p.t), merged.map((p) => p.y), deg)
+      for (let i = 0; i + 1 < merged.length; i++) {
+        const gap = merged[i + 1].t - merged[i].t
+        const k = Math.round(gap / spacing)
+        for (let j = 1; j < k; j++) {
+          const t = merged[i].t + (gap * j) / k
+          const [x, y] = [fx(t), fy(t)]
+          const gold = goldShare(x, y, rowDiameter / 2)
+          if (gold <= 0.5) row.push({ strip: s, x, y, r: 0, added: true, t, off: 0, own: rowDiameter })
+          else skipped.push({ strip: s, x, y, gold })
+        }
+      }
+    }
+    row.sort((a, b) => a.t - b.t)
+    for (const [i, stone] of row.entries()) {
+      const near = [row[i - 1], row[i + 1]].filter(Boolean).map((o) => Math.hypot(o.x - stone.x, o.y - stone.y))
+      const cap = near.length ? 0.9 * Math.min(...near) : Infinity
+      stone.r = Math.min(cap, Math.max(stone.own, 0.8 * rowDiameter)) / 2
+      const { own: _own, ...plain } = stone
+      stones.push(plain)
+    }
+    after.push(row.length)
+  }
+  return { stones, before, after, skipped }
+}
+
+/** Maska z kół kamieni (0/1), przycięta do „nie-złota” (C ≥ 20 w odcieniu złota zostaje metalem). */
+export function stoneCircleMask(rgb: Uint8Array | Buffer, stones: PaveStone[], width: number, height: number): Uint8Array {
+  const n = width * height
+  const { C, H } = lch(rgb, n)
+  const out = new Uint8Array(n)
+  for (const { x, y, r } of stones) {
+    for (let yy = Math.max(0, Math.floor(y - r)); yy <= Math.min(height - 1, Math.ceil(y + r)); yy++) {
+      for (let xx = Math.max(0, Math.floor(x - r)); xx <= Math.min(width - 1, Math.ceil(x + r)); xx++) {
+        const i = yy * width + xx
+        if ((xx - x) ** 2 + (yy - y) ** 2 <= r * r && !(C[i] >= 20 && inHue(H[i], GOLD))) out[i] = 1
+      }
+    }
   }
   return out
 }

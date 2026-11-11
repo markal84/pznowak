@@ -46,9 +46,9 @@ type State = { jobs: Record<string, { attempts: Attempt[]; accepted: string | nu
 const state: State = JSON.parse(readFileSync(path.join(workDir, 'stan.json'), 'utf8'))
 const config = loadConfig()
 
-// obrazy kandydatów od nowa; prototypy (`celaeno-…-prototyp-*`) robi osobny skrypt – zostają
+// obrazy kandydatów od nowa; prototypy (`celaeno-…prototyp…`) robi osobny skrypt – zostają
 mkdirSync(outDir, { recursive: true })
-for (const file of readdirSync(outDir)) if (!file.includes('-prototyp-')) rmSync(path.join(outDir, file), { force: true })
+for (const file of readdirSync(outDir)) if (!file.includes('prototyp')) rmSync(path.join(outDir, file), { force: true })
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
 
@@ -176,18 +176,28 @@ const sections = rows
   .join('\n')
 const candidates = rows.reduce((sum, row) => sum + row.cards.length, 0)
 // prototyp Celaeno (przemalowanie lokalne drobnych diamentów, `wizualizacje-celaeno-prototyp.ts`), jeśli jest
-const proto = (name: string) => `kandydaci/celaeno-szafir-prototyp-${name}.webp`
-const prototype = existsSync(path.join(WARIANTY_DIR, proto('porownanie')))
-  ? `<section class="proto"><h2>Prototyp: Celaeno – szafir granatowy <small>przemalowanie lokalne, bez generatora, zdjęcie 1</small></h2>
-<p class="lead">Drobne diamenty pavé przemalowane w Lab (odcień i nasycenie ze wzorców szafiru granatowego, jasność L' = 5 + 0.32·L,
-najjaśniejsze błyski zostają jaśniejsze). Maska: kamienie bezbarwne w czterech pasach wzdłuż rzędów, złoto wykluczone. To podgląd do oceny metody – nie do przyjęcia.</p>
+type ProtoSummary = { rows: { name: string; blobs: number; stones: number }[]; skipped: number; stones: { key: string; name: string; hue: number; chroma: number; a: number; b: number }[] }
+const protoFile = path.join(outDir, 'celaeno-prototyp.json')
+const protoData: ProtoSummary | null = existsSync(protoFile) ? JSON.parse(readFileSync(protoFile, 'utf8')) : null
+const proto = (name: string) => `kandydaci/celaeno-${name}.webp`
+const prototype = protoData
+  ? `<section class="proto"><h2>Prototyp: Celaeno – kolorowe kamienie pavé <small>przemalowanie lokalne, bez generatora, zdjęcie 1</small></h2>
+<p class="lead">Drobne diamenty przemalowane w Lab: odcień i nasycenie ze wzorców kamienia, jasność L' = a + b·L (fasety i błyski
+oryginału zostają, najjaśniejsze błyski jaśniejsze). Kamienie: plamy bezbarwne w czterech pasach wzdłuż rzędów → koła o średnicy kamienia,
+plamy jednego kamienia scalone, błyski obok rzędu odrzucone, luki uzupełniane na krzywej rzędu (bez złota). Kamienie na rząd (plamy → kamienie):
+${protoData.rows.map((r) => `${esc(r.name)} ${r.blobs} → ${r.stones}`).join(', ')}${protoData.skipped ? `; luk pominiętych (pod oprawą): ${protoData.skipped}` : ''}.
+To podgląd do oceny metody – nie do przyjęcia.</p>
 <div class="cards">
-<article class="card local"><header><code>celaeno-szafir-granatowy (prototyp)</code><span class="score">bez oceny</span></header>
-<figure><img loading="lazy" src="${proto('porownanie')}" alt="Celaeno – oryginał i prototyp z szafirami"><figcaption>oryginał | prototyp</figcaption></figure>
-<figure class="full"><img loading="lazy" src="${proto('zblizenie')}" alt="Celaeno – zbliżenie rzędów pavé przed i po"><figcaption>zbliżenie trzech rzędów pavé: oryginał | prototyp</figcaption></figure></article>
-<article class="card local"><header><code>maska</code><span class="score">czerwone = przemalowane</span></header>
-<figure><img loading="lazy" src="${proto('maska')}" alt="Celaeno – maska kamieni na zdjęciu"><figcaption>czerwone: maska kamieni, żółte: granice pasów rzędów pavé</figcaption></figure>
-<figure class="full"><img loading="lazy" src="${proto('wynik')}" alt="Celaeno – prototyp, całe zdjęcie"><figcaption>cały kadr po przemalowaniu</figcaption></figure></article>
+${protoData.stones
+  .map(
+    (st) => `<article class="card local"><header><code>celaeno-${esc(st.key)}</code><span class="score">${esc(st.name)}</span></header>
+<figure><img loading="lazy" src="${proto(`${st.key}-prototyp-porownanie`)}" alt="Celaeno – oryginał i prototyp: ${esc(st.name)}"><figcaption>oryginał | prototyp</figcaption></figure>
+<figure class="full"><img loading="lazy" src="${proto(`${st.key}-prototyp-zblizenie`)}" alt="Celaeno – zbliżenie rzędów pavé: ${esc(st.name)}"><figcaption>zbliżenie rzędów pavé: oryginał | prototyp · odcień ${st.hue}°, C ${st.chroma}, L' = ${st.a} + ${st.b}·L</figcaption></figure></article>`,
+  )
+  .join('\n')}
+<article class="card local"><header><code>kamienie i maska</code><span class="score">bez oceny</span></header>
+<figure><img loading="lazy" src="${proto('kamienie-prototyp-numery')}" alt="Celaeno – kamienie z numerami w rzędach"><figcaption>koła kamieni z numerami rząd.kamień (zielone – z maski, niebieskie – dodane w lukach), żółte – pasy rzędów</figcaption></figure>
+<figure class="full"><img loading="lazy" src="${proto('kamienie-prototyp-maska')}" alt="Celaeno – maska kamieni"><figcaption>czerwone: przemalowane piksele</figcaption></figure></article>
 </div></section>`
   : ''
 const html = `<!doctype html>
