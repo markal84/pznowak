@@ -42,6 +42,11 @@ for (const entry of proposals) {
       continue
     }
     const index = card.variants.findIndex((item) => item.stone === variant.stone)
+    // Wariant na prawdziwych zdjęciach (np. Iris z oliwinem = dawna Taygete) nie ustępuje wizualizacji.
+    if (index >= 0 && card.variants[index].isVisualization === false) {
+      console.log(`Pomijam ${entry.slug}: „${variant.stone}” ma prawdziwe zdjęcia.`)
+      continue
+    }
     if (index >= 0) {
       card.variants[index] = variant
       replaced++

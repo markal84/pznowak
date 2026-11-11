@@ -57,8 +57,8 @@ Tabele poniżej generuje `npm run seo:redirects-doc` (w katalogu `cms`); test
 | `/ring/leto-2` | `/pierscionki/harmonia` | WordPress | nie | Karta połączona z fasonem Harmonia (ten sam pierścionek). |
 | `/katalog/celaeno` | `/pierscionki/celaeno` | mapa witryny | tak | Ten sam pierścionek, ten sam slug. |
 | `/ring/celaeno` | `/pierscionki/celaeno` | WordPress | nie | Wpis WordPress „ring”; ten sam pierścionek. |
-| `/katalog/taygete` | `/pierscionki/taygete` | mapa witryny | tak | Ten sam pierścionek, ten sam slug. |
-| `/ring/taygete` | `/pierscionki/taygete` | WordPress | nie | Wpis WordPress „ring”; ten sam pierścionek. |
+| `/katalog/taygete` | `/pierscionki/iris?kamien=oliwin-i-diamenty` | mapa witryny | tak | Karta połączona z fasonem Iris (kamień jako wariant). |
+| `/ring/taygete` | `/pierscionki/iris?kamien=oliwin-i-diamenty` | WordPress | nie | Karta połączona z fasonem Iris (kamień jako wariant). |
 | `/katalog/maia` | `/pierscionki/maia` | mapa witryny | nie | Ten sam pierścionek, ten sam slug. |
 | `/ring/maia` | `/pierscionki/maia` | WordPress | nie | Wpis WordPress „ring”; ten sam pierścionek. |
 | `/katalog/cassiopeia` | `/pierscionki/cassiopeia` | mapa witryny | tak | Ten sam pierścionek, ten sam slug. |
@@ -140,6 +140,7 @@ Tabele poniżej generuje `npm run seo:redirects-doc` (w katalogu `cms`); test
 | `/pierscionki/eirene` | `/pierscionki/harmonia?kamien=turmalin-malinowy-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Harmonia: ten sam pierścionek, kamień jako wariant. |
 | `/pierscionki/leto` | `/pierscionki/harmonia` | nowy serwis | nie | Karta połączona z fasonem Harmonia: ten sam pierścionek. |
 | `/pierscionki/thalassa` | `/pierscionki/aion?kamien=zielone-i-biale-diamenty` | nowy serwis | nie | Karta połączona z fasonem Aion: ten sam pierścionek, kamień jako wariant. |
+| `/pierscionki/taygete` | `/pierscionki/iris?kamien=oliwin-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Iris: ten sam pierścionek, kamień jako wariant. |
 | `/gallery/przykladowe-zdjecie` | `/realizacje` | WordPress | nie | Wpis galerii WordPress; najbliższa lista to „Realizacje”. |
 | `/gallery/zdjecie-2` | `/realizacje` | WordPress | nie | Wpis galerii WordPress; najbliższa lista to „Realizacje”. |
 | `/gallery/galeria-3` | `/realizacje` | WordPress | nie | Wpis galerii WordPress; najbliższa lista to „Realizacje”. |

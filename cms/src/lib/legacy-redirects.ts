@@ -116,7 +116,7 @@ export const RENAMED_RING_SLUGS: Readonly<Record<string, string>> = {
 export const currentRingSlug = (legacySlug: string): string => RENAMED_RING_SLUGS[legacySlug] ?? legacySlug
 
 /**
- * Karty połączone w jeden fason (zlecenie AB: Pyrrha i Nyx → Urania; lista PZ Nowak: Eirene i Leto → Harmonia, Thalassa → Aion). Ich
+ * Karty połączone w jeden fason (zlecenie AB: Pyrrha i Nyx → Urania; lista PZ Nowak: Eirene i Leto → Harmonia, Thalassa → Aion, Taygete → Iris). Ich
  * własne karty są w archiwum. Adres takiej karty idzie od razu na fason z wybranym kamieniem (`?kamien=` = adres
  * wariantu, patrz `stoneSlug` w `stone-variants.ts` i test); bez `kamien` karta nie ma własnego wariantu (ten sam
  * pierścionek i kamień co fason). Wpisane tu na stałe: ten plik czyta `next.config.ts`, a on nie ma dostępu do bazy.
@@ -128,6 +128,8 @@ export const MERGED_RING_VARIANTS: Readonly<Record<string, { slug: string; kamie
   leto: { slug: 'harmonia' },
   // Thalassa → Aion (Marcin 07.11): prawdziwe zdjęcia Thalassy to zielony wariant Aiona.
   thalassa: { slug: 'aion', kamien: 'zielone-i-biale-diamenty' },
+  // Taygete → Iris (Marcin 11.11): ten sam fason, prawdziwe zdjęcia z oliwinem jako wariant Iris; szkic Taygete zostaje nieopublikowany.
+  taygete: { slug: 'iris', kamien: 'oliwin-i-diamenty' },
 }
 
 /** Adres w nowym serwisie dla karty o aktualnym slugu: połączona karta → fason z `?kamien=`, inaczej zwykły adres karty. */

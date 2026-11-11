@@ -1,0 +1,13 @@
+[
+  { "name": "Celaeno", "file": "celaeno-dlon.webp", "source": "FB 122167532246616875 (album świąteczny), zdjęcie" },
+  { "name": "Amphitrite", "file": "amphitrite-dlon.webp", "source": "FB 122167532246616875 (album świąteczny), zdjęcie" },
+  { "name": "Rhodope", "file": "rhodope-dlon.webp", "source": "FB 122167532246616875 (album świąteczny), zdjęcie" },
+  { "name": "Erythea", "file": "erythea-dlon.webp", "source": "FB 122167532246616875 (album świąteczny), zdjęcie" },
+  { "name": "Athena", "file": "athena-dlon.webp", "source": "FB 122111893886616875, klatka z rolki" },
+  { "name": "Harmonia", "file": "eirene-dlon.webp", "source": "FB 122145838088616875, klatka z rolki; dawna karta Eirene = wariant Harmonia", "kamien": "turmalin-malinowy-i-diamenty" },
+  { "name": "Urania", "file": "nyx-dlon.webp", "source": "FB 122146669808616875, klatka z rolki; dawna karta Nyx = wariant Urania", "kamien": "topaz-london-blue-i-diamenty" },
+  { "name": "Ione", "file": "ione-dlon.webp", "source": "FB 122148526190616875, klatka z rolki" },
+  { "name": "Daphne", "file": "daphne-dlon.webp", "source": "FB 122157010658616875, klatka z rolki" },
+  { "name": "Iole", "file": "iole-dlon.webp", "source": "FB 122176733186616875, klatka z rolki" },
+  { "name": "Iris", "kamien": "oliwin-i-diamenty", "file": "iris-oliwin-dlon.webp", "source": "FB 122167707434616875, klatka z rolki (576 px); dawna karta Taygete = wariant Iris" }
+]
