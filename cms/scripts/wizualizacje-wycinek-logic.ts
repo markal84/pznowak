@@ -353,7 +353,8 @@ export function verifyCutout(
   const bin = Uint8Array.from(mask, (v) => (v ? 1 : 0))
   const grownMask = growMask(bin, width, feather + 1)
   const outer = band ? Uint8Array.from(grownMask, (v, i) => (v || band[i] ? 1 : 0)) : grownMask
-  const ring = growMask(outer, width, Math.max(3, Math.round(Math.sqrt(bin.reduce((s, v) => s + v, 0)) * 0.12)))
+  // pierścień oprawy zawsze wokół maski (nie wokół pasu poprawki): generator nie może przesunąć oprawy tuż przy kamieniu
+  const ring = growMask(grownMask, width, Math.max(3, Math.round(Math.sqrt(bin.reduce((s, v) => s + v, 0)) * 0.12)))
   // rdzeń: maska zwężona o szerokość miękkiej krawędzi (odwrotność poszerzenia tła)
   const core = Uint8Array.from(growMask(Uint8Array.from(bin, (v) => 1 - v), width, feather), (v) => 1 - v)
 
@@ -377,10 +378,10 @@ export function verifyCutout(
   let fire = 0
   let coreCount = 0
   for (let i = 0; i < n; i++) {
+    if (ring[i] && !grownMask[i]) ringValues.push(de(o, g, i))
     if (!outer[i]) {
       outsideCount++
       if (de(o, r, i) > 2) outsideChanged++
-      if (ring[i]) ringValues.push(de(o, g, i))
       continue
     }
     if (!core[i]) continue
@@ -537,11 +538,18 @@ export type StoneFixOptions = {
   calm?: number
   /** Detal faset z oryginału: L += detail · (L_oryg − blur(L_oryg, σ 2.5)). */
   detail?: number
+  /**
+   * Drugi, szerszy pas (ułamek większego wymiaru kamienia, np. 0.25) na odbicia starego kamienia w diamentach bocznych
+   * i metalu: jasne piksele (L ≥ 45) w odcieniu starego kamienia ±20°, C ≥ 6, poza maską – odbarwione (C × 0.35), złoto nietknięte.
+   */
+  reflectFrac?: number
 }
 
 export type StoneFixStats = {
   bandPx: number
   spillPx: number
+  /** Odbarwione odbicia starego koloru (drugi pas). */
+  reflectPx?: number
   maskPx: number
   targetHue: number
   targetChroma: number
@@ -590,7 +598,9 @@ export function stoneFix(
   }
   const size = Math.max(x1 - x0, y1 - y0, 1)
   const radius = Math.max(2, Math.round((size * (options.bandFrac ?? 0.12)) / 2))
-  const band = dilateDisc(mask, width, height, radius)
+  const inner = dilateDisc(mask, width, height, radius)
+  const wide = options.reflectFrac ? dilateDisc(mask, width, height, Math.max(radius, Math.round((size * options.reflectFrac) / 2))) : inner
+  const band = Uint8Array.from(inner, (v, i) => (v || wide[i] ? 1 : 0))
 
   // odcień docelowy: moda histogramu odcienia (kosze 10°, wygładzone ±1 kosz, ważone C) w masce, bez złota
   const hist = new Float64Array(36)
@@ -609,9 +619,16 @@ export function stoneFix(
   const full = to - from >= 355 || (to - from + 360) % 360 >= 355
   const old: HueRange = full ? [200, 280] : [(from - 20 + 360) % 360, (to + 20) % 360]
   const spill = new Float32Array(n)
+  const reflect = new Float32Array(n)
   let spillPx = 0
+  let reflectPx = 0
   for (let i = 0; i < n; i++) {
-    if (band[i] && inHue(H[i], old) && !near(H[i]) && C[i] >= 5 && L[i] >= 12) {
+    if (!band[i] || !inHue(H[i], old) || near(H[i]) || inHue(H[i], GOLD)) continue
+    // jasne odbicia poza maską (diamenty boczne, metal): odbarwić, nie przemalowywać na kolor docelowy
+    if (options.reflectFrac && !mask[i] && L[i] >= 45 && C[i] >= 6) {
+      reflect[i] = 1
+      reflectPx++
+    } else if (inner[i] && C[i] >= 5 && L[i] >= 12) {
       spill[i] = 1
       spillPx++
     }
@@ -633,8 +650,21 @@ export function stoneFix(
     A[i] = A[i] * (1 - wi) + c * Math.cos(th) * wi
     B[i] = B[i] * (1 - wi) + c * Math.sin(th) * wi
   }
+  if (reflectPx) {
+    const wr = gaussBlur(reflect, width, height, 1.5)
+    for (let i = 0; i < n; i++) {
+      // tylko piksele odcienia starego kamienia (rozmycie nie przechodzi na złoto ani na sąsiednie kolory)
+      const wi = band[i] && !mask[i] && inHue(H[i], old) && !near(H[i]) && !inHue(H[i], GOLD) ? Math.min(1, Math.max(reflect[i], wr[i])) : 0
+      if (!wi) continue
+      // oznaczony piksel w pełni (drobne iskry), rozmycie tylko miękko domyka brzeg
+      const m = 1 - wi * 0.65
+      A[i] *= m
+      B[i] *= m
+    }
+  }
 
   const stats: StoneFixStats = { bandPx: band.reduce((s, v) => s + v, 0), spillPx, maskPx, targetHue: target, targetChroma }
+  if (options.reflectFrac) stats.reflectPx = reflectPx
   const soft = gaussBlur(Float32Array.from(mask), width, height, 2)
   if (options.lift) {
     const inside: number[] = []
@@ -682,11 +712,40 @@ export function stoneFix(
 
 /** Siła poprawki dla kamienia: próba 1 łagodna, próba 2 mocniejsza (szafir: jaśniej, szmaragd: stonowany + detal faset). */
 export function stoneFixOptions(stoneKey: string, originalHue: HueRange, strength: 1 | 2): StoneFixOptions {
-  const options: StoneFixOptions = { originalHue }
+  const options: StoneFixOptions = { originalHue, reflectFrac: 0.25 }
   if (stoneKey.startsWith('szafir')) options.lift = strength === 1 ? 12 : 14
   if (stoneKey.startsWith('szmaragd') && strength === 2) {
     options.calm = 0.85
     options.detail = 0.4
   }
   return options
+}
+
+/** Zarzut geometrii w ocenie Terry (obrys, szlif, rozmiar, położenie, „wklejony”) – tego poprawka koloru nie naprawi. */
+const GEOMETRY = /obrys|szlif|kształt|rozmiar|wielkoś|położeni|przesun|większ|mniejsz|wklejon|zniekształc|proporcj/i
+const NEGATIVE = /\bnie\b|zmien|większ|mniejsz|przesun|wklejon|odbieg|niezgod|zniekształc|\binn[yaei]\b|sugeruj|zaburz/i
+/** Zarzut koloru: stary kolor, obwódka, fiolet/róż/turkus/niebieski przy krawędzi, za ciemny/czarny, za intensywny. */
+const COLOUR =
+  /star\w* (kolor|barw)|pozostałoś|resztk|obwódk|poświat|fiolet|różow|turkus|niebiesk|(za|zbyt|bardziej) (ciemn|intensywn|mocn|nasycon)|spokojniejsz|czarn|pierwotn\w* barw/i
+/** Zdanie stwierdzające brak wady („nie widać poświaty”) nie jest zarzutem. */
+const DENIAL = /nie widać|\bbrak\w*\b|\bbez\b/i
+
+export type FixQualification = { ok: boolean; why_pl: string }
+
+/** Czy odrzucona próba nadaje się na źródło poprawki (score ≥ 72, ten sam pierścionek i szlif, zarzut koloru, nie geometrii). */
+export function fixQualifies(check: {
+  score: number
+  same_ring: boolean
+  stone_cut_preserved: boolean
+  reason_pl: string
+  artifacts_pl: string[]
+}): FixQualification {
+  if (check.score < 72) return { ok: false, why_pl: `score ${check.score} < 72` }
+  if (!check.same_ring || !check.stone_cut_preserved) return { ok: false, why_pl: 'zarzut geometrii (same_ring / stone_cut_preserved = false)' }
+  const sentences = [check.reason_pl, ...check.artifacts_pl].flatMap((t) => t.split(/(?<=[.;])\s+/))
+  const geometry = sentences.find((t) => GEOMETRY.test(t) && NEGATIVE.test(t))
+  if (geometry) return { ok: false, why_pl: `zarzut geometrii: „${geometry.trim()}”` }
+  const colour = sentences.find((t) => COLOUR.test(t) && !DENIAL.test(t))
+  if (!colour) return { ok: false, why_pl: 'zarzut nie dotyczy koloru' }
+  return { ok: true, why_pl: `zarzut koloru: „${colour.trim()}”` }
 }

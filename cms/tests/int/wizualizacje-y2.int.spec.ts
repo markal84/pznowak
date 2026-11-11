@@ -12,6 +12,7 @@ import {
 import { cutoutCheckPrompt, cutoutPrompt, jobs, loadConfig } from '../../scripts/wizualizacje-w-logic'
 import {
   cropBox,
+  fixQualifies,
   hintRegion,
   inHue,
   lch,
@@ -275,6 +276,29 @@ describe('poprawka bez generatora (stoneFix)', () => {
     for (let i = 0; i < W * H; i++) if (!band[i]) expect([rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]]).toEqual([...result.subarray(i * 3, i * 3 + 3)])
   })
 
+  it('jasne odbicia starego koloru w szerszym pasie są odbarwione, nie przemalowane', () => {
+    const PINK: Px = [235, 170, 215]
+    // jasna różowa iskra (diament boczny) 3–5 px za maską: poza pasem 1 (2 px), w pasie odbić (5 px)
+    const result = image((x, y) => (disk(x, y, 60, 50, 20) ? GREEN : disk(x, y, 84, 50, 1) ? PINK : GREY))
+    const { rgb, stats } = stoneFix(result, result, mask, W, H, stoneFixOptions('szmaragd-stonowany', [285, 360], 1))
+    expect(stats.reflectPx).toBeGreaterThan(0)
+    const before = lch(result.subarray((50 * W + 84) * 3, (50 * W + 84) * 3 + 3), 1)
+    const after = lch(rgb.subarray((50 * W + 84) * 3, (50 * W + 84) * 3 + 3), 1)
+    expect(after.C[0]).toBeLessThan(before.C[0] * 0.5)
+    expect(Math.abs(after.L[0] - before.L[0])).toBeLessThan(2)
+  })
+
+  it('filtr źródeł poprawki: zarzut koloru tak, geometrii nie', () => {
+    const base = { score: 82, same_ring: true, stone_cut_preserved: true, artifacts_pl: [] as string[] }
+    expect(fixQualifies({ ...base, reason_pl: 'Szlif, obrys i położenie kamienia są zachowane. Jednak różowo-fioletowy ślad przy krawędzi osłabia efekt.' }).ok).toBe(true)
+    expect(fixQualifies({ ...base, reason_pl: 'Kolor jest bliski, ale obrys kamienia nie odpowiada dostatecznie wiernie oryginałowi.' }).ok).toBe(false)
+    expect(fixQualifies({ ...base, reason_pl: 'Pierścionek zachowany, jednak kamień wygląda na większy w dolnej części; różowy fragment.' }).ok).toBe(false)
+    expect(fixQualifies({ ...base, reason_pl: 'Nie widać resztek niebieskiego koloru na krawędzi. Fasety są miękkie.' }).ok).toBe(false)
+    expect(fixQualifies({ ...base, reason_pl: 'Kamień wymaga jednak spokojniejszej zieleni.' }).ok).toBe(true)
+    expect(fixQualifies({ ...base, score: 70, reason_pl: 'Różowy ślad przy krawędzi.' }).ok).toBe(false)
+    expect(fixQualifies({ ...base, stone_cut_preserved: false, reason_pl: 'Różowy ślad.' }).ok).toBe(false)
+  })
+
   it('szafir granatowy: mediana L w masce podniesiona do celu', () => {
     const result = image((x, y) => (disk(x, y, 60, 50, 20) ? NAVY : GREY))
     const strong = stoneFix(result, result, mask, W, H, stoneFixOptions('szafir-granatowy', [265, 340], 2))
@@ -286,7 +310,9 @@ describe('poprawka bez generatora (stoneFix)', () => {
     const original = image((x, y) => (disk(x, y, 60, 50, 20) ? BLUE : GREY))
     const changed = image((x, y) => (disk(x, y, 60, 50, 20) ? GREEN : disk(x, y, 60, 50, 24) ? WHITE : GREY))
     const band = Uint8Array.from({ length: W * H }, (_, i) => (disk(i % W, Math.floor(i / W), 60, 50, 25) ? 1 : 0))
-    const input = { original, result: changed, generated: changed, mask: Uint8Array.from(mask, (v) => v * 255), width: W, height: H, feather: 1 }
+    // generator zmienił tylko kamień; biały pas za maską to poprawka
+    const generated = image((x, y) => (disk(x, y, 60, 50, 20) ? GREEN : GREY))
+    const input = { original, result: changed, generated, mask: Uint8Array.from(mask, (v) => v * 255), width: W, height: H, feather: 1 }
     expect(verifyCutout(input, [180, 240], undefined).ok).toBe(false)
     expect(verifyCutout({ ...input, band }, [180, 240], undefined).ok).toBe(true)
   })
