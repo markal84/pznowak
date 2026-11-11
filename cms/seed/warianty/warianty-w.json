@@ -1,0 +1,331 @@
+[
+  {
+    "slug": "aion",
+    "name": "Aion",
+    "variants": [
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "aion-szmaragd-stonowany.webp"
+        ],
+        "alt": "Obrączka eternity Aion ze szmaragdami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "delos",
+    "name": "Delos",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "delos-rubin.webp",
+          "delos-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Delos z rubinem w otoczeniu diamentów, w stylu art deco, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "rhodope",
+    "name": "Rhodope",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "rhodope-szafir-granatowy.webp",
+          "rhodope-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Rhodope z granatowym szafirem w oprawie halo, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "rhodope-szmaragd-stonowany.webp",
+          "rhodope-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Rhodope ze szmaragdem w oprawie halo, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "rhodope-rubin.webp",
+          "rhodope-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Rhodope z rubinem w oprawie halo, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "amphitrite",
+    "name": "Amphitrite",
+    "variants": [
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "amphitrite-szmaragd-stonowany.webp",
+          "amphitrite-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Amphitrite ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "calypso",
+    "name": "Calypso",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "calypso-szafir-granatowy.webp",
+          "calypso-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Calypso z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "calypso-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Calypso ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "calypso-rubin.webp"
+        ],
+        "alt": "Pierścionek Calypso z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "calypso-bialy-diament.webp",
+          "calypso-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Calypso z białym diamentem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "eos",
+    "name": "Eos",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "eos-szafir-granatowy.webp",
+          "eos-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Eos z granatowym szafirem z diamentami na szynie pavé, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "eos-szmaragd-stonowany.webp",
+          "eos-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Eos ze szmaragdem z diamentami na szynie pavé, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "chryse",
+    "name": "Chryse",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "chryse-szafir-granatowy.webp",
+          "chryse-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Chryse z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "chryse-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Chryse ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "harmonia",
+    "name": "Harmonia",
+    "variants": [
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "harmonia-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Harmonia ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "harmonia-bialy-diament.webp",
+          "harmonia-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Harmonia z białym diamentem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "electra",
+    "name": "Electra",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "electra-szafir-granatowy.webp"
+        ],
+        "alt": "Pierścionek Electra z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "electra-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Electra ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "electra-rubin.webp"
+        ],
+        "alt": "Pierścionek Electra z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "dione",
+    "name": "Dione",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "dione-szafir-granatowy.webp",
+          "dione-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Dione z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "dione-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Dione ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "dione-rubin.webp",
+          "dione-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Dione z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "hestia",
+    "name": "Hestia",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "hestia-szafir-granatowy.webp",
+          "hestia-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Hestia z granatowym szafirem w oprawie zaręczynowej, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "hestia-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Hestia ze szmaragdem w oprawie zaręczynowej, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "hestia-rubin.webp"
+        ],
+        "alt": "Pierścionek Hestia z rubinem w oprawie zaręczynowej, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "adamas",
+    "name": "Adamas",
+    "variants": [
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "adamas-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Adamas ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "adamas-rubin.webp"
+        ],
+        "alt": "Pierścionek Adamas z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  }
+]

@@ -414,7 +414,21 @@
         {
           "zrodlo": [
             "legacy/jewelry/Michalnowak.com_.pl-12-1024x683.jpg"
-          ]
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.153,
+              0.261,
+              0.226,
+              0.444
+            ],
+            "odcien": [
+              235,
+              300
+            ],
+            "chroma_min": 14,
+            "maska_z_obszaru": true
+          }
         }
       ],
       "cala_galeria": [
@@ -423,11 +437,18 @@
         "bialy-diament"
       ],
       "kamien_oryginalu": {
+        "obszar": [
+          0.4435,
+          0.4834,
+          0.5945,
+          0.6806
+        ],
         "odcien": [
           235,
           300
         ],
-        "chroma_min": 14
+        "chroma_min": 14,
+        "maska_z_obszaru": true
       },
       "uwaga_aa": "AA (09.11): oryginał to szafir granatowy – bez szafiru granatowego; 2 obrazy (zdjęcie karty + widok z boku)."
     },
@@ -506,6 +527,1224 @@
         "chroma_min": 14
       },
       "uwaga_aa": "AA (09.11): oryginał to szmaragd – bez szmaragdu; 2 obrazy (zdjęcie karty + widok z boku)."
+    },
+    {
+      "slug": "aria",
+      "name": "Aria",
+      "zrodlo": [
+        "legacy/jewelry/2_1-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Aria {z} w oprawie pavé z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/2_2-683x1024.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          250,
+          340
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 2 (10.11): oryginał to ametyst; 4 kolory; 2 obrazy."
+    },
+    {
+      "slug": "ianthe",
+      "name": "Ianthe",
+      "zrodlo": [
+        "facebook/media/122179662746616875_122179662632616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Ianthe {z} w owalu z diamentami, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122179662746616875_122179662434616875.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          285,
+          360
+        ],
+        "chroma_min": 8
+      },
+      "uwaga_aa": "Partia 2 (10.11): oryginał to ametyst owalny; 4 kolory; 2 obrazy."
+    },
+    {
+      "slug": "erythea",
+      "name": "Erythea",
+      "zrodlo": [
+        "facebook/media/122167969748616875_122167969424616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Erythea {z} w oprawie halo z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122167969748616875_122167969304616875.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          320,
+          20
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 2 (10.11): oryginał to malinowy turmalin; 4 kolory; 2 obrazy."
+    },
+    {
+      "slug": "merope",
+      "name": "Merope",
+      "zrodlo": [
+        "legacy/jewelry/1-57-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Merope {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/2-58-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          320,
+          20
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 2 (10.11): oryginał to różowy turmalin; 4 kolory; 2 obrazy."
+    },
+    {
+      "slug": "phoebe",
+      "name": "Phoebe",
+      "zrodlo": [
+        "legacy/jewelry/470051606_122111366966616875_6671083676677230809_n-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Phoebe {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/470221135_122111366882616875_2857160378326643557_n-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          265,
+          340
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to tanzanit; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "iris",
+      "name": "Iris",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-24-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Iris {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-22-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          265,
+          340
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to tanzanit; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "ione",
+      "name": "Ione",
+      "zrodlo": [
+        "legacy/jewelry/467481960_122106045326616875_260965368173001066_n-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Ione {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/467501627_122106045338616875_8084844742246764250_n-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          265,
+          340
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to tanzanit; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "gaia",
+      "name": "Gaia",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-15-683x1024.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Gaia {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-3-683x1024.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          130,
+          200
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to szmaragd; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "asteria",
+      "name": "Asteria",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-16-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Asteria {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-17-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          240,
+          320
+        ],
+        "chroma_min": 14
+      },
+      "uwaga_aa": "Partia 3 (10.11): oryginał to szafir; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "rhodope",
+      "name": "Rhodope",
+      "zrodlo": [
+        "facebook/media/122168640332616875_122168640026616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Rhodope {z} w oprawie halo, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122168640332616875_122168640050616875.jpg"
+          ],
+          "kamien_oryginalu": {
+            "odcien": [
+              320,
+              20
+            ],
+            "chroma_min": 14,
+            "obszar": [
+              0.4402,
+              0.1091,
+              0.5938,
+              0.2819
+            ],
+            "maska_z_obszaru": true
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          320,
+          20
+        ],
+        "chroma_min": 14,
+        "obszar": [
+          0.4528,
+          0.1398,
+          0.6102,
+          0.3612
+        ],
+        "maska_z_obszaru": true
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to różowy turmalin; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "iole",
+      "name": "Iole",
+      "zrodlo": [
+        "facebook/media/122179662746616875_122179662398616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Iole {z} w szlifie oktagon z diamentami, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122179662746616875_122179662650616875.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          285,
+          360
+        ],
+        "chroma_min": 8
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to ametyst; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "helios",
+      "name": "Helios",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-25-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Helios {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-20-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          190,
+          280
+        ],
+        "chroma_min": 12
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to topaz; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "amphitrite",
+      "name": "Amphitrite",
+      "zrodlo": [
+        "facebook/media/122160075698616875_122160075320616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Amphitrite {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122160075698616875_122160075344616875.jpg"
+          ],
+          "kamien_oryginalu": {
+            "odcien": [
+              165,
+              285
+            ],
+            "chroma_min": 10,
+            "obszar": [
+              0.5273,
+              0.245,
+              0.6617,
+              0.437
+            ],
+            "maska_z_obszaru": true
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          165,
+          285
+        ],
+        "chroma_min": 10,
+        "obszar": [
+          0.4673,
+          0.36,
+          0.5927,
+          0.534
+        ],
+        "maska_z_obszaru": true
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to niebieski diament; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "calypso",
+      "name": "Calypso",
+      "zrodlo": [
+        "facebook/media/122191080194616875_122191080002616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Calypso {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122191080194616875_122191079822616875.jpg"
+          ],
+          "kamien_oryginalu": {
+            "odcien": [
+              165,
+              285
+            ],
+            "chroma_min": 10,
+            "obszar": [
+              0.4559,
+              0.1816,
+              0.5851,
+              0.3044
+            ],
+            "maska_z_obszaru": true
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          165,
+          285
+        ],
+        "chroma_min": 10,
+        "obszar": [
+          0.5265,
+          0.27,
+          0.6775,
+          0.508
+        ],
+        "maska_z_obszaru": true
+      },
+      "uwaga_aa": "Partia 4 (10.11): oryginał to niebieski diament; 2 obrazy, 2 próby. Drugie zdjęcie pominięte: maska kamienia się nie znalazła."
+    },
+    {
+      "slug": "urania",
+      "name": "Urania",
+      "zrodlo": [
+        "legacy/jewelry/557903524_122158637246616875_2692591890710495238_n-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Urania {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/557930792_122158637264616875_6448592044616193409_n-1024x683.jpg"
+          ]
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "odcien": [
+          190,
+          280
+        ],
+        "chroma_min": 12
+      },
+      "uwaga_aa": "Uzupełnienie (11.11): oryginał to topaz błękitny; rubin to prawdziwe zdjęcie; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "chloris",
+      "name": "Chloris",
+      "zrodlo": [
+        "facebook/media/122162408702616875_122162408540616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Chloris {z} w szlifie emerald, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122162408702616875_122162408456616875.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.4992,
+              0.1883,
+              0.724,
+              0.401
+            ],
+            "odcien": [
+              90,
+              145
+            ],
+            "chroma_min": 8,
+            "maska_z_obszaru": true
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.6182,
+          0.3556,
+          0.7898,
+          0.7064
+        ],
+        "odcien": [
+          90,
+          145
+        ],
+        "chroma_min": 8,
+        "maska_z_obszaru": true
+      },
+      "uwaga_aa": "Ręczny obszar kamienia (11.11): oryginał to oliwin; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "eos",
+      "name": "Eos",
+      "zrodlo": [
+        "facebook/media/122178696416616875_122178696182616875.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Eos {z} z diamentami na szynie pavé, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "facebook/media/122178696416616875_122178696164616875.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.5619,
+              0.2532,
+              0.7551,
+              0.5438
+            ],
+            "odcien": [
+              0,
+              60
+            ],
+            "chroma_min": 5,
+            "maska_z_obszaru": true
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.3438,
+          0.291,
+          0.5282,
+          0.556
+        ],
+        "odcien": [
+          0,
+          60
+        ],
+        "chroma_min": 5,
+        "maska_z_obszaru": true
+      },
+      "uwaga_aa": "Ręczny obszar kamienia (11.11): oryginał to morganit; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "chryse",
+      "name": "Chryse",
+      "zrodlo": [
+        "legacy/jewelry/470156784_122111516504616875_843400416062377607_n-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Chryse {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/470227744_122111516516616875_4183876251770932540_n-1024x683.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.484,
+              0.2468,
+              0.594,
+              0.4222
+            ],
+            "odcien": [
+              60,
+              100
+            ],
+            "chroma_min": 10,
+            "maska_z_obszaru": true
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.3194,
+          0.0785,
+          0.5166,
+          0.3485
+        ],
+        "odcien": [
+          60,
+          100
+        ],
+        "chroma_min": 10,
+        "maska_z_obszaru": true
+      },
+      "uwaga_aa": "Ręczny obszar kamienia (11.11): oryginał to cytryn; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "harmonia",
+      "name": "Harmonia",
+      "zrodlo": [
+        "legacy/jewelry/516380962_122146377212616875_435414767702872138_n-683x1024.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Harmonia {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/516756978_122146377206616875_2113159612379438429_n-683x1024.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.3118,
+              0.3213,
+              0.5422,
+              0.4737
+            ],
+            "odcien": [
+              0,
+              60
+            ],
+            "chroma_min": 5,
+            "maska_z_obszaru": true
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.2781,
+          0.4115,
+          0.4329,
+          0.5255
+        ],
+        "odcien": [
+          0,
+          60
+        ],
+        "chroma_min": 5,
+        "maska_z_obszaru": true
+      },
+      "uwaga_aa": "Ręczny obszar kamienia (11.11): oryginał to morganit; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "electra",
+      "name": "Electra",
+      "zrodlo": [
+        "legacy/jewelry/1-54-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Electra {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/2-55-1024x683.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.322,
+              0.19,
+              0.465,
+              0.375
+            ],
+            "maska_z_obszaru": true,
+            "odcien": [
+              0,
+              360
+            ]
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.44,
+          0.33,
+          0.598,
+          0.646
+        ],
+        "maska_z_obszaru": true,
+        "odcien": [
+          0,
+          360
+        ]
+      },
+      "uwaga_aa": "Tura 11.11: oryginał to mystic topaz; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "dione",
+      "name": "Dione",
+      "zrodlo": [
+        "legacy/jewelry/504469026_122141883776616875_6457796563475997899_n-1024x682.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Dione {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/504831749_122141883848616875_4855309592971258723_n-682x1024.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.507,
+              0.6045,
+              0.58,
+              0.6455
+            ],
+            "maska_z_obszaru": true,
+            "odcien": [
+              0,
+              360
+            ]
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.376,
+          0.2889,
+          0.504,
+          0.4361
+        ],
+        "maska_z_obszaru": true,
+        "odcien": [
+          0,
+          360
+        ]
+      },
+      "uwaga_aa": "Tura 11.11: oryginał to diament; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "hestia",
+      "name": "Hestia",
+      "zrodlo": [
+        "legacy/jewelry/504831419_122142162182616875_9143894248516053307_n-1024x682.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Hestia {z} w oprawie zaręczynowej, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/504892945_122142162176616875_1741039862173246845_n-1024x682.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.475,
+              0.428,
+              0.556,
+              0.532
+            ],
+            "maska_z_obszaru": true,
+            "odcien": [
+              0,
+              360
+            ]
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.491,
+          0.457,
+          0.578,
+          0.582
+        ],
+        "maska_z_obszaru": true,
+        "odcien": [
+          0,
+          360
+        ]
+      },
+      "uwaga_aa": "Tura 11.11: oryginał to diament; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "thalia",
+      "name": "Thalia",
+      "zrodlo": [
+        "legacy/jewelry/1-16-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Thalia {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/2-17-683x1024.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.4903,
+              0.3095,
+              0.7437,
+              0.4785
+            ],
+            "maska_z_obszaru": true,
+            "odcien": [
+              0,
+              360
+            ]
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szmaragd-stonowany",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.4392,
+          0.1191,
+          0.5468,
+          0.2369
+        ],
+        "maska_z_obszaru": true,
+        "odcien": [
+          0,
+          360
+        ]
+      },
+      "uwaga_aa": "Tura 11.11: oryginał to szafir (London blue); 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "adamas",
+      "name": "Adamas",
+      "zrodlo": [
+        "legacy/jewelry/Michalnowak.com_.pl-9-683x1024.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Adamas {z} w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/Michalnowak.com_.pl-10-1024x683.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.279,
+              0.432,
+              0.338,
+              0.518
+            ],
+            "maska_z_obszaru": true,
+            "odcien": [
+              0,
+              360
+            ]
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.321,
+          0.368,
+          0.474,
+          0.47
+        ],
+        "maska_z_obszaru": true,
+        "odcien": [
+          0,
+          360
+        ]
+      },
+      "uwaga_aa": "Tura 11.11: oryginał to diament; 2 obrazy, 2 próby."
+    },
+    {
+      "slug": "prometheus",
+      "name": "Prometheus",
+      "zrodlo": [
+        "legacy/jewelry/1-51-1024x683.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa} i diamenty",
+        "bialy-diament": "Białe diamenty"
+      },
+      "alt": "Pierścionek Prometheus {z} w oprawie z kolorowymi szafirami, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "legacy/jewelry/2-52-1024x683.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.402,
+              0.363,
+              0.506,
+              0.573
+            ],
+            "odcien": [
+              130,
+              200
+            ],
+            "chroma_min": 14,
+            "maska_z_obszaru": true
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "rubin",
+        "bialy-diament"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.328,
+          0.237,
+          0.426,
+          0.447
+        ],
+        "odcien": [
+          130,
+          200
+        ],
+        "chroma_min": 14,
+        "maska_z_obszaru": true
+      },
+      "uwaga_aa": "Tura 11.11: oryginał to szmaragd; 2 obrazy, 2 próby."
     }
   ]
 }
