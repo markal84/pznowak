@@ -31,6 +31,22 @@
     ]
   },
   {
+    "slug": "phoebe",
+    "name": "Phoebe",
+    "variants": [
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "phoebe-szmaragd-stonowany.webp",
+          "phoebe-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Phoebe ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
     "slug": "rhodope",
     "name": "Rhodope",
     "variants": [

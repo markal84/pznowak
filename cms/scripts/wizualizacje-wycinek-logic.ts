@@ -342,14 +342,17 @@ export function verifyCutout(
     width: number
     height: number
     feather: number
+    /** Poprawka: pas wokół maski, w którym zmiany są zamierzone (0/1); dalej – jak zwykle bez zmian. */
+    band?: Uint8Array
   },
   originalHue: HueRange,
   check: StoneCheck | undefined,
 ): CutoutVerdict {
-  const { original, result, generated, mask, width, height, feather } = input
+  const { original, result, generated, mask, width, height, feather, band } = input
   const n = width * height
   const bin = Uint8Array.from(mask, (v) => (v ? 1 : 0))
-  const outer = growMask(bin, width, feather + 1)
+  const grownMask = growMask(bin, width, feather + 1)
+  const outer = band ? Uint8Array.from(grownMask, (v, i) => (v || band[i] ? 1 : 0)) : grownMask
   const ring = growMask(outer, width, Math.max(3, Math.round(Math.sqrt(bin.reduce((s, v) => s + v, 0)) * 0.12)))
   // rdzeń: maska zwężona o szerokość miękkiej krawędzi (odwrotność poszerzenia tła)
   const core = Uint8Array.from(growMask(Uint8Array.from(bin, (v) => 1 - v), width, feather), (v) => 1 - v)
@@ -447,4 +450,243 @@ export function cutoutHint(verdict: CutoutVerdict, check: StoneCheck | undefined
     }
   } else if (check?.odcien) parts.push('make the colour clearly and evenly the target gemstone colour')
   return parts.length ? `${parts.join('; ')}.` : ''
+}
+
+// ---------- poprawka (bez generatora) ----------
+
+/** Lab → sRGB (0–255), odwrotność `rgbToLab`. */
+export function labToRgb(L: number, a: number, b: number): [number, number, number] {
+  const fy = (L + 16) / 116
+  const fx = fy + a / 500
+  const fz = fy - b / 200
+  const inv = (f: number) => (f ** 3 > 0.008856 ? f ** 3 : (f - 16 / 116) / 7.787)
+  const X = inv(fx) * 0.95047
+  const Y = inv(fy)
+  const Z = inv(fz) * 1.08883
+  const gamma = (c: number) => {
+    const v = Math.min(1, Math.max(0, c))
+    return Math.round(Math.min(255, Math.max(0, (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055) * 255)))
+  }
+  return [
+    gamma(3.2406 * X - 1.5372 * Y - 0.4986 * Z),
+    gamma(-0.9689 * X + 1.8758 * Y + 0.0415 * Z),
+    gamma(0.0557 * X - 0.204 * Y + 1.057 * Z),
+  ]
+}
+
+/** Rozmycie Gaussa (separowalne, brzegi powielone). */
+export function gaussBlur(values: Float32Array, width: number, height: number, sigma: number): Float32Array {
+  const k = Math.ceil(3 * sigma)
+  const kernel = Array.from({ length: 2 * k + 1 }, (_, i) => Math.exp(-((i - k) ** 2) / (2 * sigma * sigma)))
+  const sum = kernel.reduce((s, v) => s + v, 0)
+  for (let i = 0; i < kernel.length; i++) kernel[i] /= sum
+  const tmp = new Float32Array(values.length)
+  const out = new Float32Array(values.length)
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let s = 0
+      for (let j = -k; j <= k; j++) s += kernel[j + k] * values[y * width + Math.min(width - 1, Math.max(0, x + j))]
+      tmp[y * width + x] = s
+    }
+  }
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let s = 0
+      for (let j = -k; j <= k; j++) s += kernel[j + k] * tmp[Math.min(height - 1, Math.max(0, y + j)) * width + x]
+      out[y * width + x] = s
+    }
+  }
+  return out
+}
+
+/** Poszerzenie maski kołem o promieniu `radius` px (odległość euklidesowa, przybliżenie fazowe 3–4). */
+export function dilateDisc(mask: Uint8Array, width: number, height: number, radius: number): Uint8Array {
+  const INF = 1e9
+  const d = new Float32Array(mask.length).fill(INF)
+  for (let i = 0; i < mask.length; i++) if (mask[i]) d[i] = 0
+  const at = (x: number, y: number) => (x < 0 || y < 0 || x >= width || y >= height ? INF : d[y * width + x])
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x
+      d[i] = Math.min(d[i], at(x - 1, y) + 3, at(x, y - 1) + 3, at(x - 1, y - 1) + 4, at(x + 1, y - 1) + 4)
+    }
+  }
+  for (let y = height - 1; y >= 0; y--) {
+    for (let x = width - 1; x >= 0; x--) {
+      const i = y * width + x
+      d[i] = Math.min(d[i], at(x + 1, y) + 3, at(x, y + 1) + 3, at(x + 1, y + 1) + 4, at(x - 1, y + 1) + 4)
+    }
+  }
+  return Uint8Array.from(d, (v) => (v <= radius * 3 ? 1 : 0))
+}
+
+/** Odległość kątowa odcieni (stopnie, 0–180). */
+const hueDistance = (a: number, b: number) => {
+  const d = Math.abs(a - b) % 360
+  return d > 180 ? 360 - d : d
+}
+
+export type StoneFixOptions = {
+  /** Odcień kamienia oryginału (`kamien_oryginalu.odcien`); pełne koło [0, 360] = niebieski [200, 280]. */
+  originalHue: HueRange
+  /** Pas wokół maski (ułamek większego wymiaru kamienia); domyślnie 0.12, czyli promień ≈ 6 %. */
+  bandFrac?: number
+  /** Szafir granatowy: docelowa mediana L w masce (gamma na L/100), np. 12 albo 14. */
+  lift?: number
+  /** Mnożnik nasycenia w masce (np. 0.85 – stonowany szmaragd). */
+  calm?: number
+  /** Detal faset z oryginału: L += detail · (L_oryg − blur(L_oryg, σ 2.5)). */
+  detail?: number
+}
+
+export type StoneFixStats = {
+  bandPx: number
+  spillPx: number
+  maskPx: number
+  targetHue: number
+  targetChroma: number
+  lift?: [number, number]
+}
+
+/**
+ * Poprawka lokalna wyniku po wklejeniu (bez generatora): stary kolor przy krawędzi kamienia (także tuż za maską –
+ * rondysta i pawilon widoczne pod galerią) dostaje odcień docelowy z wnętrza kamienia; szafir granatowy opcjonalnie
+ * rozjaśniony (gamma na L), szmaragd opcjonalnie stonowany i z detalem faset oryginału. Zmienia wyłącznie piksele
+ * w pasie `band` (maska poszerzona o ≈ 6 % wymiaru kamienia). Obrazy RGB w tej samej rozdzielczości, `mask` 0/1.
+ */
+export function stoneFix(
+  result: Uint8Array | Buffer,
+  original: Uint8Array | Buffer,
+  mask: Uint8Array,
+  width: number,
+  height: number,
+  options: StoneFixOptions,
+): { rgb: Uint8Array; band: Uint8Array; stats: StoneFixStats } {
+  const n = width * height
+  const L = new Float32Array(n)
+  const A = new Float32Array(n)
+  const B = new Float32Array(n)
+  const C = new Float32Array(n)
+  const H = new Float32Array(n)
+  for (let i = 0; i < n; i++) {
+    const [l, a, b] = rgbToLab(result[i * 3], result[i * 3 + 1], result[i * 3 + 2])
+    L[i] = l
+    A[i] = a
+    B[i] = b
+    C[i] = Math.hypot(a, b)
+    H[i] = ((Math.atan2(b, a) * 180) / Math.PI + 360) % 360
+  }
+  let [x0, y0, x1, y1] = [width, height, -1, -1]
+  let maskPx = 0
+  for (let i = 0; i < n; i++) {
+    if (!mask[i]) continue
+    maskPx++
+    const x = i % width
+    const y = (i - x) / width
+    x0 = Math.min(x0, x)
+    x1 = Math.max(x1, x)
+    y0 = Math.min(y0, y)
+    y1 = Math.max(y1, y)
+  }
+  const size = Math.max(x1 - x0, y1 - y0, 1)
+  const radius = Math.max(2, Math.round((size * (options.bandFrac ?? 0.12)) / 2))
+  const band = dilateDisc(mask, width, height, radius)
+
+  // odcień docelowy: moda histogramu odcienia (kosze 10°, wygładzone ±1 kosz, ważone C) w masce, bez złota
+  const hist = new Float64Array(36)
+  for (let i = 0; i < n; i++) if (mask[i] && C[i] >= 12 && !inHue(H[i], GOLD)) hist[Math.min(35, Math.floor(H[i] / 10))] += C[i]
+  let best = 0
+  let bestValue = -1
+  for (let k = 0; k < 36; k++) {
+    const v = hist[(k + 35) % 36] + hist[k] + hist[(k + 1) % 36]
+    if (v > bestValue) [best, bestValue] = [k, v]
+  }
+  const target = best * 10 + 5
+  const near = (h: number) => hueDistance(h, target) <= 28
+
+  // „stary kolor”: odcień kamienia oryginału ±20°, z dala od docelowego
+  const [from, to] = options.originalHue
+  const full = to - from >= 355 || (to - from + 360) % 360 >= 355
+  const old: HueRange = full ? [200, 280] : [(from - 20 + 360) % 360, (to + 20) % 360]
+  const spill = new Float32Array(n)
+  let spillPx = 0
+  for (let i = 0; i < n; i++) {
+    if (band[i] && inHue(H[i], old) && !near(H[i]) && C[i] >= 5 && L[i] >= 12) {
+      spill[i] = 1
+      spillPx++
+    }
+  }
+  const good: number[] = []
+  const colored: number[] = []
+  for (let i = 0; i < n; i++) {
+    if (!mask[i]) continue
+    if (C[i] >= 12) colored.push(C[i])
+    if (near(H[i]) && C[i] >= 10) good.push(C[i])
+  }
+  const targetChroma = good.length > 50 ? quantile(good, 0.75) : quantile(colored, 0.5)
+  const th = (target * Math.PI) / 180
+  const w = gaussBlur(spill, width, height, 1.5)
+  for (let i = 0; i < n; i++) {
+    const wi = band[i] ? Math.min(1, w[i]) : 0
+    if (!wi) continue
+    const c = Math.min(C[i], targetChroma)
+    A[i] = A[i] * (1 - wi) + c * Math.cos(th) * wi
+    B[i] = B[i] * (1 - wi) + c * Math.sin(th) * wi
+  }
+
+  const stats: StoneFixStats = { bandPx: band.reduce((s, v) => s + v, 0), spillPx, maskPx, targetHue: target, targetChroma }
+  const soft = gaussBlur(Float32Array.from(mask), width, height, 2)
+  if (options.lift) {
+    const inside: number[] = []
+    for (let i = 0; i < n; i++) if (mask[i]) inside.push(L[i])
+    const p50 = quantile(inside, 0.5)
+    if (p50 < options.lift) {
+      const g = Math.log(options.lift / 100) / Math.log(Math.max(p50, 1) / 100)
+      for (let i = 0; i < n; i++) {
+        if (!soft[i]) continue
+        const Ln = 100 * (Math.min(100, Math.max(0, L[i])) / 100) ** g
+        const ratio = Math.min(1.6, Math.max(1, (Ln + 1) / (L[i] + 1)))
+        const m = 1 - soft[i] + soft[i] * ratio
+        A[i] *= m
+        B[i] *= m
+        L[i] = L[i] * (1 - soft[i]) + Ln * soft[i]
+      }
+      const after: number[] = []
+      for (let i = 0; i < n; i++) if (mask[i]) after.push(L[i])
+      stats.lift = [Number(p50.toFixed(1)), Number(quantile(after, 0.5).toFixed(1))]
+    }
+  }
+  if (options.detail) {
+    const Lo = new Float32Array(n)
+    for (let i = 0; i < n; i++) Lo[i] = rgbToLab(original[i * 3], original[i * 3 + 1], original[i * 3 + 2])[0]
+    const blurred = gaussBlur(Lo, width, height, 2.5)
+    for (let i = 0; i < n; i++) L[i] += options.detail * (Lo[i] - blurred[i]) * soft[i]
+  }
+  if (options.calm !== undefined && options.calm !== 1) {
+    for (let i = 0; i < n; i++) {
+      const m = 1 - soft[i] + soft[i] * options.calm
+      A[i] *= m
+      B[i] *= m
+    }
+  }
+  const rgb = Uint8Array.from(result)
+  for (let i = 0; i < n; i++) {
+    if (!band[i]) continue
+    const [r, g, b] = labToRgb(Math.min(100, Math.max(0, L[i])), A[i], B[i])
+    rgb[i * 3] = r
+    rgb[i * 3 + 1] = g
+    rgb[i * 3 + 2] = b
+  }
+  return { rgb, band, stats }
+}
+
+/** Siła poprawki dla kamienia: próba 1 łagodna, próba 2 mocniejsza (szafir: jaśniej, szmaragd: stonowany + detal faset). */
+export function stoneFixOptions(stoneKey: string, originalHue: HueRange, strength: 1 | 2): StoneFixOptions {
+  const options: StoneFixOptions = { originalHue }
+  if (stoneKey.startsWith('szafir')) options.lift = strength === 1 ? 12 : 14
+  if (stoneKey.startsWith('szmaragd') && strength === 2) {
+    options.calm = 0.85
+    options.detail = 0.4
+  }
+  return options
 }

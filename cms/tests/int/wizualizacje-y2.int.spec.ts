@@ -10,7 +10,18 @@ import {
   stoneVariantsNote,
 } from '@/lib/stone-variants'
 import { cutoutCheckPrompt, cutoutPrompt, jobs, loadConfig } from '../../scripts/wizualizacje-w-logic'
-import { cropBox, hintRegion, inHue, originalStoneMask, verifyCutout } from '../../scripts/wizualizacje-wycinek-logic'
+import {
+  cropBox,
+  hintRegion,
+  inHue,
+  lch,
+  labToRgb,
+  originalStoneMask,
+  rgbToLab,
+  stoneFix,
+  stoneFixOptions,
+  verifyCutout,
+} from '../../scripts/wizualizacje-wycinek-logic'
 
 /** Zlecenie Y.2: wizualizacje w wycinku (maska z oryginału, kontrola automatyczna), podpis filmu i dopisek pod kółkami. */
 
@@ -236,5 +247,47 @@ describe('dopisek pod kółkami zależy od rodzaju wariantów', () => {
     const note = stoneVariantsNote([{ isVisualization: false }, { isVisualization: false }])
     expect(note).toBe(`${PHOTOGRAPHED_STONE_NOTE} ${STONE_VARIANTS_NOTE_NATURAL}`)
     expect(note).not.toMatch(/Wizualizacje/)
+  })
+})
+
+describe('poprawka bez generatora (stoneFix)', () => {
+  const GREEN: Px = [40, 150, 90]
+  const PURPLE: Px = [150, 60, 150]
+  const NAVY: Px = [10, 12, 40]
+  const mask = Uint8Array.from({ length: W * H }, (_, i) => (disk(i % W, Math.floor(i / W), 60, 50, 20) ? 1 : 0))
+  const hueAt = (rgb: Uint8Array, x: number, y: number) => lch(rgb.subarray((y * W + x) * 3, (y * W + x) * 3 + 3), 1).H[0]
+
+  it('Lab → RGB odwraca RGB → Lab', () => {
+    for (const px of [GREEN, PURPLE, NAVY, GOLD, WHITE]) {
+      expect(labToRgb(...rgbToLab(...px)).map((v, i) => Math.abs(v - px[i]) <= 1)).toEqual([true, true, true])
+    }
+  })
+
+  it('stary kolor tuż za maską dostaje odcień kamienia; dalej obraz bez zmian', () => {
+    // zielony kamień, fioletowy pas 5 px za maską (rondysta), dalej fioletowa plama poza pasem (promień pasu 6 px)
+    const result = image((x, y) => (disk(x, y, 60, 50, 20) ? GREEN : disk(x, y, 60, 50, 25) ? PURPLE : x < 8 ? PURPLE : GREY))
+    const options = { ...stoneFixOptions('szmaragd-stonowany', [285, 360], 1), bandFrac: 0.3 }
+    const { rgb, band, stats } = stoneFix(result, result, mask, W, H, options)
+    expect(stats.spillPx).toBeGreaterThan(0)
+    expect(Math.abs(stats.targetHue - hueAt(result, 60, 50))).toBeLessThan(10)
+    expect(Math.abs(hueAt(rgb, 82, 50) - stats.targetHue)).toBeLessThan(15)
+    expect(band[2 * W + 2]).toBe(0)
+    for (let i = 0; i < W * H; i++) if (!band[i]) expect([rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]]).toEqual([...result.subarray(i * 3, i * 3 + 3)])
+  })
+
+  it('szafir granatowy: mediana L w masce podniesiona do celu', () => {
+    const result = image((x, y) => (disk(x, y, 60, 50, 20) ? NAVY : GREY))
+    const strong = stoneFix(result, result, mask, W, H, stoneFixOptions('szafir-granatowy', [265, 340], 2))
+    expect(strong.stats.lift?.[0]).toBeLessThan(10)
+    expect(strong.stats.lift?.[1]).toBeCloseTo(14, 0)
+  })
+
+  it('weryfikacja z pasem: zmiana w pasie dozwolona, poza nim nie', () => {
+    const original = image((x, y) => (disk(x, y, 60, 50, 20) ? BLUE : GREY))
+    const changed = image((x, y) => (disk(x, y, 60, 50, 20) ? GREEN : disk(x, y, 60, 50, 24) ? WHITE : GREY))
+    const band = Uint8Array.from({ length: W * H }, (_, i) => (disk(i % W, Math.floor(i / W), 60, 50, 25) ? 1 : 0))
+    const input = { original, result: changed, generated: changed, mask: Uint8Array.from(mask, (v) => v * 255), width: W, height: H, feather: 1 }
+    expect(verifyCutout(input, [180, 240], undefined).ok).toBe(false)
+    expect(verifyCutout({ ...input, band }, [180, 240], undefined).ok).toBe(true)
   })
 })

@@ -8,6 +8,8 @@
  *          --ponow (warianty bez przyjętego obrazu dostają nową serię prób; stare zostają w historii),
  *          --pomin <obraz,…> (Y.2: pojedyncze obrazy wyłączone z --tylko, np. już przyjęte nową techniką),
  *          --od-nowa (Y.2: także przyjęte obrazy z --tylko dostają nową serię; stary obraz zostaje, dopóki nowy nie przejdzie)
+ *          --poprawka (bez generowania: dwie najlepsze odrzucone próby wycinka dostają lokalną poprawkę koloru przy
+ *          krawędzi kamienia – łagodną i mocniejszą – i ponowną ocenę Terry; stare próby idą do historii jak przy --ponow)
  *
  * Na obraz: (1) opis zdjęcia źródłowego, raz na fason (Terra medium, tylko do odczytu) – z niego prompt nazywa szlif
  * i oprawę; (2) generowanie: Terra low przekazuje prompt narzędziu do obrazów, wejście = zdjęcie karty + 2 wzorce koloru;
@@ -40,7 +42,7 @@ import sharp from 'sharp'
 import { IMAGES_DIR, loadSpecs, WARIANTY_DIR } from './warianty-v-logic'
 import { composite, dHash, toWebp } from './wizualizacje-w-obraz'
 import { makeCutout, maskPreview, MASK_WIDTH, originalMask, pasteCutout } from './wizualizacje-wycinek-obraz'
-import { type Box, type CutoutVerdict, cutoutHint } from './wizualizacje-wycinek-logic'
+import { type Box, type CutoutVerdict, cutoutHint, type StoneFixStats, stoneFixOptions } from './wizualizacje-wycinek-logic'
 import {
   CHECK_MODEL,
   CHECK_SCHEMA,
@@ -76,10 +78,12 @@ const arg = (name: string) => {
 }
 const applyChanges = process.argv.includes('--apply')
 const redoAccepted = process.argv.includes('--od-nowa')
-/** `--od-nowa` obejmuje też `--ponow`: każdy obraz z --tylko dostaje nową serię prób. */
-const retryRejected = process.argv.includes('--ponow') || redoAccepted
+/** Poprawka lokalna najlepszych odrzuconych prób wycinka zamiast generowania (najwyżej 2 próby na obraz). */
+const fixMode = process.argv.includes('--poprawka')
+/** `--od-nowa` i `--poprawka` obejmują też `--ponow`: każdy obraz z --tylko dostaje nową serię prób. */
+const retryRejected = process.argv.includes('--ponow') || redoAccepted || fixMode
 const only = (arg('--tylko') ?? '').split(',').filter(Boolean)
-const maxAttempts = Math.min(MAX_ATTEMPTS, Number(arg('--proby') ?? MAX_ATTEMPTS))
+const maxAttempts = Math.min(fixMode ? 2 : MAX_ATTEMPTS, Number(arg('--proby') ?? MAX_ATTEMPTS))
 const parallel = Math.max(1, Number(arg('--rownolegle') ?? 3))
 const dataDir = path.resolve(arg('--dane') ?? path.join(REPO_ROOT, 'data'))
 const workDir = path.join(dataDir, 'warianty-w')
@@ -119,9 +123,12 @@ type Attempt = {
   tokens: number
   hashDistance: number | null
   placement?: { area: number; alignment: { scale: number; dx: number; dy: number; cost: number }; designMask?: boolean } | null
-  /** Y.2: technika wycinka i wynik kontroli automatycznej. */
-  technique?: 'wycinek'
+  /** Y.2: technika wycinka i wynik kontroli automatycznej; `poprawka` = lokalna obróbka wcześniejszej próby, bez generowania. */
+  technique?: 'wycinek' | 'poprawka'
   cutout?: CutoutVerdict
+  /** Poprawka: próba źródłowa (surowy plik generatora i jej ocena) oraz siła i statystyki poprawki. */
+  source?: { file: string; n: number; score: number; reason: string }
+  fix?: { strength: 1 | 2; stats: StoneFixStats | null }
   at?: string
   check: Check | null
   accepted: boolean
@@ -150,24 +157,48 @@ if ((retryRejected || redoAccepted) && applyChanges) {
     }
   }
 }
+/**
+ * Kandydaci do poprawki: wcześniejsze próby wycinka (nie poprawki) odrzucone przez Terrę po udanej kontroli
+ * automatycznej, z zachowanym surowym obrazem generatora; najlepsza ocena pierwsza.
+ */
+const rawOf = (attempt: Attempt) => attempt.file.replace(/-kompozycja\.png$/, '.png')
+function fixCandidates(job: Job) {
+  const entry = state.jobs[job.id]
+  if (!entry || !job.hint) return []
+  return [...(entry.earlier ?? []), ...entry.attempts]
+    .filter((a) => a.technique === 'wycinek' && a.check?.verdict === 'odrzuc' && a.cutout?.ok && existsSync(path.join(workDir, rawOf(a))))
+    .sort((a, b) => b.check!.score - a.check!.score)
+    .slice(0, 2)
+}
 const designs = [...new Set(runnable.map((job) => job.design.slug))]
 /** Zdjęcia fasonów (zdjęcie 1 = `<slug>`, kolejne `<slug>-<n>`): opis, proporcje i maska są osobno dla każdego. */
 const photoKeys = [...new Set(runnable.map((job) => job.photoKey))]
 const pending = runnable.filter((job) => {
   const entry = state.jobs[job.id]
   if (redoAccepted && entry?.accepted) return applyChanges ? redo.has(job.id) : true
+  if (fixMode) return !entry?.accepted && fixCandidates(job).length > 0
   return !entry?.accepted && (retryRejected || (entry?.attempts.length ?? 0) < maxAttempts)
 })
 console.log(`Fasony: ${designs.join(', ')} · wariantów: ${runnable.length} (do zrobienia ${pending.length})`)
 for (const job of runnable) {
   const done = state.jobs[job.id]?.accepted ? (redoAccepted ? ' – przyjęty, od nowa' : ' – już przyjęty') : ''
-  const how = job.hint ? ' · wycinek' : ''
+  const candidates = fixMode ? fixCandidates(job) : []
+  const how = fixMode
+    ? candidates.length
+      ? ` · poprawka z: ${candidates.map((a) => `${path.basename(rawOf(a))} (score ${a.check!.score})`).join(', ')}`
+      : ' · poprawka: brak kandydatów'
+    : job.hint
+      ? ' · wycinek'
+      : ''
   const refList = refs.get(job.stone.key)!.map((r) => r.slug).join(', ')
   console.log(`  ${job.id.padEnd(34)} ${path.basename(sources.get(job.photoKey)!)} · wzorce: ${refList}${how}${done}`)
 }
 for (const problem of missing) console.log(`  ! ${problem}`)
 const describeCalls = photoKeys.filter((key) => !state.descriptions[key]).length
-console.log(
+if (fixMode) {
+  const checks = pending.reduce((sum, job) => sum + Math.min(maxAttempts, fixCandidates(job).length), 0)
+  console.log(`Wywołania Codexa (poprawka, bez generowania): opis ${describeCalls} + najwyżej ${checks} ocen (${CHECK_MODEL.id} ${CHECK_MODEL.effort})`)
+} else console.log(
   `Wywołania Codexa: opis ${describeCalls} + najwyżej ${pending.length * maxAttempts} generowań (${GEN_MODEL.id} ${GEN_MODEL.effort})` +
     ` + najwyżej ${pending.length * maxAttempts} ocen (${CHECK_MODEL.id} ${CHECK_MODEL.effort}); próby na obraz: ${maxAttempts}`,
 )
@@ -381,7 +412,84 @@ async function cutoutAttempt(job: Job, n: number, hint: string | undefined): Pro
   return { attempt, hint: result.fix_hint_en || hint }
 }
 
+/** Poprawka: wcześniejsza próba (surowy plik generatora) wklejona ponownie z lokalną poprawką i oceniona przez Terrę. */
+async function fixAttempt(job: Job, n: number, fileN: number, source: Attempt, strength: 1 | 2): Promise<Attempt> {
+  const cut = await cutoutFor(job)
+  const raw = path.join(workDir, rawOf(source))
+  const base = raw.replace(/\.png$/, `-p${fileN}`)
+  const merged = `${base}-kompozycja.png`
+  const closeOriginal = path.join(workDir, 'wycinek', `${job.photoKey}-zblizenie.png`)
+  const closeResult = `${base}-zblizenie.png`
+  const options = stoneFixOptions(job.stone.key, job.hint!.odcien, strength)
+  const pasted = await pasteCutout(
+    { source: sources.get(job.photoKey)!, generated: raw, box: cut.box, mask: cut.mask, maskWidth: MASK_WIDTH, output: merged, closeOriginal, closeResult },
+    job.hint!.odcien,
+    job.stone.kontrola,
+    options,
+  )
+  const attempt: Attempt = {
+    n,
+    file: path.relative(workDir, merged),
+    thread: '',
+    seconds: 0,
+    tokens: 0,
+    hashDistance: source.hashDistance,
+    check: null,
+    accepted: false,
+    reason: '',
+    technique: 'poprawka',
+    source: { file: rawOf(source), n: source.n, score: source.check!.score, reason: source.reason },
+    fix: { strength, stats: pasted.fixStats },
+    cutout: pasted.verdict,
+    placement: { area: cut.mask.reduce((s, v) => s + (v ? 1 : 0), 0) / cut.mask.length, alignment: pasted.alignment },
+    at: new Date().toISOString(),
+  }
+  if (!pasted.verdict.ok) {
+    attempt.reason = `kontrola automatyczna: ${pasted.verdict.reasons_pl.join('; ')} – bez oceny modelu`
+    return attempt
+  }
+  const images = [closeOriginal, closeResult, ...refs.get(job.stone.key)!.map((r) => r.file)]
+  const { result, run } = await structured<Check>(
+    CHECK_MODEL,
+    CHECK_SCHEMA,
+    images,
+    cutoutCheckPrompt(job, refs.get(job.stone.key)!.length),
+    `ocena-${job.id}-p${fileN}`,
+  )
+  attempt.thread = run.thread
+  attempt.check = result
+  attempt.seconds = run.seconds
+  attempt.tokens = run.tokens
+  attempt.accepted = isAccepted(result)
+  attempt.reason = result.reason_pl
+  return attempt
+}
+
+async function fixJob(job: Job) {
+  const entry = (state.jobs[job.id] ??= { attempts: [], accepted: null })
+  if (entry.accepted) return
+  const candidates = fixCandidates(job)
+  for (const [i, source] of candidates.slice(0, maxAttempts).entries()) {
+    const strength = (i + 1) as 1 | 2
+    const fileN = (entry.earlier?.length ?? 0) + entry.attempts.length + 1
+    const attempt = await fixAttempt(job, entry.attempts.length + 1, fileN, source, strength)
+    entry.attempts.push(attempt)
+    const stats = attempt.fix?.stats
+    const detail = stats ? ` [z ${path.basename(attempt.source!.file)}, siła ${strength}, stary kolor ${stats.spillPx} px${stats.lift ? `, L ${stats.lift[0]}→${stats.lift[1]}` : ''}]` : ''
+    console.log(`${job.id} poprawka ${attempt.n}: ${attempt.accepted ? 'PRZYJĘTA' : 'odrzucona'} (score ${attempt.check?.score ?? '–'})${detail} – ${attempt.reason}`)
+    if (attempt.accepted) {
+      const out = path.join(IMAGES_DIR, job.file)
+      const webp = await toWebp(path.join(workDir, attempt.file), aspects.get(job.photoKey)!, out)
+      entry.accepted = attempt.file
+      console.log(`  → ${path.relative(REPO_ROOT, out)} (${Math.round(webp.bytes / 1024)} KB, q${webp.quality})`)
+    }
+    saveState()
+    if (attempt.accepted) return
+  }
+}
+
 async function runJob(job: Job) {
+  if (fixMode) return fixJob(job)
   const entry = (state.jobs[job.id] ??= { attempts: [], accepted: null })
   if (entry.accepted && !redo.has(job.id)) return
   const original = await dHash(sources.get(job.photoKey)!)
@@ -464,17 +572,22 @@ async function runJob(job: Job) {
 }
 
 const queue = [...pending]
+/** Poprawka: awaria Codexa (limit, zerwane połączenie) zatrzymuje cały przebieg – nie liczy się jako odrzucenie. */
+let stopped: string | null = null
 await Promise.all(
   Array.from({ length: Math.min(parallel, queue.length) }, async () => {
-    for (let job = queue.shift(); job; job = queue.shift()) {
+    for (let job = queue.shift(); job && !stopped; job = queue.shift()) {
       try {
         await runJob(job)
       } catch (error) {
-        console.log(`${job.id}: błąd – ${error instanceof Error ? error.message : String(error)}`)
+        const message = error instanceof Error ? error.message : String(error)
+        console.log(`${job.id}: błąd – ${message}`)
+        if (fixMode) stopped = `${job.id}: ${message}`
       }
     }
   }),
 )
+if (stopped) console.log(`\nZATRZYMANO (awaria Codexa): ${stopped}`)
 
 // ---------- wynik ----------
 
@@ -524,7 +637,7 @@ for (const job of runnable) {
   const entry = state.jobs[job.id]
   if (!entry) continue
   const history = [...(entry.earlier ?? []), ...entry.attempts]
-  calls += history.reduce((sum, a) => sum + 1 + (a.check ? 1 : 0), 0)
+  calls += history.reduce((sum, a) => sum + (a.technique === 'poprawka' ? 0 : 1) + (a.check ? 1 : 0), 0)
   seconds += history.reduce((sum, a) => sum + a.seconds, 0)
   tokens += history.reduce((sum, a) => sum + a.tokens, 0)
   const verdict = entry.accepted ? 'przyjęty' : 'BRAK – wszystkie próby odrzucone'

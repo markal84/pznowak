@@ -14,6 +14,9 @@ import {
   type OriginalStoneHint,
   originalStoneMask,
   type StoneCheck,
+  stoneFix,
+  type StoneFixOptions,
+  type StoneFixStats,
   verifyCutout,
 } from './wizualizacje-wycinek-logic'
 
@@ -90,6 +93,8 @@ export async function pasteCutout(
   },
   originalHue: HueRange,
   check: StoneCheck | undefined,
+  /** Poprawka lokalna na scalonym wycinku (przed zbliżeniami i weryfikacją); zmiany tylko w pasie wokół maski. */
+  fix?: StoneFixOptions,
 ) {
   const { source, generated, box, mask, maskWidth, output } = args
   const meta = await sharp(source).metadata()
@@ -148,7 +153,15 @@ export async function pasteCutout(
     .raw()
     .toBuffer()
   const overlay = await sharp(aligned, { raw }).joinChannel(alpha, { raw: { width: side, height: side, channels: 1 } }).png().toBuffer()
-  const merged = await sharp(orig, { raw }).composite([{ input: overlay }]).removeAlpha().raw().toBuffer()
+  let merged = await sharp(orig, { raw }).composite([{ input: overlay }]).removeAlpha().raw().toBuffer()
+  let band: Uint8Array | null = null
+  let fixStats: StoneFixStats | null = null
+  if (fix) {
+    const fixed = stoneFix(merged, orig, Uint8Array.from(fullMask, (v) => (v ? 1 : 0)), side, side, fix)
+    merged = Buffer.from(fixed.rgb)
+    band = fixed.band
+    fixStats = fixed.stats
+  }
   await sharp(source)
     .composite([{ input: await sharp(merged, { raw }).png().toBuffer(), left: box.left, top: box.top }])
     .png()
@@ -167,6 +180,21 @@ export async function pasteCutout(
     .extractChannel(0)
     .raw()
     .toBuffer()
+  // pas poprawki w 384 px (+1 px na skalowanie): tam zmiany są zamierzone, dalej obraz musi być oryginałem
+  const vBand =
+    band &&
+    growMask(
+      Uint8Array.from(
+        await sharp(Buffer.from(band.map((x) => (x ? 255 : 0))), { raw: { width: side, height: side, channels: 1 } })
+          .resize(v, v, { fit: 'fill' })
+          .extractChannel(0)
+          .raw()
+          .toBuffer(),
+        (x) => (x > 0 ? 1 : 0),
+      ),
+      v,
+      1,
+    )
   const verdict = verifyCutout(
     {
       original: await small(orig),
@@ -176,12 +204,14 @@ export async function pasteCutout(
       width: v,
       height: v,
       feather: Math.ceil((featherPx * 2 * v) / side) + 1,
+      ...(vBand ? { band: vBand } : {}),
     },
     originalHue,
     check,
   )
   return {
     verdict,
+    fixStats,
     alignment: { scale: Number(fine.scale.toFixed(3)), dx: left, dy: top, cost: Number(fine.cost.toFixed(1)) },
   }
 }
