@@ -565,10 +565,6 @@ summary::-webkit-details-marker {
   top: -58px;
   overflow: visible;
 }
-.hang {
-  transform-origin: 16px 50%;
-  animation: hang 1100ms 300ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
 
 /* ---------- zdjęcia ---------- */
 .ph {
@@ -2202,25 +2198,6 @@ fieldset.plain legend {
 }
 
 /* ---------- animacje (Motion.dc.html) ---------- */
-@keyframes hang {
-  0% {
-    transform: translateY(-26px) rotate(-16deg);
-    opacity: 0;
-  }
-  35% {
-    transform: translateY(0) rotate(6deg);
-    opacity: 1;
-  }
-  60% {
-    transform: rotate(-3deg);
-  }
-  80% {
-    transform: rotate(1.2deg);
-  }
-  100% {
-    transform: rotate(0);
-  }
-}
 @keyframes sweep {
   0% {
     transform: translateX(-140%) skewX(-18deg);
@@ -3185,6 +3162,161 @@ fieldset.plain legend {
   pointer-events: none;
   filter: drop-shadow(0 6px 8px rgba(14, 12, 10, 0.22));
 }
+/* Wisząca przywieszka (HangingTag): mosiężna szpilka wbita tuż nad dolną krawędzią zdjęcia, z niej krótki sznurek
+   do oczka przywieszki. Przywieszka obraca się wokół szpilki (`.ht-swing`, kąt z fizyki w JS), papier skręca się
+   lekko wokół oczka (`.ht-paper`, perspektywa), cień (`.ht-shadow`) pada na tło pod zdjęciem i idzie za papierem.
+   Zmienne: --hx środek oczka od lewej, --pin szpilka nad krawędzią zdjęcia, --gap odstęp papieru od krawędzi, --c ścięcie rogów.
+   Bez JS i przy prefers-reduced-motion przywieszka wisi nieruchomo z lekkim zwisem (2°). */
+.hero-home .ht {
+  --hx: 16.5px;
+  --pin: 10px;
+  --gap: 4px;
+  --c: 16px;
+  display: block;
+  margin-top: 0;
+  filter: none;
+}
+.ht-enter,
+.ht-swing {
+  position: relative;
+  display: block;
+  transform-origin: var(--hx) calc(-1 * var(--pin));
+}
+.ht-swing {
+  padding-top: var(--gap);
+  transform: rotate(2deg);
+  perspective: 720px;
+  perspective-origin: var(--hx) 50%;
+  will-change: transform;
+}
+.ht-paper {
+  position: relative;
+  display: block;
+  transform-origin: var(--hx) 50%;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+}
+.ht[data-grab] .ht-paper {
+  cursor: grabbing;
+}
+/* Papier: lekko ciepły, jaśniejszy u góry (światło z góry); mosiężne oczko zamiast płaskiej kropki. */
+.ht .tag-live {
+  --c: inherit;
+  background: linear-gradient(176deg, #fefefb 0%, #fafaf6 46%, #f2f1eb 100%);
+}
+.ht .tag-live .hole {
+  background: radial-gradient(circle, #1b1813 0 36%, #ead39c 41%, #bd9752 64%, #7d5d28 100%);
+  box-shadow:
+    0 0.5px 0.5px rgba(255, 255, 255, 0.8),
+    0 0 0 0.5px rgba(90, 66, 26, 0.35);
+}
+.ht-shade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, rgba(38, 32, 24, 0.55), rgba(38, 32, 24, 1));
+  clip-path: polygon(var(--c) 0, 100% 0, 100% 100%, var(--c) 100%, 0 calc(100% - var(--c)), 0 var(--c));
+}
+.ht-shadow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--gap);
+  bottom: 0;
+  opacity: 0.3;
+  filter: blur(5px);
+  transform: translate(1.5px, 5px);
+  pointer-events: none;
+  will-change: transform;
+}
+.ht-shadow > span {
+  position: absolute;
+  inset: 0;
+  background: #0e0c0a;
+  clip-path: polygon(var(--c) 0, 100% 0, 100% 100%, var(--c) 100%, 0 calc(100% - var(--c)), 0 var(--c));
+}
+/* Sznurek: skręcona nić w kolorze lnu ze złotem, od szpilki do środka oczka (przechodzi przez otwór). */
+.ht-cord {
+  position: absolute;
+  left: calc(var(--hx) - 0.75px);
+  top: calc(-1 * var(--pin));
+  bottom: calc(50% - var(--gap) / 2);
+  width: 1.5px;
+  border-radius: 1px;
+  background:
+    repeating-linear-gradient(160deg, rgba(255, 255, 255, 0.28) 0 1.5px, transparent 1.5px 3px),
+    linear-gradient(90deg, #8a7046, #dcc596 50%, #8a7046);
+  box-shadow: 1px 2px 2px rgba(14, 12, 10, 0.28);
+  pointer-events: none;
+}
+.ht-pin {
+  position: absolute;
+  left: calc(var(--hx) - 4px);
+  top: calc(-1 * var(--pin) - 4px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff4d6 0, #e3c582 24%, #a8823f 60%, #5b4318 100%);
+  box-shadow:
+    0.5px 1.5px 2px rgba(0, 0, 0, 0.6),
+    0 0 0 0.5px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+/* Wejście: przywieszka zawisa na szpilce i wygasa w kilku wahnięciach (jak tłumione wahadło). */
+@media (prefers-reduced-motion: no-preference) {
+  .ht-enter {
+    animation: htHang 1700ms 250ms cubic-bezier(0.33, 0, 0.3, 1) both;
+  }
+  .ht .tag-live .nm,
+  .ht .tag-live .sub {
+    animation: htText 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ht-paper {
+    pointer-events: none;
+    cursor: auto;
+  }
+}
+@keyframes htHang {
+  0% {
+    transform: translateY(-16px) rotate(-15deg);
+    opacity: 0;
+  }
+  22% {
+    transform: translateY(0) rotate(8deg);
+    opacity: 1;
+  }
+  42% {
+    transform: rotate(-4.2deg);
+  }
+  60% {
+    transform: rotate(2.2deg);
+  }
+  76% {
+    transform: rotate(-1deg);
+  }
+  90% {
+    transform: rotate(0.4deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+@keyframes htText {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 .hv-lens {
   position: absolute;
   left: 0;
@@ -3396,6 +3528,18 @@ fieldset.plain legend {
   }
   .hero-home .hv-tag-d {
     left: 12px;
+  }
+  .hero-home .ht {
+    --hx: 12px;
+    --pin: 8px;
+    --gap: 3px;
+    --c: 11px;
+  }
+  .hero-home .ht-pin {
+    left: calc(var(--hx) - 3px);
+    top: calc(-1 * var(--pin) - 3px);
+    width: 6px;
+    height: 6px;
   }
   .hero-home .hero-tag .tag-md {
     --c: 11px;
