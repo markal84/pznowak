@@ -32,6 +32,7 @@
     "staging:nowe-karty": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-nowe-karty.ts",
     "staging:realizacje": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-realizacje.ts",
     "staging:warianty": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-warianty-v.ts",
+    "staging:dlon": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-dlon.ts",
     "warianty:wizualizacje": "node --import=tsx/esm scripts/wizualizacje-codex.ts",
     "warianty:arkusz": "node --import=tsx/esm scripts/warianty-arkusz.ts",
     "staging:seed": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-staging.ts --apply",
