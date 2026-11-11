@@ -1,8 +1,33 @@
 [
   {
+    "slug": "daphne",
+    "name": "Daphne",
+    "variants": [
+      {
+        "stone": "Biały diament",
+        "swatch": "bialy",
+        "files": [
+          "daphne-bialy-diament.webp",
+          "daphne-bialy-diament-3.webp"
+        ],
+        "alt": "Pierścionek Daphne z białym diamentem w szlifie oktagon, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
     "slug": "aion",
     "name": "Aion",
     "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "aion-rubin.webp"
+        ],
+        "alt": "Obrączka eternity Aion z rubinami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
       {
         "stone": "Szmaragd i diamenty",
         "swatch": "zielony",
@@ -10,6 +35,31 @@
           "aion-szmaragd-stonowany.webp"
         ],
         "alt": "Obrączka eternity Aion ze szmaragdami i diamentami ułożonymi na przemian, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "aion-bialy-diament.webp"
+        ],
+        "alt": "Obrączka eternity Aion z samymi białymi diamentami, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "maia",
+    "name": "Maia",
+    "variants": [
+      {
+        "stone": "Biały diament",
+        "swatch": "bialy",
+        "files": [
+          "maia-bialy-diament.webp",
+          "maia-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Maia z białym diamentem w oprawie na szynie wysadzanej drobnymi kamieniami, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       }
     ]
@@ -37,6 +87,99 @@
         ],
         "alt": "Pierścionek Delos z rubinem w otoczeniu diamentów, w stylu art deco, w żółtym i białym złocie (wizualizacja)",
         "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "delos-bialy-diament.webp",
+          "delos-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Delos z białym diamentem w otoczeniu diamentów, w stylu art deco, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "pelagia",
+    "name": "Pelagia",
+    "variants": [
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "pelagia-bialy-diament.webp",
+          "pelagia-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Pelagia z białym diamentem w oprawie z diamentów, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "athena",
+    "name": "Athena",
+    "variants": [
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "athena-bialy-diament.webp",
+          "athena-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Athena z białym diamentem w oprawie art déco z diamentów, w żółtym i białym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "aria",
+    "name": "Aria",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "aria-szafir-granatowy.webp",
+          "aria-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Aria z granatowym szafirem w oprawie pavé z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "aria-szmaragd-stonowany.webp",
+          "aria-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Aria ze szmaragdem w oprawie pavé z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "aria-bialy-diament.webp"
+        ],
+        "alt": "Pierścionek Aria z białym diamentem w oprawie pavé z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "erythea",
+    "name": "Erythea",
+    "variants": [
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "erythea-bialy-diament.webp",
+          "erythea-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Erythea z białym diamentem w oprawie halo z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
       }
     ]
   },
@@ -62,6 +205,16 @@
           "merope-szmaragd-stonowany-2.webp"
         ],
         "alt": "Pierścionek Merope ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "merope-bialy-diament.webp",
+          "merope-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Merope z białym diamentem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       }
     ]
@@ -125,6 +278,16 @@
         ],
         "alt": "Pierścionek Iris z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "iris-bialy-diament.webp",
+          "iris-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Iris z białym diamentem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
       }
     ]
   },
@@ -140,6 +303,48 @@
           "ione-szmaragd-stonowany-2.webp"
         ],
         "alt": "Pierścionek Ione ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "gaia",
+    "name": "Gaia",
+    "variants": [
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "gaia-bialy-diament.webp",
+          "gaia-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Gaia z białym diamentem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "asteria",
+    "name": "Asteria",
+    "variants": [
+      {
+        "stone": "Szmaragd i diamenty",
+        "swatch": "zielony",
+        "files": [
+          "asteria-szmaragd-stonowany.webp",
+          "asteria-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Asteria ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "asteria-bialy-diament.webp",
+          "asteria-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Asteria z białym diamentem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       }
     ]
@@ -177,6 +382,16 @@
         ],
         "alt": "Pierścionek Rhodope z rubinem w oprawie halo, w żółtym złocie (wizualizacja)",
         "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "rhodope-bialy-diament.webp",
+          "rhodope-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Rhodope z białym diamentem w oprawie halo, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
       }
     ]
   },
@@ -192,6 +407,22 @@
           "iole-szmaragd-stonowany-2.webp"
         ],
         "alt": "Pierścionek Iole ze szmaragdem w szlifie oktagon z diamentami, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "helios",
+    "name": "Helios",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "helios-szafir-granatowy.webp",
+          "helios-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Helios z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       }
     ]
@@ -431,7 +662,8 @@
         "stone": "Szmaragd i diamenty",
         "swatch": "zielony",
         "files": [
-          "dione-szmaragd-stonowany.webp"
+          "dione-szmaragd-stonowany.webp",
+          "dione-szmaragd-stonowany-2.webp"
         ],
         "alt": "Pierścionek Dione ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
@@ -516,7 +748,8 @@
         "stone": "Szmaragd i diamenty",
         "swatch": "zielony",
         "files": [
-          "adamas-szmaragd-stonowany.webp"
+          "adamas-szmaragd-stonowany.webp",
+          "adamas-szmaragd-stonowany-2.webp"
         ],
         "alt": "Pierścionek Adamas ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
@@ -525,7 +758,8 @@
         "stone": "Rubin i diamenty",
         "swatch": "czerwony",
         "files": [
-          "adamas-rubin.webp"
+          "adamas-rubin.webp",
+          "adamas-rubin-2.webp"
         ],
         "alt": "Pierścionek Adamas z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
