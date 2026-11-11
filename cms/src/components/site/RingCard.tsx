@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ringAnchorId } from '@/lib/catalog-return'
 import { formatPrice } from '@/lib/price'
 import Photo from './Photo'
 import Tag from './Tag'
@@ -22,8 +23,8 @@ export default function RingCard({ slug, name, stone, image, alt, sizes, gold, p
   if (detailed) {
     const priceText = formatPrice(price)
     return (
-      <li>
-        <Link className="card card-body" href={href}>
+      <li id={ringAnchorId(slug)}>
+        <Link className="card card-body" data-ring-slug={slug} href={href}>
           <span className="card-overlay">
             <Photo alt={alt} ratio="45" sizes={sizes} src={image} />
             <Tag className="tag-corner" name={name} price={priceText || undefined} />
