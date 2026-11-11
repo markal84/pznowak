@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest'
 import {
   GOLD_COLORS,
   GOLD_FILTERS,
+  CATALOG_PAGE_SIZE,
+  catalogHref,
   filterRings,
+  paginate,
+  parseCatalogParams,
   formatMetal,
   formatStone,
   goldColorLabel,
@@ -145,5 +149,27 @@ describe('wybór pierścionków do sekcji', () => {
     expect(similar[0]).toBe('Nyx')
     expect(similar).not.toContain('Phoebe')
     expect(similar).toHaveLength(3)
+  })
+})
+
+describe('paginacja katalogu', () => {
+  const list = Array.from({ length: 95 }, (_, i) => i + 1)
+  it('dzieli na strony po 40', () => {
+    expect(CATALOG_PAGE_SIZE).toBe(40)
+    expect(paginate(list, 1)).toMatchObject({ page: 1, pages: 3 })
+    expect(paginate(list, 1).items).toHaveLength(40)
+    expect(paginate(list, 3).items).toEqual(list.slice(80))
+  })
+  it('przycina numer strony do zakresu i znosi pustą listę', () => {
+    expect(paginate(list, 99).page).toBe(3)
+    expect(paginate(list, 0).page).toBe(1)
+    expect(paginate([], 5)).toEqual({ items: [], page: 1, pages: 1 })
+  })
+  it('czyta i buduje adres bez wartości domyślnych', () => {
+    const params = new URLSearchParams('kamien=zielone&zloto=biale&strona=2')
+    expect(parseCatalogParams((k) => params.get(k))).toEqual({ stone: 'zielone', gold: 'biale', page: 2 })
+    expect(parseCatalogParams(() => 'bzdura')).toEqual({ stone: 'all', gold: 'all', page: 1 })
+    expect(catalogHref({ stone: 'zielone', gold: 'biale', page: 2 })).toBe('/pierscionki?kamien=zielone&zloto=biale&strona=2')
+    expect(catalogHref({ stone: 'all', gold: 'all', page: 1 })).toBe('/pierscionki')
   })
 })

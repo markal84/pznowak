@@ -158,13 +158,58 @@ export function filterRings(
   gold: 'all' | GoldGroup,
 ): CatalogRing[] {
   return rings.filter(
-    (ring) => (stone === 'all' || ring.stoneGroup === stone) && (gold === 'all' || ring.goldGroup === gold),
+    (ring) =>
+      (stone === 'all' || ring.stoneGroup === stone) && (gold === 'all' || ring.goldGroup === gold),
   )
 }
 
+/** Ile pierścionków na stronie listy. */
+export const CATALOG_PAGE_SIZE = 40
+
+export type CatalogParams = { stone: 'all' | StoneGroup; gold: 'all' | GoldGroup; page: number }
+
+/** Odczyt filtrów i strony z adresu (`?kamien=…&zloto=…&strona=N`); nieznane wartości wracają do domyślnych. */
+export function parseCatalogParams(get: (key: string) => string | null | undefined): CatalogParams {
+  const stoneRaw = get('kamien')
+  const goldRaw = get('zloto')
+  const pageRaw = Number.parseInt(get('strona') ?? '', 10)
+  return {
+    stone: STONE_FILTERS.some((s) => s.id === stoneRaw && s.id !== 'all')
+      ? (stoneRaw as StoneGroup)
+      : 'all',
+    gold: GOLD_FILTERS.some((g) => g.id === goldRaw && g.id !== 'all')
+      ? (goldRaw as GoldGroup)
+      : 'all',
+    page: Number.isFinite(pageRaw) && pageRaw > 1 ? pageRaw : 1,
+  }
+}
+
+/** Adres listy dla danych filtrów i strony; wartości domyślne nie trafiają do adresu. */
+export function catalogHref({ stone, gold, page }: CatalogParams): string {
+  const query = new URLSearchParams()
+  if (stone !== 'all') query.set('kamien', stone)
+  if (gold !== 'all') query.set('zloto', gold)
+  if (page > 1) query.set('strona', String(page))
+  const text = query.toString()
+  return text ? `/pierscionki?${text}` : '/pierscionki'
+}
+
+/** Wycinek jednej strony; numer strony poza zakresem jest przycinany do ostatniej. */
+export function paginate<T>(items: readonly T[], page: number, size: number = CATALOG_PAGE_SIZE) {
+  const pages = Math.max(1, Math.ceil(items.length / size))
+  const current = Math.min(Math.max(1, page), pages)
+  return { items: items.slice((current - 1) * size, current * size), page: current, pages }
+}
+
 /** Wybór pierścionków do sekcji "Pierścionki z pracowni" wg nazw z designu, uzupełniony kolejnymi. */
-export function pickByName<T extends Jewel>(products: readonly T[], names: readonly string[], limit: number): T[] {
-  const picked = names.map((n) => products.find((p) => p.name === n)).filter((p): p is T => Boolean(p))
+export function pickByName<T extends Jewel>(
+  products: readonly T[],
+  names: readonly string[],
+  limit: number,
+): T[] {
+  const picked = names
+    .map((n) => products.find((p) => p.name === n))
+    .filter((p): p is T => Boolean(p))
   for (const p of products) {
     if (picked.length >= limit) break
     if (!picked.includes(p)) picked.push(p)
