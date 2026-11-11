@@ -8,6 +8,8 @@
  *          --ponow (warianty bez przyjętego obrazu dostają nową serię prób; stare zostają w historii),
  *          --pomin <obraz,…> (Y.2: pojedyncze obrazy wyłączone z --tylko, np. już przyjęte nową techniką),
  *          --od-nowa (Y.2: także przyjęte obrazy z --tylko dostają nową serię; stary obraz zostaje, dopóki nowy nie przejdzie)
+ *          --przyjmij <job>:<próba>[,…] (bez Codexa: ręczne przyjęcie próby z arkusza kandydatów, np. iole-szmaragd-stonowany:w6
+ *          albo …:w6-lagodna; zapisuje webp, w stan.json accepted z `manual: true`, odświeża warianty-w.json i arkusz)
  *          --poprawka (bez generowania: dwie najlepsze odrzucone próby wycinka dostają lokalną poprawkę koloru przy
  *          krawędzi kamienia – łagodną i mocniejszą – i ponowną ocenę Terry; stare próby idą do historii jak przy --ponow)
  *
@@ -47,6 +49,8 @@ import {
   CHECK_MODEL,
   CHECK_SCHEMA,
   checkPrompt,
+  findAttempt,
+  parseAcceptList,
   cutoutCheckPrompt,
   cutoutPrompt,
   designPhotos,
@@ -82,7 +86,11 @@ const redoAccepted = process.argv.includes('--od-nowa')
 const fixMode = process.argv.includes('--poprawka')
 /** `--od-nowa` i `--poprawka` obejmują też `--ponow`: każdy obraz z --tylko dostaje nową serię prób. */
 const retryRejected = process.argv.includes('--ponow') || redoAccepted || fixMode
-const only = (arg('--tylko') ?? '').split(',').filter(Boolean)
+/** Przyjęcie ręczne (bez Codexa) – zastępuje --tylko listą jobów z --przyjmij. */
+const manualList = arg('--przyjmij') ? parseAcceptList(arg('--przyjmij')!) : []
+const manualMode = manualList.length > 0
+if (manualMode && applyChanges) throw new Error('--przyjmij działa bez --apply (nie woła Codexa)')
+const only = manualMode ? [...new Set(manualList.map((m) => m.job))] : (arg('--tylko') ?? '').split(',').filter(Boolean)
 const maxAttempts = Math.min(fixMode ? 2 : MAX_ATTEMPTS, Number(arg('--proby') ?? MAX_ATTEMPTS))
 const parallel = Math.max(1, Number(arg('--rownolegle') ?? 3))
 const dataDir = path.resolve(arg('--dane') ?? path.join(REPO_ROOT, 'data'))
@@ -129,6 +137,8 @@ type Attempt = {
   /** Poprawka: próba źródłowa (surowy plik generatora i jej ocena) oraz siła i statystyki poprawki. */
   source?: { file: string; n: number; score: number; reason: string }
   fix?: { strength: 1 | 2; stats: StoneFixStats | null }
+  /** Przyjęta ręcznie z arkusza kandydatów (`--przyjmij`), bez oceny Terry. */
+  manual?: boolean
   at?: string
   check: Check | null
   accepted: boolean
@@ -136,7 +146,7 @@ type Attempt = {
 }
 type State = {
   descriptions: Record<string, Description & { seconds: number; tokens: number }>
-  jobs: Record<string, { attempts: Attempt[]; accepted: string | null; earlier?: Attempt[] }>
+  jobs: Record<string, { attempts: Attempt[]; accepted: string | null; earlier?: Attempt[]; manual?: boolean }>
 }
 const statePath = path.join(workDir, 'stan.json')
 const state: State = existsSync(statePath)
@@ -209,11 +219,11 @@ if (fixMode) {
   `Wywołania Codexa: opis ${describeCalls} + najwyżej ${pending.length * maxAttempts} generowań (${GEN_MODEL.id} ${GEN_MODEL.effort})` +
     ` + najwyżej ${pending.length * maxAttempts} ocen (${CHECK_MODEL.id} ${CHECK_MODEL.effort}); próby na obraz: ${maxAttempts}`,
 )
-if (!applyChanges) {
+if (!applyChanges && !manualMode) {
   console.log('Podgląd. Dodaj --apply, żeby wywołać Codexa.')
   process.exit(0)
 }
-if (!existsSync(CODEX_BIN)) throw new Error(`Nie ma programu Codex: ${CODEX_BIN} (ustaw CODEX_BIN)`)
+if (!manualMode && !existsSync(CODEX_BIN)) throw new Error(`Nie ma programu Codex: ${CODEX_BIN} (ustaw CODEX_BIN)`)
 mkdirSync(path.join(workDir, 'proby'), { recursive: true })
 
 // ---------- codex exec ----------
@@ -284,7 +294,7 @@ async function generate(job: Job, prompt: string, n: number | string, input = so
 
 // ---------- przebieg ----------
 
-for (const key of photoKeys) {
+for (const key of manualMode ? [] : photoKeys) {
   if (state.descriptions[key]) continue
   console.log(`opis zdjęcia: ${key}…`)
   const { result, run } = await structured<Description>(CHECK_MODEL, DESCRIBE_SCHEMA, [sources.get(key)!], describePrompt(), `opis-${key}`)
@@ -591,7 +601,51 @@ async function runJob(job: Job) {
   }
 }
 
-const queue = [...pending]
+// przyjęcie ręczne: wskazana próba (albo lokalna wersja `…-lagodna` z arkusza kandydatów) → webp jak przy przyjęciu
+// najpierw sprawdzenie całej listy – błąd w jednej pozycji nie zostawia połowy przyjętej
+for (const { job: id, token } of manualList) {
+  if (!runnable.some((j) => j.id === id)) throw new Error(`--przyjmij: nieznany job albo brak zdjęcia/wzorców: ${id}`)
+  const entry = state.jobs[id]
+  const known = entry && findAttempt([...(entry.earlier ?? []), ...entry.attempts], id, token)
+  const file = known ? known.file : `proby/${id}-${token}-kompozycja.png`
+  if (!existsSync(path.join(workDir, file))) throw new Error(`--przyjmij: brak pliku próby ${id}:${token} (${file})`)
+}
+for (const { job: id, token } of manualList) {
+  const job = runnable.find((j) => j.id === id)!
+  const entry = (state.jobs[id] ??= { attempts: [], accepted: null })
+  let attempt = findAttempt([...(entry.earlier ?? []), ...entry.attempts], id, token)
+  if (!attempt) {
+    // wersja lokalna z arkusza kandydatów (nie było jej w stan.json)
+    const file = `proby/${id}-${token}-kompozycja.png`
+    const sourceN = token.match(/^w\d+/)?.[0]
+    attempt = {
+      n: entry.attempts.length + 1,
+      file,
+      thread: '',
+      seconds: 0,
+      tokens: 0,
+      hashDistance: null,
+      check: null,
+      accepted: false,
+      reason: 'wersja lokalna z arkusza kandydatów (łagodna poprawka), bez oceny Terry',
+      technique: 'poprawka',
+      ...(sourceN ? { source: { file: `proby/${id}-${sourceN}.png`, n: 0, score: findAttempt([...(entry.earlier ?? []), ...entry.attempts], id, sourceN)?.check?.score ?? 0, reason: '' } } : {}),
+      at: new Date().toISOString(),
+    }
+    entry.attempts.push(attempt)
+  }
+  const out = path.join(IMAGES_DIR, job.file)
+  const webp = await toWebp(path.join(workDir, attempt.file), aspects.get(job.photoKey)!, out)
+  for (const other of [...(entry.earlier ?? []), ...entry.attempts]) other.accepted = false
+  attempt.accepted = true
+  attempt.manual = true
+  entry.accepted = attempt.file
+  entry.manual = true
+  saveState()
+  console.log(`${id}: przyjęta ręcznie próba ${token} → ${path.relative(REPO_ROOT, out)} (${Math.round(webp.bytes / 1024)} KB, q${webp.quality})`)
+}
+
+const queue = manualMode ? [] : [...pending]
 /** Poprawka: awaria Codexa (limit, zerwane połączenie) zatrzymuje cały przebieg – nie liczy się jako odrzucenie. */
 let stopped: string | null = null
 await Promise.all(

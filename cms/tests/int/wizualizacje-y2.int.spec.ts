@@ -9,7 +9,15 @@ import {
   STONE_VARIANTS_NOTE_NATURAL,
   stoneVariantsNote,
 } from '@/lib/stone-variants'
-import { cutoutCheckPrompt, cutoutPrompt, jobs, loadConfig } from '../../scripts/wizualizacje-w-logic'
+import {
+  attemptToken,
+  cutoutCheckPrompt,
+  cutoutPrompt,
+  findAttempt,
+  jobs,
+  loadConfig,
+  parseAcceptList,
+} from '../../scripts/wizualizacje-w-logic'
 import {
   cropBox,
   fixQualifies,
@@ -315,5 +323,36 @@ describe('poprawka bez generatora (stoneFix)', () => {
     const input = { original, result: changed, generated, mask: Uint8Array.from(mask, (v) => v * 255), width: W, height: H, feather: 1 }
     expect(verifyCutout(input, [180, 240], undefined).ok).toBe(false)
     expect(verifyCutout({ ...input, band }, [180, 240], undefined).ok).toBe(true)
+  })
+})
+
+describe('przyjęcie ręczne (--przyjmij)', () => {
+  const id = 'iole-szmaragd-stonowany'
+  const history = [
+    { file: 'proby/iole-szmaragd-stonowany-w6-kompozycja.png' },
+    { file: 'proby/iole-szmaragd-stonowany-w6-p7-kompozycja.png' },
+    { file: 'proby/iole-szmaragd-stonowany-2-w1-kompozycja.png' },
+  ]
+
+  it('lista job:próba, także kilka pozycji i wersja lokalna', () => {
+    expect(parseAcceptList('iole-szmaragd-stonowany:w6-p7, merope-szmaragd-stonowany:w3-lagodna')).toEqual([
+      { job: 'iole-szmaragd-stonowany', token: 'w6-p7' },
+      { job: 'merope-szmaragd-stonowany', token: 'w3-lagodna' },
+    ])
+    expect(() => parseAcceptList('iole-szmaragd-stonowany')).toThrow(/<job>:<próba>/)
+    expect(() => parseAcceptList('iole-szmaragd-stonowany:')).toThrow()
+  })
+
+  it('token próby z nazwy pliku; plik innego zdjęcia tego samego wariantu nie pasuje', () => {
+    expect(attemptToken(id, history[0].file)).toBe('w6')
+    expect(attemptToken(id, history[1].file)).toBe('w6-p7')
+    expect(attemptToken(id, history[2].file)).toBeNull()
+    expect(attemptToken(id, 'proby/iole-szmaragd-stonowany-w6.png')).toBeNull()
+  })
+
+  it('wyszukanie próby po tokenie', () => {
+    expect(findAttempt(history, id, 'w6-p7')).toBe(history[1])
+    expect(findAttempt(history, id, 'w1')).toBeNull()
+    expect(findAttempt(history, 'iole-szmaragd-stonowany-2', 'w1')).toBe(history[2])
   })
 })

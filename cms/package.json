@@ -35,6 +35,7 @@
     "staging:dlon": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-dlon.ts",
     "warianty:wizualizacje": "node --import=tsx/esm scripts/wizualizacje-codex.ts",
     "warianty:arkusz": "node --import=tsx/esm scripts/warianty-arkusz.ts",
+    "warianty:kandydaci": "node --import=tsx/esm scripts/wizualizacje-kandydaci.ts",
     "staging:seed": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-staging.ts --apply",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
