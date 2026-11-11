@@ -3,6 +3,9 @@
 1. **Start zawsze od świeżego `origin/main`:** `git fetch origin` →
    `git worktree add ../pznowak-cms-<krótka-nazwa> -b <typ>/<krótka-nazwa> origin/main`.
    Nigdy nie od bieżącej gałęzi w folderze ani od lokalnego `main` (bywa nieaktualny).
+   Zaraz po utworzeniu podlinkuj pliki env z głównego repo (są w .gitignore, worktree ich nie ma):
+   `cd ../pznowak-cms-<krótka-nazwa> && ln -s ../../pznowak-cms/cms/.env cms/.env && ln -s ../../pznowak-cms/cms/.env.local cms/.env.local && ln -s ../../pznowak-cms/backend/.env.staging.local backend/.env.staging.local`.
+   Bez tego `npm run staging:…` w worktree nie widzi bazy.
 2. **Osobny worktree na zlecenie**, bo kilka zleceń idzie równolegle. W głównym folderze
    `/Volumes/crucial/projects/pznowak-cms` nie przełączać gałęzi, kiedy pracuje tam inny agent.
    Na koniec raport podaje ścieżkę worktree; Marcin usuwa go po scaleniu (`git worktree remove`).
