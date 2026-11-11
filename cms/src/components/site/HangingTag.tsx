@@ -58,6 +58,9 @@ export default function HangingTag({ name, sub, index }: Props) {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
     if (reduce.matches) return
 
+    // Siła kołysania: telefon (dotyk) 0,7, komputer 0,9 względem fizyki bazowej (ustalone z Marcinem 11.11.2026).
+    const gain = window.matchMedia('(pointer: coarse)').matches ? 0.7 : 0.9
+
     let s: TagState = restState()
     let rest = REST_ANGLE
     let restTarget = REST_ANGLE
@@ -127,13 +130,13 @@ export default function HangingTag({ name, sub, index }: Props) {
       const p = pivot()
       const dx = ptr.x - p.x
       const dy = ptr.y - p.y
-      let alpha = scrollForce(sa, s, box.width)
+      let alpha = scrollForce(sa, s, box.width) * gain
       let alphaY = 0
       let alphaX = 0
       if (grab) {
-        alpha += grabForce(Math.atan2(dy, dx) - grab.offset, s, rest)
+        alpha += grabForce(rest + (Math.atan2(dy, dx) - grab.offset - rest) * gain, s, rest)
       } else {
-        const f = pointerForces({ dx, dy, vx: ptr.vx, vy: ptr.vy }, s, box)
+        const f = pointerForces({ dx, dy, vx: ptr.vx, vy: ptr.vy }, s, box, gain)
         alpha += f.alpha
         alphaY += f.alphaY
         alphaX += f.alphaX
@@ -222,7 +225,12 @@ export default function HangingTag({ name, sub, index }: Props) {
           const p = pivot()
           const lx = (e.clientX - p.x) * Math.cos(s.a) + (e.clientY - p.y) * Math.sin(s.a)
           const reach = clamp(lx / Math.max(box.left + box.width, 1), 0, 1)
-          s = { ...s, w: s.w - (0.5 + reach * 1.3), wx: s.wx + 3.5, wy: s.wy + (reach - 0.5) * 6 }
+          s = {
+            ...s,
+            w: s.w - (0.5 + reach * 1.3) * gain,
+            wx: s.wx + 3.5 * gain,
+            wy: s.wy + (reach - 0.5) * 6 * gain,
+          }
         }
         tap = null
       }
@@ -240,7 +248,7 @@ export default function HangingTag({ name, sub, index }: Props) {
       if (angle !== 0 || g.y < 3) {
         restTarget = REST_ANGLE
       } else {
-        restTarget = REST_ANGLE + clamp(0.5 * Math.asin(clamp(g.x / 9.81, -1, 1)), -0.2, 0.2)
+        restTarget = REST_ANGLE + clamp(0.5 * gain * Math.asin(clamp(g.x / 9.81, -1, 1)), -0.2, 0.2)
       }
       if (Math.abs(restTarget - rest) > 0.002) wake()
     }
@@ -284,7 +292,7 @@ export default function HangingTag({ name, sub, index }: Props) {
 
     engine.current = {
       kick: (w, wy) => {
-        s = { ...s, w: s.w + w, wy: s.wy + wy }
+        s = { ...s, w: s.w + w * gain, wy: s.wy + wy * gain }
         wake()
       },
     }

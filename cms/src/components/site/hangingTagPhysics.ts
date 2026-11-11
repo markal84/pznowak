@@ -107,9 +107,10 @@ export type PointerSample = {
  * - dotyk (kursor przesuwa się po papierze): koniec przywieszki pod kursorem dąży do prędkości kursora,
  *   czyli przywieszkę można popchnąć, „pogłaskać” albo potrącić; prędkość kątowa ograniczona do czytelnej,
  * - podmuch (kursor obok): słaby moment siły malejący z odległością.
+ * `gain` skaluje całą reakcję (prędkość, do której dąży przywieszka, i skręt papieru).
  * Zwraca przyspieszenia (rad/s²) dla obrotu oraz skrętu i pochylenia papieru.
  */
-export function pointerForces(p: PointerSample, s: TagState, box: TagBox) {
+export function pointerForces(p: PointerSample, s: TagState, box: TagBox, gain = 1) {
   const speed = Math.hypot(p.vx, p.vy)
   if (speed < 8) return { alpha: 0, alphaY: 0, alphaX: 0, touching: false }
   const cos = Math.cos(s.a)
@@ -122,7 +123,7 @@ export function pointerForces(p: PointerSample, s: TagState, box: TagBox) {
   const outside = Math.hypot(ox, oy)
   const r2 = p.dx * p.dx + p.dy * p.dy + 1
   // Prędkość kątowa, jaką miałby punkt przywieszki pod kursorem, gdyby nadążał za kursorem.
-  const follow = clamp((p.dx * p.vy - p.dy * p.vx) / r2, -3.2, 3.2)
+  const follow = clamp((p.dx * p.vy - p.dy * p.vx) / r2, -3.2, 3.2) * gain
   // Skręt papieru: poziomy ruch kursora „odwraca” papier, pionowy pochyla. Siła rośnie z odległością od szpilki.
   const reach = clamp(lx / Math.max(box.left + box.width, 1), 0, 1)
   const vxN = clamp(p.vx / 1000, -1.6, 1.6)
@@ -130,8 +131,8 @@ export function pointerForces(p: PointerSample, s: TagState, box: TagBox) {
   if (outside <= 4) {
     return {
       alpha: (follow - s.w) * 9,
-      alphaY: -vxN * 55 * (0.35 + reach),
-      alphaX: vyN * 22 * (0.35 + reach),
+      alphaY: -vxN * 55 * (0.35 + reach) * gain,
+      alphaX: vyN * 22 * (0.35 + reach) * gain,
       touching: true,
     }
   }
@@ -139,8 +140,8 @@ export function pointerForces(p: PointerSample, s: TagState, box: TagBox) {
   if (fall < 0.02) return { alpha: 0, alphaY: 0, alphaX: 0, touching: false }
   return {
     alpha: follow * 1.1 * fall,
-    alphaY: -vxN * 16 * fall,
-    alphaX: vyN * 7 * fall,
+    alphaY: -vxN * 16 * fall * gain,
+    alphaX: vyN * 7 * fall * gain,
     touching: false,
   }
 }
