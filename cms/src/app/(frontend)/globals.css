@@ -924,6 +924,45 @@ summary::-webkit-details-marker {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
+/* ---------- paginacja listy pierścionków ---------- */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 14px;
+  margin-top: 48px;
+}
+.pager ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pager-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--graphite);
+  font-size: 14.5px;
+  text-decoration: none;
+}
+.pager-link:hover {
+  box-shadow: inset 0 0 0 1px var(--graphite);
+}
+.pager-link[aria-current='page'] {
+  background: var(--velvet);
+  color: #f3f4ef;
+  font-weight: 500;
+}
+
 /* Nagłówek listy pierścionków; na telefonie niższy, żeby pierwsze zdjęcia były blisko góry (zlecenie K, pkt 1). */
 .catalog-head {
   padding-top: 64px;

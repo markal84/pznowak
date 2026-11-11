@@ -1,30 +1,34 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   GOLD_FILTERS,
   STONE_FILTERS,
+  catalogHref,
   filterRings,
+  paginate,
+  parseCatalogParams,
   pluralRing,
   type CatalogRing,
-  type GoldGroup,
-  type StoneGroup,
+  type CatalogParams,
 } from '@/lib/catalog'
 import RingCard from './RingCard'
 
 export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
-  const [stone, setStone] = useState<'all' | StoneGroup>('all')
-  const [gold, setGold] = useState<'all' | GoldGroup>('all')
-  const items = filterRings(rings, stone, gold)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  // Filtry i numer strony żyją w adresie: odświeżenie, link i „wstecz” przeglądarki wracają do tego samego widoku.
+  const { stone, gold, page: requestedPage } = parseCatalogParams((key) => searchParams.get(key))
+  const all = filterRings(rings, stone, gold)
+  const { items, page, pages } = paginate(all, requestedPage)
   const filtered = stone !== 'all' || gold !== 'all'
-  const clear = () => {
-    setStone('all')
-    setGold('all')
-  }
+  const setFilters = (next: Partial<CatalogParams>) =>
+    router.replace(catalogHref({ stone, gold, page: 1, ...next }), { scroll: false })
+  const clear = () => setFilters({ stone: 'all', gold: 'all' })
   const countLabel = filtered
-    ? `Pasujące do filtrów: ${items.length} ${pluralRing(items.length)}`
-    : `${items.length} ${pluralRing(items.length)} w kolekcji`
+    ? `Pasujące do filtrów: ${all.length} ${pluralRing(all.length)}`
+    : `${all.length} ${pluralRing(all.length)} w kolekcji`
 
   return (
     <>
@@ -40,10 +44,12 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
                   aria-pressed={stone === s.id}
                   className="chip"
                   key={s.id}
-                  onClick={() => setStone(s.id)}
+                  onClick={() => setFilters({ stone: s.id })}
                   type="button"
                 >
-                  {s.color ? <span aria-hidden="true" className="chip-dot" style={{ background: s.color }} /> : null}
+                  {s.color ? (
+                    <span aria-hidden="true" className="chip-dot" style={{ background: s.color }} />
+                  ) : null}
                   {s.label}
                 </button>
               ))}
@@ -55,7 +61,13 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
             </span>
             <div className="chip-row">
               {GOLD_FILTERS.map((g) => (
-                <button aria-pressed={gold === g.id} className="chip" key={g.id} onClick={() => setGold(g.id)} type="button">
+                <button
+                  aria-pressed={gold === g.id}
+                  className="chip"
+                  key={g.id}
+                  onClick={() => setFilters({ gold: g.id })}
+                  type="button"
+                >
                   {g.label}
                 </button>
               ))}
@@ -75,38 +87,87 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
       </section>
 
       <section className="wrap" style={{ paddingTop: 28, paddingBottom: 104 }}>
-        {items.length > 0 ? (
-          <ul className="ring-grid ring-grid-lg">
-            {items.map((r) => (
-              <RingCard
-                alt={r.alt}
-                detailed
-                image={r.image}
-                key={r.slug}
-                gold={r.goldLabel}
-                name={r.name}
-                price={r.price}
-                sizes="(max-width: 720px) 50vw, (max-width: 1320px) 30vw, 300px"
-                slug={r.slug}
-                stone={r.stone}
-              />
-            ))}
-            <li className="cta-card">
-              <span className="big">Nie ma tu Twojego pierścionka?</span>
-              <p>Zaprojektujemy go od podstaw. Zacznij od kilku zdań o tym, dla kogo ma powstać.</p>
-              <Link className="btn btn-light" href="/na-zamowienie" style={{ alignSelf: 'flex-start' }}>
-                Pierścionek na zamówienie
-              </Link>
-            </li>
-          </ul>
+        {all.length > 0 ? (
+          <>
+            <ul className="ring-grid ring-grid-lg">
+              {items.map((r) => (
+                <RingCard
+                  alt={r.alt}
+                  detailed
+                  image={r.image}
+                  key={r.slug}
+                  gold={r.goldLabel}
+                  name={r.name}
+                  price={r.price}
+                  sizes="(max-width: 720px) 50vw, (max-width: 1320px) 30vw, 300px"
+                  slug={r.slug}
+                  stone={r.stone}
+                />
+              ))}
+              {page === pages ? (
+                <li className="cta-card">
+                  <span className="big">Nie ma tu Twojego pierścionka?</span>
+                  <p>
+                    Zaprojektujemy go od podstaw. Zacznij od kilku zdań o tym, dla kogo ma powstać.
+                  </p>
+                  <Link
+                    className="btn btn-light"
+                    href="/na-zamowienie"
+                    style={{ alignSelf: 'flex-start' }}
+                  >
+                    Pierścionek na zamówienie
+                  </Link>
+                </li>
+              ) : null}
+            </ul>
+            {pages > 1 ? (
+              <nav aria-label="Strony listy" className="pager">
+                {page > 1 ? (
+                  <Link
+                    className="pager-link"
+                    href={catalogHref({ stone, gold, page: page - 1 })}
+                    rel="prev"
+                  >
+                    Poprzednia
+                  </Link>
+                ) : null}
+                <ol>
+                  {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
+                    <li key={n}>
+                      <Link
+                        aria-current={n === page ? 'page' : undefined}
+                        aria-label={`Strona ${n}`}
+                        className="pager-link"
+                        href={catalogHref({ stone, gold, page: n })}
+                      >
+                        {n}
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+                {page < pages ? (
+                  <Link
+                    className="pager-link"
+                    href={catalogHref({ stone, gold, page: page + 1 })}
+                    rel="next"
+                  >
+                    Następna
+                  </Link>
+                ) : null}
+              </nav>
+            ) : null}
+          </>
         ) : (
-          <div className="stack" style={{ alignItems: 'flex-start', gap: 18, padding: '56px 0 24px', maxWidth: '36em' }}>
+          <div
+            className="stack"
+            style={{ alignItems: 'flex-start', gap: 18, padding: '56px 0 24px', maxWidth: '36em' }}
+          >
             <h2 className="h2" style={{ fontSize: 36, lineHeight: 1.1 }}>
               Nie mamy jeszcze takiego połączenia w kolekcji
             </h2>
             <p className="text" style={{ fontSize: 16 }}>
-              Każdy projekt możemy wykonać w innym kolorze złota albo z innym kamieniem. Wyczyść filtry albo napisz,
-              czego szukasz.
+              Każdy projekt możemy wykonać w innym kolorze złota albo z innym kamieniem. Wyczyść
+              filtry albo napisz, czego szukasz.
             </p>
             <div className="row" style={{ gap: '12px 24px' }}>
               <button className="btn" onClick={clear} type="button">
