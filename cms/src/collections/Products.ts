@@ -8,6 +8,7 @@ import {
 } from '../access/permissions'
 import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-publication'
 import { applyArchiveStatus, validateProductMedia } from '../lib/product-workflow'
+import { shiftOtherProducts } from '../lib/sort-order'
 import { SWATCHES } from '../lib/stone-variants'
 
 export const Products: CollectionConfig = {
@@ -40,6 +41,7 @@ export const Products: CollectionConfig = {
   hooks: {
     afterChange: [
       async ({ doc, previousDoc, req }) => {
+        await shiftOtherProducts({ doc, previousDoc, req })
         revalidateAfterChange('product', doc, previousDoc, req)
         return doc
       },
@@ -365,6 +367,8 @@ export const Products: CollectionConfig = {
       defaultValue: 0,
       index: true,
       admin: {
+        description:
+          'Mniejsza liczba = wcześniej. Po wpisaniu liczby, która już jest zajęta, pierścionek wskakuje na to miejsce, a kolejne przesuwają się o 1 w dół listy (po zapisie).',
         position: 'sidebar',
       },
     },
