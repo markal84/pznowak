@@ -7,7 +7,7 @@
  */
 export const PRICE_PREFIX = 'od'
 
-/** Przywieszka „Cena” na karcie bez ceny w panelu, a także po wyborze innego kamienia (warianty są bez ceny). */
+/** Przywieszka na liście i karcie bez ceny w panelu, a także po wyborze innego kamienia (warianty są bez ceny). */
 export const PRICE_ON_REQUEST_SHORT = 'Na zapytanie'
 
 /**
