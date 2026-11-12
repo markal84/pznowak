@@ -1,8 +1,10 @@
+import type { ReactNode } from 'react'
+
 type TagProps = {
   name: string
   sub?: string
   /** cena na przywieszce, np. „od 2949 zł” (lista pierścionków) */
-  price?: string
+  price?: ReactNode
   size?: 'sm' | 'md'
   className?: string
 }

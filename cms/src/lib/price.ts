@@ -7,7 +7,7 @@
  */
 export const PRICE_PREFIX = 'od'
 
-/** Przywieszka „Cena” na karcie bez ceny w panelu, a także po wyborze innego kamienia (warianty są bez ceny). */
+/** Przywieszka na liście i karcie bez ceny w panelu, a także po wyborze innego kamienia (warianty są bez ceny). */
 export const PRICE_ON_REQUEST_SHORT = 'Na zapytanie'
 
 /**
@@ -30,6 +30,19 @@ export function formatPrice(price: number | null | undefined, prefix: string = P
   if (value === null) return ''
   const text = `${amount(value)}\u00a0zł`
   return prefix ? `${prefix}\u00a0${text}` : text
+}
+
+/**
+ * Cena w dwóch częściach (przywieszka na liście: „od” zwykłym krojem, kwota większa); bez ceny `null`.
+ * Spacje nierozdzielające jak w `formatPrice`.
+ */
+export function priceParts(
+  price: number | null | undefined,
+  prefix: string = PRICE_PREFIX,
+): { prefix: string; amount: string } | null {
+  const value = normalizePrice(price)
+  if (value === null) return null
+  return { prefix, amount: `${amount(value)}\u00a0zł` }
 }
 
 /** Najniższa cena z listy (nagłówek katalogu: „Pierścionek z kolekcji od … zł”); bez cen `null`. */

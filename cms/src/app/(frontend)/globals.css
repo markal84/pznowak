@@ -480,13 +480,17 @@ summary::-webkit-details-marker {
   line-height: 1.4;
   color: var(--muted);
 }
-/* Cena na przywieszce kafelka (lista pierścionków): pod nazwą, tym samym krojem, w kolorze patyny. */
+/* Cena na przywieszce kafelka (lista pierścionków): pod nazwą, w kolorze patyny. „od” i „Na zapytanie” zwykłe, sama kwota (.amt) większa i grubsza, żeby się wyróżniała. */
 .tag .price {
   font-family: var(--serif);
   font-size: 16px;
   line-height: 1.2;
   color: var(--patina);
   margin-top: 1px;
+}
+.tag .price .amt {
+  font-size: 19px;
+  font-weight: 500;
 }
 .tag-md {
   --c: 16px;
@@ -2438,6 +2442,12 @@ fieldset.plain legend {
   }
   .ring-grid .tag .sub {
     display: none;
+  }
+  .ring-grid .tag .price {
+    font-size: 14.5px;
+  }
+  .ring-grid .tag .price .amt {
+    font-size: 16.5px;
   }
   .cta-card {
     grid-column: 1 / -1;
