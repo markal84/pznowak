@@ -995,7 +995,16 @@
         {
           "zrodlo": [
             "legacy/jewelry/Michalnowak.com_.pl-20-1024x683.jpg"
-          ]
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.426,
+              0.395,
+              0.556,
+              0.553
+            ],
+            "maska_z_obszaru": true
+          }
         }
       ],
       "cala_galeria": [
@@ -1151,7 +1160,16 @@
         {
           "zrodlo": [
             "legacy/jewelry/557930792_122158637264616875_6448592044616193409_n-1024x683.jpg"
-          ]
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.44,
+              0.155,
+              0.585,
+              0.328
+            ],
+            "maska_z_obszaru": true
+          }
         }
       ],
       "cala_galeria": [
