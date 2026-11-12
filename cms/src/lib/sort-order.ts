@@ -80,7 +80,6 @@ export async function shiftOtherProducts({
 }): Promise<void> {
   if (req.context?.skipSortOrderShift) return
   if (typeof doc.sortOrder !== 'number') return
-  if (previousDoc && previousDoc.sortOrder === doc.sortOrder) return
 
   const { payload } = req
   const found = await payload.find({
@@ -92,6 +91,10 @@ export async function shiftOtherProducts({
     select: { sortOrder: true },
     req,
   })
+  // Ten sam numer co wcześniej: przesuwamy tylko wtedy, gdy inna karta ma go także (np. po zmianie sprzed tej funkcji).
+  const unchanged = Boolean(previousDoc) && previousDoc?.sortOrder === doc.sortOrder
+  const taken = found.docs.some((item) => String(item.id) !== String(doc.id) && item.sortOrder === doc.sortOrder)
+  if (unchanged && !taken) return
   const { movedTo, changes } = planMove(found.docs, doc.id, doc.sortOrder)
   for (const change of changes) await writeSortOrder(payload, change.id, change.to, req)
   if (movedTo !== doc.sortOrder) {
