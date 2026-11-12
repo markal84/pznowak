@@ -11,8 +11,11 @@ import {
   paginate,
   parseCatalogParams,
   pluralRing,
+  sortRings,
+  VISIBLE_CATALOG_SORTS,
   type CatalogRing,
   type CatalogParams,
+  type CatalogSort,
 } from '@/lib/catalog'
 import { rememberCatalogRing, ringAnchorId, takeCatalogReturn } from '@/lib/catalog-return'
 import RingCard from './RingCard'
@@ -27,13 +30,19 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
     if (card) card.scrollIntoView({ block: 'center' })
   }, [])
   const searchParams = useSearchParams()
-  // Filtry i numer strony żyją w adresie: odświeżenie, link i „wstecz” przeglądarki wracają do tego samego widoku.
-  const { stone, gold, page: requestedPage } = parseCatalogParams((key) => searchParams.get(key))
-  const all = filterRings(rings, stone, gold)
+  // Filtry, sortowanie i numer strony żyją w adresie: odświeżenie, link i „wstecz” przeglądarki wracają do tego samego widoku.
+  const {
+    stone,
+    gold,
+    sort,
+    page: requestedPage,
+  } = parseCatalogParams((key) => searchParams.get(key))
+  const all = sortRings(filterRings(rings, stone, gold), sort)
   const { items, page, pages } = paginate(all, requestedPage)
   const filtered = stone !== 'all' || gold !== 'all'
+  // Zmiana filtra albo sortowania wraca na pierwszą stronę.
   const setFilters = (next: Partial<CatalogParams>) =>
-    router.replace(catalogHref({ stone, gold, page: 1, ...next }), { scroll: false })
+    router.replace(catalogHref({ stone, gold, sort, page: 1, ...next }), { scroll: false })
   const clear = () => setFilters({ stone: 'all', gold: 'all' })
   const countLabel = filtered
     ? `Pasujące do filtrów: ${all.length} ${pluralRing(all.length)}`
@@ -87,11 +96,27 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
           <p aria-live="polite" style={{ fontSize: 15, color: 'var(--graphite-2)' }}>
             {countLabel}
           </p>
-          {filtered ? (
-            <button className="linkbtn" onClick={clear} type="button">
-              Wyczyść filtry
-            </button>
-          ) : null}
+          <div className="row" style={{ gap: '8px 24px' }}>
+            {filtered ? (
+              <button className="linkbtn" onClick={clear} type="button">
+                Wyczyść filtry
+              </button>
+            ) : null}
+            <label className="sort">
+              <span className="chip-label">Sortuj</span>
+              <select
+                className="sort-select"
+                onChange={(event) => setFilters({ sort: event.target.value as CatalogSort })}
+                value={sort}
+              >
+                {VISIBLE_CATALOG_SORTS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
       </section>
 
@@ -140,7 +165,7 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
                 {page > 1 ? (
                   <Link
                     className="pager-link"
-                    href={catalogHref({ stone, gold, page: page - 1 })}
+                    href={catalogHref({ stone, gold, sort, page: page - 1 })}
                     rel="prev"
                   >
                     Poprzednia
@@ -153,7 +178,7 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
                         aria-current={n === page ? 'page' : undefined}
                         aria-label={`Strona ${n}`}
                         className="pager-link"
-                        href={catalogHref({ stone, gold, page: n })}
+                        href={catalogHref({ stone, gold, sort, page: n })}
                       >
                         {n}
                       </Link>
@@ -163,7 +188,7 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
                 {page < pages ? (
                   <Link
                     className="pager-link"
-                    href={catalogHref({ stone, gold, page: page + 1 })}
+                    href={catalogHref({ stone, gold, sort, page: page + 1 })}
                     rel="next"
                   >
                     Następna

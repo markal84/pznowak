@@ -213,6 +213,7 @@ const product: SiteProduct = {
   seoDescription: '',
   seoImage: '',
   updatedAt: '2026-11-05T00:00:00.000Z',
+  createdAt: '2026-11-05T00:00:00.000Z',
   featuredOnHome: false,
   homeOrder: 0,
   price: null,

@@ -220,6 +220,7 @@ const product = (name: string, extra: Partial<SiteProduct> = {}): SiteProduct =>
   seoDescription: '',
   seoImage: '',
   updatedAt: '2026-11-02T00:00:00.000Z',
+  createdAt: '2026-11-02T00:00:00.000Z',
   featuredOnHome: false,
   homeOrder: 0,
   stoneVariants: [],

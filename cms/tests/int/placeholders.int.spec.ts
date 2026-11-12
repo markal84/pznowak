@@ -29,6 +29,7 @@ const product = (id: number, name: string, extra: Partial<SiteProduct> = {}): Si
   seoDescription: '',
   seoImage: '',
   updatedAt: '2026-10-26T00:00:00.000Z',
+  createdAt: '2026-10-26T00:00:00.000Z',
   featuredOnHome: false,
   homeOrder: 0,
   stoneVariants: [],

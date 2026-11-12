@@ -920,6 +920,60 @@ summary::-webkit-details-marker {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
+/* ---------- sortowanie listy pierścionków ---------- */
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.sort .chip-label {
+  margin: 0;
+}
+/* Zwykła lista wyboru systemu (na telefonie otwiera natywny wybór), w kształcie chipa. */
+.sort-select {
+  appearance: none;
+  min-height: 44px;
+  padding: 0 40px 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2322262a' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  color: var(--graphite);
+  font-family: inherit;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+/* Obwódka w kolorze akcentu (nie grafitowa) i pierścień fokusu z cienia zamiast obrysu, żeby oba wchodziły płynnie. */
+.sort-select {
+  box-shadow:
+    inset 0 0 0 1px transparent,
+    0 0 0 3px transparent,
+    0 0 0 5px transparent;
+  transition:
+    box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sort-select:hover {
+  box-shadow:
+    inset 0 0 0 1px var(--focus),
+    0 0 0 3px transparent,
+    0 0 0 5px transparent;
+}
+.sort-select:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px var(--focus),
+    0 0 0 3px var(--silver),
+    0 0 0 5px var(--focus);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sort-select {
+    transition: none;
+  }
+}
+
 /* ---------- paginacja listy pierścionków ---------- */
 .pager {
   display: flex;
@@ -4021,7 +4075,6 @@ fieldset.plain legend {
   background: var(--shade);
   cursor: pointer;
   opacity: 0.72;
-  transition: opacity 0.15s;
 }
 .work-thumb img {
   object-fit: cover;
@@ -4054,8 +4107,18 @@ fieldset.plain legend {
 .work-thumb[aria-current='true'] {
   opacity: 1;
 }
-.work-thumb[aria-current='true'] {
-  outline: 2px solid var(--graphite);
+/* Wybrana miniatura: pomarańczowa obwódka (kolor fokusu), która płynnie się zaciska, zamiast twardej grafitowej. */
+.work-thumb {
+  outline: 2px solid transparent;
+  outline-offset: 5px;
+  transition:
+    opacity 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    outline-color 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    outline-offset 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.work-thumb[aria-current='true'],
+.work-thumb:focus-visible {
+  outline-color: var(--focus);
   outline-offset: 2px;
 }
 .work-actions {
@@ -4071,17 +4134,46 @@ fieldset.plain legend {
   text-decoration: underline transparent;
   text-decoration-thickness: 1px;
   text-underline-offset: 5px;
-  transition: text-decoration-color 0.15s;
+  transition: text-decoration-color 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.work-tile:hover h3 {
+.work-tile:hover h3,
+.work-tile:focus-visible h3 {
   text-decoration-color: currentColor;
 }
-.work-tile[aria-current='true'] .ph {
-  outline: 2px solid var(--graphite);
-  outline-offset: 3px;
+/* Wybrana realizacja: jedna pomarańczowa obwódka wokół zdjęcia, wchodząca płynnie (jak na liście pierścionków
+   i w „Sortuj”). Fokus z klawiatury rysuje tę samą obwódkę na zdjęciu zamiast drugiej ramki wokół całego kafelka. */
+.work-tile .ph {
+  outline: 2px solid transparent;
+  outline-offset: 8px;
+  transition:
+    outline-color 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    outline-offset 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.work-tile .ph img {
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.work-tile:hover .ph img,
+.work-tile:focus-visible .ph img {
+  transform: scale(1.035);
+}
+.work-tile:focus-visible {
+  outline: none;
+}
+.work-tile[aria-current='true'] .ph,
+.work-tile:focus-visible .ph {
+  outline-color: var(--focus);
+  outline-offset: 4px;
 }
 .work-tile[aria-current='true'] h3 {
   text-decoration-color: currentColor;
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-thumb,
+  .work-tile .ph,
+  .work-tile .ph img,
+  .work-tile h3 {
+    transition: none;
+  }
 }
 .work-none,
 .work-empty {
