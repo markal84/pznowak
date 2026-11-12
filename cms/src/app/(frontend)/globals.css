@@ -945,8 +945,33 @@ summary::-webkit-details-marker {
   font-size: 14.5px;
   cursor: pointer;
 }
+/* Obwódka w kolorze akcentu (nie grafitowa) i pierścień fokusu z cienia zamiast obrysu, żeby oba wchodziły płynnie. */
+.sort-select {
+  box-shadow:
+    inset 0 0 0 1px transparent,
+    0 0 0 3px transparent,
+    0 0 0 5px transparent;
+  transition:
+    box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 .sort-select:hover {
-  box-shadow: inset 0 0 0 1px var(--graphite);
+  box-shadow:
+    inset 0 0 0 1px var(--focus),
+    0 0 0 3px transparent,
+    0 0 0 5px transparent;
+}
+.sort-select:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px var(--focus),
+    0 0 0 3px var(--silver),
+    0 0 0 5px var(--focus);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sort-select {
+    transition: none;
+  }
 }
 
 /* ---------- paginacja listy pierścionków ---------- */
