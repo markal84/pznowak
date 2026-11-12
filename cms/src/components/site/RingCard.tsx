@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ringAnchorId } from '@/lib/catalog-return'
-import { formatPrice, PRICE_ON_REQUEST_SHORT } from '@/lib/price'
+import { PRICE_ON_REQUEST_SHORT, priceParts } from '@/lib/price'
 import Photo from './Photo'
 import Tag from './Tag'
 
@@ -21,7 +21,16 @@ type RingCardProps = {
 export default function RingCard({ slug, name, stone, image, alt, sizes, gold, price, detailed = false }: RingCardProps) {
   const href = `/pierscionki/${slug}`
   if (detailed) {
-    const priceText = formatPrice(price) || PRICE_ON_REQUEST_SHORT
+    const parts = priceParts(price)
+    // „od” i „Na zapytanie” zwykłym krojem, sama kwota większa (wyróżnia się na przywieszce)
+    const priceText = parts ? (
+      <>
+        {parts.prefix ? <>{parts.prefix}{'\u00a0'}</> : null}
+        <span className="amt">{parts.amount}</span>
+      </>
+    ) : (
+      PRICE_ON_REQUEST_SHORT
+    )
     return (
       <li id={ringAnchorId(slug)}>
         <Link className="card card-body" data-ring-slug={slug} href={href}>

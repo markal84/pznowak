@@ -32,6 +32,19 @@ export function formatPrice(price: number | null | undefined, prefix: string = P
   return prefix ? `${prefix}\u00a0${text}` : text
 }
 
+/**
+ * Cena w dwóch częściach (przywieszka na liście: „od” zwykłym krojem, kwota większa); bez ceny `null`.
+ * Spacje nierozdzielające jak w `formatPrice`.
+ */
+export function priceParts(
+  price: number | null | undefined,
+  prefix: string = PRICE_PREFIX,
+): { prefix: string; amount: string } | null {
+  const value = normalizePrice(price)
+  if (value === null) return null
+  return { prefix, amount: `${amount(value)}\u00a0zł` }
+}
+
 /** Najniższa cena z listy (nagłówek katalogu: „Pierścionek z kolekcji od … zł”); bez cen `null`. */
 export function lowestPrice(items: readonly { price: number | null }[]): number | null {
   const prices = items.map(({ price }) => normalizePrice(price)).filter((p): p is number => p !== null)
