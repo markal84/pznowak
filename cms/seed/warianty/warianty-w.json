@@ -60,5 +60,31 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "harmonia",
+    "name": "Harmonia",
+    "variants": [
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "harmonia-szafir-granatowy.webp",
+          "harmonia-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Harmonia z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "harmonia-rubin.webp",
+          "harmonia-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Harmonia z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]
