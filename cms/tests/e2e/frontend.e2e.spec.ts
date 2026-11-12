@@ -240,6 +240,30 @@ test.describe('Katalog i karta pierścionka', () => {
     await expect(page.getByText(new RegExp(`^${total} .* w kolekcji$`))).toBeVisible()
   })
 
+  test('sortowanie po cenie: rosnąco, karty bez ceny na końcu; filtr nie gubi sortowania', async ({ page }) => {
+    await visit(page, '/pierscionki')
+    const select = page.getByLabel('Sortuj')
+    await expect(select).toHaveValue('polecane')
+    await select.selectOption('cena-rosnaco')
+    await expect(page).toHaveURL(/\/pierscionki\?sortuj=cena-rosnaco$/)
+    const cards = page.locator('.ring-grid-lg > li:not(.cta-card)')
+    const numbers = await cards.evaluateAll((items) =>
+      items.map((li) => {
+        const text = li.querySelector('.tag .price')?.textContent ?? ''
+        return text ? Number(text.replace(/\D/g, '')) : null
+      }),
+    )
+    const firstWithout = numbers.indexOf(null)
+    const priced = (firstWithout === -1 ? numbers : numbers.slice(0, firstWithout)) as number[]
+    expect(numbers.slice(priced.length).every((n) => n === null)).toBe(true)
+    expect(priced).toEqual([...priced].sort((a, b) => a - b))
+    await noHorizontalScroll(page)
+
+    await page.getByRole('button', { name: 'Niebieskie' }).click()
+    await expect(page).toHaveURL(/kamien=niebieskie&sortuj=cena-rosnaco$/)
+    await expect(select).toHaveValue('cena-rosnaco')
+  })
+
   test('połączenie bez wyników pokazuje pusty stan', async ({ page }) => {
     await visit(page, '/pierscionki')
     await page.getByRole('button', { name: 'Bezbarwne' }).click()

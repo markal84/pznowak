@@ -920,6 +920,35 @@ summary::-webkit-details-marker {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
+/* ---------- sortowanie listy pierścionków ---------- */
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.sort .chip-label {
+  margin: 0;
+}
+/* Zwykła lista wyboru systemu (na telefonie otwiera natywny wybór), w kształcie chipa. */
+.sort-select {
+  appearance: none;
+  min-height: 44px;
+  padding: 0 40px 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2322262a' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  color: var(--graphite);
+  font-family: inherit;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.sort-select:hover {
+  box-shadow: inset 0 0 0 1px var(--graphite);
+}
+
 /* ---------- paginacja listy pierścionków ---------- */
 .pager {
   display: flex;

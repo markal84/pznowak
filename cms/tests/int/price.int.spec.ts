@@ -47,6 +47,8 @@ describe('ceny pierścionków', () => {
     const site = serializeSiteProduct(doc)
     expect(site.price).toBe(2949)
     expect(toCatalogRing(site).price).toBe(2949)
+    expect(toCatalogRing(site).addedOn).toBe('2026-11-06')
+    expect(serializePublicProduct(doc)).not.toHaveProperty('createdAt')
     expect(serializeSiteProduct({ ...doc, price: null }).price).toBeNull()
     expect(serializePublicProduct(doc)).not.toHaveProperty('price')
   })

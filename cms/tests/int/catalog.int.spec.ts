@@ -5,8 +5,10 @@ import {
   CATALOG_PAGE_SIZE,
   catalogHref,
   filterRings,
+  addedDay,
   paginate,
   parseCatalogParams,
+  sortRings,
   formatMetal,
   formatStone,
   goldColorLabel,
@@ -124,10 +126,10 @@ describe('pluralRing', () => {
 
 describe('filtrowanie katalogu', () => {
   const rings: CatalogRing[] = [
-    { id: 1, slug: 'a', name: 'A', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte', image: '', alt: '', price: null },
-    { id: 2, slug: 'b', name: 'B', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte-biale', image: '', alt: '', price: null },
-    { id: 3, slug: 'c', name: 'C', stone: '', metal: '', goldLabel: '', stoneGroup: 'zielone', goldGroup: 'zolte', image: '', alt: '', price: null },
-    { id: 4, slug: 'd', name: 'D', stone: '', metal: '', goldLabel: '', stoneGroup: null, goldGroup: null, image: '', alt: '', price: null },
+    { id: 1, slug: 'a', name: 'A', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte', image: '', alt: '', price: null, addedOn: '' },
+    { id: 2, slug: 'b', name: 'B', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte-biale', image: '', alt: '', price: null, addedOn: '' },
+    { id: 3, slug: 'c', name: 'C', stone: '', metal: '', goldLabel: '', stoneGroup: 'zielone', goldGroup: 'zolte', image: '', alt: '', price: null, addedOn: '' },
+    { id: 4, slug: 'd', name: 'D', stone: '', metal: '', goldLabel: '', stoneGroup: null, goldGroup: null, image: '', alt: '', price: null, addedOn: '' },
   ]
   it('bez filtrów zwraca wszystko, także produkty bez grup', () => {
     expect(filterRings(rings, 'all', 'all')).toHaveLength(4)
@@ -167,9 +169,66 @@ describe('paginacja katalogu', () => {
   })
   it('czyta i buduje adres bez wartości domyślnych', () => {
     const params = new URLSearchParams('kamien=zielone&zloto=biale&strona=2')
-    expect(parseCatalogParams((k) => params.get(k))).toEqual({ stone: 'zielone', gold: 'biale', page: 2 })
-    expect(parseCatalogParams(() => 'bzdura')).toEqual({ stone: 'all', gold: 'all', page: 1 })
+    expect(parseCatalogParams((k) => params.get(k))).toEqual({ stone: 'zielone', gold: 'biale', page: 2, sort: 'polecane' })
+    expect(parseCatalogParams(() => 'bzdura')).toEqual({ stone: 'all', gold: 'all', page: 1, sort: 'polecane' })
     expect(catalogHref({ stone: 'zielone', gold: 'biale', page: 2 })).toBe('/pierscionki?kamien=zielone&zloto=biale&strona=2')
     expect(catalogHref({ stone: 'all', gold: 'all', page: 1 })).toBe('/pierscionki')
+  })
+})
+
+describe('sortowanie katalogu', () => {
+  const ring = (slug: string, price: number | null, addedOn: string): CatalogRing => ({
+    id: slug.charCodeAt(0),
+    slug,
+    name: slug,
+    stone: '',
+    metal: '',
+    goldLabel: '',
+    stoneGroup: null,
+    goldGroup: null,
+    image: '',
+    alt: '',
+    price,
+    addedOn,
+  })
+  // Wejście w kolejności z panelu („Kolejność”).
+  const rings = [
+    ring('a', 2900, '2026-10-20'),
+    ring('b', null, '2026-11-10'),
+    ring('c', 1899, '2026-10-20'),
+    ring('d', 3299, '2026-11-10'),
+    ring('e', null, ''),
+    ring('f', 1899, '2026-11-01'),
+  ]
+  const slugs = (list: CatalogRing[]) => list.map((r) => r.slug)
+
+  it('„Polecane” zostawia kolejność z panelu i nie zmienia wejścia', () => {
+    const copy = [...rings]
+    expect(slugs(sortRings(rings, 'polecane'))).toEqual(['a', 'b', 'c', 'd', 'e', 'f'])
+    sortRings(rings, 'cena-rosnaco')
+    expect(rings).toEqual(copy)
+  })
+  it('cena rosnąco i malejąco: karty bez ceny zawsze na końcu, remis w kolejności z panelu', () => {
+    expect(slugs(sortRings(rings, 'cena-rosnaco'))).toEqual(['c', 'f', 'a', 'd', 'b', 'e'])
+    expect(slugs(sortRings(rings, 'cena-malejaco'))).toEqual(['d', 'a', 'c', 'f', 'b', 'e'])
+  })
+  it('najnowsze po dniu dodania; ten sam dzień w kolejności z panelu, bez daty na końcu', () => {
+    expect(slugs(sortRings(rings, 'najnowsze'))).toEqual(['b', 'd', 'f', 'a', 'c', 'e'])
+  })
+  it('dzień dodania liczony w czasie polskim', () => {
+    expect(addedDay('2026-11-11T23:30:00.000Z')).toBe('2026-11-12')
+    expect(addedDay('2026-07-01T10:00:00.000Z')).toBe('2026-07-01')
+    expect(addedDay('')).toBe('')
+    expect(addedDay(undefined)).toBe('')
+    expect(addedDay('bzdura')).toBe('')
+  })
+  it('sortowanie w adresie: domyślne „Polecane” poza adresem, nieznana wartość wraca do domyślnej', () => {
+    const params = new URLSearchParams('sortuj=cena-malejaco&strona=2')
+    expect(parseCatalogParams((k) => params.get(k))).toEqual({ stone: 'all', gold: 'all', page: 2, sort: 'cena-malejaco' })
+    expect(parseCatalogParams((k) => (k === 'sortuj' ? 'losowo' : null)).sort).toBe('polecane')
+    expect(catalogHref({ stone: 'zielone', gold: 'all', page: 2, sort: 'najnowsze' })).toBe(
+      '/pierscionki?kamien=zielone&sortuj=najnowsze&strona=2',
+    )
+    expect(catalogHref({ stone: 'all', gold: 'all', page: 1, sort: 'polecane' })).toBe('/pierscionki')
   })
 })

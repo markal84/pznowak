@@ -133,9 +133,21 @@ export type CatalogRing = {
   alt: string
   /** cena z panelu w zł; `null` = bez ceny (na liście nic) */
   price: number | null
+  /** dzień dodania karty w panelu (`RRRR-MM-DD`, czas polski); pusty, gdy daty nie znamy */
+  addedOn: string
 }
 
-export function toCatalogRing(product: Jewel & Partial<ProductPriceFields>): CatalogRing {
+/** Dzień (czas polski) z daty ISO, np. `2026-11-12`; pusty przy braku albo błędnej dacie. */
+export function addedDay(iso: string | null | undefined): string {
+  const date = new Date(iso ?? '')
+  if (!iso || Number.isNaN(date.getTime())) return ''
+  // Szwedzki zapis daty to RRRR-MM-DD.
+  return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Warsaw' }).format(date)
+}
+
+export function toCatalogRing(
+  product: Jewel & Partial<ProductPriceFields> & { createdAt?: string },
+): CatalogRing {
   const stone = formatStone(product.stone)
   return {
     id: product.id,
@@ -149,6 +161,7 @@ export function toCatalogRing(product: Jewel & Partial<ProductPriceFields>): Cat
     image: product.images[0] ?? product.imagePath,
     alt: `Pierścionek ${product.name}${stone ? ': ' + stone.toLowerCase() : ''}`,
     price: product.price ?? null,
+    addedOn: addedDay(product.createdAt),
   }
 }
 
@@ -166,12 +179,53 @@ export function filterRings(
 /** Ile pierścionków na stronie listy. */
 export const CATALOG_PAGE_SIZE = 40
 
-export type CatalogParams = { stone: 'all' | StoneGroup; gold: 'all' | GoldGroup; page: number }
+export type CatalogSort = 'polecane' | 'najnowsze' | 'cena-rosnaco' | 'cena-malejaco'
 
-/** Odczyt filtrów i strony z adresu (`?kamien=…&zloto=…&strona=N`); nieznane wartości wracają do domyślnych. */
+/**
+ * Sortowanie listy. „Polecane” = kolejność z panelu (pole „Kolejność”) i jest domyślne, więc nie trafia do adresu.
+ * Pierścionki bez ceny („Na zapytanie”) przy sortowaniu po cenie stoją zawsze na końcu, w kolejności z panelu.
+ */
+export const CATALOG_SORTS: readonly { id: CatalogSort; label: string }[] = [
+  { id: 'polecane', label: 'Polecane' },
+  { id: 'najnowsze', label: 'Najnowsze' },
+  { id: 'cena-rosnaco', label: 'Cena: od najniższej' },
+  { id: 'cena-malejaco', label: 'Cena: od najwyższej' },
+]
+
+/**
+ * Lista ułożona wg wybranego sortowania. Wejście jest już w kolejności z panelu i przy remisie ta kolejność zostaje
+ * (np. dwie karty w tej samej cenie albo dodane tego samego dnia). „Najnowsze” porównuje dzień dodania, a nie
+ * godzinę: karty z jednego importu mają czasy różniące się o sekundy i bez tego stałyby w przypadkowym porządku.
+ */
+export function sortRings(rings: readonly CatalogRing[], sort: CatalogSort): CatalogRing[] {
+  const list = [...rings]
+  if (sort === 'najnowsze') {
+    // Puste daty (nieznane) na końcu; RRRR-MM-DD porównuje się jak tekst.
+    return list.sort((a, b) => (b.addedOn || '').localeCompare(a.addedOn || ''))
+  }
+  if (sort === 'cena-rosnaco' || sort === 'cena-malejaco') {
+    const direction = sort === 'cena-rosnaco' ? 1 : -1
+    return list.sort((a, b) => {
+      if (a.price === null || b.price === null)
+        return (a.price === null ? 1 : 0) - (b.price === null ? 1 : 0)
+      return (a.price - b.price) * direction
+    })
+  }
+  return list
+}
+
+export type CatalogParams = {
+  stone: 'all' | StoneGroup
+  gold: 'all' | GoldGroup
+  page: number
+  sort: CatalogSort
+}
+
+/** Odczyt filtrów, sortowania i strony z adresu (`?kamien=…&zloto=…&sortuj=…&strona=N`); nieznane wartości wracają do domyślnych. */
 export function parseCatalogParams(get: (key: string) => string | null | undefined): CatalogParams {
   const stoneRaw = get('kamien')
   const goldRaw = get('zloto')
+  const sortRaw = get('sortuj')
   const pageRaw = Number.parseInt(get('strona') ?? '', 10)
   return {
     stone: STONE_FILTERS.some((s) => s.id === stoneRaw && s.id !== 'all')
@@ -181,14 +235,21 @@ export function parseCatalogParams(get: (key: string) => string | null | undefin
       ? (goldRaw as GoldGroup)
       : 'all',
     page: Number.isFinite(pageRaw) && pageRaw > 1 ? pageRaw : 1,
+    sort: CATALOG_SORTS.find(({ id }) => id === sortRaw)?.id ?? 'polecane',
   }
 }
 
-/** Adres listy dla danych filtrów i strony; wartości domyślne nie trafiają do adresu. */
-export function catalogHref({ stone, gold, page }: CatalogParams): string {
+/** Adres listy dla danych filtrów, sortowania i strony; wartości domyślne nie trafiają do adresu. */
+export function catalogHref({
+  stone,
+  gold,
+  page,
+  sort = 'polecane',
+}: Omit<CatalogParams, 'sort'> & { sort?: CatalogSort }): string {
   const query = new URLSearchParams()
   if (stone !== 'all') query.set('kamien', stone)
   if (gold !== 'all') query.set('zloto', gold)
+  if (sort !== 'polecane') query.set('sortuj', sort)
   if (page > 1) query.set('strona', String(page))
   const text = query.toString()
   return text ? `/pierscionki?${text}` : '/pierscionki'

@@ -27,6 +27,8 @@ export type ProductSeoFields = {
   seoImage: string
   /** Data ostatniej zmiany (ISO); trafia do `lastModified` w sitemap.xml. */
   updatedAt: string
+  /** Data dodania karty w panelu (ISO); sortowanie „Najnowsze” na liście. */
+  createdAt: string
 }
 
 /** Wybór pierścionków na stronę główną (panel: pola w pasku bocznym). Tylko dla stron serwisu, nie dla publicznego API. */
@@ -142,6 +144,7 @@ export function serializeSiteProduct(product: Product): SiteProduct {
     seoDescription: product.meta?.description?.trim() ?? '',
     seoImage: populatedMedia(product.meta?.image ?? 0)?.url ?? '',
     updatedAt: product.updatedAt,
+    createdAt: product.createdAt,
     featuredOnHome: product.featuredOnHome === true,
     homeOrder: product.homeOrder ?? 0,
     stoneVariants: serializeStoneVariants(product.stoneVariants),
