@@ -3,9 +3,7 @@ import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import BandConfigurator from '@/components/site/BandConfigurator'
 import BandTypes from '@/components/site/BandTypes'
-import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Faq, { type FaqItem } from '@/components/site/Faq'
-import Icon from '@/components/site/Icon'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import Photo from '@/components/site/Photo'
@@ -21,12 +19,7 @@ export const metadata: Metadata = pageMetadata({
 const faq = (): FaqItem[] => [
   {
     q: 'Kiedy przyjść na przymiarkę?',
-    a: (
-      <>
-        Najlepiej razem i z zapasem przed ślubem.
-        <DoUzupelnienia> Wykonanie trwa zwykle [TERMIN].</DoUzupelnienia> Palce zmieniają się w ciągu dnia, dlatego mierzymy kilkoma obręczami.
-      </>
-    ),
+    a: 'Najlepiej razem i z zapasem przed ślubem. Palce zmieniają się w ciągu dnia, dlatego mierzymy kilkoma obręczami.',
   },
   { q: 'Czy możemy użyć złota z rodzinnej biżuterii?', a: 'Najczęściej tak. Najpierw sprawdzimy próbę i ilość złota, potem powiemy, ile trzeba dołożyć.' },
   { q: 'Co można wygrawerować?', a: 'Datę, imiona albo krótki napis po wewnętrznej stronie. Ile znaków się zmieści, zależy od szerokości obrączki.' },
@@ -100,12 +93,6 @@ export default function BandsPage() {
               <figcaption className="small">{p.caption}</figcaption>
             </figure>
           ))}
-          <DoUzupelnienia as="div">
-            <div aria-label="Miejsce na zdjęcie obrączek" className="ph-empty" role="img" style={{ aspectRatio: '4 / 3' }}>
-              <Icon name="obraczki" />
-              [Zdjęcie graweru w środku obrączki]
-            </div>
-          </DoUzupelnienia>
         </div>
       </section>
 

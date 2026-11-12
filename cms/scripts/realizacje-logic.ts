@@ -46,3 +46,23 @@ export function planPhotos(current: readonly PhotoRef[], work: SeedWork): PhotoP
   if (work.previousPhotos && sameOrder(current, work.previousPhotos)) return 'przestaw'
   return 'reczne'
 }
+
+export type TextField = 'title' | 'task' | 'whatWeDid'
+export type TextPlan = { field: TextField; action: 'aktualne' | 'podmien' | 'reczne'; current: string; wanted: string }
+
+/**
+ * Nowe opisy realizacji (12.11): pole podmieniamy tylko wtedy, gdy w bazie jest dokładnie tekst z poprzedniej wersji seeda.
+ * Tekst zmieniony w panelu zostaje (`reczne`), chyba że ktoś świadomie wymusi podmianę (`force`).
+ */
+export function planTexts(current: Partial<Record<TextField, string | null>>, work: SeedWork, force = false): TextPlan[] {
+  const fields: TextField[] = ['title', 'task', 'whatWeDid']
+  return fields.flatMap((field): TextPlan[] => {
+    const wanted = work[field]
+    const now = (current[field] ?? '').trim()
+    const previous = work.previousTexts?.[field]
+    if (now === wanted) return [{ field, action: 'aktualne', current: now, wanted }]
+    if (previous === undefined && field === 'title') return []
+    if ((previous !== undefined && now === previous) || force) return [{ field, action: 'podmien', current: now, wanted }]
+    return [{ field, action: 'reczne', current: now, wanted }]
+  })
+}

@@ -31,6 +31,7 @@
     "staging:opisy-ac": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-opisy-ac.ts",
     "staging:nowe-karty": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-nowe-karty.ts",
     "staging:realizacje": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/seed-realizacje.ts",
+    "staging:realizacje-opisy": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-realizacje-opisy.ts",
     "staging:warianty": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-warianty-v.ts",
     "staging:kolejnosc": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-kolejnosc.ts",
     "staging:kolejnosc-tla": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.staging.local --import=tsx/esm scripts/staging-kolejnosc-tla.ts",

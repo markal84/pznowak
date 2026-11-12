@@ -3,7 +3,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { SEED_WORKS } from '../../scripts/realizacje-data'
-import { matchProduct, planPhotos, type CatalogProduct } from '../../scripts/realizacje-logic'
+import { matchProduct, planPhotos, planTexts, type CatalogProduct } from '../../scripts/realizacje-logic'
 
 const photosDir = path.join(process.cwd(), 'seed', 'realizacje')
 
@@ -103,5 +103,32 @@ describe('seed: link do katalogu i poprawka zdjęć', () => {
     expect(planPhotos(tanzanite.previousPhotos!.map((p, i) => (i === 1 ? { ...p, alt: 'Poprawiony opis' } : p)), tanzanite)).toBe('reczne')
     expect(planPhotos([...tanzanite.previousPhotos!].reverse(), tanzanite)).toBe('reczne')
     expect(planPhotos([{ file: null, alt: 'zdjęcie wgrane w panelu' }], tanzanite)).toBe('reczne')
+  })
+})
+
+describe('opisy realizacji (12.11): podmiana tylko starych tekstów z seeda', () => {
+  const bySlug = (slug: string) => SEED_WORKS.find((w) => w.slug === slug)!
+
+  it('każda realizacja ma poprzednią wersję tekstów, a nowe teksty są inne', () => {
+    for (const work of SEED_WORKS) {
+      expect(work.previousTexts, work.slug).toBeDefined()
+      expect(work.task).not.toBe(work.previousTexts!.task)
+      expect(work.whatWeDid).not.toBe(work.previousTexts!.whatWeDid)
+    }
+  })
+
+  it('stary tekst podmienia, nowy zostawia, ręcznie zmieniony pomija (chyba że --wymus)', () => {
+    const morganite = bySlug('pierscionek-z-morganitem')
+    const old = { title: morganite.previousTexts!.title!, task: morganite.previousTexts!.task, whatWeDid: 'Poprawione w panelu.' }
+    const plan = planTexts(old, morganite)
+    expect(plan.map((p) => [p.field, p.action])).toEqual([['title', 'podmien'], ['task', 'podmien'], ['whatWeDid', 'reczne']])
+    expect(planTexts(old, morganite, true).every((p) => p.action === 'podmien')).toBe(true)
+    expect(planTexts({ title: morganite.title, task: morganite.task, whatWeDid: morganite.whatWeDid }, morganite).every((p) => p.action === 'aktualne')).toBe(true)
+  })
+
+  it('tytuł bez poprzedniej wersji nie jest ruszany', () => {
+    const snake = bySlug('pierscionek-waz-z-diamentami')
+    const plan = planTexts({ title: 'Inny tytuł', task: snake.previousTexts!.task, whatWeDid: snake.previousTexts!.whatWeDid }, snake)
+    expect(plan.map((p) => p.field)).toEqual(['task', 'whatWeDid'])
   })
 })

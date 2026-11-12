@@ -777,12 +777,11 @@ test.describe('Obrączki bez konfiguratora (zlecenie A)', () => {
     await expect(section.locator('.band-type')).toHaveCount(2)
     await expect(section.locator('.band-type img[src*="zdjecia"]')).toHaveCount(2)
     await expect(section.getByText('[zdjęcie do uzupełnienia]')).toHaveCount(0)
-    // „Obrączki z pracowni”: 2 prawdziwe zdjęcia z podpisami i 1 placeholder graweru (tylko poza produkcją).
+    // „Obrączki z pracowni”: 2 prawdziwe zdjęcia z podpisami, bez placeholdera graweru (zdjęcia graweru nie mamy).
     const workshop = page.locator('section', { has: page.getByRole('heading', { name: 'Obrączki z pracowni' }) })
     await expect(workshop.locator('figure img')).toHaveCount(2)
     await expect(workshop.getByText('Ostatni szlif przed odbiorem')).toBeVisible()
-    await expect(workshop.locator('.ph-empty')).toHaveCount(1)
-    await expect(workshop.getByText('[Zdjęcie graweru w środku obrączki]')).toBeVisible()
+    await expect(workshop.locator('.ph-empty')).toHaveCount(0)
     await noHorizontalScroll(page)
 
     await section.getByRole('link', { name: 'Zapytaj o obrączki półokrągłe' }).click()

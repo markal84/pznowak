@@ -10,7 +10,9 @@ import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
-import { byEnv, showPlaceholders } from '@/lib/placeholders'
+import { toCatalogRing } from '@/lib/catalog'
+import { showPlaceholders } from '@/lib/placeholders'
+import { formatPrice, lowestPrice } from '@/lib/price'
 import { FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
@@ -54,19 +56,13 @@ const faq = (): FaqItem[] => [
       </>
     ),
   },
-  {
-    q: 'Skąd pochodzą kamienie?',
-    a: (
-      <>
-        Parametry kamieni opisujemy wprost.
-        <DoUzupelnienia> [Do uzupełnienia: dostawcy, certyfikaty, dostępność kamieni laboratoryjnych.]</DoUzupelnienia>
-      </>
-    ),
-  },
 ]
 
 export default async function OnOrderPage() {
-  const count = (await getProducts()).length
+  const products = await getProducts()
+  const count = products.length
+  // Przywieszka „od …”: zawsze najniższa cena pierścionka z katalogu (ta sama co w nagłówku katalogu), liczona przy każdym wejściu.
+  const lowest = lowestPrice(products.map(toCatalogRing))
   const michal = FAMILY[3]
   return (
     <>
@@ -78,8 +74,8 @@ export default async function OnOrderPage() {
           </p>
           <PriceOffer
             label="Pierścionek na zamówienie"
-            note={byEnv('Cena zależy od kamieni i złota.', undefined)}
-            price={byEnv('zwykle [X–Y] zł', undefined)}
+            note={lowest !== null ? 'Cena zależy od kamieni i złota.' : undefined}
+            price={lowest !== null ? formatPrice(lowest) : undefined}
           >
             <Link className="btn" href="/kontakt?temat=nowy">Umów rozmowę o projekcie</Link>
             {RING_CREATOR_ENABLED ? (
@@ -169,7 +165,7 @@ export default async function OnOrderPage() {
                   ['Kamień', 'Szafir, owal, około 1 ct'],
                   ['Złoto', 'Żółte'],
                   ['Rozmiar', 'Do sprawdzenia po cichu'],
-                  ['Budżet', <DoUzupelnienia fallback="Do omówienia w rozmowie" key="budzet">[kwota od klienta]</DoUzupelnienia>],
+                  ['Budżet', 'Ustalony z klientem'],
                 ] as [string, ReactNode][]).map(([k, v], i, a) => (
                   <div key={k} style={{ display: 'contents' }}>
                     <dt style={{ color: 'var(--muted)', padding: '10px 0', borderBottom: i < a.length - 1 ? '1px dashed var(--line-soft)' : 0 }}>{k}</dt>
