@@ -1,46 +1,49 @@
 import { describe, expect, it } from 'vitest'
 
-import { planInsert, planNormalize } from '../../src/lib/sort-order'
+import { planMove, planNormalize } from '../../src/lib/sort-order'
 
 const items = (...values: number[]) => values.map((sortOrder, index) => ({ id: index + 1, sortOrder }))
 const apply = (list: ReturnType<typeof items>, moved: number, target: number) => {
-  const changes = planInsert(list, moved, target)
+  const { movedTo, changes } = planMove(list, moved, target)
   return list
     .map((item) => ({
       ...item,
-      sortOrder: item.id === moved ? target : (changes.find((c) => c.id === item.id)?.to ?? item.sortOrder),
+      sortOrder: item.id === moved ? movedTo : (changes.find((c) => c.id === item.id)?.to ?? item.sortOrder),
     }))
     .sort((a, b) => a.sortOrder - b.sortOrder)
 }
 
 describe('kolejność pierścionków', () => {
-  it('przeniesienie z 14 na 9 przesuwa 9…13 o 1 i domyka lukę', () => {
-    const list = items(8, 9, 10, 11, 12, 13, 14, 15)
-    const result = apply(list, 7, 9)
-    expect(result.map((i) => i.sortOrder)).toEqual([8, 9, 10, 11, 12, 13, 14, 15])
-    expect(result.map((i) => i.id)).toEqual([1, 7, 2, 3, 4, 5, 6, 8])
+  it('w górę: z 6 na 2 staje przed kartą z 2, reszta +1, luka domknięta', () => {
+    const result = apply(items(0, 1, 2, 3, 4, 5, 6, 7), 7, 2)
+    expect(result.map((i) => i.sortOrder)).toEqual([0, 1, 2, 3, 4, 5, 6, 7])
+    expect(result.map((i) => i.id)).toEqual([1, 2, 7, 3, 4, 5, 6, 8])
   })
 
-  it('powtórzone wartości dostają kolejne liczby (9, 9, 9 → 9, 10, 11)', () => {
-    const changes = planInsert(items(9, 9, 9), 99, 9)
-    expect(changes.map((c) => c.to)).toEqual([10, 11, 12])
+  it('w dół: z 1 na 5 staje tuż za kartą z 4 (dostaje 4), bez powtórzeń i luk', () => {
+    const result = apply(items(0, 1, 2, 3, 4, 5, 6), 2, 5)
+    expect(result.map((i) => i.sortOrder)).toEqual([0, 1, 2, 3, 4, 5, 6])
+    expect(result.map((i) => i.id)).toEqual([1, 3, 4, 5, 2, 6, 7])
+    expect(planMove(items(0, 1, 2, 3, 4, 5, 6), 2, 5).movedTo).toBe(4)
   })
 
-  it('wolne miejsce nic nie przesuwa', () => {
-    expect(planInsert(items(1, 2, 5), 99, 3)).toEqual([])
+  it('przypadek Thalii: za Adamas (11), nie powstaje druga 12', () => {
+    // id 9 = Thalia (8), id 12 = Adamas (11), id 13 = Terpsichore (12)
+    const list = items(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
+    const result = apply(list, 9, 12)
+    const ids = result.map((i) => i.id)
+    expect(ids.indexOf(9)).toBe(ids.indexOf(12) + 1)
+    expect(new Set(result.map((i) => i.sortOrder)).size).toBe(list.length)
   })
 
-  it('nie rusza kart przed docelowym miejscem ani za pierwszą luką', () => {
-    const changes = planInsert(items(1, 2, 3, 4, 8), 99, 2)
-    expect(changes.map((c) => [c.id, c.to])).toEqual([
-      [2, 3],
-      [3, 4],
-      [4, 5],
-    ])
+  it('powtórzone wartości porządkuje przy okazji (9, 9, 9)', () => {
+    const result = apply(items(9, 9, 9, 3), 4, 0)
+    expect(result.map((i) => i.sortOrder)).toEqual([0, 1, 2, 3])
   })
 
-  it('pomija sam przenoszony pierścionek', () => {
-    expect(planInsert(items(5, 6), 1, 5)).toEqual([])
+  it('numer poza listą: na koniec albo na początek', () => {
+    expect(planMove(items(0, 1, 2), 1, 99).movedTo).toBe(2)
+    expect(planMove(items(0, 1, 2), 3, -5).movedTo).toBe(0)
   })
 
   it('normalizacja numeruje po kolei, zachowując kolejność', () => {

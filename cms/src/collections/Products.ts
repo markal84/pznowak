@@ -368,7 +368,7 @@ export const Products: CollectionConfig = {
       index: true,
       admin: {
         description:
-          'Mniejsza liczba = wcześniej. Po wpisaniu liczby, która już jest zajęta, pierścionek wskakuje na to miejsce, a kolejne przesuwają się o 1 w dół listy (po zapisie).',
+          'Mniejsza liczba = wcześniej. Wpisz numer karty, przed którą ten pierścionek ma stanąć; po zapisie cała lista dostaje numery po kolei, bez powtórzeń i luk.',
         position: 'sidebar',
       },
     },

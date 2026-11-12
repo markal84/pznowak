@@ -6,25 +6,29 @@ export type SortOrderChange = { id: number | string; from: number; to: number }
 const valueOf = (item: SortOrderItem) => (typeof item.sortOrder === 'number' ? item.sortOrder : 0)
 
 /**
- * Pierścionek `movedId` dostaje wartość `target`. Pozostałe od `target` w górę przesuwają się o tyle, ile trzeba, żeby
- * wartości były unikalne (9, 9, 9 → 9, 10, 11), a luka po poprzednim miejscu pierścionka sama się domyka, bo przesunięcie
- * kończy się na pierwszej wolnej liczbie. Przy równych wartościach zostaje dotychczasowa kolejność (po `id`).
- * Zwraca tylko te karty, których wartość się zmienia.
+ * Przeniesienie pierścionka `movedId` na miejsce `target` tak, jak widać to na liście: staje tuż przed kartą, która
+ * teraz ma numer `target` (za wszystkimi z mniejszym numerem), a potem cała lista dostaje numery 0, 1, 2 … po kolei.
+ * Dzięki temu nie ma powtórzeń ani luk, także po starym miejscu. Przy przenoszeniu w górę listy karta dostaje dokładnie
+ * `target`; przy przenoszeniu w dół o 1 mniej, bo luka po niej się domyka (z 7 na 12 za kartę z numerem 11 → 11).
+ * Zwraca nowy numer przenoszonej karty i zmiany pozostałych (tylko te, których wartość się zmienia).
  */
-export function planInsert(items: SortOrderItem[], movedId: number | string, target: number): SortOrderChange[] {
+export function planMove(
+  items: SortOrderItem[],
+  movedId: number | string,
+  target: number,
+): { movedTo: number; changes: SortOrderChange[] } {
   const others = items
-    .filter((item) => item.id !== movedId)
+    .filter((item) => String(item.id) !== String(movedId))
     .sort((a, b) => valueOf(a) - valueOf(b) || Number(a.id) - Number(b.id))
+  const before = others.filter((item) => valueOf(item) < target).length
+  const ordered: (SortOrderItem | null)[] = [...others.slice(0, before), null, ...others.slice(before)]
   const changes: SortOrderChange[] = []
-  let taken = target
-  for (const item of others) {
-    const value = valueOf(item)
-    if (value < target) continue
-    if (value > taken) break
-    taken += 1
-    changes.push({ id: item.id, from: value, to: taken })
-  }
-  return changes
+  let movedTo = before
+  ordered.forEach((item, index) => {
+    if (item === null) movedTo = index
+    else if (valueOf(item) !== index) changes.push({ id: item.id, from: valueOf(item), to: index })
+  })
+  return { movedTo, changes }
 }
 
 /** Numeracja 0, 1, 2 … po kolei (do jednorazowego uporządkowania); remisy rozstrzyga `id`. */
@@ -61,8 +65,9 @@ export async function writeSortOrder(payload: Payload, id: number | string, valu
 }
 
 /**
- * Hook `afterChange` kolekcji Pierścionki: gdy zmienia się „Kolejność”, odsuwa pozostałe karty, żeby wartość była unikalna.
- * Zapis przez `writeSortOrder`, więc nie wywołuje pętli ani nie publikuje cudzych szkiców.
+ * Hook `afterChange` kolekcji Pierścionki: gdy zmienia się „Kolejność”, przenosi kartę (`planMove`) i numeruje resztę
+ * po kolei. Zapis przez `writeSortOrder`, więc nie wywołuje pętli ani nie publikuje cudzych szkiców. Zmienia też
+ * `doc.sortOrder`, żeby formularz po zapisie pokazał numer, który karta naprawdę dostała.
  */
 export async function shiftOtherProducts({
   doc,
@@ -87,7 +92,10 @@ export async function shiftOtherProducts({
     select: { sortOrder: true },
     req,
   })
-  for (const change of planInsert(found.docs, doc.id, doc.sortOrder)) {
-    await writeSortOrder(payload, change.id, change.to, req)
+  const { movedTo, changes } = planMove(found.docs, doc.id, doc.sortOrder)
+  for (const change of changes) await writeSortOrder(payload, change.id, change.to, req)
+  if (movedTo !== doc.sortOrder) {
+    await writeSortOrder(payload, doc.id, movedTo, req)
+    doc.sortOrder = movedTo
   }
 }
