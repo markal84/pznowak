@@ -127,9 +127,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
               <dt>Rozmiar</dt>
               <dd>Wykonamy w Twoim rozmiarze</dd>
               <dt>Czas wykonania</dt>
-              <dd>
-                <DoUzupelnienia fallback="Ustalamy przy zamówieniu">[TERMIN], ustalamy przy zamówieniu</DoUzupelnienia>
-              </dd>
+              <dd>Ustalamy przy zamówieniu</dd>
             </dl>
           </div>
 

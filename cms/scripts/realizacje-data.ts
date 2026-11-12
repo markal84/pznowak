@@ -1,6 +1,7 @@
 /**
  * Treść startowa strony „Realizacje” (zlecenie R): 6 historii z postów Michała na Facebooku, ze zdjęciami z `cms/seed/realizacje`.
- * Teksty to szkice do potwierdzenia przez Michała (`needsConfirmation: true`); nie ma w nich faktów spoza postów
+ * Teksty to szkice do potwierdzenia przez Michała (`needsConfirmation: true`), przepisane 12.11 tak, żeby czytały się jak historia, a nie
+ * streszczenie posta; nadal nie ma w nich faktów spoza postów
  * (karaty, czasu wykonania, cen), a „Czas” zostaje pusty.
  * Używa tego `scripts/seed-realizacje.ts` (tylko staging) oraz test `tests/int/realizacje-seed.int.spec.ts`.
  */
@@ -27,6 +28,8 @@ export type SeedWork = {
    * `--filmy` w `staging:realizacje`), podpis widać pod odtwarzaczem. Bez `poster` okładką filmu jest pierwsze zdjęcie realizacji.
    */
   videos?: { file: string; caption: string; /** Klatka przed odtworzeniem (plik z `cms/seed/realizacje`); film z procesu ma klatkę z procesu, nie gotowy efekt. */ poster?: string }[]
+  /** Teksty z poprzedniej wersji seeda: `staging:realizacje-opisy` podmienia pole tylko wtedy, gdy w bazie jest dokładnie ta wersja. */
+  previousTexts?: { title?: string; task: string; whatWeDid: string }
   /** Poprzedni układ zdjęć z wcześniejszej wersji seeda (do jednorazowej, bezpiecznej poprawki istniejącej realizacji). */
   previousPhotos?: { file: string; alt: string }[]
 }
@@ -39,8 +42,10 @@ export const SEED_WORKS: SeedWork[] = [
     jewelryType: 'pierscionek',
     year: 2026,
     featured: true,
-    task: 'Przyszły narzeczony zaprojektował pierścionek razem z Michałem. Chciał niebieski diament z białymi kamieniami, w białym złocie.',
-    whatWeDid: 'Pierścionek zrobiliśmy ręcznie od podstaw. Zaręczyny odbyły się na wyspie.',
+    task: 'Przyszły narzeczony chciał pierścionka, jakiego nie ma nikt inny, więc zaprojektował go razem z Michałem. Od początku było jasne, że w centrum stanie niebieski diament, otoczony białymi, w białym złocie.',
+    whatWeDid: 'Pierścionek wykonaliśmy ręcznie od podstaw, a w trakcie pracy dopracowaliśmy oprawę tak, jak chciał klient. Oświadczyny odbyły się na wyspie, a para podzieliła się z nami zdjęciami z tego dnia.',
+    // Teksty z pierwszej wersji (streszczenie postów z FB): `staging:realizacje-opisy` podmienia tylko te, których nikt nie zmienił.
+    previousTexts: { task: 'Przyszły narzeczony zaprojektował pierścionek razem z Michałem. Chciał niebieski diament z białymi kamieniami, w białym złocie.', whatWeDid: 'Pierścionek zrobiliśmy ręcznie od podstaw. Zaręczyny odbyły się na wyspie.' },
     product: { name: 'Pierścionek zaręczynowy klienta (wyspa)', altNames: ['Calypso'] },
     photos: [
       { file: '1-wyspa_01_dlonie-z-pierscionkiem.webp', alt: 'Splecione dłonie pary, na palcu narzeczonej pierścionek z niebieskim diamentem' },
@@ -58,8 +63,10 @@ export const SEED_WORKS: SeedWork[] = [
     kind: 'zamowienie',
     jewelryType: 'pierscionek',
     year: 2024,
-    task: 'Klientka wymarzyła sobie kamień o dokładnie takim kształcie i szlifie.',
-    whatWeDid: 'Brylant w szlifie szmaragdowym, z certyfikatem GIA, oprawiliśmy w pierścionek wykonany ręcznie od podstaw.',
+    task: 'Klientka od początku wiedziała, czego szuka: brylantu w szlifie szmaragdowym, dokładnie o takim kształcie. Taki kamień trzeba było znaleźć, a nie wybrać z szuflady.',
+    whatWeDid: 'Brylant przeszedł długą drogę: z Indii przez laboratorium GIA w Stanach Zjednoczonych do naszej pracowni, z certyfikatem w komplecie. Oprawę wykonaliśmy ręcznie od podstaw, z dbałością o każdy szczegół, żeby pierścionek służył przez lata.',
+    // Teksty z pierwszej wersji (streszczenie postów z FB): `staging:realizacje-opisy` podmienia tylko te, których nikt nie zmienił.
+    previousTexts: { task: 'Klientka wymarzyła sobie kamień o dokładnie takim kształcie i szlifie.', whatWeDid: 'Brylant w szlifie szmaragdowym, z certyfikatem GIA, oprawiliśmy w pierścionek wykonany ręcznie od podstaw.' },
     product: { name: 'Brylant w szlifie szmaragdowym 0,41 ct', altNames: ['Leucothea'] },
     photos: [
       { file: '2-gia_01.webp', alt: 'Pierścionek z brylantem w szlifie szmaragdowym i drobnymi kamieniami w obrączce, na kamiennym podłożu' },
@@ -75,8 +82,10 @@ export const SEED_WORKS: SeedWork[] = [
     kind: 'zamowienie',
     jewelryType: 'pierscionek',
     year: 2025,
-    task: 'Klientka chciała pierścionek z motywem zwierzęcym: wężem z oczami z czarnych diamentów.',
-    whatWeDid: 'Pierścionek w kształcie węża, z diamentami. Oczy zrobiliśmy z czarnych diamentów, tak jak chciała klientka.',
+    task: 'Klientka szukała pierścionka z charakterem, z motywem zwierzęcym. Wybrała węża wysadzanego diamentami, z oczami z czarnych diamentów.',
+    whatWeDid: 'Węża wykonaliśmy w złocie i oprawiliśmy w nim diamenty, każdy ręcznie. Czarne diamenty w oczach, wybrane przez klientkę, nadają mu wyrazu.',
+    // Teksty z pierwszej wersji (streszczenie postów z FB): `staging:realizacje-opisy` podmienia tylko te, których nikt nie zmienił.
+    previousTexts: { task: 'Klientka chciała pierścionek z motywem zwierzęcym: wężem z oczami z czarnych diamentów.', whatWeDid: 'Pierścionek w kształcie węża, z diamentami. Oczy zrobiliśmy z czarnych diamentów, tak jak chciała klientka.' },
     photos: [
       { file: '3-waz_01.webp', alt: 'Pierścionek w kształcie węża z diamentami, leży na niebieskim aksamicie' },
       { file: '3-waz_02.webp', alt: 'Pierścionek-wąż z diamentami, widok z boku, na niebieskim aksamicie' },
@@ -90,8 +99,10 @@ export const SEED_WORKS: SeedWork[] = [
     kind: 'zamowienie',
     jewelryType: 'obraczka',
     year: 2026,
-    task: 'Klientka chciała odtworzyć obrączkę eternity, tak żeby pasowała do jej pierścionka zaręczynowego.',
-    whatWeDid: 'Dobraliśmy proporcje i rozmiar. Diamenty osadziliśmy w mikropavé.',
+    task: 'Klientka nosi pierścionek zaręczynowy razem z obrączką eternity i poprosiła o drugą obrączkę, wykonaną na jej wzór.',
+    whatWeDid: 'Odwzorowaliśmy proporcje, dobraliśmy rozmiar i wykonaliśmy obrączkę w złocie. Brylanty oprawiliśmy ręcznie w mikropavé, dzięki czemu obie obrączki i pierścionek tworzą jeden komplet.',
+    // Teksty z pierwszej wersji (streszczenie postów z FB): `staging:realizacje-opisy` podmienia tylko te, których nikt nie zmienił.
+    previousTexts: { task: 'Klientka chciała odtworzyć obrączkę eternity, tak żeby pasowała do jej pierścionka zaręczynowego.', whatWeDid: 'Dobraliśmy proporcje i rozmiar. Diamenty osadziliśmy w mikropavé.' },
     product: { postIds: ['122171835092616875'], name: 'Obrączka eternity odtworzona dla klientki' },
     photos: [
       { file: '4-eternity_01_komplet.webp', alt: 'Pierścionek zaręczynowy z kwadratowym brylantem i dwie obrączki eternity, ułożone jako komplet' },
@@ -101,12 +112,14 @@ export const SEED_WORKS: SeedWork[] = [
   },
   {
     slug: 'pierscionek-z-morganitem',
-    title: 'Pierścionek z morganitem „Od niego. Dla niej.”',
+    title: 'Pierścionek z morganitem dla ukochanej',
     kind: 'zamowienie',
     jewelryType: 'pierscionek',
     year: 2026,
-    task: 'Klient zainspirował się fasonem z naszej pracowni. Chciał wersję w innym kolorze, właśnie dla niej.',
-    whatWeDid: 'Zrobiliśmy ten sam fason, ale z morganitem w innym kolorze niż w pracowni.',
+    task: 'Klient zobaczył w naszej pracowni pierścionek, który od razu mu się spodobał. Chciał jednak, żeby ten dla jego ukochanej był tylko jej, więc poprosił o ten sam fason w innym kolorze.',
+    whatWeDid: 'Fason zostawiliśmy, zmieniliśmy kamień. W centrum stanął brzoskwiniowo-różowy morganit, otoczony naturalnymi diamentami, w żółtym złocie.',
+    // Teksty z pierwszej wersji (streszczenie postów z FB): `staging:realizacje-opisy` podmienia tylko te, których nikt nie zmienił.
+    previousTexts: { title: 'Pierścionek z morganitem „Od niego. Dla niej.”', task: 'Klient zainspirował się fasonem z naszej pracowni. Chciał wersję w innym kolorze, właśnie dla niej.', whatWeDid: 'Zrobiliśmy ten sam fason, ale z morganitem w innym kolorze niż w pracowni.' },
     product: { postIds: ['122194033982616875', '122195486114616875'], name: 'Morganit w oprawie halo' },
     photos: [
       { file: '5-morganit_01-kolaz.webp', alt: 'Kolaż trzech ujęć pierścionka z morganitem w oprawie halo: na dłoni i w pudełku' },
@@ -118,8 +131,10 @@ export const SEED_WORKS: SeedWork[] = [
     kind: 'przerobka',
     jewelryType: 'pierscionek',
     year: 2026,
-    task: 'Klientce znudził się wisiorek i kolczyki w kształcie piór.',
-    whatWeDid: 'Michał zaproponował pierścionek. Z biżuterii, którą klientka już miała, powstał pierścionek z wymarzonym tanzanitem w centrum.',
+    task: 'Klientka miała złoty wisiorek i kolczyki w kształcie piór, które jej się znudziły. Zapytała, czy da się z nich zrobić coś nowego.',
+    whatWeDid: 'Michał zaproponował pierścionek ze złota, które klientka już miała. Marzyła o tanzanicie, więc to on stanął w centrum projektu.',
+    // Teksty z pierwszej wersji (streszczenie postów z FB): `staging:realizacje-opisy` podmienia tylko te, których nikt nie zmienił.
+    previousTexts: { task: 'Klientce znudził się wisiorek i kolczyki w kształcie piór.', whatWeDid: 'Michał zaproponował pierścionek. Z biżuterii, którą klientka już miała, powstał pierścionek z wymarzonym tanzanitem w centrum.' },
     // Okładką są zdjęcia „po”: na liście kafelków zdjęcie samego pióra wyglądało jak wisiorek, nie pierścionek.
     photos: [
       { file: '6-tanzanit_02_po.webp', alt: 'Pierścionek z tanzanitem w zielonym, aksamitnym pudełku, po przeróbce' },
@@ -140,8 +155,10 @@ export const SEED_WORKS: SeedWork[] = [
     kind: 'zamowienie',
     jewelryType: 'kolczyki',
     year: 2026,
-    task: 'Klientka zaprojektowała kolczyki z diamentami w dwóch kolorach: białym i czarnym.',
-    whatWeDid: 'Kolczyki ze złota zrobiliśmy ręcznie od podstaw, z białymi i czarnymi diamentami. Pierwszy film pokazuje, jak powstają, drugi gotowe kolczyki.',
+    task: 'Klientka marzyła o kolczykach, w których spotkają się diamenty w dwóch kolorach: białym i czarnym. Projekt przygotował dla niej Michał.',
+    whatWeDid: 'Kolczyki w kształcie fali wykonaliśmy ręcznie od podstaw, w złocie, i oprawiliśmy w nich białe i czarne diamenty. Na pierwszym filmie widać, jak powstają, na drugim gotowe kolczyki.',
+    // Teksty z pierwszej wersji (streszczenie postów z FB): `staging:realizacje-opisy` podmienia tylko te, których nikt nie zmienił.
+    previousTexts: { task: 'Klientka zaprojektowała kolczyki z diamentami w dwóch kolorach: białym i czarnym.', whatWeDid: 'Kolczyki ze złota zrobiliśmy ręcznie od podstaw, z białymi i czarnymi diamentami. Pierwszy film pokazuje, jak powstają, drugi gotowe kolczyki.' },
     // Źródło: posty z 01.07 (film z procesu, 122188581944616875) i 02.07 (gotowy reel, 122188660712616875); zdjęcia to klatki z filmów.
     photos: [
       { file: '7-kolczyki_01_gotowe-z-filmu.webp', alt: 'Dwa złote kolczyki w kształcie fali z czarnymi i białymi diamentami, w pudełku na białej tacce' },

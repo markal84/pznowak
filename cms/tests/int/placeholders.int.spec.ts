@@ -45,6 +45,13 @@ const catalog = [
   product(6, 'Bez-kamienia', { stone: '', metal: '' }),
 ]
 
+// Katalog (CatalogBrowser) używa routera Next.js; w renderowaniu do HTML w teście nie ma zamontowanego App Routera.
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: () => {}, replace: () => {}, back: () => {}, prefetch: () => {}, refresh: () => {} }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}))
+
 vi.mock('@/lib/collection', () => ({
   getProducts: async () => catalog,
   getGallery: async () => [
@@ -68,6 +75,7 @@ vi.mock('@/lib/collection', () => ({
       featured: true,
       needsConfirmation: true,
       photos: [{ src: '/media/w1.jpg', alt: 'Dłonie pary z pierścionkiem', width: 1200, height: 1600 }],
+      videos: [],
       product: null,
     },
   ],
@@ -145,6 +153,11 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/naprawy']).toContain('od 50 zł')
     expect(p['/naprawy']).toContain('Pozostałe naprawy wyceniamy na miejscu')
     expect(p['/na-zamowienie']).not.toContain('Czy rozmowa o projekcie coś kosztuje?')
+    // /na-zamowienie: przywieszka „od …” = najniższa cena z katalogu, karta zlecenia bez kwoty, bez pytania o kamienie.
+    expect(p['/na-zamowienie']).toContain('<span class="sub">Pierścionek na zamówienie</span><span class="nm">od\u00a02949\u00a0zł</span>')
+    expect(p['/na-zamowienie']).toContain('Ustalony z klientem')
+    expect(p['/na-zamowienie']).not.toContain('Skąd pochodzą kamienie?')
+    expect(p['/pierscionki/harmonia']).toContain('Ustalamy przy zamówieniu')
     // Opinie z Google: wpisane ręcznie w reviews.ts (listopad 2026), więc sekcja jest na produkcji.
     // Teksty realizacji „do potwierdzenia” na produkcji wyglądają zwyczajnie: bez ramki i bez znacznika czasu.
     expect(p['/realizacje']).toContain('Pierścionek zrobiliśmy ręcznie od podstaw.')
@@ -177,7 +190,8 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     vi.stubEnv('SITE_ENV', '')
     vi.stubEnv(name, value)
     const p = await pages()
-    expect(p['/']).toContain('data-todo')
+    // Strona główna nie ma już znaczników (sprzątanie 12.11); karta bez danych wciąż je ma.
+    expect(p['/pierscionki/bez-kamienia']).toContain('data-todo')
     expect(p['/']).toContain('Opinie z Google')
     // Dokumenty prawne: data obowiązywania jest już ustawiona (11.11.2026).
     expect(p['/regulamin']).toContain('Data obowiązywania: 11.11.2026')
@@ -187,8 +201,18 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/pierscionki/phoebe']).not.toContain('od [X] zł w tej wersji')
     expect(p['/pierscionki']).not.toContain('od [cena] zł')
     expect(p['/obraczki']).toContain('od 3500 zł za parę')
+    // Sprzątanie 12.11: te miejsca nie mają już znaczników także na podglądzie.
+    expect(p['/obraczki']).not.toContain('[Zdjęcie graweru')
+    expect(p['/obraczki']).not.toContain('[TERMIN')
+    expect(p['/']).not.toContain('kosztują od [X] zł')
+    expect(p['/pierscionki/harmonia']).not.toContain('[TERMIN')
+    expect(p['/na-zamowienie']).toContain('od\u00a02949\u00a0zł')
+    expect(p['/na-zamowienie']).not.toContain('[kwota od klienta]')
+    expect(p['/na-zamowienie']).not.toContain('Skąd pochodzą kamienie?')
     expect(p['/naprawy']).toContain('do uzgodnienia')
-    expect(p['/realizacje']).toContain('[czas do uzupełnienia]')
+    // Realizacje bez żółtej ramki i bez „[czas do uzupełnienia]” także na podglądzie (12.11).
+    expect(p['/realizacje']).not.toContain('[czas do uzupełnienia]')
+    expect(p['/realizacje']).not.toContain('data-todo')
     expect(p['/naprawy']).not.toContain('[ok. X minut')
     expect(p['/realizacje']).not.toContain('Przed i po naprawie')
     expect(p['/pierscionki/bez-kamienia']).toContain('[do uzupełnienia]')
@@ -198,7 +222,7 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/kontakt']).toContain('href="/polityka-prywatnosci"')
     expect(p['stopka']).toContain('href="/regulamin"')
     expect(p['stopka']).not.toContain('[wkrótce]')
-    expect(findPlaceholders(p['/']).length).toBeGreaterThan(0)
+    expect(findPlaceholders(p['/pierscionki/bez-kamienia']).length).toBeGreaterThan(0)
   })
 })
 

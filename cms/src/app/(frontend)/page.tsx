@@ -32,7 +32,6 @@ const faq = (): FaqItem[] => [
     q: 'Ile kosztuje pierścionek na zamówienie?',
     a: (
       <>
-        <DoUzupelnienia>Pierścionki z kolekcji kosztują od [X] zł, a projekty na zamówienie zwykle [X–Y] zł. </DoUzupelnienia>
         Cena zależy od kamieni i złota. Powiedz, jaki budżet planujesz, a dopasujemy do niego projekt. Wycenę dostajesz przed rozpoczęciem pracy.
       </>
     ),

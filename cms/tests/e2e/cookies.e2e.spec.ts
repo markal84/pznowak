@@ -196,7 +196,8 @@ for (const path of ['/kontakt', '/pracownia']) {
       await expect(showMap(page)).toBeVisible()
       // Podpis widoczny także przed pierwszym wyborem w pasku.
       await expect(banner(page)).toBeVisible()
-      await expect(page.getByText(/To zdjęcie mapy – interaktywna mapa Google pojawi się po akceptacji plików cookies/)).toBeVisible()
+      await expect(page.getByText(/To zdjęcie mapy\./)).toBeVisible()
+      await expect(page.getByText(/pojawi się po akceptacji plików cookies|zapisuje własne pliki cookies/)).toHaveCount(0)
       await page.waitForLoadState('networkidle')
       expect(googleRequests).toEqual([])
     })
