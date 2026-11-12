@@ -52,7 +52,7 @@ export default function ContactMap() {
         <div className="map-note">
           <p className="small">
             To zdjęcie mapy
-            {COOKIE_BANNER_ENABLED ? ' – interaktywna mapa Google pojawi się po akceptacji plików cookies. ' : '. '}
+            {'. '}
             {COOKIE_BANNER_ENABLED && (
               <button className="linkbtn map-show" onClick={openConsentSettings} type="button">
                 Zmień ustawienia
@@ -62,8 +62,7 @@ export default function ContactMap() {
           <p className="small">
             <button className="linkbtn map-show" onClick={showInteractive} type="button">
               Pokaż interaktywną mapę
-            </button>{' '}
-            (załaduje mapę Google, która zapisuje własne pliki cookies)
+            </button>
           </p>
         </div>
       )}

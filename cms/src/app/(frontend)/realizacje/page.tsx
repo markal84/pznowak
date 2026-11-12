@@ -3,7 +3,6 @@ import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { getWorks } from '@/lib/collection'
 import { getGoogleReviews } from '@/lib/google-reviews-source'
-import { showPlaceholders } from '@/lib/placeholders'
 import GoogleReviews from '@/components/site/GoogleReviews'
 import SectionIntro from '@/components/site/SectionIntro'
 import WorksBrowser from '@/components/site/WorksBrowser'
@@ -35,7 +34,7 @@ export default async function WorksPage({ searchParams }: WorksPageProps) {
         />
       </section>
 
-      <WorksBrowser initialSlug={initialSlug ?? null} markUnconfirmed={showPlaceholders()} works={works} />
+      <WorksBrowser initialSlug={initialSlug ?? null} works={works} />
 
       <GoogleReviews config={reviews} title="Opinie klientów" />
 

@@ -104,8 +104,7 @@ export default function CookieBanner() {
           </p>
           <p className="cookie-long">
             Używamy niezbędnych plików cookies: zapamiętują Twój wybór i chronią formularze przed spamem.
-            Opcjonalne, czyli interaktywną mapę Google, a w przyszłości statystyki i reklamę, włączamy tylko za
-            Twoją zgodą. <span className="cookie-extra">Wybór zmienisz w każdej chwili w stopce strony.</span>
+            {' '}<span className="cookie-extra">Wybór zmienisz w każdej chwili w stopce strony.</span>
             {' '}
             Szczegóły w <Link href="/polityka-prywatnosci">polityce prywatności</Link>.
           </p>

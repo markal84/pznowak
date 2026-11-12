@@ -210,7 +210,9 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/na-zamowienie']).not.toContain('[kwota od klienta]')
     expect(p['/na-zamowienie']).not.toContain('Skąd pochodzą kamienie?')
     expect(p['/naprawy']).toContain('do uzgodnienia')
-    expect(p['/realizacje']).toContain('[czas do uzupełnienia]')
+    // Realizacje bez żółtej ramki i bez „[czas do uzupełnienia]” także na podglądzie (12.11).
+    expect(p['/realizacje']).not.toContain('[czas do uzupełnienia]')
+    expect(p['/realizacje']).not.toContain('data-todo')
     expect(p['/naprawy']).not.toContain('[ok. X minut')
     expect(p['/realizacje']).not.toContain('Przed i po naprawie')
     expect(p['/pierscionki/bez-kamienia']).toContain('[do uzupełnienia]')

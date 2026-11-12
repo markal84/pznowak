@@ -22,8 +22,6 @@ type WorksBrowserProps = {
   works: Work[]
   /** Realizacja z adresu `?r=` rozstrzygnięta na serwerze; klient bierze adres z przeglądarki, ta wartość tylko gdy go nie ma. */
   initialSlug?: string | null
-  /** Podgląd i lokalnie: teksty „do potwierdzenia” mają żółtą ramkę (`showPlaceholders()` liczy serwer, klient nie zna `SITE_ENV`). */
-  markUnconfirmed?: boolean
 }
 
 /**
@@ -31,7 +29,7 @@ type WorksBrowserProps = {
  * przeładowania, wpisuje `?r=slug` do adresu (nowy wpis w historii przeglądarki) i na telefonie przewija do okna.
  * Bez JS kafelek to zwykły link na `/realizacje?r=slug`, który serwer renderuje od razu z wybraną historią.
  */
-export default function WorksBrowser({ works, initialSlug = null, markUnconfirmed = false }: WorksBrowserProps) {
+export default function WorksBrowser({ works, initialSlug = null }: WorksBrowserProps) {
   const searchParams = useSearchParams()
   const urlSlug = searchParams ? searchParams.get('r') : initialSlug
   const selected = pickSelectedWork(works, urlSlug)
@@ -76,7 +74,7 @@ export default function WorksBrowser({ works, initialSlug = null, markUnconfirme
   return (
     <>
       <section aria-label="Wybrana realizacja" className="wrap work-stage" ref={windowRef}>
-        <WorkWindow key={selected.slug} markUnconfirmed={markUnconfirmed} work={selected} />
+        <WorkWindow key={selected.slug} work={selected} />
         <p aria-live="polite" className="visually-hidden" role="status">
           {`Realizacja: ${selected.title}`}
         </p>
@@ -124,7 +122,7 @@ type Slide =
   | { kind: 'photo'; src: string; alt: string; width: number | null; height: number | null }
   | { kind: 'video'; src: string; caption: string; poster: string | null }
 
-function WorkWindow({ work, markUnconfirmed }: { work: Work; markUnconfirmed: boolean }) {
+function WorkWindow({ work }: { work: Work }) {
   const [index, setIndex] = useState(0)
   // Zdjęcia, potem filmy. Po zmianie realizacji komponent powstaje od nowa (key), więc `index` zawsze zaczyna od okładki.
   const slides: Slide[] = [
@@ -135,17 +133,12 @@ function WorkWindow({ work, markUnconfirmed }: { work: Work; markUnconfirmed: bo
   // Zdjęcie „pionowe” wypełnia ramkę, „poziome” mieści się w całości na rozmytym tle z tego samego zdjęcia.
   const fit = slide.kind === 'photo' && slide.width && slide.height && slide.width > slide.height ? 'contain' : 'cover'
   const meta = [work.kindLabel, work.year ? String(work.year) : null].filter(Boolean).join(', ')
-  const mark = markUnconfirmed && work.needsConfirmation
 
   const rows = (
     <dl className="dl-stack">
       {work.task ? <div><dt>Zadanie</dt><dd>{work.task}</dd></div> : null}
       {work.whatWeDid ? <div><dt>Co zrobiliśmy</dt><dd>{work.whatWeDid}</dd></div> : null}
-      {work.duration ? (
-        <div><dt>Czas</dt><dd>{work.duration}</dd></div>
-      ) : mark ? (
-        <div><dt>Czas</dt><dd><span className="todo" data-todo="">[czas do uzupełnienia]</span></dd></div>
-      ) : null}
+      {work.duration ? <div><dt>Czas</dt><dd>{work.duration}</dd></div> : null}
     </dl>
   )
 
@@ -198,7 +191,7 @@ function WorkWindow({ work, markUnconfirmed }: { work: Work; markUnconfirmed: bo
       <div className="feature-copy">
         <span style={{ fontSize: 14, color: 'var(--muted)' }}>{meta}</span>
         <h2 className="h2 h2-md" style={{ fontSize: 'clamp(30px, 3vw, 44px)' }}>{work.title}</h2>
-        {mark ? <div className="todo todo-block" data-todo="">{rows}</div> : rows}
+        {rows}
         <div className="row gap-14-28 work-actions">
           <Link className="btn" href="/kontakt?temat=nowy">{work.ctaLabel}</Link>
           {work.product ? <Link className="tl" href={`/pierscionki/${work.product.slug}`}>Zobacz w katalogu</Link> : null}
