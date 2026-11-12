@@ -47,21 +47,6 @@
     ]
   },
   {
-    "slug": "eos",
-    "name": "Eos",
-    "variants": [
-      {
-        "stone": "Białe diamenty",
-        "swatch": "bialy",
-        "files": [
-          "eos-bialy-diament.webp"
-        ],
-        "alt": "Pierścionek Eos z białym diamentem z diamentami na szynie pavé, w żółtym złocie (wizualizacja)",
-        "isVisualization": true
-      }
-    ]
-  },
-  {
     "slug": "harmonia",
     "name": "Harmonia",
     "variants": [

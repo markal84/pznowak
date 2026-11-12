@@ -902,7 +902,8 @@
         "stone": "Rubin i diamenty",
         "swatch": "czerwony",
         "files": [
-          "helios-rubin.webp"
+          "helios-rubin.webp",
+          "helios-rubin-2.webp"
         ],
         "alt": "Pierścionek Helios z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
@@ -935,7 +936,8 @@
         "stone": "Szmaragd i diamenty",
         "swatch": "zielony",
         "files": [
-          "urania-szmaragd-stonowany.webp"
+          "urania-szmaragd-stonowany.webp",
+          "urania-szmaragd-stonowany-2.webp"
         ],
         "alt": "Pierścionek Urania ze szmaragdem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
@@ -1186,6 +1188,26 @@
           "harmonia-bialy-diament-2.webp"
         ],
         "alt": "Pierścionek Harmonia z białym diamentem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szafir granatowy i diamenty",
+        "swatch": "granatowy",
+        "files": [
+          "harmonia-szafir-granatowy.webp",
+          "harmonia-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Harmonia z granatowym szafirem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "harmonia-rubin.webp",
+          "harmonia-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Harmonia z rubinem w oprawie z diamentów, w żółtym złocie (wizualizacja)",
         "isVisualization": true
       }
     ]
