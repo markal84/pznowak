@@ -243,7 +243,8 @@ test.describe('Katalog i karta pierścionka', () => {
   test('sortowanie po cenie: rosnąco, karty bez ceny na końcu; filtr nie gubi sortowania', async ({ page }) => {
     await visit(page, '/pierscionki')
     const select = page.getByLabel('Sortuj')
-    await expect(select).toHaveValue('polecane')
+    await expect(select).toHaveValue('najnowsze')
+    await expect(select.locator('option')).toHaveText(['Najnowsze', 'Cena: od najniższej', 'Cena: od najwyższej'])
     await select.selectOption('cena-rosnaco')
     await expect(page).toHaveURL(/\/pierscionki\?sortuj=cena-rosnaco$/)
     const cards = page.locator('.ring-grid-lg > li:not(.cta-card)')

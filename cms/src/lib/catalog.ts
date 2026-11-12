@@ -182,15 +182,23 @@ export const CATALOG_PAGE_SIZE = 40
 export type CatalogSort = 'polecane' | 'najnowsze' | 'cena-rosnaco' | 'cena-malejaco'
 
 /**
- * Sortowanie listy. „Polecane” = kolejność z panelu (pole „Kolejność”) i jest domyślne, więc nie trafia do adresu.
+ * Sortowanie listy. „Polecane” = kolejność z panelu (pole „Kolejność”). Na razie ukryte (Marcin, 12.11.2026):
+ * kolejność jest dziś ułożona pod tło zdjęć, a nie pod promocję; do promowania są hero i „Wybrane pierścionki” na
+ * stronie głównej. Żeby je przywrócić, ustaw `visible: true` (i ewentualnie `DEFAULT_CATALOG_SORT = 'polecane'`).
  * Pierścionki bez ceny („Na zapytanie”) przy sortowaniu po cenie stoją zawsze na końcu, w kolejności z panelu.
  */
-export const CATALOG_SORTS: readonly { id: CatalogSort; label: string }[] = [
-  { id: 'polecane', label: 'Polecane' },
-  { id: 'najnowsze', label: 'Najnowsze' },
-  { id: 'cena-rosnaco', label: 'Cena: od najniższej' },
-  { id: 'cena-malejaco', label: 'Cena: od najwyższej' },
+export const CATALOG_SORTS: readonly { id: CatalogSort; label: string; visible: boolean }[] = [
+  { id: 'polecane', label: 'Polecane', visible: false },
+  { id: 'najnowsze', label: 'Najnowsze', visible: true },
+  { id: 'cena-rosnaco', label: 'Cena: od najniższej', visible: true },
+  { id: 'cena-malejaco', label: 'Cena: od najwyższej', visible: true },
 ]
+
+/** Sortowania widoczne w liście wyboru (i jedyne przyjmowane z adresu). */
+export const VISIBLE_CATALOG_SORTS = CATALOG_SORTS.filter(({ visible }) => visible)
+
+/** Sortowanie bez parametru w adresie. */
+export const DEFAULT_CATALOG_SORT: CatalogSort = 'najnowsze'
 
 /**
  * Lista ułożona wg wybranego sortowania. Wejście jest już w kolejności z panelu i przy remisie ta kolejność zostaje
@@ -235,7 +243,7 @@ export function parseCatalogParams(get: (key: string) => string | null | undefin
       ? (goldRaw as GoldGroup)
       : 'all',
     page: Number.isFinite(pageRaw) && pageRaw > 1 ? pageRaw : 1,
-    sort: CATALOG_SORTS.find(({ id }) => id === sortRaw)?.id ?? 'polecane',
+    sort: VISIBLE_CATALOG_SORTS.find(({ id }) => id === sortRaw)?.id ?? DEFAULT_CATALOG_SORT,
   }
 }
 
@@ -244,12 +252,12 @@ export function catalogHref({
   stone,
   gold,
   page,
-  sort = 'polecane',
+  sort = DEFAULT_CATALOG_SORT,
 }: Omit<CatalogParams, 'sort'> & { sort?: CatalogSort }): string {
   const query = new URLSearchParams()
   if (stone !== 'all') query.set('kamien', stone)
   if (gold !== 'all') query.set('zloto', gold)
-  if (sort !== 'polecane') query.set('sortuj', sort)
+  if (sort !== DEFAULT_CATALOG_SORT) query.set('sortuj', sort)
   if (page > 1) query.set('strona', String(page))
   const text = query.toString()
   return text ? `/pierscionki?${text}` : '/pierscionki'

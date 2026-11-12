@@ -6,6 +6,9 @@ import {
   catalogHref,
   filterRings,
   addedDay,
+  CATALOG_SORTS,
+  DEFAULT_CATALOG_SORT,
+  VISIBLE_CATALOG_SORTS,
   paginate,
   parseCatalogParams,
   sortRings,
@@ -169,8 +172,8 @@ describe('paginacja katalogu', () => {
   })
   it('czyta i buduje adres bez wartości domyślnych', () => {
     const params = new URLSearchParams('kamien=zielone&zloto=biale&strona=2')
-    expect(parseCatalogParams((k) => params.get(k))).toEqual({ stone: 'zielone', gold: 'biale', page: 2, sort: 'polecane' })
-    expect(parseCatalogParams(() => 'bzdura')).toEqual({ stone: 'all', gold: 'all', page: 1, sort: 'polecane' })
+    expect(parseCatalogParams((k) => params.get(k))).toEqual({ stone: 'zielone', gold: 'biale', page: 2, sort: 'najnowsze' })
+    expect(parseCatalogParams(() => 'bzdura')).toEqual({ stone: 'all', gold: 'all', page: 1, sort: 'najnowsze' })
     expect(catalogHref({ stone: 'zielone', gold: 'biale', page: 2 })).toBe('/pierscionki?kamien=zielone&zloto=biale&strona=2')
     expect(catalogHref({ stone: 'all', gold: 'all', page: 1 })).toBe('/pierscionki')
   })
@@ -222,13 +225,18 @@ describe('sortowanie katalogu', () => {
     expect(addedDay(undefined)).toBe('')
     expect(addedDay('bzdura')).toBe('')
   })
-  it('sortowanie w adresie: domyślne „Polecane” poza adresem, nieznana wartość wraca do domyślnej', () => {
+  it('sortowanie w adresie: domyślne „Najnowsze” poza adresem, nieznana wartość wraca do domyślnej', () => {
     const params = new URLSearchParams('sortuj=cena-malejaco&strona=2')
     expect(parseCatalogParams((k) => params.get(k))).toEqual({ stone: 'all', gold: 'all', page: 2, sort: 'cena-malejaco' })
-    expect(parseCatalogParams((k) => (k === 'sortuj' ? 'losowo' : null)).sort).toBe('polecane')
-    expect(catalogHref({ stone: 'zielone', gold: 'all', page: 2, sort: 'najnowsze' })).toBe(
-      '/pierscionki?kamien=zielone&sortuj=najnowsze&strona=2',
+    expect(parseCatalogParams((k) => (k === 'sortuj' ? 'losowo' : null)).sort).toBe('najnowsze')
+    expect(catalogHref({ stone: 'zielone', gold: 'all', page: 2, sort: 'cena-rosnaco' })).toBe(
+      '/pierscionki?kamien=zielone&sortuj=cena-rosnaco&strona=2',
     )
-    expect(catalogHref({ stone: 'all', gold: 'all', page: 1, sort: 'polecane' })).toBe('/pierscionki')
+    expect(catalogHref({ stone: 'all', gold: 'all', page: 1, sort: 'najnowsze' })).toBe('/pierscionki')
+  })
+  it('„Polecane” ukryte: nie ma go w liście wyboru ani w adresie, ale zostaje w kodzie', () => {
+    expect(VISIBLE_CATALOG_SORTS.map(({ id }) => id)).toEqual(['najnowsze', 'cena-rosnaco', 'cena-malejaco'])
+    expect(CATALOG_SORTS.some(({ id }) => id === 'polecane')).toBe(true)
+    expect(parseCatalogParams((k) => (k === 'sortuj' ? 'polecane' : null)).sort).toBe(DEFAULT_CATALOG_SORT)
   })
 })

@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import {
-  CATALOG_SORTS,
   GOLD_FILTERS,
   STONE_FILTERS,
   catalogHref,
@@ -13,6 +12,7 @@ import {
   parseCatalogParams,
   pluralRing,
   sortRings,
+  VISIBLE_CATALOG_SORTS,
   type CatalogRing,
   type CatalogParams,
   type CatalogSort,
@@ -109,7 +109,7 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
                 onChange={(event) => setFilters({ sort: event.target.value as CatalogSort })}
                 value={sort}
               >
-                {CATALOG_SORTS.map((option) => (
+                {VISIBLE_CATALOG_SORTS.map((option) => (
                   <option key={option.id} value={option.id}>
                     {option.label}
                   </option>
