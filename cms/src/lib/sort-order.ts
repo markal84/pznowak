@@ -1,4 +1,4 @@
-import type { PayloadRequest } from 'payload'
+import type { Payload, PayloadRequest } from 'payload'
 
 export type SortOrderItem = { id: number | string; sortOrder?: null | number }
 export type SortOrderChange = { id: number | string; from: number; to: number }
@@ -35,9 +35,34 @@ export function planNormalize(items: SortOrderItem[]): SortOrderChange[] {
 }
 
 /**
+ * Zapisuje „Kolejność” jednej karty bezpośrednio w bazie (bez hooków, nowych wersji i zmiany statusu): w tabeli kart
+ * i w jej najnowszej wersji, opublikowanej albo szkicu. Lista w panelu przy włączonych szkicach czyta najnowsze wersje,
+ * a formularz edycji też startuje z najnowszej wersji, więc bez tego panel pokazywałby (i przy zapisie przywracał) stare liczby.
+ */
+export async function writeSortOrder(payload: Payload, id: number | string, value: number, req?: PayloadRequest): Promise<void> {
+  await payload.db.updateOne({ collection: 'products', id, data: { sortOrder: value }, req, returning: false })
+  const latest = await payload.db.findVersions({
+    collection: 'products',
+    limit: 0,
+    pagination: false,
+    req,
+    where: { and: [{ parent: { equals: id } }, { latest: { equals: true } }] },
+  })
+  for (const version of latest.docs) {
+    if ((version.version as { sortOrder?: null | number })?.sortOrder === value) continue
+    await payload.db.updateVersion({
+      collection: 'products',
+      id: version.id,
+      versionData: { version: { sortOrder: value } } as never,
+      req,
+      returning: false,
+    })
+  }
+}
+
+/**
  * Hook `afterChange` kolekcji Pierścionki: gdy zmienia się „Kolejność”, odsuwa pozostałe karty, żeby wartość była unikalna.
- * Zapis idzie bezpośrednio do bazy (bez hooków, bez nowych wersji i bez zmiany statusu), więc nie wywołuje pętli ani nie
- * publikuje cudzych szkiców; szkic nowszy od opublikowanej wersji dostaje tę samą wartość.
+ * Zapis przez `writeSortOrder`, więc nie wywołuje pętli ani nie publikuje cudzych szkiców.
  */
 export async function shiftOtherProducts({
   doc,
@@ -62,27 +87,7 @@ export async function shiftOtherProducts({
     select: { sortOrder: true },
     req,
   })
-  const changes = planInsert(found.docs, doc.id, doc.sortOrder)
-
-  for (const change of changes) {
-    await payload.db.updateOne({ collection: 'products', id: change.id, data: { sortOrder: change.to }, req, returning: false })
-    const latest = await payload.findVersions({
-      collection: 'products',
-      depth: 0,
-      limit: 1,
-      overrideAccess: true,
-      req,
-      where: { and: [{ parent: { equals: change.id } }, { latest: { equals: true } }, { 'version._status': { equals: 'draft' } }] },
-    })
-    const draftVersion = latest.docs[0]
-    if (draftVersion) {
-      await payload.db.updateVersion({
-        collection: 'products',
-        id: draftVersion.id,
-        versionData: { version: { sortOrder: change.to } },
-        req,
-        returning: false,
-      })
-    }
+  for (const change of planInsert(found.docs, doc.id, doc.sortOrder)) {
+    await writeSortOrder(payload, change.id, change.to, req)
   }
 }
