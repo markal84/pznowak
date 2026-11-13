@@ -20,7 +20,9 @@ export const metadata: Metadata = {
   description:
     'Rodzinna pracownia złotnicza w Busku-Zdroju. Pierścionki zaręczynowe i obrączki na zamówienie, naprawy i przeróbki biżuterii.',
   // Wersje podglądowe (preview, lokalnie) nie mogą trafić do Google. Indeksowanie włącza dopiero produkcja.
-  robots: isIndexable() ? { index: true, follow: true } : { index: false, follow: false },
+  // Na produkcji bez znacznika (domyślnie i tak „index, follow”): inaczej strona 404 miałaby dwa sprzeczne znaczniki,
+  // bo Next sam dopisuje `noindex` do odpowiedzi 404.
+  robots: isIndexable() ? undefined : { index: false, follow: false },
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

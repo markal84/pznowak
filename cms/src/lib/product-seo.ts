@@ -19,17 +19,62 @@ export function goldInLocative(metal: string | null | undefined): string {
   return /z[łl]ot/i.test(nominative) ? 'złocie' : ''
 }
 
+/** Rzeczownik w narzędniku („diament” → „diamentem”, „perła” → „perłą”, „diamenty” → „diamentami”). */
+function nounInstrumental(word: string): string {
+  if (/y$/.test(word) && word.length > 4) return `${word.slice(0, -1)}ami`
+  if (/a$/.test(word)) return `${word.slice(0, -1)}ą`
+  if (/[kg]$/.test(word)) return `${word}iem`
+  return `${word}em`
+}
+
+/** Przymiotnik w narzędniku, zgodny z rodzajem rzeczownika („niebieski” → „niebieskim”, „biała” → „białą”). */
+function adjectiveInstrumental(word: string, feminine: boolean): string {
+  if (feminine) return word.replace(/a$/, 'ą')
+  return word.replace(/[yi]$/, (end) => `${end}m`)
+}
+
 /**
- * Tytuł strony pierścionka: `<nazwa> — <kamień> w <złoto>`, bez brakujących części. Nigdy nie jest pusty, bo nazwa
- * jest wymagana. Bez kamienia: `<nazwa> — pierścionek w <złoto>`.
+ * Kamień główny (pierwszy z listy) w narzędniku, do zwrotu „z …”: „Diament niebieski, Diament” → „niebieskim diamentem”,
+ * „Topaz London Blue” → „topazem London Blue”. Kamienie boczne są pomijane (tytuł ma być krótki). Pusty tekst, gdy
+ * zapisu nie da się bezpiecznie odmienić (cyfry, nawiasy, więcej niż dwa słowa).
+ */
+export function mainStoneInstrumental(stone: string | null | undefined): string {
+  const main = (stone ?? '').split(/,|\s+i\s+|\s+oraz\s+|\+/i)[0]?.trim() ?? ''
+  if (!main || /[^\p{L}\s-]/u.test(main)) return ''
+  const [noun, ...rest] = main.split(/\s+/)
+  const nounLower = noun.toLowerCase()
+  const feminine = /a$/.test(nounLower)
+  const instr = nounInstrumental(nounLower)
+  if (!rest.length) return instr
+  const tail = rest.join(' ')
+  // Polski przymiotnik po rzeczowniku („diament niebieski”) idzie przed rzeczownik; nazwa własna („London Blue”) zostaje za nim.
+  if (rest.length === 1 && /^\p{Ll}+(y|i|a)$/u.test(tail)) return `${adjectiveInstrumental(tail, feminine)} ${instr}`
+  if (/^london blue$/i.test(tail)) return `${instr} London Blue`
+  if (rest.length > 2) return ''
+  return `${instr} ${tail}`
+}
+
+/** „z” albo „ze” przed zbitką spółgłosek: „ze szmaragdem”, ale „z szafirem”, „z diamentem”. */
+function withPreposition(phrase: string): string {
+  return /^(?:sz|rz|[sśzźż](?!z))[^aeiouyąęó]/i.test(phrase) ? `ze ${phrase}` : `z ${phrase}`
+}
+
+/**
+ * Tytuł strony pierścionka pod frazy, których szukają klienci: `Pierścionek <nazwa> z <kamień>, <złoto>`, np.
+ * „Pierścionek Cyane z niebieskim diamentem, żółte złoto”. Brakujące części są pomijane; bez kamienia
+ * `Pierścionek <nazwa> w <złoto>`. Gdy kamienia nie da się odmienić, zostaje w mianowniku po myślniku.
+ * Nigdy nie jest pusty, bo nazwa jest wymagana. Pole „tytuł SEO” z panelu ma pierwszeństwo (strona karty).
  */
 export function productSeoTitle({ name, stone, metal }: ProductSeoSource): string {
-  const title = name.trim()
+  const title = `Pierścionek ${name.trim()}`
+  const stoneInstr = mainStoneInstrumental(stone)
   const stoneText = lcFirst(formatStone(stone ?? ''))
-  const gold = goldInLocative(metal)
-  if (stoneText && gold) return `${title} — ${stoneText} w ${gold}`
-  if (stoneText) return `${title} — ${stoneText}`
-  if (gold) return `${title} — pierścionek w ${gold}`
+  const goldLoc = goldInLocative(metal)
+  // Złoto w mianowniku tylko wtedy, gdy rozpoznany jest metal (jak w goldInLocative): „Złoty” z panelu → „złoto”.
+  const gold = !goldLoc ? '' : goldLoc === 'złocie' ? 'złoto' : lcFirst(formatMetal(metal ?? ''))
+  if (stoneInstr) return `${title} ${withPreposition(stoneInstr)}${gold ? `, ${gold}` : ''}`
+  if (stoneText) return gold ? `${title} — ${stoneText}, ${gold}` : `${title} — ${stoneText}`
+  if (goldLoc) return `${title} w ${goldLoc}`
   return title
 }
 

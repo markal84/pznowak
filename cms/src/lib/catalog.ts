@@ -270,6 +270,18 @@ export function paginate<T>(items: readonly T[], page: number, size: number = CA
   return { items: items.slice((current - 1) * size, current * size), page: current, pages }
 }
 
+/**
+ * Adres kanoniczny listy. Filtry i inne sortowanie to tylko inny widok tych samych kart: kanoniczny `/pierscionki`.
+ * Kolejne strony pełnej listy (`?strona=N`, N > 1) wskazują same na siebie, jak radzi Google, żeby karty z dalszych
+ * stron były znajdowane także przez linki. Numer spoza zakresu jest przycinany jak w `paginate`.
+ */
+export function catalogCanonicalPath(params: CatalogParams, total: number, size: number = CATALOG_PAGE_SIZE): string {
+  if (params.stone !== 'all' || params.gold !== 'all' || params.sort !== DEFAULT_CATALOG_SORT) return '/pierscionki'
+  const pages = Math.max(1, Math.ceil(total / size))
+  const page = Math.min(Math.max(1, params.page), pages)
+  return catalogHref({ stone: 'all', gold: 'all', page })
+}
+
 /** Wybór pierścionków do sekcji "Pierścionki z pracowni" wg nazw z designu, uzupełniony kolejnymi. */
 export function pickByName<T extends Jewel>(
   products: readonly T[],

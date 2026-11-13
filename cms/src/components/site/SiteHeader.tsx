@@ -22,7 +22,8 @@ export default function SiteHeader() {
     <header className={RING_CREATOR_ENABLED ? 'site-header has-creator' : 'site-header'}>
       <div className="site-header-in">
         <Link
-          aria-label={`${SITE.name}, pracownia złotnicza — strona główna`}
+          // Etykieta zaczyna się od widocznego podpisu przy logo (WCAG 2.5.3, „Label in Name”).
+          aria-label={`Pracownia złotnicza Busko-Zdrój, od ${SITE.since} — ${SITE.name}, strona główna`}
           className="brand"
           href="/"
           onClick={close}

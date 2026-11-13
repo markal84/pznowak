@@ -20,6 +20,9 @@ import {
 import { rememberCatalogRing, ringAnchorId, takeCatalogReturn } from '@/lib/catalog-return'
 import RingCard from './RingCard'
 
+/** Pierwszy rząd siatki (4 karty na komputerze, 2 rzędy po 2 na telefonie) ładuje zdjęcia od razu: to element LCP. */
+const EAGER_CARDS = 4
+
 export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
   const router = useRouter()
   // Powrót z karty pierścionka (okruszek albo „wstecz”): przewiń do rzędu klikniętej karty.
@@ -130,10 +133,11 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
                 if (link?.dataset.ringSlug) rememberCatalogRing(link.dataset.ringSlug)
               }}
             >
-              {items.map((r) => (
+              {items.map((r, index) => (
                 <RingCard
                   alt={r.alt}
                   detailed
+                  eager={index < EAGER_CARDS}
                   image={r.image}
                   key={r.slug}
                   gold={r.goldLabel}

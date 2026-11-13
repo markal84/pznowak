@@ -16,9 +16,11 @@ type RingCardProps = {
   /** cena z panelu (tylko wariant katalogowy); bez ceny „Na zapytanie”, jak na karcie pierścionka */
   price?: number | null
   detailed?: boolean
+  /** pierwszy rząd katalogu: zdjęcie bez leniwego ładowania (LCP na telefonie) */
+  eager?: boolean
 }
 
-export default function RingCard({ slug, name, stone, image, alt, sizes, gold, price, detailed = false }: RingCardProps) {
+export default function RingCard({ slug, name, stone, image, alt, sizes, gold, price, detailed = false, eager = false }: RingCardProps) {
   const href = `/pierscionki/${slug}`
   if (detailed) {
     const parts = priceParts(price)
@@ -35,7 +37,7 @@ export default function RingCard({ slug, name, stone, image, alt, sizes, gold, p
       <li id={ringAnchorId(slug)}>
         <Link className="card card-body" data-ring-slug={slug} href={href}>
           <span className="card-overlay">
-            <Photo alt={alt} ratio="45" sizes={sizes} src={image} />
+            <Photo alt={alt} eager={eager} ratio="45" sizes={sizes} src={image} />
             <Tag className="tag-corner" name={name} price={priceText} />
           </span>
           <span className="card-meta">

@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import robots from '../../src/app/robots'
-import { goldInLocative, productSeoDescription, productSeoTitle } from '../../src/lib/product-seo'
+import { goldInLocative, mainStoneInstrumental, productSeoDescription, productSeoTitle } from '../../src/lib/product-seo'
 import { absoluteUrl, DEFAULT_OG_IMAGE, DEFAULT_SITE_URL, pageMetadata, siteUrl } from '../../src/lib/seo'
 import { SITE } from '../../src/lib/site'
-import { jewelryStoreJsonLd, openingHoursSpecification, serializeJsonLd } from '../../src/lib/structured-data'
+import { breadcrumbJsonLd, jewelryStoreJsonLd, openingHoursSpecification, serializeJsonLd } from '../../src/lib/structured-data'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const catalog = JSON.parse(readFileSync(path.resolve(here, '../../../data/legacy/collection.json'), 'utf8')) as {
@@ -70,26 +70,43 @@ describe('metadane strony', () => {
 })
 
 describe('tytuł i opis pierścionka (wtyczka SEO i strona)', () => {
-  it('składa nazwę, kamień i złoto, pomijając brakujące części', () => {
+  it('składa „Pierścionek <nazwa> z <kamień>, <złoto>”, pomijając brakujące części', () => {
+    expect(productSeoTitle({ name: 'Cyane', stone: 'Diament niebieski, Diament', metal: 'Żółty' })).toBe(
+      'Pierścionek Cyane z niebieskim diamentem, żółte złoto',
+    )
     expect(productSeoTitle({ name: 'Phoebe', stone: 'Tanzanit, Diament', metal: 'Żółty' })).toBe(
-      'Phoebe — tanzanit, diamenty w żółtym złocie',
+      'Pierścionek Phoebe z tanzanitem, żółte złoto',
     )
     expect(productSeoTitle({ name: 'Athena', stone: 'Szmaragd, Diament', metal: 'Żółty i biały' })).toBe(
-      'Athena — szmaragd, diamenty w żółtym i białym złocie',
+      'Pierścionek Athena ze szmaragdem, żółte i białe złoto',
     )
-    expect(productSeoTitle({ name: 'Egea', stone: 'Szafir', metal: 'Biały' })).toBe('Egea — szafir w białym złocie')
-    expect(productSeoTitle({ name: 'Merope', stone: '', metal: 'Złoto' })).toBe('Merope — pierścionek w złocie')
+    expect(productSeoTitle({ name: 'Egea', stone: 'Szafir', metal: 'Biały' })).toBe('Pierścionek Egea z szafirem, białe złoto')
+    expect(productSeoTitle({ name: 'Asteria', stone: 'Szafir i Diamenty', metal: 'Złoty' })).toBe(
+      'Pierścionek Asteria z szafirem, złoto',
+    )
+    expect(productSeoTitle({ name: 'Adamas', stone: 'Diamenty', metal: 'Żółty i biały' })).toBe(
+      'Pierścionek Adamas z diamentami, żółte i białe złoto',
+    )
+    expect(productSeoTitle({ name: 'Merope', stone: '', metal: 'Złoto' })).toBe('Pierścionek Merope w złocie')
     expect(productSeoTitle({ name: 'Nyx', stone: 'Topaz London Blue, Diament', metal: '' })).toBe(
-      'Nyx — topaz London Blue, diamenty',
+      'Pierścionek Nyx z topazem London Blue',
     )
-    expect(productSeoTitle({ name: 'Bez danych', stone: null, metal: undefined })).toBe('Bez danych')
+    expect(productSeoTitle({ name: 'Bez danych', stone: null, metal: undefined })).toBe('Pierścionek Bez danych')
+  })
+
+  it('kamienia, którego nie da się odmienić, nie przekręca: zostaje w mianowniku', () => {
+    expect(mainStoneInstrumental('Perła biała')).toBe('białą perłą')
+    expect(mainStoneInstrumental('Turmalin różowy, Diament')).toBe('różowym turmalinem')
+    expect(mainStoneInstrumental('Kamień 1,2 ct')).toBe('')
+    expect(productSeoTitle({ name: 'Test', stone: 'Moissanit 6,5 mm', metal: 'Biały' })).toBe(
+      'Pierścionek Test — moissanit 6,5 mm, białe złoto',
+    )
   })
 
   it('tytuł nigdy nie jest pusty ani nie zawiera „undefined”', () => {
     for (const p of catalog.products) {
       const title = productSeoTitle(p)
-      expect(title.length, p.slug).toBeGreaterThan(p.name.length - 1)
-      expect(title.startsWith(p.name), p.slug).toBe(true)
+      expect(title.startsWith(`Pierścionek ${p.name}`), p.slug).toBe(true)
       expect(title, p.slug).not.toMatch(/undefined|null|\[|\]/)
     }
   })
@@ -125,6 +142,8 @@ describe('dane strukturalne JewelryStore', () => {
 
   it('zawiera dane pracowni z site.ts i nie ma ocen ani pól, których nie znamy', () => {
     expect(data['@type']).toBe('JewelryStore')
+    expect(data['@id']).toBe(`${siteUrl()}/#pracownia`)
+    expect(data.logo).toBe(`${siteUrl()}/logo.png`)
     expect(data.telephone).toBe(SITE.phone)
     expect(data.email).toBe(SITE.email)
     expect(data.address).toMatchObject({
@@ -153,11 +172,28 @@ describe('dane strukturalne JewelryStore', () => {
   })
 })
 
+describe('dane strukturalne BreadcrumbList', () => {
+  it('okruszki karty pierścionka z adresami bezwzględnymi, ostatni bez linku nie jest pomijany', () => {
+    const data = breadcrumbJsonLd([
+      { name: 'Pierścionki', path: '/pierscionki' },
+      { name: 'Cyane', path: '/pierscionki/cyane' },
+    ])
+    expect(data).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Pierścionki', item: `${siteUrl()}/pierscionki` },
+        { '@type': 'ListItem', position: 2, name: 'Cyane', item: `${siteUrl()}/pierscionki/cyane` },
+      ],
+    })
+  })
+})
+
 describe('robots.txt', () => {
   it('na produkcji zezwala i wskazuje mapę strony, poza produkcją blokuje wszystko', () => {
     vi.stubEnv('SITE_ENV', 'production')
     expect(robots()).toEqual({
-      rules: { userAgent: '*', allow: '/', disallow: ['/admin', '/api'] },
+      rules: { userAgent: '*', allow: '/', disallow: ['/admin', '/api', '/products'] },
       sitemap: `${siteUrl()}/sitemap.xml`,
     })
     vi.stubEnv('SITE_ENV', 'preview')

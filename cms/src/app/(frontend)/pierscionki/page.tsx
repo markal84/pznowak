@@ -3,17 +3,29 @@ import { pageMetadata } from '@/lib/seo'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import { getProducts } from '@/lib/collection'
-import { toCatalogRing } from '@/lib/catalog'
+import { catalogCanonicalPath, parseCatalogParams, toCatalogRing } from '@/lib/catalog'
 import { byEnv } from '@/lib/placeholders'
 import { formatPrice, lowestPrice } from '@/lib/price'
 import CatalogBrowser from '@/components/site/CatalogBrowser'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = pageMetadata({
-  title: 'Pierścionki z kamieniami szlachetnymi w złocie',
-  description: 'Pierścionki z szafirem, rubinem, szmaragdem i diamentem z naszej pracowni. Zmienimy kamień, kolor złota lub rozmiar.',
-  path: '/pierscionki',
-})
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>
+
+export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const query = await searchParams
+  const params = parseCatalogParams((key) => {
+    const value = query[key]
+    return Array.isArray(value) ? value[0] : value
+  })
+  const path = catalogCanonicalPath(params, (await getProducts()).length)
+  const page = Number(new URLSearchParams(path.split('?')[1] ?? '').get('strona') ?? 1)
+  return pageMetadata({
+    title: `Pierścionki zaręczynowe z kamieniami szlachetnymi – Busko-Zdrój${page > 1 ? ` (strona ${page})` : ''}`,
+    description: 'Pierścionki z szafirem, rubinem, szmaragdem i diamentem z naszej pracowni. Zmienimy kamień, kolor złota lub rozmiar.',
+    path,
+  })
+}
 
 export default async function CatalogPage() {
   const rings = (await getProducts()).map(toCatalogRing)

@@ -9,7 +9,7 @@ import './(frontend)/globals.css'
 export const metadata: Metadata = {
   title: '404 — nie znaleziono strony | Pracownia Złotnicza Michał Nowak',
   description: 'Ten adres nie prowadzi do strony Pracowni Złotniczej Michała Nowaka.',
-  robots: { index: false, follow: false },
+  // Bez `robots`: Next sam dodaje `<meta name="robots" content="noindex">` do odpowiedzi 404 (jeden znacznik zamiast dwóch).
 }
 
 export default function GlobalNotFound() {

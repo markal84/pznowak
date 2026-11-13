@@ -9,7 +9,7 @@ import WorksBrowser from '@/components/site/WorksBrowser'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = pageMetadata({
-  title: 'Realizacje pracowni',
+  title: 'Realizacje: pierścionki i biżuteria na zamówienie',
   description: 'Biżuteria zrobiona dla konkretnych osób i krótko, jak powstała. Pracownia w Busku-Zdroju.',
   path: '/realizacje',
 })
