@@ -2028,10 +2028,10 @@
           ],
           "kamien_oryginalu": {
             "obszar": [
-              0.525,
-              0.232,
-              0.629,
-              0.348
+              0.5156,
+              0.2216,
+              0.6384,
+              0.3584
             ],
             "maska_z_obszaru": true,
             "odcien": [
@@ -2050,10 +2050,10 @@
       ],
       "kamien_oryginalu": {
         "obszar": [
-          0.414,
-          0.331,
-          0.518,
-          0.486
+          0.4046,
+          0.317,
+          0.5274,
+          0.5
         ],
         "maska_z_obszaru": true,
         "odcien": [
@@ -2062,7 +2062,7 @@
         ],
         "chroma_min": 10
       },
-      "uwaga_nowe": "Nowe karty (13.11): oryginał to szmaragd – pomijamy szmaragd; halo z diamentów zostaje."
+      "uwaga_nowe": "Nowe karty (13.11): oryginał to szmaragd – pomijamy szmaragd; halo z diamentów zostaje. Druga seria (maska poszerzona o 9 %): pierwsza w całości odrzucona."
     },
     {
       "slug": "doris",
@@ -2088,10 +2088,10 @@
           ],
           "kamien_oryginalu": {
             "obszar": [
-              0.53,
-              0.168,
-              0.616,
-              0.288
+              0.5223,
+              0.1572,
+              0.6237,
+              0.2988
             ],
             "maska_z_obszaru": true,
             "odcien": [
@@ -2110,10 +2110,10 @@
       ],
       "kamien_oryginalu": {
         "obszar": [
-          0.368,
-          0.167,
-          0.454,
-          0.27
+          0.3603,
+          0.1577,
+          0.4617,
+          0.2793
         ],
         "maska_z_obszaru": true,
         "odcien": [
@@ -2122,7 +2122,7 @@
         ],
         "chroma_min": 14
       },
-      "uwaga_nowe": "Nowe karty (13.11): oryginał to niebieski kamień (zapewne szafir) – pomijamy szafir; boczne diamenty zostają."
+      "uwaga_nowe": "Nowe karty (13.11): oryginał to niebieski kamień (zapewne szafir) – pomijamy szafir; boczne diamenty zostają. Druga seria (maska poszerzona o 9 %): pierwsza w całości odrzucona."
     },
     {
       "slug": "psyche",

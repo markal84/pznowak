@@ -236,5 +236,66 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "galatea",
+    "name": "Galatea",
+    "variants": [
+      {
+        "stone": "Szafir i diamenty",
+        "swatch": "niebieski",
+        "files": [
+          "galatea-szafir.webp",
+          "galatea-szafir-2.webp"
+        ],
+        "alt": "Pierścionek Galatea z szafirem w otoczce z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "galatea-rubin.webp",
+          "galatea-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Galatea z rubinem w otoczce z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "galatea-bialy-diament.webp",
+          "galatea-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Galatea z białym diamentem w otoczce z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Ametyst i diamenty",
+        "swatch": "fioletowy",
+        "files": [
+          "galatea-ametyst.webp"
+        ],
+        "alt": "Pierścionek Galatea z ametystem w otoczce z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "doris",
+    "name": "Doris",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "doris-rubin.webp",
+          "doris-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Doris z rubinem i dwoma diamentami po bokach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]
