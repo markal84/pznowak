@@ -21,6 +21,11 @@ export const FILMY_DIR = path.resolve(OPISY_DIR, '../../../data/facebook/media')
 export type NewCardPhoto = { file: string; alt: string }
 /** Film karty: plik mp4 z `FILMY_DIR` (nie wchodzi do gita) i opis; trafia do `media` karty po zdjęciach. */
 export type NewCardVideo = { file: string; alt: string }
+/**
+ * Wariant kamienia zakładany razem z nową kartą (pole `stoneVariants`): pierwsze zdjęcie to „Obraz”, reszta to
+ * „Kolejne obrazy”. `isVisualization: false` przy prawdziwych zdjęciach (np. Ariadne z tanzanitem, Kama 13.11).
+ */
+export type NewCardVariant = { stone: string; swatch: string; isVisualization?: boolean; photos: NewCardPhoto[] }
 export type NewCardSpec = {
   slug: string
   name: string
@@ -34,9 +39,11 @@ export type NewCardSpec = {
   photosFromKamila: string[]
   /** Opcjonalny film karty (zlecenie: film Hesperii). */
   video?: NewCardVideo
+  /** Opcjonalne warianty kamienia; zakładane tylko przy tworzeniu karty. */
+  variants?: NewCardVariant[]
 }
 
-const KEYS = ['slug', 'name', 'lead', 'description', 'price', 'metal', 'stone', 'photos', 'photosFromKamila', 'video']
+const KEYS = ['slug', 'name', 'lead', 'description', 'price', 'metal', 'stone', 'photos', 'photosFromKamila', 'video', 'variants']
 
 export function loadNewCards(source: string = NOWE_KARTY_PATH): NewCardSpec[] {
   const raw: unknown = JSON.parse(readFileSync(source, 'utf8'))
@@ -64,6 +71,20 @@ export function loadNewCards(source: string = NOWE_KARTY_PATH): NewCardSpec[] {
       const video = item.video as Record<string, unknown>
       if (typeof video?.file !== 'string' || !/\.mp4$/i.test(video.file) || typeof video.alt !== 'string' || !video.alt.trim()) {
         throw new Error(`${where}: film potrzebuje „file” (.mp4) i „alt”`)
+      }
+    }
+    if (item.variants !== undefined) {
+      if (!Array.isArray(item.variants)) throw new Error(`${where}: „variants” to lista`)
+      for (const variant of item.variants as Record<string, unknown>[]) {
+        if (typeof variant.stone !== 'string' || !variant.stone.trim() || typeof variant.swatch !== 'string' || !variant.swatch.trim()) {
+          throw new Error(`${where}: wariant potrzebuje „stone” i „swatch”`)
+        }
+        if (!Array.isArray(variant.photos) || variant.photos.length === 0) throw new Error(`${where}: wariant musi mieć zdjęcie`)
+        for (const photo of variant.photos as Record<string, unknown>[]) {
+          if (typeof photo.file !== 'string' || typeof photo.alt !== 'string' || !photo.alt.trim()) {
+            throw new Error(`${where}: zdjęcie wariantu potrzebuje „file” i „alt”`)
+          }
+        }
       }
     }
     const extra = Object.keys(item).filter((key) => !KEYS.includes(key))
@@ -118,6 +139,30 @@ export function collectPhotos(
     })
   }
   return { photos, missing }
+}
+
+export type PlannedVariant = { stone: string; swatch: string; isVisualization: boolean; photos: PlannedPhoto[] }
+
+/** Zdjęcia wariantów z `obrazy/`. Wariant, któremu brakuje choć jednego zdjęcia, jest pomijany (i zgłoszony). */
+export function collectVariants(
+  spec: NewCardSpec,
+  { photosDir = PHOTOS_DIR }: { photosDir?: string } = {},
+): { variants: PlannedVariant[]; missing: string[] } {
+  const variants: PlannedVariant[] = []
+  const missing: string[] = []
+  for (const variant of spec.variants ?? []) {
+    const photos: PlannedPhoto[] = []
+    for (const photo of variant.photos) {
+      const fullPath = path.join(photosDir, photo.file)
+      const mimetype = MIME[path.extname(photo.file).toLowerCase()]
+      if (!mimetype || !existsSync(fullPath)) missing.push(`${photo.file} (wariant ${variant.stone})`)
+      else photos.push({ key: photoKey(photo.file), file: photo.file, fullPath, alt: photo.alt, mimetype })
+    }
+    if (photos.length === variant.photos.length) {
+      variants.push({ stone: variant.stone, swatch: variant.swatch, isVisualization: variant.isVisualization ?? true, photos })
+    }
+  }
+  return { variants, missing }
 }
 
 /**

@@ -5,7 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { lintAc } from '../../scripts/opisy-ac-logic'
-import { collectPhotos, collectVideo, loadNewCards, photoKey, planNewCard } from '../../scripts/nowe-karty-logic'
+import { collectPhotos, collectVariants, collectVideo, loadNewCards, photoKey, planNewCard } from '../../scripts/nowe-karty-logic'
 
 /** Nowe karty (andaluzyt, opal): szkice na staging, opis według wzoru AC (od fasonu). */
 const specs = loadNewCards()
@@ -19,6 +19,18 @@ describe('nowe karty: treść nowe-karty.json', () => {
     expect(hesperia.stone).toMatch(/^Andaluzyt/)
     expect(selene.price).toBeNull()
     expect(selene.stone).toMatch(/^Opal/)
+  })
+
+  it('13.11: siedem nowych fasonów od Kamy jako szkice bez cen, Ariadne z prawdziwym wariantem tanzanitu', () => {
+    const nowe = ['aglaia', 'thetis', 'ariadne', 'callisto', 'galatea', 'doris', 'psyche']
+    for (const slug of nowe) expect(specs.find((s) => s.slug === slug)?.price).toBeNull()
+    const ariadne = specs.find((s) => s.slug === 'ariadne')!
+    const { variants, missing } = collectVariants(ariadne)
+    expect(missing).toEqual([])
+    expect(variants).toHaveLength(1)
+    expect(variants[0]).toMatchObject({ stone: 'Tanzanit, Diament', swatch: 'granatowy', isVisualization: false })
+    expect(variants[0].photos).toHaveLength(4)
+    expect(new Set(specs.map((s) => s.slug)).size).toBe(specs.length)
   })
 
   it.each(specs.map((s) => [s.name, s] as const))('%s: standard U + początek od fasonu, bez słowa „oryginał”', (_n, spec) => {

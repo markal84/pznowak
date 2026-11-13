@@ -27,5 +27,222 @@
       { "file": "selene-opal-3.jpg", "alt": "Pierścionek Selene z opalem, profil oprawy z trójką diamentów" }
     ],
     "photosFromKamila": []
+  },
+  {
+    "slug": "aglaia",
+    "name": "Aglaia",
+    "lead": "Trzy kamienie w rzędzie na szynie z delikatnym grawerem – klasyczny fason w żółtym złocie.",
+    "description": "Pierścionek z żółtego złota z trzema kamieniami ułożonymi w rząd. Okrągły kamień centralny trzymają wysokie łapki, a po jego bokach siedzą dwa mniejsze diamenty. Szynę zdobią drobne, ręcznie cyzelowane detale, widoczne także z boku oprawy.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest ametyst w głębokim, fioletowym odcieniu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "price": null,
+    "metal": "Żółte",
+    "stone": "Ametyst, Diament",
+    "photos": [
+      {
+        "file": "aglaia-ametyst-1.jpg",
+        "alt": "Pierścionek Aglaia z ametystem i diamentami w żółtym złocie, widok z ukosa"
+      },
+      {
+        "file": "aglaia-ametyst-2.jpg",
+        "alt": "Pierścionek Aglaia z ametystem, widok z boku na łapki i grawer"
+      }
+    ],
+    "photosFromKamila": []
+  },
+  {
+    "slug": "thetis",
+    "name": "Thetis",
+    "lead": "Okrągły kamień na sześciu łapkach i dwa diamenty po bokach – smukły fason w żółtym złocie.",
+    "description": "Pierścionek z żółtego złota na smukłej szynie. Okrągły kamień centralny trzyma sześć łapek, a po obu stronach oprawy siedzą pojedyncze diamenty. Łapki i oprawy mają kolor białego złota, dzięki czemu kamienie wyglądają jaśniej.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest topaz London Blue w głębokim, stalowoniebieskim odcieniu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "price": null,
+    "metal": "Żółte",
+    "stone": "Topaz London Blue, Diament",
+    "photos": [
+      {
+        "file": "thetis-topaz-1.jpg",
+        "alt": "Pierścionek Thetis z topazem London Blue i diamentami, widok z przodu"
+      },
+      {
+        "file": "thetis-topaz-2.jpg",
+        "alt": "Pierścionek Thetis z topazem London Blue, widok z ukosa"
+      },
+      {
+        "file": "thetis-topaz-3.jpg",
+        "alt": "Pierścionek Thetis z topazem London Blue, profil szyny i oprawy"
+      }
+    ],
+    "photosFromKamila": []
+  },
+  {
+    "slug": "ariadne",
+    "name": "Ariadne",
+    "lead": "Złota dłoń z mankietem z diamentów trzyma owalny kamień – rzeźbiony fason z żółtego złota.",
+    "description": "Pierścionek z żółtego złota w formie rzeźbionej dłoni, która trzyma w palcach owalny kamień osadzony w łapkach. Nadgarstek otacza mankiet z drobnych diamentów obramowany splotem, a na grzbiecie dłoni błyszczy jeszcze jeden diament w oprawie.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest szmaragd. Ten sam model wykonaliśmy też z tanzanitem tej samej wielkości.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "price": null,
+    "metal": "Żółte",
+    "stone": "Szmaragd, Diament",
+    "photos": [
+      {
+        "file": "ariadne-szmaragd-1.jpg",
+        "alt": "Pierścionek Ariadne: złota dłoń trzyma owalny szmaragd, widok z boku"
+      },
+      {
+        "file": "ariadne-szmaragd-2.jpg",
+        "alt": "Pierścionek Ariadne ze szmaragdem, widok z góry na dłoń"
+      },
+      {
+        "file": "ariadne-szmaragd-3.jpg",
+        "alt": "Pierścionek Ariadne ze szmaragdem i diamentami na nadgarstku, odbicie w lustrze"
+      },
+      {
+        "file": "ariadne-szmaragd-4.jpg",
+        "alt": "Pierścionek Ariadne ze szmaragdem, profil szyny i dłoni"
+      }
+    ],
+    "photosFromKamila": [],
+    "variants": [
+      {
+        "stone": "Tanzanit, Diament",
+        "swatch": "granatowy",
+        "isVisualization": false,
+        "photos": [
+          {
+            "file": "ariadne-tanzanit-1.jpg",
+            "alt": "Pierścionek Ariadne z tanzanitem: złota dłoń trzyma owalny kamień, widok z boku"
+          },
+          {
+            "file": "ariadne-tanzanit-2.jpg",
+            "alt": "Pierścionek Ariadne z tanzanitem, zbliżenie palców i kamienia"
+          },
+          {
+            "file": "ariadne-tanzanit-3.jpg",
+            "alt": "Pierścionek Ariadne z tanzanitem i diamentami na nadgarstku, widok z przodu"
+          },
+          {
+            "file": "ariadne-tanzanit-4.jpg",
+            "alt": "Pierścionek Ariadne z tanzanitem, dłoń od strony palców"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "callisto",
+    "name": "Callisto",
+    "lead": "Prostokątny kamień w szlifie emerald na czterech łapkach – prosty soliter w żółtym złocie.",
+    "description": "Pierścionek z żółtego złota na gładkiej szynie, z jednym prostokątnym kamieniem w stopniowanym szlifie emerald. Kamień trzymają cztery łapki, a koszyk oprawy unosi go nad palcem, więc dużo światła wpada od spodu.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest oliwin (perydot) w świeżym, żółtozielonym odcieniu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "price": null,
+    "metal": "Żółte",
+    "stone": "Oliwin",
+    "photos": [
+      {
+        "file": "callisto-oliwin-1.jpg",
+        "alt": "Pierścionek Callisto z oliwinem w szlifie emerald, widok z góry"
+      },
+      {
+        "file": "callisto-oliwin-2.jpg",
+        "alt": "Pierścionek Callisto z oliwinem, widok z boku na łapki"
+      },
+      {
+        "file": "callisto-oliwin-3.jpg",
+        "alt": "Pierścionek Callisto z oliwinem, profil koszyka i szyny"
+      }
+    ],
+    "photosFromKamila": []
+  },
+  {
+    "slug": "galatea",
+    "name": "Galatea",
+    "lead": "Okrągły kamień w kwadratowej otoczce z diamentów na smukłej szynie z żółtego złota.",
+    "description": "Pierścionek z żółtego złota z kamieniem centralnym w kwadratowej otoczce. Okrągły kamień trzymają cztery łapki, a wokół niego biegnie rząd drobnych diamentów. Z boku widać ażurowy koszyk, który lekko unosi oprawę nad szyną.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest szmaragd w jasnym, soczyście zielonym odcieniu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "price": null,
+    "metal": "Żółte",
+    "stone": "Szmaragd, Diament",
+    "photos": [
+      {
+        "file": "galatea-szmaragd-1.jpg",
+        "alt": "Pierścionek Galatea ze szmaragdem w otoczce z diamentów, widok z góry"
+      },
+      {
+        "file": "galatea-szmaragd-2.jpg",
+        "alt": "Pierścionek Galatea ze szmaragdem, profil koszyka"
+      },
+      {
+        "file": "galatea-szmaragd-3.jpg",
+        "alt": "Pierścionek Galatea ze szmaragdem, widok z ukosa"
+      },
+      {
+        "file": "galatea-szmaragd-4.jpg",
+        "alt": "Pierścionek Galatea ze szmaragdem, widok z przodu z odbiciem"
+      },
+      {
+        "file": "galatea-szmaragd-5.jpg",
+        "alt": "Pierścionek Galatea ze szmaragdem, widok z boku"
+      }
+    ],
+    "photosFromKamila": []
+  },
+  {
+    "slug": "doris",
+    "name": "Doris",
+    "lead": "Trzy okrągłe kamienie w falujących oprawach na szynie z ręcznie cyzelowanym wzorem.",
+    "description": "Pierścionek z żółtego złota z trzema okrągłymi kamieniami ułożonymi w rząd. Oprawy łączą falujące linie złota, a szyna przy główce rozdziela się i ma ręcznie cyzelowany, roślinny wzór. Po bokach kamienia centralnego siedzą dwa białe diamenty.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest kamień w głębokim, chabrowym odcieniu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "price": null,
+    "metal": "Żółte",
+    "stone": "Szafir, Diament",
+    "photos": [
+      {
+        "file": "doris-1.jpg",
+        "alt": "Pierścionek Doris z niebieskim kamieniem i dwoma diamentami, widok z przodu"
+      },
+      {
+        "file": "doris-2.jpg",
+        "alt": "Pierścionek Doris, widok z boku na falujące oprawy"
+      },
+      {
+        "file": "doris-3.jpg",
+        "alt": "Pierścionek Doris, widok z ukosa"
+      },
+      {
+        "file": "doris-4.jpg",
+        "alt": "Pierścionek Doris, profil szyny z cyzelowanym wzorem"
+      }
+    ],
+    "photosFromKamila": []
+  },
+  {
+    "slug": "psyche",
+    "name": "Psyche",
+    "lead": "Smukła złota dłoń trzyma okrągły kamień, a nadgarstek zdobi pas diamentów.",
+    "description": "Pierścionek z żółtego złota w formie smukłej dłoni, która trzyma w palcach okrągły kamień w czterech łapkach. Nadgarstek otacza pas drobnych diamentów zakończony rzędem złotych kulek, a szyna przechodzi płynnie w przedramię.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest kamień w głębokim, niebiesko-zielonym odcieniu.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.",
+    "price": null,
+    "metal": "Żółte",
+    "stone": "Niebieski diament, Diament",
+    "photos": [
+      {
+        "file": "psyche-1.jpg",
+        "alt": "Pierścionek Psyche: smukła złota dłoń trzyma niebiesko-zielony kamień, widok z przodu"
+      },
+      {
+        "file": "psyche-2.jpg",
+        "alt": "Pierścionek Psyche, widok z góry na dłoń i kamień"
+      },
+      {
+        "file": "psyche-3.jpg",
+        "alt": "Pierścionek Psyche z pasem diamentów na nadgarstku"
+      },
+      {
+        "file": "psyche-4.jpg",
+        "alt": "Pierścionek Psyche, dłoń leżąca, widok z boku"
+      },
+      {
+        "file": "psyche-5.jpg",
+        "alt": "Pierścionek Psyche, odbicie dłoni i kamienia"
+      },
+      {
+        "file": "psyche-6.jpg",
+        "alt": "Pierścionek Psyche, profil dłoni na szynie"
+      }
+    ],
+    "photosFromKamila": []
   }
 ]
