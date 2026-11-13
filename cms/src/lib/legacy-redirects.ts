@@ -132,8 +132,22 @@ export const MERGED_RING_VARIANTS: Readonly<Record<string, { slug: string; kamie
   taygete: { slug: 'iris', kamien: 'oliwin-i-diamenty' },
 }
 
-/** Adres w nowym serwisie dla karty o aktualnym slugu: połączona karta → fason z `?kamien=`, inaczej zwykły adres karty. */
+/**
+ * Karty usunięte z katalogu, które były w Google albo na starej stronie (decyzja Marcina 13.11.2026, audyt SEO):
+ * ich stare adresy idą jednym skokiem na najbliższy pierścionek, a nie na 404.
+ */
+export const REMOVED_RING_REPLACEMENTS: Readonly<Record<string, { slug: string; reason: string }>> = {
+  cassiopeia: { slug: 'delos', reason: 'Karta Cassiopeia usunięta; najbliższy pierścionek to rozeta Delos.' },
+  egea: { slug: 'adamas', reason: 'Karta Egea usunięta; to fason Adamasa (z szafirem).' },
+}
+
+/**
+ * Adres w nowym serwisie dla karty o aktualnym slugu: usunięta karta → jej zamiennik, połączona karta → fason
+ * z `?kamien=`, inaczej zwykły adres karty.
+ */
 export function ringPath(slug: string): string {
+  const replaced = REMOVED_RING_REPLACEMENTS[slug]
+  if (replaced) return `/pierscionki/${replaced.slug}`
   const merged = MERGED_RING_VARIANTS[slug]
   if (!merged) return `/pierscionki/${slug}`
   return merged.kamien ? `/pierscionki/${merged.slug}?kamien=${merged.kamien}` : `/pierscionki/${merged.slug}`
@@ -150,6 +164,8 @@ const mergedReason = (merged: { slug: string; kamien?: string }) =>
     : `Karta połączona z fasonem ${capitalize(merged.slug)} (ten sam pierścionek).`
 
 const reasonFor = (legacySlug: string, renamed: boolean, whenRenamed: string, otherwise: string) => {
+  const replaced = REMOVED_RING_REPLACEMENTS[currentRingSlug(legacySlug)]
+  if (replaced) return replaced.reason
   const merged = MERGED_RING_VARIANTS[currentRingSlug(legacySlug)]
   return merged ? mergedReason(merged) : renamed ? whenRenamed : otherwise
 }
@@ -177,7 +193,9 @@ const RENAMED: LegacyRedirect[] = Object.entries(RENAMED_RING_SLUGS).map(([from,
   from: `/pierscionki/${from}`,
   to: ringPath(to),
   origin: 'catalog',
-  reason: MERGED_RING_VARIANTS[to] ? mergedReason(MERGED_RING_VARIANTS[to]) : 'Adres z nazwy karty zamiast numeru ze starej strony.',
+  reason: REMOVED_RING_REPLACEMENTS[to]
+    ? REMOVED_RING_REPLACEMENTS[to].reason
+    : MERGED_RING_VARIANTS[to] ? mergedReason(MERGED_RING_VARIANTS[to]) : 'Adres z nazwy karty zamiast numeru ze starej strony.',
 }))
 
 /** Zarchiwizowane karty połączone w fason (zlecenia AB i Harmonia): ich adresy z nazwy też idą na fason, jednym skokiem. */
@@ -186,6 +204,14 @@ const MERGED: LegacyRedirect[] = Object.entries(MERGED_RING_VARIANTS).map(([from
   to: ringPath(from),
   origin: 'catalog',
   reason: `Karta połączona z fasonem ${capitalize(merged.slug)}: ten sam pierścionek${merged.kamien ? ', kamień jako wariant' : ''}.`,
+}))
+
+/** Adresy usuniętych kart w nowym serwisie (`/pierscionki/cassiopeia`, `/pierscionki/egea`): na zamiennik, jednym skokiem. */
+const REPLACED: LegacyRedirect[] = Object.entries(REMOVED_RING_REPLACEMENTS).map(([from, { slug, reason }]) => ({
+  from: `/pierscionki/${from}`,
+  to: `/pierscionki/${slug}`,
+  origin: 'catalog',
+  reason,
 }))
 
 /** Elementy galerii WordPress (11 wpisów, w tym przykładowe) nie mają własnych stron w nowym układzie. */
@@ -210,7 +236,7 @@ const GALLERY: LegacyRedirect[] = LEGACY_GALLERY_SLUGS.map((slug) => ({
   reason: 'Wpis galerii WordPress; najbliższa lista to „Realizacje”.',
 }))
 
-export const LEGACY_REDIRECTS: readonly LegacyRedirect[] = [...PAGES, ...RINGS, ...RENAMED, ...MERGED, ...GALLERY]
+export const LEGACY_REDIRECTS: readonly LegacyRedirect[] = [...PAGES, ...RINGS, ...RENAMED, ...MERGED, ...REPLACED, ...GALLERY]
 
 /**
  * Wbudowane przekierowanie skośnika na końcu (`/x/` → `/x`) w Next działa PRZED przekierowaniami z konfiguracji,
