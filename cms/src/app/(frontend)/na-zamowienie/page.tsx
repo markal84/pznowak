@@ -4,14 +4,12 @@ import type { ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
-import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Faq, { type FaqItem } from '@/components/site/Faq'
 import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import { toCatalogRing } from '@/lib/catalog'
-import { showPlaceholders } from '@/lib/placeholders'
 import { formatPrice, lowestPrice } from '@/lib/price'
 import { FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
@@ -33,7 +31,6 @@ const STEPS = [
   { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz, a my poprawiamy drobiazgi. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek i opiekę pracowni na kolejne lata', ill: '6-odbior' },
 ]
 
-/** Pytanie „Czy rozmowa o projekcie coś kosztuje?” nie ma jeszcze odpowiedzi od pracowni: na produkcji go nie ma. */
 const faq = (): FaqItem[] => [
   {
     q: 'Czy mogę zobaczyć pierścionek przed wykonaniem?',
@@ -43,14 +40,6 @@ const faq = (): FaqItem[] => [
     q: 'Czy mogę przyjść z własnym pomysłem?',
     a: 'Tak. Przynieś szkic, zdjęcie albo opis tego, co Ci się podoba. Złotnik oceni, co da się wykonać w złocie i z wybranym kamieniem, a jeśli jakiś element nie byłby trwały, zaproponuje bezpieczniejsze rozwiązanie.',
   },
-  ...(showPlaceholders()
-    ? [
-        {
-          q: 'Czy rozmowa o projekcie coś kosztuje?',
-          a: <DoUzupelnienia>[Do uzupełnienia przez pracownię: czy pierwsza rozmowa i projekt są bezpłatne, czy wymagana jest zaliczka.]</DoUzupelnienia>,
-        },
-      ]
-    : []),
   {
     q: 'Czy da się pracować zdalnie?',
     a: (
