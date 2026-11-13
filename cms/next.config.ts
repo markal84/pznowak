@@ -3,7 +3,7 @@ import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { isIndexable } from './src/lib/indexing'
-import { legacyRedirectRules } from './src/lib/legacy-redirects'
+import { legacyRedirectRules, wwwRedirectRules } from './src/lib/legacy-redirects'
 
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
@@ -49,6 +49,8 @@ const nextConfig: NextConfig = {
   // Adresy ze starej strony (src/lib/legacy-redirects.ts, tabela docs/seo/przekierowania.md): jeden skok, 308.
   async redirects() {
     return [
+      // www.pznowak.pl → https://pznowak.pl (domena z SITE_URL), zanim zadziałają stare adresy.
+      ...wwwRedirectRules(),
       ...legacyRedirectRules(),
       { source: '/:path+/', destination: '/:path+', permanent: true },
     ]

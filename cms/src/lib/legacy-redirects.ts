@@ -8,6 +8,8 @@
  *  - adresy bez odpowiednika nie są tu wpisywane: zwracają 404 (lista w dokumentacji).
  */
 
+import { siteUrl } from './seo'
+
 export type LegacyRedirect = {
   /** Stary adres bez skośnika na końcu, np. `/katalog/aria`. */
   from: string
@@ -248,6 +250,30 @@ export function legacyRedirectRules(): { source: string; destination: string; pe
     { source: `${from}/`, destination: to, permanent: true as const },
     { source: from, destination: to, permanent: true as const },
   ])
+}
+
+/**
+ * `www.<domena>` → `https://<domena>` w samej aplikacji, niezależnie od panelu hostingu (Google ma zaindeksowane
+ * www.pznowak.pl/kontakt). Domena z `SITE_URL` (domyślnie pznowak.pl). Reguła stoi przed starymi adresami, więc
+ * `www.pznowak.pl/katalog/aria/` idzie dwoma skokami: na pznowak.pl, a potem na `/pierscionki/aria`. Bez reguły dla
+ * adresów lokalnych, IP i domen, które same zaczynają się od `www.`.
+ */
+export function wwwRedirectRules(base: string = siteUrl()): {
+  source: string
+  has: { type: 'host'; value: string }[]
+  destination: string
+  permanent: true
+}[] {
+  const { host, origin } = new URL(base)
+  if (host.startsWith('www.') || !host.includes('.') || /^[\d.:]+$/.test(host)) return []
+  return [
+    {
+      source: '/:path*',
+      has: [{ type: 'host', value: `www\\.${host.replace(/\./g, '\\.')}` }],
+      destination: `${origin}/:path*`,
+      permanent: true,
+    },
+  ]
 }
 
 /** Adresy ze starej mapy witryny, które w nowej stronie mają ten sam adres (zmienia się tylko skośnik na końcu). */
