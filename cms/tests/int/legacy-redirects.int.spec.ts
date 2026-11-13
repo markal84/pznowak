@@ -13,6 +13,7 @@ import {
   LEGACY_WITHOUT_COUNTERPART,
   MERGED_RING_VARIANTS,
   REMOVED_RING_REPLACEMENTS,
+  wwwRedirectRules,
   RENAMED_RING_SLUGS,
   currentRingSlug,
   legacyRedirectRules,
@@ -167,6 +168,23 @@ describe('przekierowania ze starej strony', () => {
     expect(to('/pierscionki/delos')).toBeUndefined()
     expect(to('/pierscionki/adamas')).toBeUndefined()
     expect(legacyRedirectRules()).toContainEqual({ source: '/katalog/cassiopeia/', destination: '/pierscionki/delos', permanent: true })
+  })
+
+  it('www.<domena> → https://<domena> z SITE_URL, jako pierwsza reguła w next.config.ts', () => {
+    expect(wwwRedirectRules('https://pznowak.pl')).toEqual([
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www\\.pznowak\\.pl' }],
+        destination: 'https://pznowak.pl/:path*',
+        permanent: true,
+      },
+    ])
+    expect(new RegExp(`^${wwwRedirectRules('https://pznowak.pl')[0].has[0].value}$`).test('www.pznowak.pl')).toBe(true)
+    expect(new RegExp(`^${wwwRedirectRules('https://pznowak.pl')[0].has[0].value}$`).test('wwwxpznowak.pl')).toBe(false)
+    expect(wwwRedirectRules('https://www.example.test')).toEqual([])
+    expect(wwwRedirectRules('http://localhost:3000')).toEqual([])
+    expect(wwwRedirectRules('http://127.0.0.1:3000')).toEqual([])
+    expect(read('../../next.config.ts')).toMatch(/return \[\s*(\/\/[^\n]*\s*)?\.\.\.wwwRedirectRules\(\),\s*\.\.\.legacyRedirectRules\(\)/)
   })
 
   it('nie ma masowych przekierowań na stronę główną', () => {
