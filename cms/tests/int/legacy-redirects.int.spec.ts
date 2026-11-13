@@ -12,6 +12,7 @@ import {
   LEGACY_UNCHANGED_PAGES,
   LEGACY_WITHOUT_COUNTERPART,
   MERGED_RING_VARIANTS,
+  REMOVED_RING_REPLACEMENTS,
   RENAMED_RING_SLUGS,
   currentRingSlug,
   legacyRedirectRules,
@@ -67,6 +68,7 @@ describe('przekierowania ze starej strony', () => {
       expect(valid, `${from} → ${to}`).toBe(true)
       // Cel to zawsze fason (nie zarchiwizowana karta), a `?kamien=` występuje tylko przy połączonych kartach.
       if (product) expect(product[1] in MERGED_RING_VARIANTS, `${from} → ${to} wskazuje zarchiwizowaną kartę`).toBe(false)
+      if (product) expect(product[1] in REMOVED_RING_REPLACEMENTS, `${from} → ${to} wskazuje usuniętą kartę`).toBe(false)
       if (product?.[2]) expect(Object.values(MERGED_RING_VARIANTS).some((m) => m.kamien === product[2]), to).toBe(true)
     }
   })
@@ -151,6 +153,20 @@ describe('przekierowania ze starej strony', () => {
     expect(ringPath('eirene')).toBe(turmalin)
     const rules = legacyRedirectRules()
     expect(rules).toContainEqual({ source: '/pierscionki/leto/', destination: '/pierscionki/harmonia', permanent: true })
+  })
+
+  it('usunięte karty (13.11): Cassiopeia → Delos, Egea → Adamas, wszystkie adresy jednym skokiem', () => {
+    const to = (from: string) => LEGACY_REDIRECTS.find((r) => r.from === from)?.to
+    for (const from of ['/katalog/cassiopeia', '/ring/cassiopeia', '/pierscionki/cassiopeia']) {
+      expect(to(from), from).toBe('/pierscionki/delos')
+    }
+    for (const from of ['/katalog/pierscionek-1', '/ring/pierscionek-1', '/pierscionki/pierscionek-1', '/pierscionki/egea']) {
+      expect(to(from), from).toBe('/pierscionki/adamas')
+    }
+    expect(ringPath('egea')).toBe('/pierscionki/adamas')
+    expect(to('/pierscionki/delos')).toBeUndefined()
+    expect(to('/pierscionki/adamas')).toBeUndefined()
+    expect(legacyRedirectRules()).toContainEqual({ source: '/katalog/cassiopeia/', destination: '/pierscionki/delos', permanent: true })
   })
 
   it('nie ma masowych przekierowań na stronę główną', () => {

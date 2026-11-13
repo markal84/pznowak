@@ -11,10 +11,11 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import sharp, { type OverlayOptions } from 'sharp'
+import { WORKSHOP_COORDINATES } from '../src/lib/site'
 
-// Kilińskiego 12, Busko-Zdrój (Nominatim, budynek OSM way/967042970).
-const LAT = 50.4700884
-const LON = 20.7164823
+// Kilińskiego 12, Busko-Zdrój: wspólne współrzędne z danymi strukturalnymi (src/lib/site.ts).
+const LAT = WORKSHOP_COORDINATES.latitude
+const LON = WORKSHOP_COORDINATES.longitude
 const ZOOM = 17
 const TILE = 256
 const COLS = 7

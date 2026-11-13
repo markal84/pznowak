@@ -61,8 +61,8 @@ Tabele poniżej generuje `npm run seo:redirects-doc` (w katalogu `cms`); test
 | `/ring/taygete` | `/pierscionki/iris?kamien=oliwin-i-diamenty` | WordPress | nie | Karta połączona z fasonem Iris (kamień jako wariant). |
 | `/katalog/maia` | `/pierscionki/maia` | mapa witryny | nie | Ten sam pierścionek, ten sam slug. |
 | `/ring/maia` | `/pierscionki/maia` | WordPress | nie | Wpis WordPress „ring”; ten sam pierścionek. |
-| `/katalog/cassiopeia` | `/pierscionki/cassiopeia` | mapa witryny | tak | Ten sam pierścionek, ten sam slug. |
-| `/ring/cassiopeia` | `/pierscionki/cassiopeia` | WordPress | nie | Wpis WordPress „ring”; ten sam pierścionek. |
+| `/katalog/cassiopeia` | `/pierscionki/delos` | mapa witryny | tak | Karta Cassiopeia usunięta; najbliższy pierścionek to rozeta Delos. |
+| `/ring/cassiopeia` | `/pierscionki/delos` | WordPress | nie | Karta Cassiopeia usunięta; najbliższy pierścionek to rozeta Delos. |
 | `/katalog/thalia` | `/pierscionki/thalia` | mapa witryny | nie | Ten sam pierścionek, ten sam slug. |
 | `/ring/thalia` | `/pierscionki/thalia` | WordPress | nie | Wpis WordPress „ring”; ten sam pierścionek. |
 | `/katalog/terpsichore` | `/pierscionki/terpsichore` | mapa witryny | nie | Ten sam pierścionek, ten sam slug. |
@@ -111,8 +111,8 @@ Tabele poniżej generuje `npm run seo:redirects-doc` (w katalogu `cms`); test
 | `/ring/asteria` | `/pierscionki/asteria` | WordPress | nie | Wpis WordPress „ring”; ten sam pierścionek. |
 | `/katalog/pierscionek-2` | `/pierscionki/delos` | mapa witryny | nie | Ten sam pierścionek; adres z nazwy karty zamiast numeru. |
 | `/ring/pierscionek-2` | `/pierscionki/delos` | WordPress | nie | Wpis WordPress „ring”; adres z nazwy karty zamiast numeru. |
-| `/katalog/pierscionek-1` | `/pierscionki/egea` | mapa witryny | nie | Ten sam pierścionek; adres z nazwy karty zamiast numeru. |
-| `/ring/pierscionek-1` | `/pierscionki/egea` | WordPress | nie | Wpis WordPress „ring”; adres z nazwy karty zamiast numeru. |
+| `/katalog/pierscionek-1` | `/pierscionki/adamas` | mapa witryny | nie | Karta Egea usunięta; to fason Adamasa (z szafirem). |
+| `/ring/pierscionek-1` | `/pierscionki/adamas` | WordPress | nie | Karta Egea usunięta; to fason Adamasa (z szafirem). |
 | `/pierscionki/merope-2` | `/pierscionki/merope` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/electra-2` | `/pierscionki/electra` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/prometheus-2` | `/pierscionki/prometheus` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
@@ -134,13 +134,15 @@ Tabele poniżej generuje `npm run seo:redirects-doc` (w katalogu `cms`); test
 | `/pierscionki/pierscionek-9` | `/pierscionki/helios` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/pierscionek-8` | `/pierscionki/pelagia` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
 | `/pierscionki/pierscionek-2` | `/pierscionki/delos` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
-| `/pierscionki/pierscionek-1` | `/pierscionki/egea` | nowy serwis | nie | Adres z nazwy karty zamiast numeru ze starej strony. |
+| `/pierscionki/pierscionek-1` | `/pierscionki/adamas` | nowy serwis | nie | Karta Egea usunięta; to fason Adamasa (z szafirem). |
 | `/pierscionki/pyrrha` | `/pierscionki/urania?kamien=rubin-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Urania: ten sam pierścionek, kamień jako wariant. |
 | `/pierscionki/nyx` | `/pierscionki/urania?kamien=topaz-london-blue-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Urania: ten sam pierścionek, kamień jako wariant. |
 | `/pierscionki/eirene` | `/pierscionki/harmonia?kamien=turmalin-malinowy-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Harmonia: ten sam pierścionek, kamień jako wariant. |
 | `/pierscionki/leto` | `/pierscionki/harmonia` | nowy serwis | nie | Karta połączona z fasonem Harmonia: ten sam pierścionek. |
 | `/pierscionki/thalassa` | `/pierscionki/aion?kamien=zielone-i-biale-diamenty` | nowy serwis | nie | Karta połączona z fasonem Aion: ten sam pierścionek, kamień jako wariant. |
 | `/pierscionki/taygete` | `/pierscionki/iris?kamien=oliwin-i-diamenty` | nowy serwis | nie | Karta połączona z fasonem Iris: ten sam pierścionek, kamień jako wariant. |
+| `/pierscionki/cassiopeia` | `/pierscionki/delos` | nowy serwis | nie | Karta Cassiopeia usunięta; najbliższy pierścionek to rozeta Delos. |
+| `/pierscionki/egea` | `/pierscionki/adamas` | nowy serwis | nie | Karta Egea usunięta; to fason Adamasa (z szafirem). |
 | `/gallery/przykladowe-zdjecie` | `/realizacje` | WordPress | nie | Wpis galerii WordPress; najbliższa lista to „Realizacje”. |
 | `/gallery/zdjecie-2` | `/realizacje` | WordPress | nie | Wpis galerii WordPress; najbliższa lista to „Realizacje”. |
 | `/gallery/galeria-3` | `/realizacje` | WordPress | nie | Wpis galerii WordPress; najbliższa lista to „Realizacje”. |

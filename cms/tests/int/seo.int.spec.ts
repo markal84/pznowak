@@ -154,7 +154,9 @@ describe('dane strukturalne JewelryStore', () => {
     })
     expect(data.sameAs).toEqual([SITE.facebook, SITE.instagram])
     const text = JSON.stringify(data)
-    expect(text).not.toMatch(/aggregateRating|geo|priceRange|offers/)
+    expect(data.name).toBe('Pracownia Złotnicza Michał Nowak')
+    expect(data.geo).toEqual({ '@type': 'GeoCoordinates', latitude: 50.4700884, longitude: 20.7164823 })
+    expect(text).not.toMatch(/aggregateRating|priceRange|offers/)
     expect(text).not.toMatch(/\[[^\]"]*\]|TODO|do uzupełnienia/i)
   })
 

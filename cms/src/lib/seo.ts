@@ -6,7 +6,6 @@ import { SITE } from './site'
 export const DEFAULT_SITE_URL = 'https://pznowak.pl'
 
 /** Domyślny obraz do udostępniania (Facebook, Messenger), 1200×630. */
-// TYMCZASOWE: kadr z about-us-son.png, podmienić na oryginał z pracowni.
 export const DEFAULT_OG_IMAGE = {
   url: '/og-pracownia.jpg',
   width: 1200,
