@@ -1,5 +1,6 @@
 /**
- * Nowe karty pierścionków jako szkice na staging: `seed/nowe-karty/nowe-karty.json` (Hesperia z andaluzytem, Selene z opalem).
+ * Nowe karty pierścionków jako szkice na staging: `seed/nowe-karty/nowe-karty.json` (Hesperia z andaluzytem, Selene z opalem;
+ * 13.11: Aglaia, Thetis, Ariadne z wariantem tanzanitu, Callisto, Galatea, Doris, Psyche – bez cen, czekają na dane Kamy).
  *
  *   npm run staging:nowe-karty              sprawdzenie: nic nie zapisuje, pokazuje plan i brakujące zdjęcia
  *   npm run staging:nowe-karty -- --apply   zapis: zakłada szkice, wgrywa zdjęcia i film (prefiks mediów stagingu)
@@ -15,7 +16,8 @@ import path from 'node:path'
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
-import { collectPhotos, collectVideo, FILMY_DIR, KAMILA_DIR, loadNewCards, planNewCard, type PlannedPhoto } from './nowe-karty-logic'
+import { SWATCHES, type SwatchId } from '../src/lib/stone-variants'
+import { collectPhotos, collectVariants, collectVideo, FILMY_DIR, KAMILA_DIR, loadNewCards, planNewCard, type PlannedPhoto } from './nowe-karty-logic'
 
 const applyChanges = process.argv.includes('--apply')
 const filmyArg = process.argv.indexOf('--filmy')
@@ -77,6 +79,10 @@ try {
     const { photos: stills, missing } = published ? { photos: [], missing: [] as string[] } : collectPhotos(spec)
     const { video, missing: missingVideo } = collectVideo(spec, { videoDir })
     if (missingVideo) missing.push(missingVideo)
+    const { variants, missing: missingVariants } = collectVariants(spec)
+    missing.push(...missingVariants)
+    const badSwatch = variants.find((variant) => !SWATCHES.some((swatch) => swatch.id === variant.swatch))
+    if (badSwatch) throw new Error(`${spec.name}: nieznany kolor kółka „${badSwatch.swatch}”`)
     const photos = video ? [...stills, video] : stills
     const existing = doc && {
       id: doc.id,
@@ -95,8 +101,9 @@ try {
       continue
     }
     counts.zmien += 1
+    const variantNote = plan.action === 'utworz' && variants.length ? `, warianty: ${variants.map((v) => v.stone).join('; ')}` : ''
     if (!applyChanges) {
-      console.log(`${plan.action === 'utworz' ? '+' : '~'} ${label}: ${plan.note}`)
+      console.log(`${plan.action === 'utworz' ? '+' : '~'} ${label}: ${plan.note}${variantNote}`)
       continue
     }
     try {
@@ -104,6 +111,19 @@ try {
       for (const photo of plan.photos) newEntries.push({ asset: await ensureMedia(photo), alt: photo.alt, isPrimary: false })
       if (plan.action === 'utworz') {
         newEntries[0].isPrimary = true
+        const stoneVariants = []
+        for (const variant of variants) {
+          const ids = []
+          for (const photo of variant.photos) ids.push(await ensureMedia(photo))
+          stoneVariants.push({
+            stone: variant.stone,
+            swatch: variant.swatch as SwatchId,
+            image: ids[0],
+            moreImages: ids.slice(1),
+            alt: variant.photos[0].alt,
+            isVisualization: variant.isVisualization,
+          })
+        }
         const created = await payload.create({
           collection: 'products',
           data: {
@@ -116,6 +136,7 @@ try {
             metal: spec.metal,
             stone: spec.stone,
             media: newEntries,
+            ...(stoneVariants.length ? { stoneVariants } : {}),
             sortOrder: nextSort++,
             _status: 'draft',
           },
@@ -123,7 +144,7 @@ try {
           overrideAccess: true,
           context,
         })
-        console.log(`+ ${label}: ${plan.note} – szkic #${created.id}`)
+        console.log(`+ ${label}: ${plan.note}${variantNote} – szkic #${created.id}`)
       } else if (plan.action === 'film') {
         // Opublikowana karta: tylko dopisanie filmu do mediów, status zostaje „opublikowana” (bez nowej wersji roboczej).
         const current = (doc?.media ?? []).map((entry) => ({
