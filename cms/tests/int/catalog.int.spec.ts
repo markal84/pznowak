@@ -3,6 +3,7 @@ import {
   GOLD_COLORS,
   GOLD_FILTERS,
   CATALOG_PAGE_SIZE,
+  catalogCanonicalPath,
   catalogHref,
   filterRings,
   addedDay,
@@ -238,5 +239,18 @@ describe('sortowanie katalogu', () => {
     expect(VISIBLE_CATALOG_SORTS.map(({ id }) => id)).toEqual(['najnowsze', 'cena-rosnaco', 'cena-malejaco'])
     expect(CATALOG_SORTS.some(({ id }) => id === 'polecane')).toBe(true)
     expect(parseCatalogParams((k) => (k === 'sortuj' ? 'polecane' : null)).sort).toBe(DEFAULT_CATALOG_SORT)
+  })
+})
+
+describe('adres kanoniczny listy pierścionków', () => {
+  const base = { stone: 'all', gold: 'all', sort: parseCatalogParams(() => null).sort } as const
+  it('pierwsza strona i widoki z filtrami wskazują /pierscionki', () => {
+    expect(catalogCanonicalPath({ ...base, page: 1 }, 100)).toBe('/pierscionki')
+    expect(catalogCanonicalPath({ ...base, stone: 'niebieskie', page: 2 } as never, 100)).toBe('/pierscionki')
+  })
+  it('kolejna strona pełnej listy wskazuje samą siebie, numer spoza zakresu jest przycinany', () => {
+    expect(catalogCanonicalPath({ ...base, page: 2 }, 100)).toBe('/pierscionki?strona=2')
+    expect(catalogCanonicalPath({ ...base, page: 9 }, 100)).toBe('/pierscionki?strona=3')
+    expect(catalogCanonicalPath({ ...base, page: 2 }, 30)).toBe('/pierscionki')
   })
 })

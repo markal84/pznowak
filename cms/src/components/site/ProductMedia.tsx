@@ -135,7 +135,9 @@ export default function ProductMedia({ name, images, video, originalStone, child
             {/* Zdjęcia bywają pionowe, a ramka jest pozioma (3:2): zawsze cały kadr (contain), tło to ten sam obraz rozmyty.
                 Wcześniej `cover` ucinał pierścionek do samej góry oczka i szyny. */}
             <span className="ph ph-variant">
-              <Image alt="" aria-hidden="true" className="ph-variant-bg" fill sizes="(max-width: 960px) 100vw, 55vw" src={current.src} />
+              {/* Tło jest i tak mocno rozmyte, więc wystarczy maleńka wersja (ok. 128 px). Dzięki temu przeglądarka nie
+                  uznaje go za największy obraz na ekranie (LCP liczy rozmiar własny obrazu), tylko zdjęcie pierścionka. */}
+              <Image alt="" aria-hidden="true" className="ph-variant-bg" fill sizes="64px" src={current.src} />
               <Image
                 alt={current.variant ? current.variant.alt : `${name}: ${current.label.toLowerCase()}`}
                 fill

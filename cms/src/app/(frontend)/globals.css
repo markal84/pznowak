@@ -1048,6 +1048,8 @@ summary::-webkit-details-marker {
   align-items: flex-start;
 }
 .product-media {
+  /* W HTML galeria jest po kolumnie z nazwą (H1 przed H2), na ekranie zostaje po lewej. */
+  order: -1;
   flex: 1 1 600px;
   min-width: 0;
   display: flex;

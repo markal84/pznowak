@@ -30,10 +30,18 @@ export default function StudioPage() {
 
       <section aria-label="Historia rodziny" className="wrap" style={{ paddingBottom: 88 }}>
         <ol className="chrono" data-reveal="">
-          {FAMILY.map((f) => (
+          {FAMILY.map((f, index) => (
             <li className="chrono-item" key={f.name}>
               <span className="chrono-year">{f.year}</span>
-              <Photo alt={f.alt} position={f.pos} sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 25vw" src={f.img} />
+              {/* Szerokości z globals.css (.chrono): telefon jedna kolumna z wcięciem osi czasu, tablet dwie, komputer
+                  cztery w .wrap 1320 px. Pierwsze zdjęcie jest na pierwszym ekranie telefonu (LCP), więc bez lazy. */}
+              <Photo
+                alt={f.alt}
+                eager={index === 0}
+                position={f.pos}
+                sizes="(max-width: 720px) calc(100vw - 70px), (max-width: 1100px) calc(50vw - 56px), (max-width: 1320px) calc(25vw - 44px), 286px"
+                src={f.img}
+              />
               <div className="chrono-body">
                 <h2>{f.name}</h2>
                 <span className="chrono-role">{f.role}</span>

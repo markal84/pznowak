@@ -10,16 +10,23 @@ type PhotoProps = {
   aspect?: string
   position?: string
   priority?: boolean
+  /**
+   * Zdjęcie w pierwszym widoku, ale nie jedyny kandydat na LCP (np. pierwszy rząd katalogu): ładowane od razu
+   * i z wysokim priorytetem, bez `<link rel="preload">` w nagłówku, który przy kilku zdjęciach tylko by przeszkadzał.
+   */
+  eager?: boolean
   className?: string
 }
 
-export default function Photo({ src, alt, sizes, ratio = '45', aspect, position, priority = false, className }: PhotoProps) {
+export default function Photo({ src, alt, sizes, ratio = '45', aspect, position, priority = false, eager = false, className }: PhotoProps) {
   const classes = ['ph', ratio === 'none' ? '' : `ph-${ratio}`, className].filter(Boolean).join(' ')
   return (
     <span className={classes} style={aspect ? { aspectRatio: aspect } : undefined}>
       <Image
         alt={alt}
+        fetchPriority={eager ? 'high' : undefined}
         fill
+        loading={eager ? 'eager' : undefined}
         priority={priority}
         sizes={sizes}
         src={src}

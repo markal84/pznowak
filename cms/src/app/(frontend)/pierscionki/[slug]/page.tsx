@@ -6,10 +6,12 @@ import { getProducts } from '@/lib/collection'
 import { descriptionParagraphs, formatStone, goldColorLabel, similarTo, toCatalogRing } from '@/lib/catalog'
 import { productPath, productSeoDescription, productSeoTitle } from '@/lib/product-seo'
 import { pageMetadata } from '@/lib/seo'
+import { breadcrumbJsonLd } from '@/lib/structured-data'
 import { showPlaceholders } from '@/lib/placeholders'
 import { SHOW_GOLD_FINENESS, SITE } from '@/lib/site'
 import CatalogCrumb from '@/components/site/CatalogCrumb'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
+import JsonLd from '@/components/site/JsonLd'
 import ProductMedia from '@/components/site/ProductMedia'
 import RingCard from '@/components/site/RingCard'
 import {
@@ -30,7 +32,8 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params
   const product = (await getProducts()).find((p) => p.slug === slug)
-  if (!product) return { title: 'Nie znaleziono projektu', robots: { index: false, follow: false } }
+  // `noindex` dopisuje Next do odpowiedzi 404 (notFound() w stronie), więc tu bez drugiego znacznika robots.
+  if (!product) return { title: 'Nie znaleziono projektu' }
   // Pola z wtyczki SEO, a gdy puste: ten sam tekst, który generuje panel (src/lib/product-seo.ts). Tytuł nigdy nie jest pusty.
   const title = product.seoTitle || productSeoTitle(product)
   const description = product.seoDescription || productSeoDescription(product)
@@ -81,6 +84,12 @@ export default async function ProductPage({ params, searchParams }: Params & { s
 
   return (
     <StoneVariantProvider initialSlug={initialStone ?? null} variants={product.stoneVariants}>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: 'Pierścionki', path: '/pierscionki' },
+          { name: product.name, path: productPath(product.slug) },
+        ])}
+      />
       <nav aria-label="Ścieżka" className="wrap crumbs">
         <ol>
           <li>
@@ -92,10 +101,8 @@ export default async function ProductPage({ params, searchParams }: Params & { s
       </nav>
 
       <section className="wrap product">
-        <ProductMedia images={product.images} name={product.name} originalStone={stone} video={product.video}>
-          <StoneVariantPicker originalStone={stone} originalSwatch={originalSwatch(product.stone)} />
-        </ProductMedia>
-
+        {/* Kolumna z nazwą stoi w HTML przed galerią, żeby H1 był przed H2 „Zamów z innym kamieniem” (kolejność nagłówków
+            dla czytników i wyszukiwarek). Na ekranie galeria jest po lewej dzięki `order` w globals.css (.product-media). */}
         <div className="product-info">
           <div className="stack product-head" style={{ gap: 16 }}>
             {/* Na telefonie i tablecie nazwa z ceną stoi nad zdjęciem, żeby cena była na pierwszym ekranie (globals.css). */}
@@ -167,6 +174,10 @@ export default async function ProductPage({ params, searchParams }: Params & { s
             </ul>
           </div>
         </div>
+
+        <ProductMedia images={product.images} name={product.name} originalStone={stone} video={product.video}>
+          <StoneVariantPicker originalStone={stone} originalSwatch={originalSwatch(product.stone)} />
+        </ProductMedia>
       </section>
 
       <section className="dark">

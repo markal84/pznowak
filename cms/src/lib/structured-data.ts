@@ -24,17 +24,22 @@ export function openingHoursSpecification(hours: readonly { days: string; time: 
   })
 }
 
+/** Stały identyfikator pracowni w danych strukturalnych: ten sam węzeł na stronie głównej i na /kontakt. */
+export const jewelryStoreId = () => `${siteUrl()}/#pracownia`
+
 /**
- * Dane strukturalne JewelryStore (strona główna i /kontakt). Bez pól, których nie znamy (`geo`, `priceRange`),
- * bez ocen (`aggregateRating`: Google nie pokazuje gwiazdek dla opinii firmy o samej sobie).
+ * Dane strukturalne JewelryStore (strona główna i /kontakt). Bez pól, których nie znamy (`geo` czeka na współrzędne
+ * z wizytówki Google, `priceRange`), bez ocen (`aggregateRating`: Google nie pokazuje gwiazdek dla opinii firmy o samej sobie).
  */
 export function jewelryStoreJsonLd() {
   const [postalCode, ...locality] = SITE.city.split(' ')
   return {
     '@context': 'https://schema.org',
     '@type': 'JewelryStore',
+    '@id': jewelryStoreId(),
     name: BUSINESS_NAME,
     url: `${siteUrl()}/`,
+    logo: absoluteUrl('/logo.png'),
     telephone: SITE.phone,
     email: SITE.email,
     image: [absoluteUrl(DEFAULT_OG_IMAGE.url)],
@@ -48,6 +53,23 @@ export function jewelryStoreJsonLd() {
     },
     openingHoursSpecification: openingHoursSpecification(),
     sameAs: [SITE.facebook, SITE.instagram],
+  }
+}
+
+/**
+ * Okruszki (BreadcrumbList) dla ścieżki widocznej na stronie, np. „Pierścionki / Cyane”. Każdy element ma adres
+ * bezwzględny, także ostatni (bieżąca strona), co Google akceptuje i co ułatwia testy.
+ */
+export function breadcrumbJsonLd(items: readonly { name: string; path: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map(({ name, path }, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name,
+      item: absoluteUrl(path),
+    })),
   }
 }
 
