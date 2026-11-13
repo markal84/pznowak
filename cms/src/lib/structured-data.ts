@@ -1,11 +1,11 @@
 import { DEFAULT_OG_IMAGE, absoluteUrl, siteUrl } from './seo'
-import { SITE } from './site'
+import { SITE, WORKSHOP_COORDINATES } from './site'
 
 /**
- * Nazwa firmy w danych strukturalnych. Do potwierdzenia przez pracownię (decyzja D1 w planie reklamy): ma być
- * identyczna z szyldem i wizytówką Google. Na razie nazwa z profilu na Facebooku.
+ * Nazwa firmy w danych strukturalnych, dokładnie jak w wizytówce Google (potwierdzone przez Marcina 13.11.2026,
+ * decyzja D1). Musi być identyczna ze szyldem i wizytówką, żeby Google połączył stronę z profilem firmy.
  */
-export const BUSINESS_NAME = 'Michał Nowak Pracownia Złotnicza'
+export const BUSINESS_NAME = 'Pracownia Złotnicza Michał Nowak'
 
 const DAYS: Record<string, string[]> = {
   'Pon.–pt.': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
@@ -28,8 +28,8 @@ export function openingHoursSpecification(hours: readonly { days: string; time: 
 export const jewelryStoreId = () => `${siteUrl()}/#pracownia`
 
 /**
- * Dane strukturalne JewelryStore (strona główna i /kontakt). Bez pól, których nie znamy (`geo` czeka na współrzędne
- * z wizytówki Google, `priceRange`), bez ocen (`aggregateRating`: Google nie pokazuje gwiazdek dla opinii firmy o samej sobie).
+ * Dane strukturalne JewelryStore (strona główna i /kontakt). Bez pól, których nie znamy
+ * (`priceRange`), bez ocen (`aggregateRating`: Google nie pokazuje gwiazdek dla opinii firmy o samej sobie).
  */
 export function jewelryStoreJsonLd() {
   const [postalCode, ...locality] = SITE.city.split(' ')
@@ -51,6 +51,7 @@ export function jewelryStoreJsonLd() {
       addressRegion: 'świętokrzyskie',
       addressCountry: 'PL',
     },
+    geo: { '@type': 'GeoCoordinates', ...WORKSHOP_COORDINATES },
     openingHoursSpecification: openingHoursSpecification(),
     sameAs: [SITE.facebook, SITE.instagram],
   }

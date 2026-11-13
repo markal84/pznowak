@@ -1,3 +1,6 @@
+/** Kilińskiego 12, Busko-Zdrój (Nominatim, budynek OSM way/967042970): mapa na /kontakt i `geo` w danych strukturalnych. */
+export const WORKSHOP_COORDINATES = { latitude: 50.4700884, longitude: 20.7164823 } as const
+
 export const SITE = {
   name: 'Michał Nowak',
   tagline: 'Pracownia złotnicza',
