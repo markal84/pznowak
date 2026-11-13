@@ -4,14 +4,12 @@ import type { ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
-import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Faq, { type FaqItem } from '@/components/site/Faq'
 import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import { toCatalogRing } from '@/lib/catalog'
-import { showPlaceholders } from '@/lib/placeholders'
 import { formatPrice, lowestPrice } from '@/lib/price'
 import { FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
@@ -22,32 +20,26 @@ export const metadata: Metadata = pageMetadata({
   path: '/na-zamowienie',
 })
 
-/** Tekst do potwierdzenia przez Michała: na podglądzie w żółtej ramce, na produkcji zwykły tekst. */
-const toConfirm = (text: string) => <DoUzupelnienia fallback={text}>{text}</DoUzupelnienia>
-
-const HERO_LEAD = 'Zaczynamy od rozmowy o osobie, która będzie go nosić. Potem dobieramy fason i kamień, rysujemy szkic i wyceniamy. Pracę przy stole zaczynamy dopiero wtedy, gdy projekt i cena są dla Ciebie jasne.'
+/** Treść potwierdzona przez Kamę 13.11.2026: klient może przyjść z własnym pomysłem, ostatecznie złotnik ocenia, co da się wykonać. */
+const HERO_LEAD =
+  'Zaczynamy od rozmowy o osobie, która będzie go nosić. Wybieramy model i kamień spośród fasonów dostępnych w pracowni albo tworzymy nowy projekt według Twojego pomysłu, szkicu lub zdjęcia. O ostatecznej wersji decydujemy razem, a złotnik mówi wprost, co da się wykonać. Pracę przy stole zaczynamy dopiero wtedy, gdy projekt i cena są dla Ciebie jasne.'
 
 const STEPS = [
-  { n: '1', title: 'Rozmowa', text: 'W pracowni albo przez telefon. Opowiadasz o osobie, okazji i stylu. Mówisz, jaki masz budżet i na kiedy potrzebujesz pierścionka.', result: 'Wspólny kierunek i wstępne widełki cenowe', ill: '1-rozmowa', toConfirm: false },
-  { n: '2', title: 'Projekt', text: 'Rysujemy szkic albo dobieramy gotowy wzór. Dobieramy kamień, kolor złota i proporcje. Poprawiamy, dopóki nie powiesz, że to jest to.', result: 'Szkic i wycenę do akceptacji', ill: '3-model-3d', toConfirm: true },
-  { n: '3', title: 'Wykonanie', text: 'Pierścionek powstaje w naszej pracowni. Kamienie oprawiamy ręcznie, potem szlifujemy i polerujemy każdą powierzchnię.', result: 'Gotowy pierścionek do przymiarki', ill: '5-oprawa', toConfirm: false },
-  { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz, a my poprawiamy drobiazgi. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek i opiekę pracowni na kolejne lata', ill: '6-odbior', toConfirm: false },
+  { n: '1', title: 'Rozmowa', text: 'W pracowni albo przez telefon. Opowiadasz o osobie, okazji i stylu. Mówisz, jaki masz budżet i na kiedy potrzebujesz pierścionka.', result: 'Wspólny kierunek i wstępne widełki cenowe', ill: '1-rozmowa' },
+  { n: '2', title: 'Projekt', text: 'Rysujemy szkic albo dobieramy gotowy wzór. Dobieramy kamień, kolor złota i proporcje. Poprawiamy, dopóki nie powiesz, że to jest to.', result: 'Szkic i wycenę do akceptacji', ill: '3-model-3d' },
+  { n: '3', title: 'Wykonanie', text: 'Pierścionek powstaje w naszej pracowni. Kamienie oprawiamy ręcznie, potem szlifujemy i polerujemy każdą powierzchnię.', result: 'Gotowy pierścionek do przymiarki', ill: '5-oprawa' },
+  { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz, a my poprawiamy drobiazgi. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek i opiekę pracowni na kolejne lata', ill: '6-odbior' },
 ]
 
-/** Pytanie „Czy rozmowa o projekcie coś kosztuje?” nie ma jeszcze odpowiedzi od pracowni: na produkcji go nie ma. */
 const faq = (): FaqItem[] => [
   {
     q: 'Czy mogę zobaczyć pierścionek przed wykonaniem?',
-    a: toConfirm('Tak. Pokazujemy szkic albo zdjęcia podobnego wzoru. Zmieniamy go, dopóki proporcje nie będą takie, jak chcesz.'),
+    a: 'Tak. Pokazujemy szkic albo zdjęcia podobnego wzoru. Zmieniamy go, dopóki proporcje nie będą takie, jak chcesz.',
   },
-  ...(showPlaceholders()
-    ? [
-        {
-          q: 'Czy rozmowa o projekcie coś kosztuje?',
-          a: <DoUzupelnienia>[Do uzupełnienia przez pracownię: czy pierwsza rozmowa i projekt są bezpłatne, czy wymagana jest zaliczka.]</DoUzupelnienia>,
-        },
-      ]
-    : []),
+  {
+    q: 'Czy mogę przyjść z własnym pomysłem?',
+    a: 'Tak. Przynieś szkic, zdjęcie albo opis tego, co Ci się podoba. Złotnik oceni, co da się wykonać w złocie i z wybranym kamieniem, a jeśli jakiś element nie byłby trwały, zaproponuje bezpieczniejsze rozwiązanie.',
+  },
   {
     q: 'Czy da się pracować zdalnie?',
     a: (
@@ -70,7 +62,7 @@ export default async function OnOrderPage() {
         <div className="hero-copy" style={{ flex: '1 1 460px', gap: 28 }}>
           <h1 className="h1">Pierścionek na zamówienie</h1>
           <p className="lead" style={{ maxWidth: '32em' }}>
-            {toConfirm(HERO_LEAD)}
+            {HERO_LEAD}
           </p>
           <PriceOffer
             label="Pierścionek na zamówienie"
@@ -128,10 +120,10 @@ export default async function OnOrderPage() {
                 <span className="timeline-num">{s.n}</span>
                 <h3 className="h3-serif">{s.title}</h3>
               </div>
-              <p style={{ fontSize: 16, lineHeight: 1.62, color: 'var(--graphite-2)' }}>{s.toConfirm ? toConfirm(s.text) : s.text}</p>
+              <p style={{ fontSize: 16, lineHeight: 1.62, color: 'var(--graphite-2)' }}>{s.text}</p>
               <div className="stack" style={{ gap: 6 }}>
                 <span style={{ fontSize: 13.5, color: 'var(--muted)' }}>Po tym etapie masz</span>
-                <span style={{ fontSize: 16, lineHeight: 1.5, fontWeight: 500 }}>{s.toConfirm ? toConfirm(s.result) : s.result}</span>
+                <span style={{ fontSize: 16, lineHeight: 1.5, fontWeight: 500 }}>{s.result}</span>
               </div>
               <Image alt="" height={165} src={`/grafiki/etapy/${s.ill}.svg`} style={{ width: '100%', maxWidth: 220, height: 'auto', justifySelf: 'end' }} width={220} />
             </li>
