@@ -10,6 +10,7 @@ import {
 } from '../ring-geometry'
 import {
   BUDGETS,
+  HEARD_FROM,
   CONTACT_PREFERENCES,
   CONTACT_TOPICS,
   MEETING_MODES,
@@ -23,6 +24,7 @@ import {
   type BudgetId,
   type ContactPreferenceId,
   type ContactTopicId,
+  type HeardFromId,
   type MeetingModeId,
   type RingSizeKnownId,
 } from './options'
@@ -67,6 +69,16 @@ export type ContactDetails = {
   engraving: string
   ringSizeKnown: RingSizeKnownId | ''
   ringSize: string
+  /** Starsze zgłoszenia (sprzed pola „Skąd o nas wiesz?”) nie mają tych kluczy w `details`. */
+  heardFrom?: HeardFromId | ''
+  heardFromOther?: string
+}
+
+/** „Skąd o nas wiesz?” jednym tekstem: etykieta, a przy „Inne” także wpis klienta. */
+export function heardFromText(d: Pick<ContactDetails, 'heardFrom' | 'heardFromOther'>): string {
+  if (!d.heardFrom) return ''
+  const label = labelOf(HEARD_FROM, d.heardFrom)
+  return d.heardFrom === 'inne' && d.heardFromOther ? `${label}: ${d.heardFromOther}` : label
 }
 
 /** Budżet do podsumowania: etykieta przedziału albo kwota podana przez klienta. */
@@ -107,6 +119,7 @@ export function describeContact(d: ContactDetails): [string, string][] {
   return rows.concat(
     optional.filter(([, value]) => value),
     ring,
+    heardFromText(d) ? [['Skąd o nas wie', heardFromText(d)]] : [],
   )
 }
 

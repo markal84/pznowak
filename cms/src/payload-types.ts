@@ -409,6 +409,12 @@ export interface Submission {
    */
   ringSize?: string | null;
   /**
+   * Puste = klient nie odpowiedział.
+   */
+  heardFrom?:
+    ('google' | 'mapy-google' | 'facebook' | 'instagram' | 'olx' | 'polecenie' | 'klient' | 'witryna' | 'inne') | null;
+  heardFromOther?: string | null;
+  /**
    * Sprawdzone przez serwer wartości z kreatora lub formularza.
    */
   details?:
@@ -736,6 +742,8 @@ export interface SubmissionsSelect<T extends boolean = true> {
   engraving?: T;
   ringSizeKnown?: T;
   ringSize?: T;
+  heardFrom?: T;
+  heardFromOther?: T;
   details?: T;
   consentText?: T;
   consentAt?: T;
