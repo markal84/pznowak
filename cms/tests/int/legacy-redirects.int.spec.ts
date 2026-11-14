@@ -170,7 +170,7 @@ describe('przekierowania ze starej strony', () => {
     expect(legacyRedirectRules()).toContainEqual({ source: '/katalog/cassiopeia/', destination: '/pierscionki/delos', permanent: true })
   })
 
-  it('www.<domena> → https://<domena> z SITE_URL, jako pierwsza reguła w next.config.ts', () => {
+  it('www.<domena> → https://<domena> z SITE_URL, jako pierwsza reguła w next.config.mjs', () => {
     expect(wwwRedirectRules('https://pznowak.pl')).toEqual([
       {
         source: '/:path*',
@@ -184,7 +184,7 @@ describe('przekierowania ze starej strony', () => {
     expect(wwwRedirectRules('https://www.example.test')).toEqual([])
     expect(wwwRedirectRules('http://localhost:3000')).toEqual([])
     expect(wwwRedirectRules('http://127.0.0.1:3000')).toEqual([])
-    expect(read('../../next.config.ts')).toMatch(/return \[\s*(\/\/[^\n]*\s*)?\.\.\.wwwRedirectRules\(\),\s*\.\.\.legacyRedirectRules\(\)/)
+    expect(read('../../next.config.mjs')).toMatch(/return \[\s*(\/\/[^\n]*\s*)?\.\.\.wwwRedirectRules\(\),\s*\.\.\.legacyRedirectRules\(\)/)
   })
 
   it('nie ma masowych przekierowań na stronę główną', () => {
@@ -202,8 +202,8 @@ describe('przekierowania ze starej strony', () => {
     expect(rules.every((rule) => rule.permanent)).toBe(true)
   })
 
-  it('next.config.ts wyłącza wbudowany skośnik i dopisuje ogólną regułę na końcu', () => {
-    const config = read('../../next.config.ts')
+  it('next.config.mjs wyłącza wbudowany skośnik i dopisuje ogólną regułę na końcu', () => {
+    const config = read('../../next.config.mjs')
     expect(config).toMatch(/skipTrailingSlashRedirect:\s*true/)
     expect(config).toMatch(/\.\.\.legacyRedirectRules\(\),\s*\{ source: '\/:path\+\/', destination: '\/:path\+', permanent: true \}/)
   })

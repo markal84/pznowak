@@ -1,6 +1,6 @@
 /**
  * Adresy starej strony pznowak.pl (eksport statyczny z lutego 2026 + zaplecze WordPress na home.pl) i ich nowe
- * odpowiedniki. Źródło prawdy dla `next.config.ts` (przekierowania trwałe, 308), testów i tabeli
+ * odpowiedniki. Źródło prawdy dla `next.config.mjs` (przekierowania trwałe, 308), testów i tabeli
  * `docs/seo/przekierowania.md`. Zasady (Zlecenie D):
  *  - jedno przekierowanie prosto na adres docelowy, także dla wersji ze skośnikiem na końcu (stara strona
  *    miała skośniki: `/katalog/aria/`), bez łańcuchów A → B → C;
@@ -8,7 +8,7 @@
  *  - adresy bez odpowiednika nie są tu wpisywane: zwracają 404 (lista w dokumentacji).
  */
 
-import { siteUrl } from './seo'
+import { siteUrl } from './seo.ts'
 
 export type LegacyRedirect = {
   /** Stary adres bez skośnika na końcu, np. `/katalog/aria`. */
@@ -121,7 +121,7 @@ export const currentRingSlug = (legacySlug: string): string => RENAMED_RING_SLUG
  * Karty połączone w jeden fason (zlecenie AB: Pyrrha i Nyx → Urania; lista PZ Nowak: Eirene i Leto → Harmonia, Thalassa → Aion, Taygete → Iris). Ich
  * własne karty są w archiwum. Adres takiej karty idzie od razu na fason z wybranym kamieniem (`?kamien=` = adres
  * wariantu, patrz `stoneSlug` w `stone-variants.ts` i test); bez `kamien` karta nie ma własnego wariantu (ten sam
- * pierścionek i kamień co fason). Wpisane tu na stałe: ten plik czyta `next.config.ts`, a on nie ma dostępu do bazy.
+ * pierścionek i kamień co fason). Wpisane tu na stałe: ten plik czyta `next.config.mjs`, a on nie ma dostępu do bazy.
  */
 export const MERGED_RING_VARIANTS: Readonly<Record<string, { slug: string; kamien?: string }>> = {
   pyrrha: { slug: 'urania', kamien: 'rubin-i-diamenty' },
