@@ -36,7 +36,19 @@ const faq = (): FaqItem[] => [
       </>
     ),
   },
-  { q: 'Jak dobrać rozmiar, jeśli to niespodzianka?', a: 'Przynieś pierścionek, który ta osoba nosi na tym samym palcu, albo odrysuj jego wnętrze na kartce. Rozmiar można też poprawić po zaręczynach.' },
+  {
+    q: 'Jak dobrać rozmiar, jeśli to niespodzianka?',
+    a: 'Weź pierścionek, który ta osoba nosi na tym samym palcu, i pokaż go nam w pracowni albo jubilerowi w swojej okolicy. Możesz też odrysować jego wnętrze na kartce. Rozmiar można też poprawić po zaręczynach.',
+  },
+  {
+    q: 'Czy mogę zamówić, jeśli mieszkam daleko od Buska?',
+    a: (
+      <>
+        Tak. Rozmawiamy przez telefon, rozmiar mierzy jubiler w Twojej okolicy, a gotowy pierścionek odbierasz w pracowni
+        albo wysyłamy go kurierem. Więcej na stronie <Link href="/na-zamowienie">Pierścionek na zamówienie</Link>.
+      </>
+    ),
+  },
   { q: 'Czy mogę użyć własnego kamienia lub złota?', a: 'Tak. Obejrzymy kamień i biżuterię w pracowni i powiemy, co da się z nich zrobić.' },
   { q: 'Na kiedy będzie gotowy?', a: 'Termin ustalamy razem z projektem. Jeśli pierścionek ma być gotowy na konkretną datę, napisz ją w pierwszej wiadomości.' },
 ]

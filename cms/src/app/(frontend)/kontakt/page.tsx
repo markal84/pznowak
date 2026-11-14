@@ -37,7 +37,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Sear
       <section className="wrap stack" style={{ paddingTop: 64, paddingBottom: 40, gap: 22 }}>
         <h1 className="h1">Umów wizytę</h1>
         <p className="lead" style={{ maxWidth: '36em' }}>
-          Napisz kilka zdań, a oddzwonimy i ustalimy, jak się spotkać: w pracowni albo zdalnie. Wolisz od razu porozmawiać? Zadzwoń
+          Napisz kilka zdań, a oddzwonimy i ustalimy, jak się spotkać: w pracowni albo przez telefon. Wolisz od razu porozmawiać? Zadzwoń
           pod <a href={SITE.phoneHref} style={{ fontWeight: 500 }}>{SITE.phone}</a>.
         </p>
       </section>

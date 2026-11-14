@@ -158,6 +158,14 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/na-zamowienie']).toContain('<span class="sub">Pierścionek na zamówienie</span><span class="nm">od\u00a02949\u00a0zł</span>')
     expect(p['/na-zamowienie']).toContain('Ustalony z klientem')
     expect(p['/na-zamowienie']).not.toContain('Skąd pochodzą kamienie?')
+    // Zamówienie spoza Buska (14.11): ścieżka na produkcji; pytania czekające na Michała tylko na podglądzie.
+    expect(p['/na-zamowienie']).toContain('Mieszkam daleko od Buska. Jak zamówić?')
+    expect(p['/na-zamowienie']).toContain('Wysokość ewentualnej zaliczki i sposób płatności ustalamy razem z wyceną')
+    expect(p['/na-zamowienie']).not.toContain('Czy przesyłka jest ubezpieczona?')
+    expect(p['/na-zamowienie']).not.toContain('Czy mogę zwrócić pierścionek?')
+    expect(p['/na-zamowienie']).not.toContain('Czy do pierścionka dostanę certyfikat?')
+    expect(p['/']).toContain('Czy mogę zamówić, jeśli mieszkam daleko od Buska?')
+    expect(p['/']).not.toContain('Przynieś pierścionek')
     expect(p['/pierscionki/harmonia']).toContain('Ustalamy przy zamówieniu')
     // Opinie z Google: wpisane ręcznie w reviews.ts (listopad 2026), więc sekcja jest na produkcji.
     // Teksty realizacji „do potwierdzenia” na produkcji wyglądają zwyczajnie: bez ramki i bez znacznika czasu.
@@ -178,7 +186,7 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/']).not.toContain('model 3D')
     expect(p['/realizacje']).not.toContain('Przed i po naprawie')
     // Zaufanie w hero: tylko to, co potwierdzone.
-    expect(p['/']).toContain('Zamówienia wysyłamy do klientów')
+    expect(p['/']).toContain('Gotową biżuterię wysyłamy kurierem w całej Polsce')
     expect(p['/']).not.toContain('przez wideo')
   })
 })
@@ -210,6 +218,10 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/na-zamowienie']).toContain('od\u00a02949\u00a0zł')
     expect(p['/na-zamowienie']).not.toContain('[kwota od klienta]')
     expect(p['/na-zamowienie']).not.toContain('Skąd pochodzą kamienie?')
+    expect(p['/na-zamowienie']).toContain('[ZALICZKA')
+    expect(p['/na-zamowienie']).toContain('[UBEZPIECZENIE')
+    expect(p['/na-zamowienie']).toContain('[ROZMIAR PO ODBIORZE')
+    expect(p['/na-zamowienie']).toContain('[CERTYFIKAT')
     expect(p['/naprawy']).toContain('do uzgodnienia')
     // Realizacje bez żółtej ramki i bez „[czas do uzupełnienia]” także na podglądzie (12.11).
     expect(p['/realizacje']).not.toContain('[czas do uzupełnienia]')
