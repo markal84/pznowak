@@ -341,7 +341,7 @@ test.describe('Formularz kontaktowy: rozmowa, kontakt i budżet (zlecenie X)', (
     })
   }
 
-  test('„mieszkam dalej”: inne „Co dalej”, podpowiedź o jubilerze w okolicy, bez obietnic wysyłki i miarek', async ({
+  test('„mieszkam dalej”: inne „Co dalej”, podpowiedź o jubilerze w okolicy, kurier tylko dla gotowej biżuterii, bez miarek', async ({
     page,
   }) => {
     const bodies = await fakeAccept(page)
@@ -356,7 +356,8 @@ test.describe('Formularz kontaktowy: rozmowa, kontakt i budżet (zlecenie X)', (
     await expect(steps).not.toContainText('W pracowni oglądasz')
     await expect(page.getByText('Rozmiar zmierzy bez problemu każdy jubiler w Twojej okolicy', { exact: false })).toBeVisible()
     await expect(page.getByText(/Zmierzymy palec w pracowni/)).toHaveCount(0)
-    await expect(page.locator('main')).not.toContainText(/wysyłamy (gotow|pierście)|\bmiark|do przymiarki/i)
+    await expect(steps).toContainText('Gotową biżuterię odbierasz w pracowni albo wysyłamy ją kurierem.')
+    await expect(page.locator('main')).not.toContainText(/\bmiark|do przymiarki|wideo/i)
 
     // naprawa: pytania o rozmowę nie ma, „Co dalej” wraca do pracowni
     await page.locator('label.topic', { hasText: 'Naprawa lub przeróbka' }).click()

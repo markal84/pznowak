@@ -51,7 +51,10 @@ export function useContactPlan(initialTopic: ContactTopicId): ContactPlan {
 export const effectiveMeeting = (topic: ContactTopicId, meeting: MeetingModeId): MeetingModeId =>
   MEETING_TOPICS.includes(topic) ? meeting : DEFAULT_MEETING
 
-/** Kroki „Co dalej”. Przy rozmowie zdalnej: zdjęcia i filmy; bez wysyłki miarek i obrączek do przymiarki (ustalone 01.11). */
+/**
+ * Kroki „Co dalej”. Przy rozmowie zdalnej: zdjęcia i filmy; bez wysyłki miarek i obrączek do przymiarki (ustalone 01.11),
+ * gotowa biżuteria: odbiór w pracowni albo kurier (Marcin 14.11).
+ */
 export const NEXT_STEPS: Record<MeetingModeId, readonly string[]> = {
   pracownia: [
     'Oddzwaniamy i ustalamy termin rozmowy.',
@@ -62,6 +65,7 @@ export const NEXT_STEPS: Record<MeetingModeId, readonly string[]> = {
     'Oddzwaniamy i ustalamy termin rozmowy.',
     'Pokazujemy kamienie i projekty na zdjęciach i filmach.',
     'Wycenę dostajesz, zanim cokolwiek zamówisz.',
+    'Gotową biżuterię odbierasz w pracowni albo wysyłamy ją kurierem.',
   ],
 }
 
