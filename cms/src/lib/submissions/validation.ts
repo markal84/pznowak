@@ -6,6 +6,7 @@ import {
   CONTACT_TOPICS,
   CUT_IDS,
   GEM_IDS,
+  HEARD_FROM,
   LIMITS,
   MEETING_MODES,
   MEETING_TOPICS,
@@ -20,6 +21,7 @@ import {
   type BudgetId,
   type ContactPreferenceId,
   type ContactTopicId,
+  type HeardFromId,
   type MeetingModeId,
   type OccasionId,
   type RingSizeKnownId,
@@ -69,6 +71,10 @@ export type ContactSubmission = {
   ringSizeKnown: RingSizeKnownId | ''
   /** Polska skala (RING_SIZES); pusty, gdy klient nie zna rozmiaru. */
   ringSize: string
+  /** „Skąd o nas wiesz?”: dobrowolne, pusty = brak odpowiedzi. */
+  heardFrom: HeardFromId | ''
+  /** Doprecyzowanie przy „Inne”; przy innych odpowiedziach pusty. */
+  heardFromOther: string
   message: string
   name: string
   phone: string
@@ -404,6 +410,23 @@ export function validateContact(input: unknown): Validation<ContactSubmission> {
   )
   if (!contactPreference) errors.contactPreference = MESSAGES.choice
 
+  // „Skąd o nas wiesz?”: dobrowolne. Nieznana wartość to błąd (formularz wysyła tylko pozycje z listy).
+  let heardFrom: HeardFromId | '' = ''
+  let heardFromOther = ''
+  if (data.heardFrom !== undefined && data.heardFrom !== null && data.heardFrom !== '') {
+    const value = choice(
+      data.heardFrom,
+      HEARD_FROM.map((h) => h.id),
+    )
+    if (value) heardFrom = value
+    else errors.heardFrom = MESSAGES.choice
+    if (value === 'inne') {
+      const other = text(data.heardFromOther, { max: LIMITS.heardFromOther })
+      if ('error' in other) errors.heardFromOther = other.error
+      else heardFromOther = other.value
+    }
+  }
+
   const message = text(data.message, { max: LIMITS.message, multiline: true, links: true })
   let messageValue = ''
   if ('error' in message) errors.message = message.error
@@ -437,6 +460,8 @@ export function validateContact(input: unknown): Validation<ContactSubmission> {
       engraving,
       ringSizeKnown,
       ringSize,
+      heardFrom,
+      heardFromOther,
       message: messageValue,
       name: person.name,
       phone: person.phone,

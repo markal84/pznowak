@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { EVENTS, track } from '@/lib/analytics'
 import { ATTACHMENTS_ENABLED, PREVIEW_NOTICE, RESPONSE_TIME, SITE, SUBMISSIONS_ENABLED, TURNSTILE_SITE_KEY } from '@/lib/site'
 import {
   BUDGETS,
   BUDGET_AMOUNT,
   CONTACT_PREFERENCES,
   CONTACT_TOPICS as TOPICS,
+  HEARD_FROM,
   LIMITS,
   MEETING_MODES,
   MEETING_TOPICS,
@@ -17,6 +19,7 @@ import {
   type BudgetId,
   type ContactPreferenceId,
   type ContactTopicId as TopicId,
+  type HeardFromId,
   type RingSizeKnownId,
 } from '@/lib/submissions/options'
 import { validateContact } from '@/lib/submissions/validation'
@@ -58,6 +61,7 @@ export default function ContactForm({
   const [sizeKnown, setSizeKnown] = useState<RingSizeKnownId>('unknown')
   const [budget, setBudget] = useState<BudgetId>(BUDGETS[0].id)
   const [contactBy, setContactBy] = useState<ContactPreferenceId>(CONTACT_PREFERENCES[0].id)
+  const [heardFrom, setHeardFrom] = useState<HeardFromId | ''>('')
   const honeypot = useRef<HTMLInputElement>(null)
   const { sending, sent, notice, setNotice, fieldErrors, setFieldErrors, showErrors, submit, reset, attachmentsRef, attachmentsResult, turnstileProps } =
     useSubmission('kontakt', SUBMISSIONS_ENABLED)
@@ -104,6 +108,8 @@ export default function ContactForm({
       engraving: text(form, 'grawer'),
       ringSizeKnown: sizeKnown,
       ringSize: text(form, 'rozmiar'),
+      heardFrom,
+      heardFromOther: heardFrom === 'inne' ? text(form, 'skad_inne') : '',
       message: text(form, 'wiadomosc'),
       name: text(form, 'imie'),
       phone: text(form, 'telefon'),
@@ -116,7 +122,8 @@ export default function ContactForm({
       setNotice({ text: 'Sprawdź zaznaczone pola.', tone: 'error', contact: false })
       return
     }
-    await submit(data, honeypot.current?.value ?? '')
+    if (await submit(data, honeypot.current?.value ?? ''))
+      track(EVENTS.form, { temat: topic, zrodlo: heardFrom || 'brak' })
   }
 
   const clearError = (key: string) => {
@@ -303,6 +310,27 @@ export default function ContactForm({
           </fieldset>
         </div>
       ) : null}
+
+      {/* Pomiar źródeł klientów (docs/analityka/README.md): dobrowolne, zapisuje się w zgłoszeniu w Payload. */}
+      <div className="form-grid">
+        <div className="field">
+          <label htmlFor="k-skad">Skąd o nas wiesz? <span className="opt-note">(opcjonalnie)</span></label>
+          <select className="fld" data-field="heardFrom" id="k-skad" name="skad" onChange={(e) => setHeardFrom(e.target.value as HeardFromId | '')} value={heardFrom} {...err('heardFrom', 'k-skad-err')}>
+            <option value="">Wybierz</option>
+            {HEARD_FROM.map((h) => (
+              <option key={h.id} value={h.id}>{h.label}</option>
+            ))}
+          </select>
+          <FieldError id="k-skad-err" message={fieldErrors.heardFrom} />
+        </div>
+        {heardFrom === 'inne' ? (
+          <div className="field">
+            <label htmlFor="k-skad-inne">Gdzie? <span className="opt-note">(opcjonalnie)</span></label>
+            <input className="fld" data-field="heardFromOther" id="k-skad-inne" maxLength={LIMITS.heardFromOther} name="skad_inne" placeholder="np. targi ślubne, artykuł w gazecie" type="text" {...err('heardFromOther', 'k-skad-inne-err')} />
+            <FieldError id="k-skad-inne-err" message={fieldErrors.heardFromOther} />
+          </div>
+        ) : null}
+      </div>
 
       <fieldset className="field">
         <legend className="lbl">Jak się z Tobą skontaktować?</legend>

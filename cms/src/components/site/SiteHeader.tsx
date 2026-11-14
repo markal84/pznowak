@@ -19,7 +19,7 @@ export default function SiteHeader() {
 
   // has-creator: przy dwóch przyciskach w 1140–1319 px nie mieści się podpis przy logo (globals.css).
   return (
-    <header className={RING_CREATOR_ENABLED ? 'site-header has-creator' : 'site-header'}>
+    <header className={RING_CREATOR_ENABLED ? 'site-header has-creator' : 'site-header'} data-miejsce="nagłówek">
       <div className="site-header-in">
         <Link
           // Etykieta zaczyna się od widocznego podpisu przy logo (WCAG 2.5.3, „Label in Name”).

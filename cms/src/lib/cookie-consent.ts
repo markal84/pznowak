@@ -5,7 +5,8 @@ import { COOKIE_BANNER_ENABLED } from '@/lib/site'
  * Wybór zapisuje się w jednym własnym cookie `pn_consent`. Kategoria „niezbędne” nie wymaga zgody i nie jest tu
  * zapisywana. Kategorie opcjonalne są domyślnie wyłączone:
  *   - `maps`      interaktywna mapa Google na stronie „Kontakt” (Google stawia własne cookies),
- *   - `analytics` statystyki odwiedzin (dziś żadnych nie ma),
+ *   - `analytics` statystyki odwiedzin zapisujące cookies (dziś żadnych nie ma; Umami działa bez cookies i bez zgody,
+ *                 src/lib/analytics.ts),
  *   - `marketing` piksele reklamowe, np. Meta (dziś żadnych nie ma).
  *
  * Skrypt lub osadzenie z kategorii opcjonalnej wolno załadować wyłącznie po zgodzie: w React przez

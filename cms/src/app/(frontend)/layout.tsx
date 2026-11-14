@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Analytics from '@/components/site/Analytics'
 import CookieBanner from '@/components/site/CookieBanner'
 import HydrationFlag from '@/components/site/HydrationFlag'
 import RevealOnScroll from '@/components/site/RevealOnScroll'
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {COOKIE_BANNER_ENABLED && <CookieBanner />}
         <HydrationFlag />
         <RevealOnScroll />
+        <Analytics />
       </body>
     </html>
   )
