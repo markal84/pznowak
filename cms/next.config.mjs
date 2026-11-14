@@ -1,20 +1,26 @@
 import { withPayload } from '@payloadcms/next/withPayload'
-import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { isIndexable } from './src/lib/indexing'
-import { legacyRedirectRules, wwwRedirectRules } from './src/lib/legacy-redirects'
+// Zwykły JS (nie .ts): na MyDevil (FreeBSD) Next kompiluje przez WebAssembly i nie wczytuje next.config.ts.
+// Importy plików .ts muszą mieć rozszerzenie: Node (22.18+/24) sam usuwa z nich typy.
+import { isIndexable } from './src/lib/indexing.ts'
+import { legacyRedirectRules, wwwRedirectRules } from './src/lib/legacy-redirects.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
-const nextConfig: NextConfig = {
+// BUILD_CPUS (np. 2): mniej procesów roboczych przy budowaniu na serwerze współdzielonym. Puste = domyślnie.
+const buildCpus = Number.parseInt(process.env.BUILD_CPUS ?? '', 10)
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // Przełącznik zdjęć w formularzu kontaktowym (Zlecenie B): ta sama zmienna dla serwera i przeglądarki.
   env: {
     ATTACHMENTS_ENABLED: process.env.ATTACHMENTS_ENABLED ?? '',
   },
   experimental: {
     globalNotFound: true,
+    ...(buildCpus > 0 ? { cpus: buildCpus } : {}),
   },
   // Dekoder HEIC (libheif w WebAssembly) ładowany przez Node, nie pakowany przez webpack.
   serverExternalPackages: ['heic-decode', 'libheif-js'],

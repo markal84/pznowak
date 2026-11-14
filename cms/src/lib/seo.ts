@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { SITE } from './site'
+import { SITE } from './site.ts'
 
 /** Adres docelowy serwisu. Podglądy też wskazują na niego jako kanoniczny (mają noindex, więc niczego nie psują). */
 export const DEFAULT_SITE_URL = 'https://pznowak.pl'
