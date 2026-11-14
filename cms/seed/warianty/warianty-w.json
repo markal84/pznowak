@@ -71,5 +71,231 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "aglaia",
+    "name": "Aglaia",
+    "variants": [
+      {
+        "stone": "Szafir i diamenty",
+        "swatch": "niebieski",
+        "files": [
+          "aglaia-szafir.webp",
+          "aglaia-szafir-2.webp"
+        ],
+        "alt": "Pierścionek Aglaia z szafirem i dwoma diamentami po bokach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "aglaia-rubin.webp",
+          "aglaia-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Aglaia z rubinem i dwoma diamentami po bokach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "aglaia-bialy-diament.webp",
+          "aglaia-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Aglaia z białym diamentem i dwoma diamentami po bokach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "thetis",
+    "name": "Thetis",
+    "variants": [
+      {
+        "stone": "Szafir i diamenty",
+        "swatch": "niebieski",
+        "files": [
+          "thetis-szafir.webp"
+        ],
+        "alt": "Pierścionek Thetis z szafirem i dwoma diamentami po bokach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "thetis-rubin.webp",
+          "thetis-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Thetis z rubinem i dwoma diamentami po bokach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Ametyst i diamenty",
+        "swatch": "fioletowy",
+        "files": [
+          "thetis-ametyst.webp",
+          "thetis-ametyst-2.webp"
+        ],
+        "alt": "Pierścionek Thetis z ametystem i dwoma diamentami po bokach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "ariadne",
+    "name": "Ariadne",
+    "variants": [
+      {
+        "stone": "Szafir i diamenty",
+        "swatch": "niebieski",
+        "files": [
+          "ariadne-szafir.webp"
+        ],
+        "alt": "Pierścionek Ariadne z szafirem w owalnym szlifie, trzymany przez złotą dłoń, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "ariadne-rubin.webp",
+          "ariadne-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Ariadne z rubinem w owalnym szlifie, trzymany przez złotą dłoń, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "ariadne-bialy-diament.webp"
+        ],
+        "alt": "Pierścionek Ariadne z białym diamentem w owalnym szlifie, trzymany przez złotą dłoń, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "callisto",
+    "name": "Callisto",
+    "variants": [
+      {
+        "stone": "Szafir",
+        "swatch": "niebieski",
+        "files": [
+          "callisto-szafir.webp",
+          "callisto-szafir-2.webp"
+        ],
+        "alt": "Pierścionek Callisto z szafirem w szlifie szmaragdowym w czterech łapkach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd",
+        "swatch": "zielony",
+        "files": [
+          "callisto-szmaragd-stonowany.webp"
+        ],
+        "alt": "Pierścionek Callisto ze szmaragdem w szlifie szmaragdowym w czterech łapkach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin",
+        "swatch": "czerwony",
+        "files": [
+          "callisto-rubin.webp",
+          "callisto-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Callisto z rubinem w szlifie szmaragdowym w czterech łapkach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Ametyst",
+        "swatch": "fioletowy",
+        "files": [
+          "callisto-ametyst.webp"
+        ],
+        "alt": "Pierścionek Callisto z ametystem w szlifie szmaragdowym w czterech łapkach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "psyche",
+    "name": "Psyche",
+    "variants": [
+      {
+        "stone": "Szafir i diamenty",
+        "swatch": "niebieski",
+        "files": [
+          "psyche-szafir.webp",
+          "psyche-szafir-2.webp"
+        ],
+        "alt": "Pierścionek Psyche z szafirem w złotej dłoni z diamentową bransoletą, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "galatea",
+    "name": "Galatea",
+    "variants": [
+      {
+        "stone": "Szafir i diamenty",
+        "swatch": "niebieski",
+        "files": [
+          "galatea-szafir.webp",
+          "galatea-szafir-2.webp"
+        ],
+        "alt": "Pierścionek Galatea z szafirem w otoczce z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "galatea-rubin.webp",
+          "galatea-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Galatea z rubinem w otoczce z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Białe diamenty",
+        "swatch": "bialy",
+        "files": [
+          "galatea-bialy-diament.webp",
+          "galatea-bialy-diament-2.webp"
+        ],
+        "alt": "Pierścionek Galatea z białym diamentem w otoczce z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Ametyst i diamenty",
+        "swatch": "fioletowy",
+        "files": [
+          "galatea-ametyst.webp"
+        ],
+        "alt": "Pierścionek Galatea z ametystem w otoczce z diamentów, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
+  },
+  {
+    "slug": "doris",
+    "name": "Doris",
+    "variants": [
+      {
+        "stone": "Rubin i diamenty",
+        "swatch": "czerwony",
+        "files": [
+          "doris-rubin.webp",
+          "doris-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Doris z rubinem i dwoma diamentami po bokach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]
