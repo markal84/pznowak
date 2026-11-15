@@ -9,19 +9,21 @@
 //   node posty.mjs --sprawdz       sprawdź konfigurację, token, uprawnienia i ostatnie posty (nic nie zapisuje)
 //   node posty.mjs --test-maila    wyślij próbny mail na NOTIFY_TO
 //   node posty.mjs --wymien-token  wymień krótki token z Graph API Explorer na token strony i zapisz w konfiguracji
+//   node posty.mjs --ustaw KLUCZ   wpisz do konfiguracji wartość podaną na wejściu, np. ze schowka Maca:
+//                                  pbpaste | ssh login@serwer 'node24 …/posty.mjs --ustaw META_APP_SECRET'
 //   --config ŚCIEŻKA               inny plik konfiguracji (albo zmienna POSTY_CONFIG)
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import readline from 'node:readline'
-import { DEFAULT_CONFIG_PATH, loadConfig, runProblems } from './lib/config.mjs'
+import { DEFAULT_CONFIG_PATH, DEFAULTS, SECRET_KEYS, expandHome, loadConfig, runProblems } from './lib/config.mjs'
 import { classify, redact } from './lib/graph.mjs'
 import { excerpt, formatDateTime, sendMail } from './lib/mail.mjs'
 import { debugToken, makeClients, makeLogger, runOnce, tokenFindings } from './lib/run.mjs'
 import { discoverIgUserId, listSource } from './lib/sources.mjs'
 import { LockedError } from './lib/store.mjs'
-import { exchangeToken } from './lib/token.mjs'
+import { exchangeToken, writeConfigValue } from './lib/token.mjs'
 
-const USAGE = `Użycie: node posty.mjs [--config PLIK] [--teraz | --na-sucho | --od RRRR-MM-DD | --sprawdz | --test-maila | --wymien-token]`
+const USAGE = `Użycie: node posty.mjs [--config PLIK] [--teraz | --na-sucho | --od RRRR-MM-DD | --sprawdz | --test-maila | --wymien-token | --ustaw KLUCZ]`
 
 function parseArgs(argv) {
   const o = { config: process.env.POSTY_CONFIG || DEFAULT_CONFIG_PATH, mode: 'run' }
@@ -43,7 +45,10 @@ function parseArgs(argv) {
     } else if (a === '--sprawdz' || a === '--check') o.mode = 'check'
     else if (a === '--test-maila' || a === '--test-mail') o.mode = 'test-mail'
     else if (a === '--wymien-token' || a === '--exchange-token') o.mode = 'token'
-    else if (a === '--pomoc' || a === '--help' || a === '-h') o.mode = 'help'
+    else if (a === '--ustaw' || a === '--set') {
+      o.mode = 'set'
+      o.key = val()
+    } else if (a === '--pomoc' || a === '--help' || a === '-h') o.mode = 'help'
     else throw new Error(`nieznana opcja ${a}`)
   }
   return o
@@ -142,6 +147,7 @@ async function main() {
     console.log(USAGE)
     return 0
   }
+  if (opts.mode === 'set') return setValue(opts)
   const { cfg, problems, warnings } = loadConfig(opts.config)
   const log = makeLogger(cfg.timezone)
   for (const w of warnings) log(`uwaga: ${w}`)
@@ -195,6 +201,30 @@ async function main() {
     await crashMail(cfg, msg, log)
     return 1
   }
+}
+
+/** --ustaw KLUCZ: wartość ze standardowego wejścia (np. pbpaste | ssh …) albo wklejona w terminalu. */
+async function setValue(opts) {
+  const key = String(opts.key).trim().toUpperCase()
+  if (!(key in DEFAULTS)) {
+    console.error(`nieznany klucz ${key}; dozwolone: ${Object.keys(DEFAULTS).join(', ')}`)
+    return 2
+  }
+  const secret = SECRET_KEYS.includes(key)
+  const value = await readSecret(`Wklej wartość ${key} i naciśnij Enter${secret ? ' (nie będzie widoczna)' : ''}: `)
+  if (!value || /[\r\n]/.test(value)) {
+    console.error('pusta albo wielowierszowa wartość; nic nie zmieniam')
+    return 2
+  }
+  const file = path.resolve(expandHome(opts.config))
+  try {
+    await writeConfigValue(file, key, value)
+  } catch (e) {
+    console.error(e.code === 'ENOENT' ? `brak pliku ${file} (najpierw krok 4 instrukcji)` : `nie udało się zapisać: ${e.message}`)
+    return 1
+  }
+  console.log(`Ustawiono ${key} w ${file}: ${secret ? `${value.length} znaków (wartość ukryta)` : value}`)
+  return 0
 }
 
 /** Nieoczekiwany błąd (np. pełny dysk): mail najwyżej raz na ERROR_REPEAT_HOURS. */
