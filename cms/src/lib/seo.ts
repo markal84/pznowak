@@ -7,10 +7,10 @@ export const DEFAULT_SITE_URL = 'https://pznowak.pl'
 
 /** Domyślny obraz do udostępniania (Facebook, Messenger), 1200×630. */
 export const DEFAULT_OG_IMAGE = {
-  url: '/og-pracownia.jpg',
+  url: '/og-pierscionek.jpg',
   width: 1200,
   height: 630,
-  alt: 'Michał Nowak przy mikroskopie w pracowni złotniczej w Busku-Zdroju',
+  alt: 'Pierścionek Pelagia z szafirem i diamentami, ręcznie wykonany w pracowni złotniczej w Busku-Zdroju',
 } as const
 
 export const SITE_TITLE_SUFFIX = ` — ${SITE.name}`
