@@ -1,6 +1,6 @@
 // Testy na sztucznym Graph API (lokalny serwer HTTP): node --test scripts/posty-meta/test/
 import assert from 'node:assert/strict'
-import { mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import http from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
@@ -337,6 +337,71 @@ describe('uruchomienie', () => {
     const release = await acquireLock(cfg.dataDir)
     await assert.rejects(runOnce(cfg, { force: true }, deps()), LockedError)
     await release()
+  })
+})
+
+describe('sprzątanie starych postów', () => {
+  const DAY = 864e5
+  const folders = async () => (await readdir(path.join(cfg.dataDir, 'posty'))).sort()
+  const marker = async (d) => (await mkdir(cfg.dataDir, { recursive: true }), writeFile(path.join(cfg.dataDir, '.kopia-na-maca'), `${Math.floor(d.getTime() / 1000)}\n`))
+
+  test('bez kopii na Maca nic nie usuwa; po kopii usuwa posty starsze niż RETENTION_DAYS', async () => {
+    await runOnce(cfg, {}, deps())
+    now = new Date(NOW.getTime() + 40 * DAY)
+    await runOnce(cfg, {}, deps())
+    assert.equal((await folders()).length, 3)
+    assert.equal(mails.length, 1) // tylko mail o nowych postach z pierwszego uruchomienia
+
+    await marker(new Date(NOW.getTime() + 3600e3))
+    now = new Date(now.getTime() + 7 * 3600e3)
+    const dry = await runOnce(cfg, { dryRun: true }, deps())
+    assert.equal(dry.exitCode, 0)
+    assert.equal((await folders()).length, 3) // na sucho nic nie znika
+    const r = await runOnce(cfg, {}, deps())
+    assert.equal(r.exitCode, 0)
+    assert.deepEqual(await folders(), [])
+    const state = JSON.parse(await readFile(path.join(cfg.dataDir, 'stan.json'), 'utf8'))
+    assert.ok(state.items[`fb:${PAGE}_1001`].removedAt)
+    assert.deepEqual(state.media, {})
+    const index = JSON.parse(await readFile(path.join(cfg.dataDir, 'indeks.json'), 'utf8'))
+    assert.ok(index.posts.every((p) => p.folder === null && p.removed_at))
+    assert.equal(mails.length, 1)
+  })
+
+  test('post zapisany po ostatniej kopii zostaje do następnej kopii', async () => {
+    await marker(new Date(NOW.getTime() - 3600e3)) // kopia sprzed pierwszego pobrania
+    await runOnce(cfg, {}, deps())
+    now = new Date(NOW.getTime() + 40 * DAY)
+    await runOnce(cfg, {}, deps())
+    assert.equal((await folders()).length, 3)
+  })
+
+  test('RETENTION_NEEDS_BACKUP=0 usuwa bez kopii, RETENTION_DAYS=0 wyłącza sprzątanie', async () => {
+    await runOnce(cfg, {}, deps())
+    now = new Date(NOW.getTime() + 40 * DAY)
+    await runOnce({ ...cfg, retentionDays: 0 }, { force: true }, deps())
+    assert.equal((await folders()).length, 3)
+    await runOnce({ ...cfg, retentionNeedsBackup: false }, { force: true }, deps())
+    assert.deepEqual(await folders(), [])
+  })
+
+  test('kopia dawno nie zrobiona: jedno ostrzeżenie mailem na ERROR_REPEAT_HOURS, bez maila „znowu działa”', async () => {
+    await runOnce(cfg, {}, deps())
+    mails = []
+    now = new Date(NOW.getTime() + 60 * DAY)
+    const r = await runOnce(cfg, {}, deps())
+    assert.equal(r.exitCode, 0)
+    assert.equal(mails.length, 1)
+    assert.match(mails[0].subject, /kopia na Maca/)
+    assert.match(mails[0].text, /3 stare posty czekają na skopiowanie/)
+    now = new Date(now.getTime() + 6 * 3600e3)
+    await runOnce(cfg, {}, deps())
+    assert.equal(mails.length, 1)
+    await marker(now)
+    now = new Date(now.getTime() + 6 * 3600e3)
+    await runOnce(cfg, {}, deps())
+    assert.equal(mails.length, 1) // po kopii posty znikają po cichu
+    assert.deepEqual(await folders(), [])
   })
 })
 

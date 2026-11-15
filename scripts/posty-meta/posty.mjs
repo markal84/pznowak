@@ -20,6 +20,7 @@ import { classify, redact } from './lib/graph.mjs'
 import { excerpt, formatDateTime, plural, sendMail } from './lib/mail.mjs'
 import { debugToken, makeClients, makeLogger, runOnce, tokenFindings } from './lib/run.mjs'
 import { discoverIgUserId, listSource } from './lib/sources.mjs'
+import { readBackupTime } from './lib/retention.mjs'
 import { LockedError } from './lib/store.mjs'
 import { exchangeToken, writeConfigValue } from './lib/token.mjs'
 
@@ -81,6 +82,11 @@ async function check(cfg, log) {
   say(`  pobieranie: zdjęcia ${cfg.downloadPhotos ? 'tak' : 'nie'}, filmy ${cfg.downloadVideos ? 'tak' : 'nie'}, limit ${Math.round(cfg.maxFileBytes / 1048576)} MB`)
   say(`  token strony: ${cfg.pageToken ? `ustawiony (${cfg.pageToken.length} znaków)` : 'BRAK'}; sekret aplikacji: ${cfg.appSecret ? 'ustawiony' : 'brak'}`)
   say(`  mail: ${cfg.notifyTo.length ? `${cfg.mailMethod} → ${cfg.notifyTo.join(', ')}` : 'wyłączony (puste NOTIFY_TO)'}`)
+  if (cfg.retentionDays > 0) {
+    const backupAt = await readBackupTime(cfg.dataDir)
+    const last = backupAt ? formatDateTime(backupAt.toISOString(), cfg.timezone) : 'jeszcze nie było'
+    say(`  sprzątanie: posty starsze niż ${cfg.retentionDays} dni${cfg.retentionNeedsBackup ? `, tylko po kopii na Maca (ostatnia kopia: ${last})` : ''}`)
+  } else say('  sprzątanie: wyłączone (RETENTION_DAYS=0)')
   const problems = runProblems(cfg)
   for (const p of problems) {
     say(`  PROBLEM: ${p}`)

@@ -116,6 +116,9 @@ Pełna lista z opisami: `posty.env.example`. Najważniejsze:
 | `SMTP_ENV_FILE` | — | plik env strony, z którego brać `SMTP_*` (skrzynka pracowni) |
 | `ERROR_MAIL_AFTER` | 3 | przejściowe problemy (sieć, limit zapytań) zgłaszaj po tylu nieudanych uruchomieniach |
 | `ERROR_REPEAT_HOURS` | 24 | ten sam problem przypominaj najwyżej raz na tyle godzin |
+| `RETENTION_DAYS` | 30 | posty starsze niż tyle dni znikają z serwera (0 = nigdy) |
+| `RETENTION_NEEDS_BACKUP` | 1 | usuwaj tylko to, co jest już na Macu (sekcja „Kopia na Maca”) |
+| `BACKUP_WARN_DAYS` | 21 | mail, gdy stare posty czekają na kopię o tyle dni dłużej niż `RETENTION_DAYS` |
 
 Każdą zmienną można też jednorazowo nadpisać przy uruchomieniu, np. `DOWNLOAD_VIDEOS=0 node24 … --teraz`.
 
@@ -145,6 +148,34 @@ Kody wyjścia: 0 = w porządku, 1 = był problem (szczegóły w logu i mailu), 2
    linkami z API (najwyżej `MAX_RETRIES` razy, potem mail).
 5. Jeden mail na uruchomienie: lista nowych postów (data, początek treści, link, pliki, katalog) i ewentualne problemy.
    Po problemie, gdy wszystko wróci do normy, przychodzi krótki mail „Skrypt znowu działa”.
+
+## Kopia na Maca i sprzątanie serwera
+
+Skrypt `mac/kopia-na-maca.sh` działa na Macu: co `CO_ILE_DNI` dni (domyślnie 14) kopiuje cały katalog danych z serwera
+(`rsync`, tylko dokłada pliki, na Macu nic nie kasuje). macOS uruchamia go codziennie o `GODZINA` (domyślnie 12:00;
+gdy Mac śpi, po obudzeniu), a skrypt sam pilnuje terminu. Bez sieci albo z wyłączonym Makiem próbuje następnego dnia.
+Wynik pokazuje powiadomieniem macOS.
+
+Po udanej kopii zapisuje na serwerze `DATA_DIR/.kopia-na-maca` (czas rozpoczęcia kopii). Serwer przy zwykłym
+uruchomieniu usuwa katalogi postów starszych niż `RETENTION_DAYS` (data publikacji), ale tylko te zapisane przed tą
+kopią. W `stan.json` post zostaje oznaczony `removedAt`, więc nie jest pobierany drugi raz. Gdy kopii długo nie ma,
+serwer niczego nie usuwa i wysyła jeden mail (`BACKUP_WARN_DAYS`).
+
+Instalacja na Macu (raz; zapyta jeden raz o hasło do serwera, żeby dodać osobny klucz SSH tylko do kopii):
+
+```
+cd /Volumes/crucial/projects/pznowak-cms && git switch main && git pull --ff-only && bash scripts/posty-meta/mac/kopia-na-maca.sh --instaluj
+```
+
+Inny katalog na kopię: dopisz go na końcu, np. `--instaluj "$HOME/Posty pracowni"` (lepiej w katalogu domowym niż
+w Dokumentach, na Biurku albo na dysku zewnętrznym, bo tam macOS blokuje programy uruchamiane w tle).
+Ustawienia po instalacji: `~/.pznowak-posty-kopia/ustawienia.env`; log: `~/.pznowak-posty-kopia/kopia.log`.
+
+```
+bash ~/.pznowak-posty-kopia/kopia.sh --teraz        kopia od razu
+bash ~/.pznowak-posty-kopia/kopia.sh --status       ostatnia i następna kopia
+bash ~/.pznowak-posty-kopia/kopia.sh --odinstaluj   wyłączenie (skopiowane pliki zostają)
+```
 
 ## Instagram (później)
 
