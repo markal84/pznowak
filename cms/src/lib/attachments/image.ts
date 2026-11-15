@@ -104,6 +104,16 @@ async function sharpSource(
   return { input }
 }
 
+/**
+ * Kopia bufora we własnej, zwykłej pamięci. `sharp` w wersji WebAssembly (MyDevil, FreeBSD: `@img/sharp-wasm32`)
+ * oddaje wynik jako widok na współdzieloną pamięć WebAssembly (`SharedArrayBuffer`), a `fetch` (undici) odrzuca
+ * taki bufor jako treść żądania: „ArrayBuffer: SharedArrayBuffer is not allowed” przy zapisie w Vercel Blob.
+ * Natywny `sharp` (Vercel, macOS) oddaje zwykły bufor – wtedy bez kopiowania.
+ */
+export function ownBuffer(data: Buffer): Buffer {
+  return data.buffer instanceof SharedArrayBuffer ? Buffer.from(data) : data
+}
+
 function encode(input: Sharp, maxSide: number, quality: number) {
   return input
     .clone()
@@ -130,8 +140,8 @@ export async function processImage(bytes: Buffer): Promise<ProcessResult> {
     return {
       ok: true,
       detectedType,
-      full: full.data,
-      thumb: thumb.data,
+      full: ownBuffer(full.data),
+      thumb: ownBuffer(thumb.data),
       width: full.info.width,
       height: full.info.height,
     }
