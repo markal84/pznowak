@@ -11,6 +11,8 @@ import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import { toCatalogRing } from '@/lib/catalog'
 import { formatPrice, lowestPrice } from '@/lib/price'
+import { showPlaceholders } from '@/lib/placeholders'
+import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import { FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
@@ -26,29 +28,64 @@ const HERO_LEAD =
 
 const STEPS = [
   { n: '1', title: 'Rozmowa', text: 'W pracowni albo przez telefon. Opowiadasz o osobie, okazji i stylu. Mówisz, jaki masz budżet i na kiedy potrzebujesz pierścionka.', result: 'Wspólny kierunek i wstępne widełki cenowe', ill: '1-rozmowa' },
-  { n: '2', title: 'Projekt', text: 'Rysujemy szkic albo dobieramy gotowy wzór. Dobieramy kamień, kolor złota i proporcje. Poprawiamy, dopóki nie powiesz, że to jest to.', result: 'Szkic i wycenę do akceptacji', ill: '3-model-3d' },
+  { n: '2', title: 'Projekt', text: 'Rysujemy szkic albo dobieramy gotowy wzór. Dobieramy kamień, kolor złota i proporcje. Poprawiamy, dopóki nie powiesz, że to jest to. Rozmiar mierzymy w pracowni albo mierzy go jubiler w Twojej okolicy.', result: 'Szkic i wycenę do akceptacji', ill: '3-model-3d' },
   { n: '3', title: 'Wykonanie', text: 'Pierścionek powstaje w naszej pracowni. Kamienie oprawiamy ręcznie, potem szlifujemy i polerujemy każdą powierzchnię.', result: 'Gotowy pierścionek do przymiarki', ill: '5-oprawa' },
-  { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz, a my poprawiamy drobiazgi. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek i opiekę pracowni na kolejne lata', ill: '6-odbior' },
+  { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz w pracowni, a my poprawiamy drobiazgi. Jeśli mieszkasz daleko, wysyłamy pierścionek kurierem. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek z certyfikatem kamieni naturalnych i opiekę pracowni na kolejne lata', ill: '6-odbior' },
 ]
 
-const faq = (): FaqItem[] => [
-  {
-    q: 'Czy mogę zobaczyć pierścionek przed wykonaniem?',
-    a: 'Tak. Pokazujemy szkic albo zdjęcia podobnego wzoru. Zmieniamy go, dopóki proporcje nie będą takie, jak chcesz.',
-  },
-  {
-    q: 'Czy mogę przyjść z własnym pomysłem?',
-    a: 'Tak. Przynieś szkic, zdjęcie albo opis tego, co Ci się podoba. Złotnik oceni, co da się wykonać w złocie i z wybranym kamieniem, a jeśli jakiś element nie byłby trwały, zaproponuje bezpieczniejsze rozwiązanie.',
-  },
-  {
-    q: 'Czy da się pracować zdalnie?',
-    a: (
-      <>
-        Pierwszą rozmowę możemy przeprowadzić przez telefon. Na przymiarkę i odbiór zapraszamy do Buska-Zdroju. Gotową biżuterię wysyłamy kurierem.
-      </>
-    ),
-  },
-]
+/**
+ * Zamówienie spoza Buska, jedna ścieżka (Marcin 14.11.2026): telefon → rozmiar u jubilera w okolicy albo w pracowni →
+ * przymiarka i odbiór w Busku albo wysyłka gotowej biżuterii kurierem. Bez rozmów wideo (PR #81) i bez wysyłki miarek.
+ * Michał 14.11: zaliczka 30% (BLIK lub przelew), certyfikat dla każdego pierścionka z kamieniami naturalnymi, wysyłka
+ * zwykłym kurierem (bez specjalnej usługi dla biżuterii, więc nie piszemy o ubezpieczeniu). Zwroty czekają na decyzję:
+ * na podglądzie znacznik „[…]”, produkcja nie pokazuje pytania (`preview: true`).
+ */
+type OrderFaqItem = FaqItem & { preview?: boolean }
+
+const faq = (): FaqItem[] =>
+  (
+    [
+      {
+        q: 'Czy mogę zobaczyć pierścionek przed wykonaniem?',
+        a: 'Tak. Pokazujemy szkic albo zdjęcia podobnego wzoru. Zmieniamy go, dopóki proporcje nie będą takie, jak chcesz.',
+      },
+      {
+        q: 'Czy mogę przyjść z własnym pomysłem?',
+        a: 'Tak. Przynieś albo wyślij nam szkic, zdjęcie lub opis tego, co Ci się podoba. Złotnik oceni, co da się wykonać w złocie i z wybranym kamieniem, a jeśli jakiś element nie byłby trwały, zaproponuje bezpieczniejsze rozwiązanie.',
+      },
+      {
+        q: 'Mieszkam daleko od Buska. Jak zamówić?',
+        a: 'Zadzwoń albo napisz. Rozmawiamy przez telefon, a kamienie i projekty pokazujemy na zdjęciach i filmach. Rozmiar zmierzy każdy jubiler w Twojej okolicy, możesz też zmierzyć go u nas w pracowni. Gotowy pierścionek przymierzasz i odbierasz w Busku-Zdroju albo wysyłamy go kurierem.',
+      },
+      {
+        q: 'Jak wygląda zaliczka i płatność?',
+        a: 'Gdy zaakceptujesz projekt i wycenę, wpłacasz zaliczkę w wysokości 30% ceny, BLIK-iem albo przelewem. Wtedy zaczynamy pracę przy stole. Pozostałą kwotę rozliczamy przy odbiorze w pracowni albo przed wysyłką kurierem. Wszystkie kwoty znasz, zanim cokolwiek wpłacisz.',
+      },
+      {
+        q: 'Jak wysyłacie biżuterię?',
+        a: 'Kurierem, na adres, który podasz. Michał sam pakuje każdy pierścionek i pilnuje, żeby przesyłka dotarła do Ciebie szybko i bezpiecznie. Jeśli wolisz odebrać pierścionek osobiście, zapraszamy do pracowni w Busku-Zdroju: przymierzysz go na miejscu, a jeśli trzeba, poprawimy drobiazgi.',
+      },
+      {
+        q: 'Czy mogę zwrócić pierścionek?',
+        a: (
+          <>
+            Pierścionek wykonany na zamówienie, według projektu i rozmiaru ustalonego z Tobą, nie podlega zwrotowi bez podania
+            przyczyny. Wady wykonania możesz reklamować zgodnie z przepisami.{' '}
+            <DoUzupelnienia>
+              [ROZMIAR PO ODBIORZE: czy i na jakich warunkach poprawiamy rozmiar; czy pierścionek z kolekcji w standardowym rozmiarze można zwrócić]
+            </DoUzupelnienia>
+          </>
+        ),
+        preview: true,
+      },
+      {
+        q: 'Czy pierścionek ma certyfikat?',
+        a: 'Tak. Każdy pierścionek z kamieniami naturalnymi dostajesz z certyfikatem, który potwierdza, że kamień jest naturalny. Certyfikat dołączamy do pierścionka przy odbiorze w pracowni albo w przesyłce. Warto go zachować: przyda się przy ubezpieczeniu biżuterii, przy wymianie lub naprawie oprawy i wtedy, gdy pierścionek przejdzie kiedyś na kolejne pokolenie.',
+      },
+    ] as OrderFaqItem[]
+  )
+    .filter((item) => !item.preview || showPlaceholders())
+    .map(({ q, a }) => ({ q, a }))
 
 export default async function OnOrderPage() {
   const products = await getProducts()

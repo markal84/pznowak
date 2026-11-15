@@ -45,6 +45,14 @@ lub usunięciu treści. Nie jest potrzebny eksport danych ani kolejny build.
 - Production CMS nie jest aktywowany; sekretów produkcyjnych nie dodano;
 - runtime CMS jest przypięty do `fra1`, blisko Neon `aws-eu-central-1`.
 
+> ⚠️ **Stan od 14.11.2026 – gałąź Neon `staging` jest de facto produkcją.** Wszystkie aktualne treści
+> (pierścionki, zdjęcia, ceny) są dodawane w panelu podglądu Vercela, czyli w gałęzi `staging`. Produkcja na
+> MyDevil (`https://pznowak.pl`) korzysta z tej samej bazy, **bez** zmiennej `NEON_BRANCH` (nowe zdjęcia trafiają
+> do `cms/media`). Gałąź Neon `production` jest starsza. Dlatego na tej bazie **nie uruchamiać**:
+> `npm run staging:mirror -- --apply` (nadpisałby aktualne treści starą gałęzią `production`), `staging:seed`,
+> `staging:cleanup-tests -- --apply`, `test:int:staging`, e2e z `E2E_PANEL=staging` ani żadnych skryptów
+> `staging:*` z `--apply`. Opisy poniżej dotyczą stanu sprzed tej zmiany; zachowanie skryptów nie zostało zmienione.
+
 Staging ma ten sam schemat migracji co production. Pełny opublikowany katalog
 kopiuje idempotentny mirror; domyślnie wykonuje tylko kontrolę:
 
@@ -73,6 +81,56 @@ Dane historycznych importów znajdują się w `../data/legacy/`. Kopie w root
 `src/lib/collection.json` i `public/jewelry/` utrzymują działający stary frontend.
 `staging:seed` służy tylko inicjalizacji pustego stagingu; nie uruchamiać go
 na stagingu z pełnym katalogiem.
+
+## Magazyn mediów: Vercel Blob albo Cloudflare R2
+
+Zdjęcia i filmy katalogu (kolekcja `media`) są domyślnie w publicznym magazynie Vercel Blob. Zmienna
+`MEDIA_STORAGE` przełącza magazyn (`src/lib/media-storage.ts`):
+
+| `MEDIA_STORAGE` | Magazyn | Wymagane zmienne |
+|---|---|---|
+| puste / `vercel-blob` | Vercel Blob (jak dotąd) | `BLOB_READ_WRITE_TOKEN` |
+| `r2` | Cloudflare R2 (API S3) | `R2_ENDPOINT`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_PUBLIC_URL` |
+
+- Adres pliku jest wyliczany przy każdym odczycie z pól `prefix` i `filename`, a nie z kolumny `url` w bazie.
+  Dlatego przełączenie nie wymaga zmian w bazie, tylko zmiennej i ponownego zbudowania (`R2_PUBLIC_URL` trafia też
+  do listy hostów `next/image` w `next.config.mjs`).
+- **Przed przełączeniem na `r2`** wszystkie pliki z Vercel Blob muszą być skopiowane do bucketu pod tymi samymi
+  kluczami (`cms/media/...`, `cms/media-staging/...`), a bucket musi mieć publiczną domenę z `R2_PUBLIC_URL`.
+- Powrót: `MEDIA_STORAGE=vercel-blob` i ponowne zbudowanie. Pliki dodane w panelu trafiają tylko do aktualnie
+  wybranego magazynu, więc po powrocie trzeba je dograć do drugiego.
+- Wysyłanie plików w panelu: przy Vercel Blob prosto z przeglądarki; przy R2 domyślnie przez serwer aplikacji.
+  `R2_CLIENT_UPLOADS=1` włącza wysyłanie prosto do R2 (wymaga reguły CORS bucketu dla adresu strony; potrzebne
+  na Vercelu, gdzie żądanie do funkcji ma limit 4,5 MB).
+- `src/app/(payload)/admin/importMap.js` zawiera komponenty wysyłania obu magazynów; `payload generate:importmap`
+  zostawia tylko aktywny, więc drugi wpis trzeba przywrócić (pilnuje tego test `media-storage`).
+- Skrypty `staging-mirror`, `bootstrap-catalog-content`, `migrate-legacy-videos` oraz zdjęcia od klientów
+  (`src/lib/attachments/storage.ts`) nadal działają wyłącznie na Vercel Blob.
+
+## MyDevil (produkcja poza Vercelem)
+
+Produkcja `https://pznowak.pl` działa na MyDevil (FreeBSD, Node 24, Phusion Passenger); Vercel zostaje jako
+podgląd. Pliki: `scripts/mydevil/`.
+
+- `app.cjs`: start pod Passengerem. W `~/domains/<domena>/public_nodejs/app.js` jeden wiersz:
+  `require('/usr/home/<konto>/pznowak-cms-prod/cms/scripts/mydevil/app.cjs')`.
+- `build.sh`: `next build --webpack` przez systemowy Node (konto nie wykonuje plików z katalogu domowego, więc bez
+  `cross-env` i `node_modules/.bin`), `TMPDIR` w katalogu klonu, limit pamięci 3,5 GB, `BUILD_CPUS=2`.
+- `deploy.sh <domena> [gałąź]`: `git pull` (fast-forward) → `npm ci --ignore-scripts` → build → `devil www restart`.
+- `cron-sprzatanie.sh`: odpowiednik zadania z `vercel.json` (wpis do `crontab` w nagłówku pliku).
+
+Zasady:
+
+- FreeBSD nie ma natywnego kompilatora SWC: `@next/swc-wasm-nodejs` w `optionalDependencies` musi mieć **dokładnie
+  tę samą wersję co `next`** (zmienne `NEXT_TEST_WASM*` ustawiają skrypty). Po każdej aktualizacji `next` build na
+  MyDevil jest pierwszym testem.
+- Konfiguracja to `next.config.mjs` (zwykły JS). Pliki `.ts`, które importuje (`src/lib/indexing.ts`,
+  `legacy-redirects.ts`, `seo.ts`, `site.ts`), wczytuje sam Node z usuwaniem typów: importy między nimi muszą mieć
+  rozszerzenie `.ts` i nie mogą używać składni wymagającej kompilacji (`enum`, aliasy `@/`).
+- Zmienne w `cms/.env.production.local` (prawa 600, poza repozytorium): `SITE_ENV=production` i
+  `SITE_URL=https://pznowak.pl` już przy budowaniu, `CLIENT_IP_HEADER=cf-connecting-ip` (ruch przez Cloudflare),
+  `SMTP_*`, `CRON_SECRET`; **bez** `NEON_BRANCH` i bez zmiennych `VERCEL*`.
+- Na serwerze nie uruchamiać `payload migrate` ani seedów.
 
 ## SEO i indeksowanie
 

@@ -30,7 +30,7 @@ export const SITE = {
  * Dopisując fakt, ustaw `confirmed: true`.
  */
 export const HERO_TRUST: readonly { text: string; confirmed: boolean }[] = [
-  { text: 'Zamówienia wysyłamy do klientów w całej Polsce', confirmed: true },
+  { text: 'Gotową biżuterię wysyłamy kurierem w całej Polsce', confirmed: true },
   { text: 'Pierścionek na zamówienie gotowy zwykle w 4–6 tygodni', confirmed: true },
 ]
 
@@ -85,7 +85,7 @@ export const SUBMISSIONS_ENABLED = TURNSTILE_SITE_KEY !== ''
 
 /**
  * Zdjęcia w formularzu kontaktowym (Zlecenie B). Przełącznik `ATTACHMENTS_ENABLED` (`1`/`true`) jest wstawiany
- * przy budowaniu (`next.config.ts` → `env`); domyślnie wyłączony, wtedy formularz wygląda jak przed zmianą.
+ * przy budowaniu (`next.config.mjs` → `env`); domyślnie wyłączony, wtedy formularz wygląda jak przed zmianą.
  * Serwer czyta ten sam przełącznik w `src/lib/submissions/config.ts`.
  */
 export const ATTACHMENTS_ENABLED =
