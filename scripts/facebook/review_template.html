@@ -150,6 +150,7 @@ footer .orph{background:var(--card);border:1px solid var(--warn);border-radius:8
 #lb .cap .seg button[aria-pressed=true]{background:#fff;color:#000;font-weight:700;border-color:#fff}
 #lb .cap button[data-lbcover][aria-pressed=true]{background:#f9a825;color:#000;border-color:#f9a825}
 #lb .cap label{font-size:12px;color:#aaa;margin-left:10px}
+body.only-fresh #main [data-sec]:not([data-sec=fresh]){display:none}
 </style>
 </head>
 <body>
@@ -162,6 +163,7 @@ footer .orph{background:var(--card);border:1px solid var(--warn);border-radius:8
   <div class="counters" id="counters"></div>
   <div class="tools">
     <label><input type="checkbox" id="onlyOpen"> pokaż tylko nieprzejrzane</label>
+    <span id="onlyFreshL" hidden>· <label><input type="checkbox" id="onlyFresh"> pokaż tylko nowe posty (<span id="freshLbl"></span>)</label></span>
     · <button id="nextBtn">Następna nieprzejrzana (n)</button>
     · klik w zdjęcie = powiększenie; w podglądzie: ←/→ zdjęcia, 1/2/3 decyzja, 0 wyczyść, c okładka, Esc zamknij
   </div>
@@ -699,12 +701,12 @@ function renderAll() {
   let html = '';
   for (const [sec, title, type] of SECTIONS) {
     const gs = G.filter(g => g.sec === sec);
-    html += `<h2 id="s-${sec}">${esc(title)} <small>(${gs.length})</small></h2>`;
+    html += `<h2 id="s-${sec}" data-sec="${sec}">${esc(title)} <small>(${gs.length})</small></h2>`;
     if (type === 'existing') html += `<p class="bulk">Zdjęcia z postów pierścionków, które już są w katalogu: część może uzupełnić ich galerie.</p>`;
     html += gs.map((g, i) => itemHTML(g, i, type === 'card' ? (sec === 'maybe' ? 'D' : '') + (i + 1) : '')).join('');
   }
   $('#main').innerHTML = html;
-  for (const g of G) g.el = document.getElementById('i-' + g.gid);
+  for (const g of G) { g.el = document.getElementById('i-' + g.gid); if (g.el) g.el.dataset.sec = g.sec; }
   fillFields();
 }
 function fillFields() {
@@ -978,6 +980,22 @@ $('#exportBtn').addEventListener('click', async () => {
     if (!r.ok || !r.data || !r.data.ok) throw new Error((r.data && r.data.error) || 'HTTP ' + r.status);
     alert(r.data.summary);
   } catch (e) { alert('Eksport nie powiódł się: ' + e.message); }
+});
+
+// Tylko nowe posty: gdy jest sekcja „Nowe od DD.MM”, starsze (już rozstrzygnięte) sekcje można schować.
+const onlyFresh = $('#onlyFresh');
+const hasFresh = SECTIONS.some(([sec]) => sec === 'fresh');
+if (hasFresh) {
+  $('#onlyFreshL').hidden = false;
+  $('#freshLbl').textContent = SECTIONS.find(([sec]) => sec === 'fresh')[1];
+  let pref = null;
+  try { pref = localStorage.getItem('fbreview:onlyFresh'); } catch (e) { /* ok */ }
+  onlyFresh.checked = pref !== '0';
+  document.body.classList.toggle('only-fresh', onlyFresh.checked);
+}
+onlyFresh.addEventListener('change', () => {
+  document.body.classList.toggle('only-fresh', onlyFresh.checked);
+  try { localStorage.setItem('fbreview:onlyFresh', onlyFresh.checked ? '1' : '0'); } catch (e) { /* ok */ }
 });
 
 // ---------- start ----------
