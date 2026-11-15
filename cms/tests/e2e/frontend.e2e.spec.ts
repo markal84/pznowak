@@ -143,6 +143,10 @@ test.describe('Nowy design: strony i nawigacja', () => {
     ['/pracownia', 'Od kuźni w Szańcu do stołu złotniczego w Busku'],
     ['/realizacje', 'Realizacje'],
     ['/kontakt', 'Umów wizytę'],
+    ['/poradniki', 'Poradniki pracowni'],
+    ['/poradniki/jak-sprawdzic-rozmiar-pierscionka', 'Jak sprawdzić rozmiar pierścionka, także gdy to niespodzianka'],
+    ['/poradniki/kamienie-do-pierscionka-zareczynowego', 'Jaki kamień do pierścionka zaręczynowego? Szafir, rubin, szmaragd i inne'],
+    ['/poradniki/ile-kosztuje-pierscionek-na-zamowienie', 'Ile kosztuje pierścionek zaręczynowy na zamówienie'],
     ...(RING_CREATOR_ENABLED ? ([['/kreator', 'Zaprojektuj pierścionek']] as const) : []),
   ] as const) {
     test(`${path} ładuje się i mieści w szerokości ekranu`, async ({ page }) => {
@@ -276,13 +280,39 @@ test.describe('Katalog i karta pierścionka', () => {
     else await expect(empty).toHaveCount(0)
   })
 
+  test('kalkulator rozmiaru: średnica 16,5 mm to rozmiar 12, a obwód 52,5 mm wypada między 12 a 13', async ({ page }) => {
+    await visit(page, '/poradniki/jak-sprawdzic-rozmiar-pierscionka')
+    const tool = page.locator('.size-tool')
+    await tool.getByLabel('Średnica wewnętrzna pierścionka').fill('16,5')
+    await expect(tool.locator('.size-tool-main strong')).toHaveText('12')
+    await expect(tool).toContainText('51,8 mm')
+    await tool.getByRole('button', { name: 'Obwód palca' }).click()
+    await tool.getByLabel('Obwód palca').fill('52,5')
+    await expect(tool.locator('.size-tool-main strong')).toHaveText('12–13')
+    await tool.getByLabel('Obwód palca').fill('5')
+    await expect(tool).toContainText('poza tabelę rozmiarów')
+  })
+
+  test('karta pierścionka prowadzi do poradników, a poradnik z powrotem do katalogu', async ({ page }) => {
+    await visit(page, '/pierscionki')
+    await page.locator('.ring-grid-lg > li:not(.cta-card) a').first().click()
+    await expect(page).toHaveURL(/\/pierscionki\/[^/]+$/)
+    const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents()
+    expect(jsonLd.filter((text) => text.includes('"@type":"Product"'))).toHaveLength(1)
+    await page.getByRole('link', { name: 'Jak sprawdzić rozmiar' }).click()
+    await expect(page).toHaveURL(/\/poradniki\/jak-sprawdzic-rozmiar-pierscionka$/)
+    await expect(page.locator('.guide-body').getByRole('link', { name: 'naszej kolekcji pierścionków' })).toHaveAttribute('href', '/pierscionki')
+  })
+
   test('z katalogu przez kartę do formularza z nazwą projektu', async ({ page }) => {
     await visit(page, '/pierscionki')
     const first = page.locator('.ring-grid-lg > li:not(.cta-card) a').first()
     const name = (await first.locator('.nm').textContent())!.trim()
     await first.click()
     await expect(page).toHaveURL(/\/pierscionki\/[^/]+$/)
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(name)
+    // H1 to nadtytuł („Pierścionek z …”) i nazwa projektu.
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(name)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Pierścionek')
 
     await page.getByRole('link', { name: 'Zapytaj o ten pierścionek' }).click()
     await expect(page).toHaveURL(/\/kontakt\?temat=kolekcja&projekt=/)
@@ -562,6 +592,7 @@ test.describe('Ukryty kreator i konfigurator (zlecenie A)', () => {
       'Naprawy',
       'Realizacje',
       'Pracownia',
+      'Poradniki',
       'Umów wizytę',
     ])
   })
