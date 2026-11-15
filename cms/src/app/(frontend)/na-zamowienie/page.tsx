@@ -4,7 +4,10 @@ import type { ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
-import Faq, { type FaqItem } from '@/components/site/Faq'
+import Faq, { faqPlainItems, type FaqItem } from '@/components/site/Faq'
+import GuideCards from '@/components/site/GuideCards'
+import JsonLd from '@/components/site/JsonLd'
+import { faqJsonLd } from '@/lib/structured-data'
 import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
 import PriceOffer from '@/components/site/PriceOffer'
@@ -85,7 +88,7 @@ const faq = (): FaqItem[] =>
     ] as OrderFaqItem[]
   )
     .filter((item) => !item.preview || showPlaceholders())
-    .map(({ q, a }) => ({ q, a }))
+    .map(({ q, a, text }) => ({ q, a, text }))
 
 export default async function OnOrderPage() {
   const products = await getProducts()
@@ -93,8 +96,10 @@ export default async function OnOrderPage() {
   // Przywieszka „od …”: zawsze najniższa cena pierścionka z katalogu (ta sama co w nagłówku katalogu), liczona przy każdym wejściu.
   const lowest = lowestPrice(products.map(toCatalogRing))
   const michal = FAMILY[3]
+  const faqItems = faq()
   return (
     <>
+      <JsonLd data={faqJsonLd(faqPlainItems(faqItems))} />
       <section className="wrap hero" style={{ paddingBottom: 96, gap: '48px 80px' }}>
         <div className="hero-copy" style={{ flex: '1 1 460px', gap: 28 }}>
           <h1 className="h1">Pierścionek na zamówienie</h1>
@@ -211,7 +216,17 @@ export default async function OnOrderPage() {
       <section className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '48px 96px' }}>
         <h2 className="h2" style={{ flex: '1 1 320px' }}>Pytania o pracę na zamówienie</h2>
         <div style={{ flex: '2 1 560px', minWidth: 0 }}>
-          <Faq items={faq()} />
+          <Faq items={faqItems} />
+        </div>
+      </section>
+
+      <section className="band">
+        <div className="wrap sec-tight stack" style={{ gap: 36 }}>
+          <SectionIntro
+            intro="Trzy decyzje, które warto przemyśleć przed pierwszą rozmową."
+            title="Poradniki przed zamówieniem"
+          />
+          <GuideCards />
         </div>
       </section>
     </>

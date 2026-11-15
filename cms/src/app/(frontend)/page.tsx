@@ -6,10 +6,12 @@ import { toCatalogRing } from '@/lib/catalog'
 import { HERO_VITRINE, heroRing as pickHero, pickHomeRings } from '@/lib/home'
 import { showPlaceholders } from '@/lib/placeholders'
 import { pageMetadata } from '@/lib/seo'
+import { guidePath } from '@/lib/guides'
 import { CUSTOM_ORDER_LINK, FAMILY, HERO_TRUST, RING_CREATOR_ENABLED, SITE, openingHoursText } from '@/lib/site'
-import { jewelryStoreJsonLd } from '@/lib/structured-data'
+import { faqJsonLd, jewelryStoreJsonLd, websiteJsonLd } from '@/lib/structured-data'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
-import Faq, { type FaqItem } from '@/components/site/Faq'
+import Faq, { faqPlainItems, type FaqItem } from '@/components/site/Faq'
+import GuideCards from '@/components/site/GuideCards'
 import GoogleReviews from '@/components/site/GoogleReviews'
 import HeroVitrine, { type VitrineSlide } from '@/components/site/HeroVitrine'
 import Icon, { type IconName } from '@/components/site/Icon'
@@ -33,12 +35,22 @@ const faq = (): FaqItem[] => [
     a: (
       <>
         Cena zależy od kamieni i złota. Powiedz, jaki budżet planujesz, a dopasujemy do niego projekt. Wycenę dostajesz przed rozpoczęciem pracy.
+        Z czego składa się cena, opisujemy w poradniku{' '}
+        <Link href={guidePath('ile-kosztuje-pierscionek-na-zamowienie')}>ile kosztuje pierścionek na zamówienie</Link>.
       </>
     ),
+    text: 'Cena zależy od kamieni i złota. Powiedz, jaki budżet planujesz, a dopasujemy do niego projekt. Wycenę dostajesz przed rozpoczęciem pracy.',
   },
   {
     q: 'Jak dobrać rozmiar, jeśli to niespodzianka?',
-    a: 'Weź pierścionek, który ta osoba nosi na tym samym palcu, i pokaż go nam w pracowni albo jubilerowi w swojej okolicy. Możesz też odrysować jego wnętrze na kartce. Rozmiar można też poprawić po zaręczynach.',
+    a: (
+      <>
+        Weź pierścionek, który ta osoba nosi na tym samym palcu, i pokaż go nam w pracowni albo jubilerowi w swojej okolicy. Możesz też
+        odrysować jego wnętrze na kartce. Rozmiar można też poprawić po zaręczynach. Więcej sposobów i kalkulator znajdziesz w poradniku{' '}
+        <Link href={guidePath('jak-sprawdzic-rozmiar-pierscionka')}>jak sprawdzić rozmiar pierścionka</Link>.
+      </>
+    ),
+    text: 'Weź pierścionek, który ta osoba nosi na tym samym palcu, i pokaż go nam w pracowni albo jubilerowi w swojej okolicy. Możesz też odrysować jego wnętrze na kartce. Rozmiar można też poprawić po zaręczynach.',
   },
   {
     q: 'Czy mogę zamówić, jeśli mieszkam daleko od Buska?',
@@ -48,6 +60,7 @@ const faq = (): FaqItem[] => [
         albo wysyłamy go kurierem. Więcej na stronie <Link href="/na-zamowienie">Pierścionek na zamówienie</Link>.
       </>
     ),
+    text: 'Tak. Rozmawiamy przez telefon, rozmiar mierzy jubiler w Twojej okolicy, a gotowy pierścionek odbierasz w pracowni albo wysyłamy go kurierem.',
   },
   { q: 'Czy mogę użyć własnego kamienia lub złota?', a: 'Tak. Obejrzymy kamień i biżuterię w pracowni i powiemy, co da się z nich zrobić.' },
   { q: 'Na kiedy będzie gotowy?', a: 'Termin ustalamy razem z projektem. Jeśli pierścionek ma być gotowy na konkretną datę, napisz ją w pierwszej wiadomości.' },
@@ -82,6 +95,7 @@ export default async function HomePage() {
     products.filter((p) => !inVitrine.has(p.slug)),
     hero,
   ).map(toCatalogRing)
+  const faqItems = faq()
   const trust = HERO_TRUST.filter((t) => t.confirmed || showPlaceholders())
   // Ceny i dłuższe opisy są na podstronach; tu kafelek prowadzi dalej.
   const offers: { icon: IconName; title: string; text: string; href: string; link: string }[] = [
@@ -119,6 +133,8 @@ export default async function HomePage() {
   return (
     <>
       <JsonLd data={jewelryStoreJsonLd()} />
+      <JsonLd data={websiteJsonLd()} />
+      <JsonLd data={faqJsonLd(faqPlainItems(faqItems))} />
       {/* Hero: na komputerze tekst po lewej, zdjęcie na całą wysokość do prawej krawędzi ekranu; na telefonie zdjęcie nad tytułem. */}
       {/* Hero: na komputerze tekst po lewej, witryna pod lupą na całą wysokość do prawej krawędzi ekranu; na telefonie witryna nad tytułem. */}
       <section className={`hero-home${vitrine.length > 0 ? '' : ' hero-home-solo'}`}>
@@ -254,11 +270,24 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="wrap sec stack" style={{ gap: 40 }}>
+        <SectionIntro
+          action={
+            <Link className="tl" href="/poradniki">
+              Wszystkie poradniki
+            </Link>
+          }
+          intro="Rozmiar, kamień i cena: trzy rzeczy, o które pytacie najczęściej, opisane tak, żeby dało się zdecydować przed pierwszą rozmową."
+          title="Zanim wybierzesz pierścionek"
+        />
+        <GuideCards />
+      </section>
+
       <section className="ruled">
         <div className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '64px 96px' }}>
           <div className="stack" style={{ flex: '1 1 520px', minWidth: 0, gap: 32 }}>
             <h2 className="h2">Zanim przyjdziesz</h2>
-            <Faq items={faq()} />
+            <Faq items={faqItems} />
           </div>
           <aside className="hint-panel" style={{ flex: '1 1 340px', minWidth: 0, alignSelf: 'flex-start' }}>
             <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 34, lineHeight: 1.1 }}>Pracownia w Busku-Zdroju</h2>

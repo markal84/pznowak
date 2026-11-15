@@ -4330,3 +4330,621 @@ fieldset.plain legend {
   font-weight: 600;
 }
 
+
+/* ---------- drobne pomocnicze ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+/* Nadtytuł: krótki opis nad nagłówkiem (rodzaj strony, kamień pierścionka). */
+.eyebrow {
+  display: block;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--patina);
+}
+.dark .eyebrow {
+  color: var(--gold);
+}
+
+/* ---------- poradniki ---------- */
+.guide-cards {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+.guide-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 30px 30px 28px;
+  background: var(--paper);
+  color: var(--graphite);
+  text-decoration: none;
+  border-top: 2px solid var(--line-soft);
+  transition:
+    border-color 0.25s,
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.25s;
+}
+.guide-card:hover,
+.guide-card:focus-visible {
+  color: var(--graphite);
+  border-top-color: var(--focus);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px -18px rgba(34, 38, 42, 0.35);
+}
+.guide-card-topic {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--patina);
+}
+.guide-card-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 27px;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+}
+.guide-card-text {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--graphite-2);
+}
+.guide-card-more {
+  margin-top: auto;
+  padding-top: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--velvet);
+}
+.guide-card-more span {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.guide-card:hover .guide-card-more span {
+  transform: translateX(4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide-card,
+  .guide-card-more span {
+    transition: none;
+  }
+  .guide-card:hover,
+  .guide-card:focus-visible {
+    transform: none;
+  }
+}
+
+.guide {
+  padding-top: 36px;
+  padding-bottom: 104px;
+}
+.guide-head {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 920px;
+  padding-bottom: 44px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.guide-title {
+  font-size: clamp(38px, 4.6vw, 66px);
+  line-height: 1.03;
+  text-wrap: balance;
+}
+.guide-lead {
+  max-width: 40em;
+  font-size: 19px;
+}
+.guide-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.guide-cols {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) minmax(0, 720px);
+  gap: 48px 80px;
+  padding-top: 48px;
+  align-items: start;
+}
+.guide-toc {
+  position: sticky;
+  top: 128px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.guide-toc-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+.guide-toc ol {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--line-soft);
+}
+.guide-toc a {
+  display: block;
+  padding: 7px 0 7px 16px;
+  margin-left: -1px;
+  border-left: 1px solid transparent;
+  color: var(--graphite-2);
+  text-decoration: none;
+}
+.guide-toc a:hover {
+  color: var(--velvet);
+  border-left-color: var(--focus);
+}
+.guide-body {
+  min-width: 0;
+  font-size: 17.5px;
+  line-height: 1.68;
+  color: var(--graphite-2);
+}
+.guide-body > * + *,
+.guide-stone > * + * {
+  margin-top: 18px;
+}
+.guide-body h2 {
+  margin-top: 64px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(28px, 2.6vw, 36px);
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  color: var(--graphite);
+  scroll-margin-top: 112px;
+}
+.guide-body > h2:first-child {
+  margin-top: 0;
+}
+.guide-body h3 {
+  margin-top: 32px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--graphite);
+}
+.guide-body strong {
+  color: var(--graphite);
+  font-weight: 600;
+}
+.guide-body a:not(.tl):not(.card) {
+  color: var(--velvet);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.guide-body a:not(.tl):not(.card):hover {
+  text-decoration-color: var(--focus);
+  text-decoration-thickness: 2px;
+}
+.guide-body ul:not(.ring-grid),
+.guide-body ol {
+  padding-left: 1.35em;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guide-body ul:not(.ring-grid) {
+  list-style: disc;
+}
+.guide-body li::marker {
+  color: var(--patina);
+  /* Cyfry tabelaryczne tego kroju rozsuwają kropkę po numerze. */
+  font-variant-numeric: normal;
+}
+.guide-stone {
+  margin-top: 64px;
+}
+.guide-stone h2 {
+  margin-top: 0;
+}
+.guide-stone-facts {
+  margin-top: 8px;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+.guide-note {
+  padding: 20px 24px;
+  background: var(--paper);
+  border-left: 2px solid var(--focus);
+  color: var(--graphite);
+}
+.guide-figure {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guide-figure svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  color: var(--line);
+  font-family: var(--sans);
+}
+.guide-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--paper);
+}
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15.5px;
+  line-height: 1.45;
+}
+.guide-table th,
+.guide-table td {
+  padding: 12px 18px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line-soft);
+}
+.guide-table thead th {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--muted);
+  border-bottom-color: var(--line);
+}
+.guide-table tbody th {
+  font-weight: 600;
+  color: var(--graphite);
+  white-space: nowrap;
+}
+.guide-table tbody tr:last-child th,
+.guide-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.guide-rings {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding-left: 0;
+}
+.guide-rings-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.guide-rings .tag .nm {
+  font-size: 17px;
+}
+.guide-faq {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.guide-faq > div {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.guide-faq dt {
+  font-weight: 600;
+  color: var(--graphite);
+}
+.guide-faq dd {
+  margin-top: 6px;
+}
+.guide-cta {
+  padding-top: 72px;
+  padding-bottom: 72px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 64px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Kalkulator rozmiaru pierścionka */
+.size-tool {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px 36px;
+  padding: 28px;
+  background: var(--paper);
+  border-top: 2px solid var(--velvet);
+}
+.size-tool-modes {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.size-tool .chip {
+  background: var(--silver);
+}
+.size-tool .chip[aria-pressed='true'] {
+  background: var(--velvet);
+}
+.size-tool-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.size-tool-field label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+.size-tool-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: var(--muted);
+}
+.size-tool-input input {
+  width: 100%;
+  max-width: 180px;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--graphite);
+  font-family: inherit;
+  font-size: 20px;
+}
+.size-tool-input input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-color: var(--graphite);
+}
+.size-tool-result {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 36px;
+  border-left: 1px solid var(--line-soft);
+  justify-content: center;
+}
+.size-tool-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.size-tool-main strong {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--velvet);
+}
+.size-tool-result dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.size-tool-result dt {
+  color: var(--muted);
+  font-size: 13px;
+}
+.size-tool-result dd {
+  color: var(--graphite);
+  font-weight: 500;
+}
+
+@media (max-width: 1000px) {
+  .guide-cols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+    padding-top: 36px;
+  }
+  .guide-toc {
+    position: static;
+    padding: 20px 22px;
+    background: var(--paper);
+  }
+}
+@media (max-width: 720px) {
+  .guide {
+    padding-top: 24px;
+    padding-bottom: 72px;
+  }
+  .guide-head {
+    gap: 18px;
+    padding-bottom: 32px;
+  }
+  .guide-lead {
+    font-size: 17.5px;
+  }
+  .guide-body {
+    font-size: 17px;
+  }
+  .guide-body h2,
+  .guide-stone {
+    margin-top: 48px;
+  }
+  .guide-stone h2 {
+    margin-top: 0;
+  }
+  .guide-table th,
+  .guide-table td {
+    padding: 10px 12px;
+  }
+  .guide-table {
+    font-size: 14.5px;
+  }
+  .guide-rings,
+  .guide-rings-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .size-tool {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 20px;
+  }
+  .size-tool-result {
+    padding-left: 0;
+    padding-top: 20px;
+    border-left: 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  .guide-card {
+    padding: 24px 22px;
+  }
+  .guide-card-title {
+    font-size: 24px;
+  }
+}
+
+/* ---------- karta pierścionka: nadtytuł, przyklejona galeria, pasek z przyciskami na telefonie ---------- */
+.h1-product .eyebrow {
+  margin-bottom: 14px;
+  letter-spacing: 0.08em;
+}
+.facts dd a {
+  color: var(--velvet);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+.product-changes .small a {
+  color: var(--velvet);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+/* Kolumna z opisem jest dłuższa od galerii: zdjęcia zostają w polu widzenia, gdy czytasz parametry i opis.
+   Tylko na wysokim ekranie, żeby galeria z miniaturami i wyborem kamienia mieściła się w oknie. */
+@media (min-width: 1152px) and (min-height: 860px) {
+  .product-media {
+    position: sticky;
+    top: 122px;
+  }
+}
+.product-sticky {
+  display: none;
+}
+@media (max-width: 1151px) {
+  .product-sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 8;
+    display: flex;
+    gap: 10px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: rgba(231, 232, 227, 0.94);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line-soft);
+    transform: translateY(110%);
+    visibility: hidden;
+    transition:
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      visibility 0s linear 0.3s;
+  }
+  .product-sticky[data-visible='true'] {
+    transform: none;
+    visibility: visible;
+    transition:
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      visibility 0s;
+  }
+  .product-sticky .btn {
+    min-height: 50px;
+    padding: 0 18px;
+  }
+  .product-sticky .btn:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .product-sticky-call {
+    flex: 0 0 auto;
+    gap: 8px;
+    background: var(--paper);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-sticky,
+  .product-sticky[data-visible='true'] {
+    transition: none;
+  }
+}
+@media print {
+  .product-sticky {
+    display: none;
+  }
+}
+
+/* ---------- pracownia: fakty dla mediów ---------- */
+.press {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 40px 80px;
+  align-items: start;
+}
+.press-facts {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.press-facts > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 190px) minmax(0, 1fr);
+  gap: 4px 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.press-facts dt {
+  font-size: 14px;
+  color: var(--muted);
+}
+.press-facts dd {
+  color: var(--graphite);
+}
+.press-facts a {
+  color: var(--velvet);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+@media (max-width: 900px) {
+  .press {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .press-facts > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Siedem pozycji menu: na najwęższym komputerowym układzie mniejsze odstępy, żeby menu nie spadało do drugiego rzędu. */
+@media (min-width: 1140px) and (max-width: 1199px) {
+  .main-nav {
+    gap: 6px 13px;
+  }
+  .site-header-in {
+    gap: 14px 18px;
+  }
+}

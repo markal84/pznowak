@@ -3,7 +3,9 @@ import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import BandConfigurator from '@/components/site/BandConfigurator'
 import BandTypes from '@/components/site/BandTypes'
-import Faq, { type FaqItem } from '@/components/site/Faq'
+import Faq, { faqPlainItems, type FaqItem } from '@/components/site/Faq'
+import JsonLd from '@/components/site/JsonLd'
+import { faqJsonLd } from '@/lib/structured-data'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import Photo from '@/components/site/Photo'
@@ -100,6 +102,7 @@ export default function BandsPage() {
         <div className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '48px 96px' }}>
           <h2 className="h2" style={{ flex: '1 1 320px' }}>Pytania o obrączki</h2>
           <div style={{ flex: '2 1 560px', minWidth: 0 }}>
+            <JsonLd data={faqJsonLd(faqPlainItems(faq()))} />
             <Faq items={faq()} />
             <div className="row gap-14-28" style={{ marginTop: 40 }}>
               <Link className="btn" href="/kontakt?temat=obraczki">

@@ -3,16 +3,19 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducts } from '@/lib/collection'
-import { descriptionParagraphs, formatStone, goldColorLabel, similarTo, toCatalogRing } from '@/lib/catalog'
-import { productPath, productSeoDescription, productSeoTitle } from '@/lib/product-seo'
+import { descriptionParagraphs, formatMetal, formatStone, goldColorLabel, similarTo, toCatalogRing } from '@/lib/catalog'
+import { productPath, productSeoDescription, productSeoTitle, productStonePhrase } from '@/lib/product-seo'
 import { pageMetadata } from '@/lib/seo'
-import { breadcrumbJsonLd } from '@/lib/structured-data'
+import { breadcrumbJsonLd, productJsonLd } from '@/lib/structured-data'
+import { guidePath } from '@/lib/guides'
+import { mainStoneGuideAnchor } from '@/lib/guide-links'
 import { showPlaceholders } from '@/lib/placeholders'
 import { SHOW_GOLD_FINENESS, SITE } from '@/lib/site'
 import CatalogCrumb from '@/components/site/CatalogCrumb'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import JsonLd from '@/components/site/JsonLd'
 import ProductMedia from '@/components/site/ProductMedia'
+import ProductStickyCta from '@/components/site/ProductStickyCta'
 import RingCard from '@/components/site/RingCard'
 import {
   ProductPrice,
@@ -59,6 +62,10 @@ export default async function ProductPage({ params, searchParams }: Params & { s
   const metal = goldColorLabel(product.metal)
   const description = descriptionParagraphs(product.description)
   const similar = similarTo(product, products, 4).map(toCatalogRing)
+  // Nadtytuł nad nazwą: „Pierścionek z ametystem” (ta sama odmiana co w tytule strony), a gdy kamienia nie da się odmienić, samo „Pierścionek”.
+  const stonePhrase = productStonePhrase(product.stone)
+  const eyebrow = stonePhrase ? `Pierścionek ${stonePhrase}` : 'Pierścionek'
+  const stoneGuide = mainStoneGuideAnchor(product.stone)
   // Pusty kamień albo metal: na produkcji wiersza nie ma, na podglądzie widać znacznik „do uzupełnienia”.
   const facts: [string, ReactNode][] = []
   if (stone) facts.push(['Kamień główny', <VariantStoneFact key="stone">{stone}</VariantStoneFact>])
@@ -90,6 +97,17 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           { name: product.name, path: productPath(product.slug) },
         ])}
       />
+      <JsonLd
+        data={productJsonLd({
+          name: product.name,
+          path: productPath(product.slug),
+          description: product.seoDescription || productSeoDescription(product),
+          images: product.images,
+          stone,
+          metal: formatMetal(product.metal),
+          price: product.price,
+        })}
+      />
       <nav aria-label="Ścieżka" className="wrap crumbs">
         <ol>
           <li>
@@ -107,7 +125,10 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           <div className="stack product-head" style={{ gap: 16 }}>
             {/* Na telefonie i tablecie nazwa z ceną stoi nad zdjęciem, żeby cena była na pierwszym ekranie (globals.css). */}
             <div className="product-title">
-              <h1 className="h1-product">{product.name}</h1>
+              {/* Nadtytuł jest częścią H1: nagłówek czyta się „Pierścionek z ametystem Aria”, a na ekranie zostaje duża nazwa. */}
+              <h1 className="h1-product">
+                <span className="eyebrow">{eyebrow}</span> {product.name}
+              </h1>
               <div className="product-price-compact">
                 <ProductPrice compact price={formatPrice(product.price)} />
               </div>
@@ -132,7 +153,10 @@ export default async function ProductPage({ params, searchParams }: Params & { s
                 </div>
               ))}
               <dt>Rozmiar</dt>
-              <dd>Wykonamy w Twoim rozmiarze</dd>
+              <dd>
+                Wykonamy w Twoim rozmiarze.{' '}
+                <Link href={guidePath('jak-sprawdzic-rozmiar-pierscionka')}>Jak sprawdzić rozmiar</Link>
+              </dd>
               <dt>Czas wykonania</dt>
               <dd>Ustalamy przy zamówieniu</dd>
             </dl>
@@ -172,10 +196,23 @@ export default async function ProductPage({ params, searchParams }: Params & { s
               <li>Grubość obrączki i wysokość osadzenia kamienia</li>
               <li>Grawer po wewnętrznej stronie</li>
             </ul>
+            <p className="small" style={{ fontSize: 14.5 }}>
+              Zastanawiasz się nad innym kamieniem? Zobacz{' '}
+              <Link href={`${guidePath('kamienie-do-pierscionka-zareczynowego')}${stoneGuide ? `#${stoneGuide}` : ''}`}>
+                porównanie kamieni do pierścionka
+              </Link>
+              . Mieszkasz daleko? Sprawdź, <Link href="/na-zamowienie">jak zamówić bez przyjazdu do Buska-Zdroju</Link>.
+            </p>
           </div>
         </div>
 
-        <ProductMedia images={product.images} name={product.name} originalStone={stone} video={product.video}>
+        <ProductMedia
+          altBase={`Pierścionek ${product.name}${stonePhrase ? ` ${stonePhrase}` : ''}`}
+          images={product.images}
+          name={product.name}
+          originalStone={stone}
+          video={product.video}
+        >
           <StoneVariantPicker originalStone={stone} originalSwatch={originalSwatch(product.stone)} />
         </ProductMedia>
       </section>
@@ -192,6 +229,8 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           </ol>
         </div>
       </section>
+
+      <ProductStickyCta phoneHref={SITE.phoneHref} projectName={product.name} />
 
       {similar.length > 0 ? (
         <section className="wrap stack" style={{ paddingTop: 96, paddingBottom: 112, gap: 36 }}>

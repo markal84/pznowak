@@ -55,6 +55,7 @@ export const NAV = [
   { id: 'naprawy', label: 'Naprawy', href: '/naprawy' },
   { id: 'realizacje', label: 'Realizacje', href: '/realizacje' },
   { id: 'pracownia', label: 'Pracownia', href: '/pracownia' },
+  { id: 'poradniki', label: 'Poradniki', href: '/poradniki' },
 ] as const
 
 /**

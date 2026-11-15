@@ -40,6 +40,7 @@ export function jewelryStoreJsonLd() {
     name: BUSINESS_NAME,
     url: `${siteUrl()}/`,
     logo: absoluteUrl('/logo.png'),
+    foundingDate: String(SITE.since),
     telephone: SITE.phone,
     email: SITE.email,
     image: [absoluteUrl(DEFAULT_OG_IMAGE.url)],
@@ -77,4 +78,128 @@ export function breadcrumbJsonLd(items: readonly { name: string; path: string }[
 /** Zapis do `<script type="application/ld+json">`; `<` jest zamieniane, żeby tekst z CMS nie zamknął znacznika. */
 export function serializeJsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/</g, '\\u003c')
+}
+
+/** Strona główna: nazwa serwisu dla wyników Google („site name”) powiązana z pracownią. */
+export function websiteJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${siteUrl()}/#serwis`,
+    url: `${siteUrl()}/`,
+    name: BUSINESS_NAME,
+    alternateName: ['PZ Nowak', 'pznowak.pl'],
+    inLanguage: 'pl-PL',
+    publisher: { '@id': jewelryStoreId() },
+  }
+}
+
+/**
+ * Pytania i odpowiedzi (FAQPage). Odpowiedź jako zwykły tekst: te same zdania, które widać na stronie. Pozycje bez
+ * tekstu są pomijane; pusta lista daje `null` (strona nie wstawia wtedy znacznika).
+ */
+export function faqJsonLd(items: readonly { q: string; text?: string }[]) {
+  const mainEntity = items
+    .filter((item): item is { q: string; text: string } => Boolean(item.text?.trim()))
+    .map(({ q, text }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: text.replace(/\s+/g, ' ').trim() },
+    }))
+  return mainEntity.length ? { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity } : null
+}
+
+type ProductJsonLdInput = {
+  name: string
+  /** Ścieżka karty, np. `/pierscionki/aria`. */
+  path: string
+  description: string
+  images: readonly string[]
+  /** Kamień i złoto w mianowniku, jak na karcie („Ametyst, diamenty”, „Żółte złoto”); puste są pomijane. */
+  stone?: string
+  metal?: string
+  /** Cena z panelu w zł; bez ceny karta nie dostaje oferty (Google wymaga ceny w `Offer`). */
+  price?: number | null
+}
+
+/**
+ * Dane strukturalne pierścionka (Product). Oferta tylko dla kart z ceną: cena z panelu to cena „od” za wersję ze
+ * zdjęć (na stronie „od … zł”); dostępność to wykonanie na zamówienie.
+ * Bez ocen i bez zmyślonych identyfikatorów (GTIN); marka i sprzedawca to pracownia z `jewelryStoreId()`.
+ */
+export function productJsonLd({ name, path, description, images, stone, metal, price }: ProductJsonLdInput) {
+  const url = absoluteUrl(path)
+  const offer =
+    typeof price === 'number' && price > 0
+      ? {
+          offers: {
+            '@type': 'Offer',
+            url,
+            price,
+            priceCurrency: 'PLN',
+            // Wykonanie po zamówieniu: z wartości, które rozumie Google, najbliższa jest „BackOrder” (przyjmujemy zamówienia).
+            availability: 'https://schema.org/BackOrder',
+            itemCondition: 'https://schema.org/NewCondition',
+            seller: { '@id': jewelryStoreId() },
+          },
+        }
+      : {}
+  const additionalProperty = stone ? [{ '@type': 'PropertyValue', name: 'Kamień', value: stone }] : []
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${url}#pierscionek`,
+    name: `Pierścionek ${name}`,
+    url,
+    description: description.replace(/\s+/g, ' ').trim(),
+    category: 'Pierścionki',
+    ...(images.length ? { image: images.slice(0, 6).map((src) => absoluteUrl(src)) } : {}),
+    ...(metal ? { material: metal } : {}),
+    ...(additionalProperty.length ? { additionalProperty } : {}),
+    brand: { '@type': 'Brand', name: BUSINESS_NAME },
+    ...offer,
+  }
+}
+
+type ArticleJsonLdInput = {
+  title: string
+  description: string
+  path: string
+  /** Daty `RRRR-MM-DD`. */
+  published: string
+  updated: string
+  image?: string
+}
+
+/** Poradnik (Article). Autorem i wydawcą jest pracownia: teksty powstają w pracowni, nie podpisujemy ich jedną osobą. */
+export function articleJsonLd({ title, description, path, published, updated, image }: ArticleJsonLdInput) {
+  const org = { '@type': 'Organization', '@id': jewelryStoreId(), name: BUSINESS_NAME, url: `${siteUrl()}/` }
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description,
+    inLanguage: 'pl-PL',
+    mainEntityOfPage: absoluteUrl(path),
+    datePublished: published,
+    dateModified: updated,
+    image: [absoluteUrl(image ?? DEFAULT_OG_IMAGE.url)],
+    author: org,
+    publisher: { ...org, logo: { '@type': 'ImageObject', url: absoluteUrl('/logo.png') } },
+  }
+}
+
+/** Lista kart (ItemList) na stronie katalogu: kolejność i adresy pierścionków z bieżącej strony listy. */
+export function itemListJsonLd(items: readonly { name: string; path: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    numberOfItems: items.length,
+    itemListElement: items.map(({ name, path }, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name,
+      url: absoluteUrl(path),
+    })),
+  }
 }

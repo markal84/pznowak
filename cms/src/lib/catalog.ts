@@ -305,3 +305,24 @@ export function similarTo(current: Jewel, products: readonly Jewel[], limit: num
   const rest = others.filter((p) => !same.includes(p))
   return [...same, ...rest].slice(0, limit)
 }
+
+/** Kamień główny z zapisu w karcie: pierwszy z listy („Szafir i diamenty” → „szafir”), małymi literami. */
+export function mainStoneOf(stone: string): string {
+  return (stone.split(/,|\s+i\s+|\s+oraz\s+|\+/i)[0] ?? '').trim().toLowerCase()
+}
+
+/** Pierścionki, których kamień główny pasuje do wzorca (poradnik o kamieniach); kolejność z katalogu. */
+export function ringsWithMainStone<T extends { stone: string }>(products: readonly T[], pattern: RegExp, limit: number): T[] {
+  return products.filter((p) => pattern.test(mainStoneOf(p.stone))).slice(0, limit)
+}
+
+/**
+ * Przykłady cen z katalogu: najtańszy, najdroższy i dwa ze środka, żeby pokazać rozpiętość, a nie same skrajności.
+ * Ceny pochodzą z panelu i liczą się przy każdym wejściu; bez cen w katalogu sekcja z przykładami się nie pokazuje.
+ */
+export function priceExamples<T extends { price: number | null }>(rings: readonly T[], limit: number = 4): T[] {
+  const priced = rings.filter((r) => r.price !== null).sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
+  if (priced.length <= limit) return priced
+  const picks = Array.from({ length: limit }, (_, i) => Math.round((i * (priced.length - 1)) / (limit - 1)))
+  return [...new Set(picks)].map((index) => priced[index])
+}

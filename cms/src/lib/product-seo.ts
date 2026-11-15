@@ -59,6 +59,12 @@ function withPreposition(phrase: string): string {
   return /^(?:sz|rz|[sśzźż](?!z))[^aeiouyąęó]/i.test(phrase) ? `ze ${phrase}` : `z ${phrase}`
 }
 
+/** „z ametystem”, „ze szmaragdem”; pusty tekst, gdy kamienia głównego nie da się bezpiecznie odmienić. */
+export function productStonePhrase(stone: string | null | undefined): string {
+  const instr = mainStoneInstrumental(stone)
+  return instr ? withPreposition(instr) : ''
+}
+
 /**
  * Tytuł strony pierścionka pod frazy, których szukają klienci: `Pierścionek <nazwa> z <kamień>, <złoto>`, np.
  * „Pierścionek Cyane z niebieskim diamentem, żółte złoto”. Brakujące części są pomijane; bez kamienia

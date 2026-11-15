@@ -8,6 +8,8 @@ import Icon, { type IconName } from '@/components/site/Icon'
 import Photo from '@/components/site/Photo'
 import SectionIntro from '@/components/site/SectionIntro'
 import StudioFilm from '@/components/site/StudioFilm'
+import JsonLd from '@/components/site/JsonLd'
+import { BUSINESS_NAME, breadcrumbJsonLd } from '@/lib/structured-data'
 
 export const metadata: Metadata = pageMetadata({
   title: 'Pracownia i historia rodziny Nowaków od 1920',
@@ -18,6 +20,7 @@ export const metadata: Metadata = pageMetadata({
 export default function StudioPage() {
   return (
     <>
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Pracownia', path: '/pracownia' }])} />
       <section className="wrap" style={{ paddingTop: 72, paddingBottom: 80, display: 'flex', flexDirection: 'column', gap: 28 }}>
         <h1 className="h1" style={{ maxWidth: '13em', fontSize: 'clamp(46px, 6vw, 92px)', lineHeight: 0.98 }}>
           Od kuźni w Szańcu do stołu złotniczego w Busku
@@ -135,6 +138,61 @@ export default function StudioPage() {
         </div>
         <div style={{ flex: '1 1 520px', minWidth: 0 }}>
           <ContactMap />
+        </div>
+      </section>
+
+      {/* Dla dziennikarzy, blogerów i lokalnych serwisów: fakty do zacytowania, podpis i kontakt w jednym miejscu. */}
+      <section aria-labelledby="dla-mediow" className="band" style={{ borderBottom: 0 }}>
+        <div className="wrap sec-tight press">
+          <div className="stack" style={{ gap: 20 }}>
+            <h2 className="h2 h2-md" id="dla-mediow">
+              Dla mediów i partnerów
+            </h2>
+            <p className="text" style={{ maxWidth: '30em' }}>
+              Piszesz o rzemiośle, Busku-Zdroju albo biżuterii na zamówienie? Poniżej najważniejsze fakty o pracowni.
+              Zdjęcia w pełnej rozdzielczości i odpowiedzi na pytania wyślemy na prośbę.
+            </p>
+            <div className="row gap-14-28">
+              <a className="btn btn-line" href={`mailto:${SITE.email}?subject=${encodeURIComponent('Pytanie od mediów')}`}>
+                Napisz: {SITE.email}
+              </a>
+              <a className="tl" download="pracownia-zlotnicza-michal-nowak-logo.png" href="/logo.png">
+                Pobierz logo (PNG)
+              </a>
+            </div>
+          </div>
+          <dl className="press-facts">
+            <div>
+              <dt>Nazwa</dt>
+              <dd>{BUSINESS_NAME}</dd>
+            </div>
+            <div>
+              <dt>Działa od</dt>
+              <dd>
+                {SITE.since} roku, cztery pokolenia: {FAMILY.map((f) => f.name.split(' ')[0]).join(', ')} Nowak
+              </dd>
+            </div>
+            <div>
+              <dt>Czym się zajmuje</dt>
+              <dd>Pierścionki z kamieniami szlachetnymi i obrączki na zamówienie, naprawy i renowacja biżuterii</dd>
+            </div>
+            <div>
+              <dt>Adres</dt>
+              <dd>
+                ul. {SITE.street}, {SITE.city}
+              </dd>
+            </div>
+            <div>
+              <dt>Kontakt</dt>
+              <dd>
+                <a href={SITE.phoneHref}>{SITE.phone}</a>, <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+              </dd>
+            </div>
+            <div>
+              <dt>Podpis przy zdjęciach i cytatach</dt>
+              <dd>{BUSINESS_NAME}, Busko-Zdrój (pznowak.pl)</dd>
+            </div>
+          </dl>
         </div>
       </section>
     </>
