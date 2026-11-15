@@ -204,3 +204,56 @@ describe('powiadomienie pracowni', () => {
     expect(mailErrorCode({ code: 'zły kod\n' })).toBe('nieznany')
   })
 })
+
+describe('powiadomienie pracowni – wersja HTML', () => {
+  const contact: NotifiedSubmission = {
+    id: 321,
+    kind: 'contact',
+    topic: 'obraczki',
+    name: 'Ola <b>',
+    phone: '+48 501 321 347',
+    email: 'ola@example.pl',
+    summary:
+      'Temat: Obrączki ślubne\nPreferowany kontakt: SMS\nBudżet: do 4 000 zł\nSkąd o nas wie: Google',
+    message: 'Linia 1\n<script>alert(1)</script>',
+    verification: 'verified',
+    attachmentsState: 'complete',
+    attachmentsDeclared: 2,
+    attachmentsCount: 2,
+    createdAt: '2026-11-15T09:21:51.000Z',
+  }
+  const mail = () =>
+    buildStudioMail(contact, {
+      to: 'pracownia@example.pl',
+      adminUrl: 'https://pznowak.pl/admin/collections/submissions/321',
+    })
+
+  it('na górze: rodzaj sprawy, imię, klikalny telefon i e-mail, forma kontaktu, link do panelu', () => {
+    const html = mail().html ?? ''
+    expect(html).toContain('Nowe zgłoszenie nr 321')
+    expect(html).toContain('Obrączki ślubne')
+    expect(html).toContain('href="tel:+48501321347"')
+    expect(html).toContain('href="mailto:ola@example.pl"')
+    expect(html).toContain('Kontakt: SMS')
+    expect(html).toContain('href="https://pznowak.pl/admin/collections/submissions/321"')
+    expect(html).toContain('Skąd o nas wie')
+    expect(html).toContain('2 zdjęcia do obejrzenia w panelu')
+  })
+
+  it('escapuje dane z formularza (imię, wiadomość)', () => {
+    const html = mail().html ?? ''
+    expect(html).toContain('Ola &lt;b&gt;')
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;')
+    expect(html).not.toContain('<script>')
+  })
+
+  it('kwarantanna: czerwony pasek; informacja, czy klient dostał potwierdzenie', () => {
+    const q = buildStudioMail(
+      { ...contact, verification: 'quarantine' },
+      { to: 'p@example.pl', adminUrl: 'https://pznowak.pl/admin' },
+    )
+    expect(q.html).toContain('KWARANTANNA')
+    expect(q.text).toContain('Do klienta nic nie zostało wysłane automatycznie.')
+    expect(mail().text).toContain('Klient dostał automatyczne potwierdzenie e-mailem')
+  })
+})

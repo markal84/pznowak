@@ -1,5 +1,13 @@
 import { SITE } from '../site'
 import { mailErrorCode, type MailTransport, type StudioMail } from './notify'
+import {
+  MAIL_COLORS,
+  MAIL_SANS,
+  MAIL_SERIF,
+  clientConfirmationEnabled,
+  escapeHtml,
+  parseSummaryRows,
+} from './mail-html'
 import { NEXT_STEPS, effectiveMeeting } from './next-steps'
 import {
   CONTACT_PREFERENCES,
@@ -38,54 +46,18 @@ export type ConfirmationStatus = 'sent' | 'skipped' | 'failed'
 
 export const CONFIRMATION_FROM_NAME = `${SITE.name} · ${SITE.tagline}`
 
-export function clientConfirmationEnabled(
-  env: Record<string, string | undefined> = process.env,
-): boolean {
-  const value = env.SUBMISSIONS_CLIENT_CONFIRMATION?.trim().toLowerCase()
-  return !(value === '0' || value === 'false' || value === 'off')
-}
+const COLORS = MAIL_COLORS
+const SERIF = MAIL_SERIF
+const SANS = MAIL_SANS
 
-const COLORS = {
-  silver: '#e7e8e3',
-  paper: '#fbfbf8',
-  velvet: '#1d3832',
-  graphite: '#22262a',
-  graphite2: '#3a3f43',
-  muted: '#575c5f',
-  gold: '#c8a15a',
-  patina: '#7c5b1e',
-  lineSoft: '#c9cbc4',
-  onVelvet: '#eef0ea',
-  onVelvet2: '#c9d1cb',
-} as const
-
-const SERIF = "'Newsreader', Georgia, 'Times New Roman', serif"
-const SANS = "'Schibsted Grotesk', Arial, Helvetica, sans-serif"
-
-export function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
+export { clientConfirmationEnabled, escapeHtml }
 
 /** Wiersze tylko dla pracowni, pomijane w potwierdzeniu dla klienta. */
 const STUDIO_ONLY_ROWS = new Set(['Skąd o nas wie'])
 
 /** Wiersze podsumowania z tekstu „Klucz: wartość” (podział na pierwszym „: ”). */
 export function summaryRows(summary: string | null | undefined): [string, string][] {
-  return (summary ?? '')
-    .split('\n')
-    .map((line) => {
-      const at = line.indexOf(': ')
-      return at > 0
-        ? ([line.slice(0, at).trim(), line.slice(at + 2).trim()] as [string, string])
-        : null
-    })
-    .filter((row): row is [string, string] => Boolean(row && row[0] && row[1]))
-    .filter(([key]) => !STUDIO_ONLY_ROWS.has(key))
+  return parseSummaryRows(summary).filter(([key]) => !STUDIO_ONLY_ROWS.has(key))
 }
 
 const FIRST_STEP: Record<ContactPreferenceId, string> = {
