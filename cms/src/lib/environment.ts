@@ -1,6 +1,8 @@
 type CmsEnvironmentInput = {
   blobReadWriteToken?: string
   databaseUrl?: string
+  /** Przy `r2` token Vercel Blob nie jest wymagany (src/lib/media-storage.ts). */
+  mediaStorage?: 'vercel-blob' | 'r2'
   nodeEnv?: string
   payloadSecret?: string
 }
@@ -24,7 +26,10 @@ function requireProductionValue(name: string, value: string | undefined): string
 export function resolveCmsEnvironment(input: CmsEnvironmentInput): CmsEnvironment {
   if (input.nodeEnv === 'production') {
     return {
-      blobReadWriteToken: requireProductionValue('BLOB_READ_WRITE_TOKEN', input.blobReadWriteToken),
+      blobReadWriteToken:
+        input.mediaStorage === 'r2'
+          ? (input.blobReadWriteToken ?? '')
+          : requireProductionValue('BLOB_READ_WRITE_TOKEN', input.blobReadWriteToken),
       databaseUrl: requireProductionValue('DATABASE_URL', input.databaseUrl),
       payloadSecret: requireProductionValue('PAYLOAD_SECRET', input.payloadSecret),
     }
