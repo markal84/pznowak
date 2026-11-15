@@ -30,14 +30,15 @@ const STEPS = [
   { n: '1', title: 'Rozmowa', text: 'W pracowni albo przez telefon. Opowiadasz o osobie, okazji i stylu. Mówisz, jaki masz budżet i na kiedy potrzebujesz pierścionka.', result: 'Wspólny kierunek i wstępne widełki cenowe', ill: '1-rozmowa' },
   { n: '2', title: 'Projekt', text: 'Rysujemy szkic albo dobieramy gotowy wzór. Dobieramy kamień, kolor złota i proporcje. Poprawiamy, dopóki nie powiesz, że to jest to. Rozmiar mierzymy w pracowni albo mierzy go jubiler w Twojej okolicy.', result: 'Szkic i wycenę do akceptacji', ill: '3-model-3d' },
   { n: '3', title: 'Wykonanie', text: 'Pierścionek powstaje w naszej pracowni. Kamienie oprawiamy ręcznie, potem szlifujemy i polerujemy każdą powierzchnię.', result: 'Gotowy pierścionek do przymiarki', ill: '5-oprawa' },
-  { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz w pracowni, a my poprawiamy drobiazgi. Jeśli mieszkasz daleko, wysyłamy pierścionek kurierem. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek i opiekę pracowni na kolejne lata', ill: '6-odbior' },
+  { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz w pracowni, a my poprawiamy drobiazgi. Jeśli mieszkasz daleko, wysyłamy pierścionek kurierem. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek z certyfikatem kamieni naturalnych i opiekę pracowni na kolejne lata', ill: '6-odbior' },
 ]
 
 /**
  * Zamówienie spoza Buska, jedna ścieżka (Marcin 14.11.2026): telefon → rozmiar u jubilera w okolicy albo w pracowni →
  * przymiarka i odbiór w Busku albo wysyłka gotowej biżuterii kurierem. Bez rozmów wideo (PR #81) i bez wysyłki miarek.
- * Zaliczkę, płatność, ubezpieczenie przesyłki, zwroty i certyfikaty potwierdza Michał: do tego czasu na podglądzie
- * są znaczniki „[…]”, a produkcja dostaje neutralne zdanie albo nie pokazuje pytania wcale (`preview: true`).
+ * Michał 14.11: zaliczka 30% (BLIK lub przelew), certyfikat dla każdego pierścionka z kamieniami naturalnymi, wysyłka
+ * zwykłym kurierem (bez specjalnej usługi dla biżuterii, więc nie piszemy o ubezpieczeniu). Zwroty czekają na decyzję:
+ * na podglądzie znacznik „[…]”, produkcja nie pokazuje pytania (`preview: true`).
  */
 type OrderFaqItem = FaqItem & { preview?: boolean }
 
@@ -58,26 +59,11 @@ const faq = (): FaqItem[] =>
       },
       {
         q: 'Jak wygląda zaliczka i płatność?',
-        a: showPlaceholders() ? (
-          <>
-            Zaliczka: <DoUzupelnienia>[ZALICZKA: czy jest i ile, np. część ceny po akceptacji projektu]</DoUzupelnienia>.
-            Resztę płacisz{' '}
-            <DoUzupelnienia>[PŁATNOŚĆ: gotówką lub kartą przy odbiorze w pracowni, przelewem przed wysyłką kurierem?]</DoUzupelnienia>.
-            Wszystkie kwoty znasz przed rozpoczęciem pracy.
-          </>
-        ) : (
-          'Wysokość ewentualnej zaliczki i sposób płatności ustalamy razem z wyceną, zanim zaczniemy pracę.'
-        ),
+        a: 'Gdy zaakceptujesz projekt i wycenę, wpłacasz zaliczkę w wysokości 30% ceny, BLIK-iem albo przelewem. Wtedy zaczynamy pracę przy stole. Pozostałą kwotę rozliczamy przy odbiorze w pracowni albo przed wysyłką kurierem. Wszystkie kwoty znasz, zanim cokolwiek wpłacisz.',
       },
       {
-        q: 'Czy przesyłka jest ubezpieczona?',
-        a: (
-          <>
-            Gotową biżuterię wysyłamy kurierem.{' '}
-            <DoUzupelnienia>[UBEZPIECZENIE: czy przesyłka jest ubezpieczona na pełną wartość, jakim kurierem, kto płaci za wysyłkę]</DoUzupelnienia>
-          </>
-        ),
-        preview: true,
+        q: 'Jak wysyłacie biżuterię?',
+        a: 'Kurierem, na adres, który podasz. Michał sam pakuje każdy pierścionek i pilnuje, żeby przesyłka dotarła do Ciebie szybko i bezpiecznie. Jeśli wolisz odebrać pierścionek osobiście, zapraszamy do pracowni w Busku-Zdroju: przymierzysz go na miejscu, a jeśli trzeba, poprawimy drobiazgi.',
       },
       {
         q: 'Czy mogę zwrócić pierścionek?',
@@ -93,13 +79,8 @@ const faq = (): FaqItem[] =>
         preview: true,
       },
       {
-        q: 'Czy do pierścionka dostanę certyfikat?',
-        a: (
-          <DoUzupelnienia>
-            [CERTYFIKAT: co dostaje klient, np. kartę pracowni z opisem złota i kamieni, certyfikat gemmologiczny przy większych kamieniach, paragon lub fakturę]
-          </DoUzupelnienia>
-        ),
-        preview: true,
+        q: 'Czy pierścionek ma certyfikat?',
+        a: 'Tak. Każdy pierścionek z kamieniami naturalnymi dostajesz z certyfikatem, który potwierdza, że kamień jest naturalny. Certyfikat dołączamy do pierścionka przy odbiorze w pracowni albo w przesyłce. Warto go zachować: przyda się przy ubezpieczeniu biżuterii, przy wymianie lub naprawie oprawy i wtedy, gdy pierścionek przejdzie kiedyś na kolejne pokolenie.',
       },
     ] as OrderFaqItem[]
   )
