@@ -1,6 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { seoPlugin } from '@payloadcms/plugin-seo'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -16,6 +17,7 @@ import { Works } from './collections/Works'
 import { Submissions } from './collections/Submissions'
 import { SiteContent } from './globals/SiteContent'
 import { emailAdapterFromEnv } from './lib/email'
+import { mediaStorageKind, r2FileUrl, r2SettingsFromEnv } from './lib/media-storage'
 import { resolveCmsEnvironment } from './lib/environment'
 import { productPath, productSeoDescription, productSeoTitle } from './lib/product-seo'
 import { firstProductImageId } from './lib/product-seo-admin'
@@ -25,12 +27,51 @@ import { isStagingEnvironment, STAGING_MEDIA_PREFIX } from './lib/staging-media'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const mediaStorage = mediaStorageKind()
 const environment = resolveCmsEnvironment({
   blobReadWriteToken: process.env.BLOB_READ_WRITE_TOKEN,
   databaseUrl: process.env.DATABASE_URL,
+  mediaStorage,
   nodeEnv: process.env.NODE_ENV,
   payloadSecret: process.env.PAYLOAD_SECRET,
 })
+const mediaPrefix = isStagingEnvironment() ? STAGING_MEDIA_PREFIX : 'cms/media'
+
+/** Magazyn plików katalogu wybierany zmienną MEDIA_STORAGE (src/lib/media-storage.ts). */
+function mediaStoragePlugin() {
+  if (mediaStorage === 'r2') {
+    const r2 = r2SettingsFromEnv()
+    return s3Storage({
+      bucket: r2.bucket,
+      clientUploads: r2.clientUploads,
+      collections: {
+        media: {
+          disablePayloadAccessControl: true,
+          generateFileURL: ({ filename, prefix }) => r2FileUrl(r2.publicUrl, prefix, filename),
+          prefix: mediaPrefix,
+        },
+      },
+      config: {
+        credentials: { accessKeyId: r2.accessKeyId, secretAccessKey: r2.secretAccessKey },
+        endpoint: r2.endpoint,
+        forcePathStyle: true,
+        region: 'auto',
+      },
+    })
+  }
+  return vercelBlobStorage({
+    access: 'public',
+    addRandomSuffix: true,
+    clientUploads: true,
+    collections: {
+      media: {
+        disablePayloadAccessControl: true,
+        prefix: mediaPrefix,
+      },
+    },
+    token: environment.blobReadWriteToken,
+  })
+}
 
 export default buildConfig({
   i18n: {
@@ -71,17 +112,6 @@ export default buildConfig({
       generateImage: ({ doc, req }) => firstProductImageId(doc, req),
       generateURL: ({ doc }) => absoluteUrl(productPath(doc.slug ?? '')),
     }),
-    vercelBlobStorage({
-      access: 'public',
-      addRandomSuffix: true,
-      clientUploads: true,
-      collections: {
-        media: {
-          disablePayloadAccessControl: true,
-          prefix: isStagingEnvironment() ? STAGING_MEDIA_PREFIX : 'cms/media',
-        },
-      },
-      token: environment.blobReadWriteToken,
-    }),
+    mediaStoragePlugin(),
   ],
 })

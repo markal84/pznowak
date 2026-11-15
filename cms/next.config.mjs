@@ -12,6 +12,17 @@ const dirname = path.dirname(__filename)
 // BUILD_CPUS (np. 2): mniej procesów roboczych przy budowaniu na serwerze współdzielonym. Puste = domyślnie.
 const buildCpus = Number.parseInt(process.env.BUILD_CPUS ?? '', 10)
 
+// Domena publiczna bucketu R2: domyślna i ta z R2_PUBLIC_URL (wartość potrzebna już przy budowaniu).
+const mediaR2Hosts = [...new Set(['media.pznowak.pl', hostnameOf(process.env.R2_PUBLIC_URL)].filter(Boolean))]
+
+function hostnameOf(value) {
+  try {
+    return value ? new URL(value.trim()).hostname : ''
+  } catch {
+    return ''
+  }
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Przełącznik zdjęć w formularzu kontaktowym (Zlecenie B): ta sama zmienna dla serwera i przeglądarki.
@@ -33,6 +44,8 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.public.blob.vercel-storage.com',
       },
+      // Media katalogu w Cloudflare R2 (MEDIA_STORAGE=r2, src/lib/media-storage.ts). Wpis Vercel Blob zostaje.
+      ...mediaR2Hosts.map((hostname) => ({ protocol: 'https', hostname })),
       // Zdjęcia autorów opinii Google (Places API). Przez next/image, więc przeglądarka klienta nie łączy się z Google.
       {
         protocol: 'https',
