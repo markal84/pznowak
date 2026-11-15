@@ -17,7 +17,7 @@ import path from 'node:path'
 import readline from 'node:readline'
 import { DEFAULT_CONFIG_PATH, DEFAULTS, SECRET_KEYS, expandHome, loadConfig, runProblems } from './lib/config.mjs'
 import { classify, redact } from './lib/graph.mjs'
-import { excerpt, formatDateTime, sendMail } from './lib/mail.mjs'
+import { excerpt, formatDateTime, plural, sendMail } from './lib/mail.mjs'
 import { debugToken, makeClients, makeLogger, runOnce, tokenFindings } from './lib/run.mjs'
 import { discoverIgUserId, listSource } from './lib/sources.mjs'
 import { LockedError } from './lib/store.mjs'
@@ -223,7 +223,7 @@ async function setValue(opts) {
     console.error(e.code === 'ENOENT' ? `brak pliku ${file} (najpierw krok 4 instrukcji)` : `nie udało się zapisać: ${e.message}`)
     return 1
   }
-  console.log(`Ustawiono ${key} w ${file}: ${secret ? `${value.length} znaków (wartość ukryta)` : value}`)
+  console.log(`Ustawiono ${key} w ${file}: ${secret ? `${value.length} ${plural(value.length, 'znak', 'znaki', 'znaków')} (wartość ukryta)` : value}`)
   return 0
 }
 
