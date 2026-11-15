@@ -71,6 +71,9 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;')
 }
 
+/** Wiersze tylko dla pracowni, pomijane w potwierdzeniu dla klienta. */
+const STUDIO_ONLY_ROWS = new Set(['Skąd o nas wie'])
+
 /** Wiersze podsumowania z tekstu „Klucz: wartość” (podział na pierwszym „: ”). */
 export function summaryRows(summary: string | null | undefined): [string, string][] {
   return (summary ?? '')
@@ -82,6 +85,7 @@ export function summaryRows(summary: string | null | undefined): [string, string
         : null
     })
     .filter((row): row is [string, string] => Boolean(row && row[0] && row[1]))
+    .filter(([key]) => !STUDIO_ONLY_ROWS.has(key))
 }
 
 const FIRST_STEP: Record<ContactPreferenceId, string> = {
