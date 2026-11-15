@@ -39,7 +39,7 @@ export function classify(err) {
 }
 
 /** Błędy, przy których mail idzie od razu (bez czekania na kilka nieudanych uruchomień z rzędu). */
-export const SEVERE_KINDS = new Set(['token', 'permission', 'config', 'failed-item', 'token-warning'])
+export const SEVERE_KINDS = new Set(['token', 'permission', 'config', 'failed-item', 'token-warning', 'backup-warning'])
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 

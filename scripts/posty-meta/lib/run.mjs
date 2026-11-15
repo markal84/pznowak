@@ -3,6 +3,7 @@ import path from 'node:path'
 import { runProblems } from './config.mjs'
 import { classify, createGraph, SEVERE_KINDS } from './graph.mjs'
 import { excerpt, formatDateTime, plural, sendMail } from './mail.mjs'
+import { pruneOld } from './retention.mjs'
 import { bestPhotoUrl, discoverIgUserId, fetchOne, listSource, videoSourceUrl } from './sources.mjs'
 import {
   INDEX_FILE,
@@ -29,8 +30,10 @@ const KIND_LABEL = {
   config: 'konfiguracja',
   'failed-item': 'nie udało się pobrać plików',
   'token-warning': 'token wkrótce wygaśnie',
+  'backup-warning': 'stare posty czekają na kopię',
   other: 'błąd',
 }
+const NOTICE_KINDS = new Set(['token-warning', 'backup-warning'])
 const ORDER = { 'facebook:post': 0, 'facebook:reel': 1, 'instagram:post': 2 }
 
 export function makeLogger(timeZone, write = (s) => process.stdout.write(s)) {
@@ -167,7 +170,8 @@ export async function writeIndex(cfg, state) {
       platform: r.platform,
       kind: r.kind,
       status: r.status,
-      folder: r.folder ? path.join(POSTS_DIR, r.folder) : null,
+      folder: r.folder && !r.removedAt ? path.join(POSTS_DIR, r.folder) : null,
+      removed_at: r.removedAt,
       files: r.files,
       permalink: r.permalink,
       excerpt: r.excerpt,
@@ -308,6 +312,7 @@ async function runLocked(cfg, opts, deps) {
       permalink: item.permalink,
       excerpt: excerpt(item.text, 140),
       firstSeenAt: prev?.firstSeenAt || started.toISOString(),
+      savedAt: started.toISOString(),
       lastError: res.missing ? res.lastError : undefined,
     }
     if (rec.status === 'failed') {
@@ -324,6 +329,20 @@ async function runLocked(cfg, opts, deps) {
     else if (rec.status === 'ok') log(`${res.folder}: uzupełniono brakujące pliki`)
     log(`${res.folder}: ${prev ? 'ponowienie' : 'nowy'}, ${rec.files}/${item.media.length} ${plural(item.media.length, 'plik', 'pliki', 'plików')}${rec.status !== 'ok' ? ` (${rec.status})` : ''}`)
     await saveState(cfg.dataDir, state)
+  }
+
+  // Sprzątanie: posty starsze niż RETENTION_DAYS (domyślnie tylko te już skopiowane na Maca).
+  try {
+    const pruned = await pruneOld(cfg, state, started, { dryRun: opts.dryRun, log })
+    if (pruned.removed.length) {
+      log(`sprzątanie: ${opts.dryRun ? 'usunąłbym' : 'usunięto'} ${pruned.removed.length} ${plural(pruned.removed.length, 'stary katalog', 'stare katalogi', 'starych katalogów')}`)
+      if (!opts.dryRun) await saveState(cfg.dataDir, state)
+    }
+    if (pruned.waiting) log(`sprzątanie: ${pruned.waiting} ${plural(pruned.waiting, 'stary post czeka', 'stare posty czekają', 'starych postów czeka')} na kopię na Maca`)
+    if (pruned.notice) notices.push(pruned.notice)
+  } catch (e) {
+    errors.push({ scope: 'sprzątanie', kind: 'other', message: e.message })
+    log(`sprzątanie: BŁĄD ${e.message}`)
   }
 
   if (opts.dryRun) {
@@ -395,7 +414,7 @@ async function runLocked(cfg, opts, deps) {
       if (r.sent || cfg.mailMethod === 'none' || !cfg.notifyTo.length) {
         if (mailAlerts) {
           for (const e of dueAlerts) state.alerts[alertKey(e)] = started.toISOString()
-          if (dueAlerts.some((e) => e.kind !== 'token-warning')) state.alerted = true
+          if (dueAlerts.some((e) => !NOTICE_KINDS.has(e.kind))) state.alerted = true
         }
         if (mailRecovery) state.alerted = false
       }
