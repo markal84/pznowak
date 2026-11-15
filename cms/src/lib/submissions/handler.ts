@@ -212,6 +212,8 @@ function buildDraft(
       engraving: details.engraving || null,
       ringSizeKnown: details.ringSizeKnown || null,
       ringSize: details.ringSize || null,
+      heardFrom: details.heardFrom || null,
+      heardFromOther: details.heardFromOther || null,
       summary: rowsToText(describeContact(details)),
       message,
       details,

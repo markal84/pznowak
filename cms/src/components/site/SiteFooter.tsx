@@ -5,7 +5,7 @@ import { COOKIE_BANNER_ENABLED, SITE } from '@/lib/site'
 
 export default function SiteFooter() {
   return (
-    <footer className="site-footer">
+    <footer className="site-footer" data-miejsce="stopka">
       <div className="site-footer-in">
         <div className="footer-cols">
           <div className="footer-col">

@@ -310,3 +310,27 @@ describe('formularz kontaktowy: zamówienie z grawerem i rozmiarem', () => {
     }
   })
 })
+
+describe('formularz kontaktowy: „Skąd o nas wiesz?”', () => {
+  it('pole jest dobrowolne: brak odpowiedzi daje pustą wartość', () => {
+    const result = validateContact(contact())
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.value).toMatchObject({ heardFrom: '', heardFromOther: '' })
+  })
+
+  it('przyjmuje pozycję z listy, a doprecyzowanie tylko przy „Inne”', () => {
+    const google = validateContact(contact({ heardFrom: 'google', heardFromOther: 'nie powinno zostać' }))
+    expect(google.ok && google.value).toMatchObject({ heardFrom: 'google', heardFromOther: '' })
+    const other = validateContact(contact({ heardFrom: 'inne', heardFromOther: '  targi ślubne  ' }))
+    expect(other.ok && other.value).toMatchObject({ heardFrom: 'inne', heardFromOther: 'targi ślubne' })
+  })
+
+  it('odrzuca wartość spoza listy i za długie doprecyzowanie', () => {
+    const unknown = validateContact(contact({ heardFrom: 'tiktok' }))
+    expect(unknown.ok).toBe(false)
+    if (!unknown.ok) expect(unknown.errors.heardFrom).toBe(MESSAGES.choice)
+    const long = validateContact(contact({ heardFrom: 'inne', heardFromOther: 'x'.repeat(LIMITS.heardFromOther + 1) }))
+    expect(long.ok).toBe(false)
+    if (!long.ok) expect(long.errors.heardFromOther).toBe(MESSAGES.tooLong(LIMITS.heardFromOther))
+  })
+})

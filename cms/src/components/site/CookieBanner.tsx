@@ -32,7 +32,7 @@ const OPTIONAL: readonly { id: ConsentCategory; title: string; note: string }[] 
   {
     id: 'analytics',
     title: 'Statystyki',
-    note: 'Anonimowe zliczanie odwiedzin, żeby wiedzieć, co na stronie jest przydatne. Obecnie strona nie korzysta z takich narzędzi.',
+    note: 'Narzędzia statystyk zapisujące pliki cookies. Obecnie strona z takich nie korzysta: anonimowe zliczanie odwiedzin (Umami) działa bez cookies i nie wymaga tej zgody.',
   },
   {
     id: 'marketing',

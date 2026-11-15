@@ -2,6 +2,7 @@
  * Teksty dokumentów prawnych, przepisane 1:1 z plików dostarczonych przez pracownię (8.11.2026).
  * Każdy wiersz to osobny element tablicy; `lib/legal-markdown.ts` zamienia je na nagłówki, akapity i listy.
  * Data obowiązywania obu dokumentów: 11.11.2026.
+ * Polityka zaktualizowana 14.11.2026: statystyki odwiedzin Umami i pytanie „Skąd o nas wiesz?” (src/lib/analytics.ts).
  */
 
 export const POLITYKA_PRYWATNOSCI = [
@@ -9,7 +10,7 @@ export const POLITYKA_PRYWATNOSCI = [
   "",
   "**Pracownia Złotnicza Michał Nowak**",
   "",
-  "Data obowiązywania: 11.11.2026",
+  "Data obowiązywania: 11.11.2026 (aktualizacja z 14.11.2026: statystyki odwiedzin i pytanie „Skąd o nas wiesz?”)",
   "",
   "## § 1. Informacje ogólne",
   "",
@@ -29,7 +30,9 @@ export const POLITYKA_PRYWATNOSCI = [
   "- Preferowany sposób kontaktu.",
   "- Treść wiadomości, rodzaj zapytania oraz informacje dotyczące planowanego zamówienia, takie jak budżet, termin, rozmiar biżuterii czy rodzaj okazji.",
   "- Dobrowolnie przesłane zdjęcia, szkice i materiały pomocnicze.",
+  "- Dobrowolną odpowiedź na pytanie „Skąd o nas wiesz?” w formularzu.",
   "- Dane techniczne związane z korzystaniem ze strony, w szczególności adres IP, informacje o przeglądarce i zdarzenia związane z bezpieczeństwem serwisu.",
+  "- Zbiorcze, anonimowe dane statystyczne o odwiedzinach strony (opisane w § 9).",
   "",
   "Nie wymagamy podawania szczególnych kategorii danych osobowych, takich jak informacje o stanie zdrowia. Prosimy o niezamieszczanie ich w wiadomościach ani załącznikach.",
   "",
@@ -43,6 +46,7 @@ export const POLITYKA_PRYWATNOSCI = [
   "4. **Wypełnianie obowiązków prawnych, w szczególności podatkowych i rachunkowych** – na podstawie art. 6 ust. 1 lit. c RODO.",
   "5. **Zapewnienie bezpieczeństwa strony oraz ustalanie, dochodzenie lub obrona przed roszczeniami** – na podstawie art. 6 ust. 1 lit. f RODO.",
   "6. **Obsługa opcjonalnych funkcji wymagających zgody, w tym zewnętrznych plików cookies** – na podstawie odpowiedniej zgody użytkownika, jeśli przetwarzanie danych osobowych odbywa się w oparciu o art. 6 ust. 1 lit. a RODO.",
+  "7. **Statystyki odwiedzin i ocena, skąd klienci dowiadują się o pracowni** (zbiorcze dane o odwiedzinach oraz odpowiedź na pytanie „Skąd o nas wiesz?”) – na podstawie art. 6 ust. 1 lit. f RODO, czyli prawnie uzasadnionego interesu administratora polegającego na ulepszaniu strony i ocenie skuteczności własnych działań promocyjnych.",
   "",
   "Dane przesłane w celu uzyskania odpowiedzi nie są wykorzystywane do przesyłania niezamówionych informacji marketingowych.",
   "",
@@ -65,6 +69,7 @@ export const POLITYKA_PRYWATNOSCI = [
   "3. Dane niezbędne do realizacji zawartej umowy – przez okres jej wykonywania, a następnie w zakresie niezbędnym do wypełnienia obowiązków prawnych i ochrony uzasadnionych roszczeń.",
   "4. Dokumentacja księgowa i podatkowa – przez okres wymagany obowiązującymi przepisami prawa.",
   "5. Dane techniczne i dzienniki bezpieczeństwa – przez okres niezbędny do zapewnienia bezpieczeństwa, zgodnie z ustalonymi zasadami retencji systemów informatycznych.",
+  "6. Dane statystyczne o odwiedzinach – w formie zbiorczej, nie dłużej niż 24 miesiące.",
   "",
   "Jeśli określone dane nie są już potrzebne i nie istnieje podstawa do ich dalszego przechowywania, są usuwane lub anonimizowane.",
   "",
@@ -76,6 +81,7 @@ export const POLITYKA_PRYWATNOSCI = [
   "- Dostawcy systemu obsługi formularzy, poczty elektronicznej i przechowywania danych.",
   "- Podmioty zapewniające utrzymanie techniczne oraz bezpieczeństwo strony.",
   "- Dostawcy zewnętrznych funkcji, takich jak Google Maps, wyłącznie w zakresie wynikającym z korzystania z tych funkcji.",
+  "- Dostawca narzędzia statystyk odwiedzin Umami (Umami Software, Inc.), w zakresie danych opisanych w § 9.",
   "- Uprawnione organy publiczne, jeżeli udostępnienie danych wynika z obowiązujących przepisów.",
   "",
   "Podmioty przetwarzające dane w imieniu administratora są zobowiązane do zapewnienia odpowiedniej ochrony danych, w tym na podstawie wymaganych umów powierzenia.",
@@ -112,7 +118,8 @@ export const POLITYKA_PRYWATNOSCI = [
   "5. Interaktywna mapa nie powinna być uruchamiana przed dokonaniem odpowiedniego wyboru przez użytkownika.",
   "6. Użytkownik może zmienić swoje preferencje dotyczące opcjonalnych cookies za pośrednictwem ustawień prywatności dostępnych na stronie.",
   "7. Użytkownik może także zarządzać plikami cookies w ustawieniach przeglądarki.",
-  "8. Jeżeli administrator wdroży narzędzia analityczne lub marketingowe, odpowiednie informacje o ich celach, dostawcach oraz czasie działania zostaną udostępnione przed ich uruchomieniem.",
+  "8. Strona korzysta z narzędzia statystyk odwiedzin **Umami**. Narzędzie nie zapisuje plików cookies ani innych informacji na urządzeniu użytkownika, nie przechowuje adresu IP i nie śledzi użytkownika na innych stronach, dlatego nie wymaga zgody w ustawieniach cookies. Zlicza odsłony podstron, źródło wejścia (np. wyszukiwarka, Facebook, oznaczenia UTM w linkach), przybliżoną lokalizację (kraj, region), rodzaj urządzenia i przeglądarki oraz kliknięcia w numer telefonu, adres e-mail, mapę dojazdu i profile pracowni w mediach społecznościowych. Dane są dostępne dla administratora wyłącznie w formie zbiorczej, nie służą do identyfikacji osób i są przechowywane w regionie Unii Europejskiej.",
+  "9. Jeżeli administrator wdroży inne narzędzia analityczne lub marketingowe, w szczególności korzystające z plików cookies, zostaną one uruchomione dopiero po uzyskaniu wymaganej zgody, a informacje o ich celach, dostawcach oraz czasie działania zostaną udostępnione przed ich uruchomieniem.",
   "",
   "## § 10. Bezpieczeństwo danych",
   "",

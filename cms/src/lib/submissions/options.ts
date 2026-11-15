@@ -164,6 +164,26 @@ export const CONTACT_PREFERENCES = [
 
 export type ContactPreferenceId = (typeof CONTACT_PREFERENCES)[number]['id']
 
+/**
+ * „Skąd o nas wiesz?” w formularzu kontaktowym (pomiar źródeł klientów, plan SEO 14.11.2026–15.02.2027).
+ * Pole jest dobrowolne: pusta wartość = klient nie odpowiedział. „Inne” odsłania krótkie pole tekstowe.
+ * Tę samą listę mają kartka do notowania telefonów (docs/analityka/zrodla-telefonow.md) i panel Payload,
+ * więc w lutym wszystkie źródła da się zsumować razem. Nową pozycję dopisuj na końcu (identyfikatory trafiają do bazy).
+ */
+export const HEARD_FROM = [
+  { id: 'google', label: 'Wyszukiwarka Google' },
+  { id: 'mapy-google', label: 'Mapy Google lub wizytówka pracowni' },
+  { id: 'facebook', label: 'Facebook' },
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'olx', label: 'OLX' },
+  { id: 'polecenie', label: 'Polecenie znajomych lub rodziny' },
+  { id: 'klient', label: 'Już byłem/byłam klientem pracowni' },
+  { id: 'witryna', label: 'Przechodziłem/przechodziłam obok pracowni' },
+  { id: 'inne', label: 'Inne' },
+] as const
+
+export type HeardFromId = (typeof HEARD_FROM)[number]['id']
+
 /** Limity długości pól; interfejs ustawia z nich `maxLength`, serwer odrzuca dłuższe. */
 export const LIMITS = {
   name: 60,
@@ -177,6 +197,7 @@ export const LIMITS = {
   project: 80,
   weddingDate: 60,
   bandChoice: 160,
+  heardFromOther: 80,
 } as const
 
 /** Treść zgody pokazywana przy formularzu. Serwer zapisuje ją przy zgłoszeniu (rozliczalność, RODO). */

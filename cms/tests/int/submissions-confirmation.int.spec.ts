@@ -121,6 +121,12 @@ describe('potwierdzenie dla klienta', () => {
     expect(Object.keys(submission)).not.toContain('message')
   })
 
+  it('„Skąd o nas wie” zostaje tylko dla pracowni', () => {
+    expect(summaryRows('Temat: Inne pytanie\nSkąd o nas wie: Google')).toEqual([
+      ['Temat', 'Inne pytanie'],
+    ])
+  })
+
   it('pomocnicze: wiersze podsumowania, escapowanie, wyłącznik', () => {
     expect(summaryRows('A: 1\nbez dwukropka\nB: x: y\n')).toEqual([
       ['A', '1'],

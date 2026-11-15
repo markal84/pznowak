@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { useConsent } from '@/components/site/ConsentGate'
 import NavigateLink from '@/components/site/NavigateLink'
+import { EVENTS, track } from '@/lib/analytics'
 import { openConsentSettings, writeConsent } from '@/lib/cookie-consent'
 import { COOKIE_BANNER_ENABLED, SITE } from '@/lib/site'
 
@@ -22,6 +23,7 @@ export default function ContactMap() {
 
   function showInteractive() {
     setShownOnce(true)
+    track(EVENTS.map, { rodzaj: 'interaktywna' })
     if (COOKIE_BANNER_ENABLED) writeConsent({ maps: true })
   }
 

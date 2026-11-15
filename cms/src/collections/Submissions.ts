@@ -5,7 +5,7 @@ import { attachmentStorageFromEnv } from '../lib/attachments/config'
 import { ATTACHMENTS_RETENTION_MONTHS } from '../lib/attachments/rules'
 import { storedPaths } from '../lib/attachments/store'
 import { visualizationSettingsFromEnv } from '../lib/submissions/config'
-import { CONTACT_TOPICS, RING_SIZE_KNOWN, type RingSizeKnownId } from '../lib/submissions/options'
+import { CONTACT_TOPICS, HEARD_FROM, RING_SIZE_KNOWN, type RingSizeKnownId } from '../lib/submissions/options'
 import { guardVisualizationTransition } from '../lib/submissions/queue'
 import {
   ATTACHMENT_STATES,
@@ -46,6 +46,7 @@ export const Submissions: CollectionConfig = {
       'name',
       'kind',
       'phone',
+      'heardFrom',
       'status',
       'verification',
       'visualizationStatus',
@@ -174,6 +175,28 @@ export const Submissions: CollectionConfig = {
             width: '33%',
             description: 'Obwód wewnętrzny w mm minus 40, np. 14 = 54 mm.',
           },
+        },
+      ],
+    },
+    {
+      // Pomiar źródeł klientów: odpowiedź klienta na „Skąd o nas wiesz?” (dobrowolna). Filtr i kolumna w liście
+      // zgłoszeń pozwalają w lutym policzyć zgłoszenia z każdego źródła (docs/analityka/README.md).
+      type: 'row',
+      admin: { condition: contactOnly },
+      fields: [
+        {
+          name: 'heardFrom',
+          type: 'select',
+          label: 'Skąd o nas wie',
+          index: true,
+          options: HEARD_FROM.map((h) => ({ label: h.label, value: h.id })),
+          admin: { ...readOnly, width: '33%', description: 'Puste = klient nie odpowiedział.' },
+        },
+        {
+          name: 'heardFromOther',
+          type: 'text',
+          label: 'Skąd o nas wie (inne)',
+          admin: { ...readOnly, width: '66%' },
         },
       ],
     },
