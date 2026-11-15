@@ -1,12 +1,10 @@
 'use client'
 
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import {
-  MEETING_MODES,
-  MEETING_TOPICS,
-  type ContactTopicId,
-  type MeetingModeId,
-} from '@/lib/submissions/options'
+import { DEFAULT_MEETING, NEXT_STEPS, effectiveMeeting } from '@/lib/submissions/next-steps'
+import type { ContactTopicId, MeetingModeId } from '@/lib/submissions/options'
+
+export { NEXT_STEPS, effectiveMeeting }
 
 /**
  * Wspólny stan strony kontaktu: temat i forma rozmowy z formularza zmieniają kroki „Co dalej” w kolumnie obok.
@@ -21,8 +19,6 @@ type ContactPlan = {
 }
 
 const PlanContext = createContext<ContactPlan | null>(null)
-
-const DEFAULT_MEETING: MeetingModeId = MEETING_MODES[0].id
 
 function usePlanState(initialTopic: ContactTopicId): ContactPlan {
   const [topic, setTopic] = useState(initialTopic)
@@ -47,28 +43,7 @@ export function useContactPlan(initialTopic: ContactTopicId): ContactPlan {
   return shared ?? own
 }
 
-/** Forma rozmowy, która naprawdę obowiązuje: przy tematach bez tego pytania (naprawa) zawsze pracownia. */
-export const effectiveMeeting = (topic: ContactTopicId, meeting: MeetingModeId): MeetingModeId =>
-  MEETING_TOPICS.includes(topic) ? meeting : DEFAULT_MEETING
-
-/**
- * Kroki „Co dalej”. Przy rozmowie zdalnej: zdjęcia i filmy; bez wysyłki miarek i obrączek do przymiarki (ustalone 01.11),
- * gotowa biżuteria: odbiór w pracowni albo kurier (Marcin 14.11).
- */
-export const NEXT_STEPS: Record<MeetingModeId, readonly string[]> = {
-  pracownia: [
-    'Oddzwaniamy i ustalamy termin rozmowy.',
-    'W pracowni oglądasz kamienie i projekty.',
-    'Wycenę dostajesz, zanim cokolwiek zamówisz.',
-  ],
-  zdalnie: [
-    'Oddzwaniamy i ustalamy termin rozmowy.',
-    'Pokazujemy kamienie i projekty na zdjęciach i filmach.',
-    'Wycenę dostajesz, zanim cokolwiek zamówisz.',
-    'Gotową biżuterię odbierasz w pracowni albo wysyłamy ją kurierem.',
-  ],
-}
-
+/** Kroki „Co dalej” obok formularza; dane w `src/lib/submissions/next-steps.ts` (te same idą w potwierdzeniu e-mailem). */
 export function NextSteps() {
   const plan = useContext(PlanContext)
   const mode = plan ? effectiveMeeting(plan.topic, plan.meeting) : DEFAULT_MEETING
