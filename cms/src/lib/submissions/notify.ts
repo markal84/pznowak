@@ -16,7 +16,16 @@ import { EMAIL } from './validation'
  * niczego wstrzyknąć do wiadomości. `Reply-To` = e-mail klienta, jeśli go podał: „Odpowiedz” trafia do klienta.
  */
 
-export type StudioMail = { to: string; subject: string; text: string; replyTo?: string }
+export type StudioMail = {
+  to: string
+  subject: string
+  text: string
+  replyTo?: string
+  /** Wersja HTML (tylko potwierdzenie dla klienta, `confirmation.ts`); powiadomienie pracowni to sam tekst. */
+  html?: string
+  /** Nazwa nadawcy zamiast domyślnej z `SMTP_FROM`; adres zostaje ten sam (skrzynka z `SMTP_USER`). */
+  fromName?: string
+}
 
 export interface MailTransport {
   /** Nazwa adaptera; „console” oznacza brak prawdziwego dostawcy. */
@@ -47,11 +56,14 @@ export function payloadMailTransport(payload: Payload): MailTransport {
   return {
     name: payload.email?.name ?? 'console',
     send: async (mail) => {
+      const address = payload.email?.defaultFromAddress
       await payload.sendEmail({
         to: mail.to,
         subject: mail.subject,
         text: mail.text,
+        ...(mail.html ? { html: mail.html } : {}),
         ...(mail.replyTo ? { replyTo: mail.replyTo } : {}),
+        ...(mail.fromName && address ? { from: { name: mail.fromName, address } } : {}),
       })
     },
   }

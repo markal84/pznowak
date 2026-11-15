@@ -6,6 +6,7 @@ import type { AttachmentStorage } from '../attachments/storage'
 import { createSlots } from '../attachments/store'
 import type { SubmissionSettings } from './config'
 import type { SubmissionDeps } from './handler'
+import { clientConfirmationEnabled, confirmToClient } from './confirmation'
 import { notifyStudio, payloadMailTransport } from './notify'
 import { cleanupExpiredCounters, consumeLimits, insertDraft, setNotificationStatus } from './store'
 import { siteverifyReachable, verifyTurnstile } from './turnstile'
@@ -57,6 +58,12 @@ export function submissionDeps(
         })
         await setNotificationStatus(payload, submission.id, status)
       }
+      // Potwierdzenie dla klienta od razu po przyjęciu (także gdy zdjęcia jeszcze się przesyłają).
+      await confirmToClient(submission, {
+        transport: payloadMailTransport(payload),
+        origin,
+        enabled: clientConfirmationEnabled(),
+      })
       await cleanupExpiredCounters(payload)
       if (attachments) await finalizeStaleUploads(payload, { now: new Date(), settings, origin })
     },
