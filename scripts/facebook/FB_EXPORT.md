@@ -53,6 +53,21 @@ oraz albumy, w których zdjęć jest więcej niż widać na osi czasu. Skrypt za
    (drugi plik `-hd.json` podaj tylko, jeśli go pobrałeś). Polecenie dopisuje tylko nowe posty, stare zostawia bez zmian
    i robi kopie `posts.json.bak` oraz `hd-sources.json.bak`.
 
+## B2. Nowe posty z automatu (Graph API, bez przeglądarki)
+
+Od 15.11.2026 posty pobiera sam serwer (`scripts/posty-meta`), a co 14 dni kopia trafia na Maca do `~/PZ Nowak posty`.
+Te posty dopisuje się do przeglądu jednym poleceniem (pliki są już pobrane, więc część C pomiń):
+
+```
+python3 -I scripts/facebook/import_posty_meta.py ~/"PZ Nowak posty" data/facebook
+python3 scripts/facebook/build_review.py data/facebook
+python3 scripts/facebook/review_server.py
+```
+
+Nowe posty lądują w sekcji „Nowe od DD.MM”. Przy niej w nagłówku przeglądu jest przełącznik „pokaż tylko nowe posty”
+(domyślnie włączony), który chowa stare, już rozstrzygnięte sekcje; decyzje w nich zostają bez zmian.
+Polecenie można powtarzać po każdej kopii: posty już obecne w `posts.json` są pomijane.
+
 ## C. Pobranie mediów i przegląd (od razu po eksporcie)
 
 Z głównego katalogu repo:
