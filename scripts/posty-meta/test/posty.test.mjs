@@ -107,12 +107,15 @@ before(async () => {
     const p = u.pathname.replace(/^\/v27\.0\//, '')
     if (p === `${PAGE}/posts`) return json(200, pageOf(api.posts, u))
     if (p === `${PAGE}/video_reels`) return json(200, pageOf(api.reels, u))
-    if (p === 'debug_token') return json(200, { data: api.debug })
+    if (p === 'debug_token' && !api.pageTokenMode) return json(200, { data: api.debug })
     if (p === 'ph1' || p === 'ph2') {
       return json(200, { images: [{ width: 720, source: `${base}/media/${p}-small.jpg` }, { width: 2048, source: `${base}/media/${p}-full.jpg` }] })
     }
     if (p === `${PAGE}_1001`) return json(200, api.posts[0])
     if (p === 'oauth/access_token') return json(200, { access_token: 'LONGUSERTOKEN1234567890', token_type: 'bearer' })
+    if (api.pageTokenMode && p === PAGE && u.searchParams.get('fields') === 'name,access_token') return json(200, { id: PAGE, name: 'x' })
+    if (api.pageTokenMode && p === 'me/accounts') return json(400, { error: { message: 'nonexisting field (accounts) on node type (Page)', code: 100 } })
+    if (api.pageTokenMode && p === 'debug_token') return json(200, { data: { is_valid: true, type: 'PAGE', profile_id: PAGE, expires_at: 0 } })
     if (p === PAGE) return json(200, { id: PAGE, name: 'Michał Nowak Pracownia Złotnicza', access_token: 'NEVEREXPIRINGPAGETOKEN1234567890' })
     json(404, { error: { message: `nieznana ścieżka ${p}`, code: 803 } })
   })
@@ -338,6 +341,26 @@ describe('uruchomienie', () => {
 })
 
 describe('wymiana tokena', () => {
+  test('wklejony token strony: zapisuje go po wymianie, gdy debug_token potwierdza tę stronę', async () => {
+    api.pageTokenMode = true
+    const r = await exchangeToken(cfg, 'SHORTPAGETOKEN1234567890', { retryDelayMs: 1 })
+    assert.equal(r.pageName, 'Michał Nowak Pracownia Złotnicza')
+    assert.match(await readFile(cfg.configPath, 'utf8'), /^META_PAGE_TOKEN=LONGUSERTOKEN1234567890$/m)
+  })
+
+  test('--ustaw zapisuje wartość ze standardowego wejścia i nie pokazuje sekretu', async () => {
+    const { spawnSync } = await import('node:child_process')
+    const cli = new URL('../posty.mjs', import.meta.url).pathname
+    const r = spawnSync(process.execPath, [cli, '--config', cfg.configPath, '--ustaw', 'META_APP_SECRET'], { input: 'nowysekret987654321' })
+    assert.equal(r.status, 0, r.stderr.toString())
+    assert.ok(!r.stdout.toString().includes('nowysekret'))
+    const text = await readFile(cfg.configPath, 'utf8')
+    assert.match(text, /^META_APP_SECRET=nowysekret987654321$/m)
+    assert.equal(text.match(/META_APP_SECRET=/g).length, 1)
+    const bad = spawnSync(process.execPath, [cli, '--config', cfg.configPath, '--ustaw', 'COS_INNEGO'], { input: 'x' })
+    assert.equal(bad.status, 2)
+  })
+
   test('zapisuje token strony w pliku konfiguracji z prawami 600', async () => {
     const r = await exchangeToken(cfg, 'SHORTUSERTOKEN1234567890', { retryDelayMs: 1 })
     assert.equal(r.pageName, 'Michał Nowak Pracownia Złotnicza')

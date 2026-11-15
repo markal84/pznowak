@@ -44,13 +44,25 @@ export async function exchangeToken(cfg, shortToken, { fetchImpl = globalThis.fe
     if (e.kind === 'token') throw e
   }
   if (!page) {
-    await user.paginate('me/accounts', { fields: 'id,name,access_token', limit: 100 }, {
-      maxPages: 10,
-      onPage: (rows) => {
-        page = rows.find((r) => String(r.id) === cfg.pageId && r.access_token) || null
-        return !page
-      },
-    })
+    try {
+      await user.paginate('me/accounts', { fields: 'id,name,access_token', limit: 100 }, {
+        maxPages: 10,
+        onPage: (rows) => {
+          page = rows.find((r) => String(r.id) === cfg.pageId && r.access_token) || null
+          return !page
+        },
+      })
+    } catch (e) {
+      if (e.kind === 'token') throw e
+    }
+  }
+  if (!page) {
+    // Wklejono token strony (a nie użytkownika): po wymianie to długi token tej samej strony.
+    const info = await debugToken(cfg, fetchImpl, longUser, retryDelayMs).catch(() => ({}))
+    if (info.type === 'PAGE' && String(info.profile_id) === cfg.pageId) {
+      const r = await user.get(cfg.pageId, { fields: 'name' }).catch(() => ({}))
+      page = { name: r.name || cfg.pageId, access_token: longUser }
+    }
   }
   if (!page) {
     throw new Error(`token użytkownika nie daje dostępu do strony ${cfg.pageId}; przy generowaniu tokena w Graph API Explorer zaznacz tę stronę`)

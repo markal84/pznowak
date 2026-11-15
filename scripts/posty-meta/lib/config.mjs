@@ -51,7 +51,7 @@ export const DEFAULTS = {
 }
 
 export const KNOWN_SOURCES = ['posts', 'video_reels', 'instagram']
-const SECRET_KEYS = ['META_PAGE_TOKEN', 'META_APP_SECRET', 'IG_TOKEN', 'IG_APP_SECRET', 'SMTP_PASS']
+export const SECRET_KEYS = ['META_PAGE_TOKEN', 'META_APP_SECRET', 'IG_TOKEN', 'IG_APP_SECRET', 'SMTP_PASS']
 
 export function expandHome(p, home = os.homedir()) {
   if (!p) return p

@@ -80,6 +80,19 @@ Raz na dobę skrypt sprawdza token (`debug_token`; do tego potrzebne `META_APP_I
 gdy token jest nieważny albo coś wygasa w ciągu `TOKEN_WARN_DAYS` dni. Gdy Meta odrzuci token (zmiana hasła,
 cofnięty dostęp do strony, usunięta aplikacja), przychodzi mail od razu. Naprawa: powtórz kroki 1–5.
 
+**Gdy wklejanie w terminalu SSH nie działa:** wartości można przesłać ze schowka Maca, uruchamiając komendę
+w zwykłym Terminalu na Macu (nie w sesji SSH). Skopiuj token w przeglądarce i:
+
+```sh
+pbpaste | ssh pznowak@s92.mydevil.net '/usr/local/bin/node24 ~/pznowak-cms-prod/scripts/posty-meta/posty.mjs --wymien-token'
+```
+
+Tak samo każdą inną wartość konfiguracji, np. sekret aplikacji:
+`pbpaste | ssh pznowak@s92.mydevil.net '/usr/local/bin/node24 ~/pznowak-cms-prod/scripts/posty-meta/posty.mjs --ustaw META_APP_SECRET'`.
+Sekretów nie widać na ekranie ani w historii poleceń.
+
+`--wymien-token` przyjmuje token użytkownika, a jeśli Explorer da tylko token strony, też go spróbuje przedłużyć.
+
 Jeśli `--wymien-token` napisze, że nie ma dostępu do strony, a strona jest w portfolio firmowym, dodaj w kroku 2
 uprawnienie `business_management` i spróbuj ponownie.
 
@@ -116,6 +129,7 @@ posty.mjs --od 2026-10-01   jednorazowo dociągnij posty od tej daty
 posty.mjs --sprawdz         konfiguracja, token, uprawnienia, ostatnie posty z każdego źródła
 posty.mjs --test-maila      próbny mail
 posty.mjs --wymien-token    wymiana tokena (sekcja „Token”)
+posty.mjs --ustaw KLUCZ     wpisz do posty.env wartość z wejścia (np. pbpaste | ssh …)
 --config PLIK               inny plik konfiguracji (domyślnie ~/pznowak-posty/posty.env)
 ```
 
