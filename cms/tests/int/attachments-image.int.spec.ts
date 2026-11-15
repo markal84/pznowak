@@ -2,7 +2,7 @@
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
-import { IMAGE_LIMITS, processImage, type ProcessedImage } from '@/lib/attachments/image'
+import { IMAGE_LIMITS, ownBuffer, processImage, type ProcessedImage } from '@/lib/attachments/image'
 import { parseManifest, photosLabel, sniffImageType } from '@/lib/attachments/rules'
 import {
   HTML_PAYLOAD,
@@ -190,5 +190,26 @@ describe('zapowiedź plików w zgłoszeniu', () => {
       '22 zdjęcia',
       '25 zdjęć',
     ])
+  })
+})
+
+describe('bufor wyniku nadaje się do wysłania przez fetch (sharp WebAssembly na MyDevil)', () => {
+  it('kopiuje bufor na pamięci współdzielonej do zwykłej pamięci', () => {
+    const shared = Buffer.from(new SharedArrayBuffer(4))
+    shared.set([1, 2, 3, 4])
+    const copy = ownBuffer(shared)
+    expect(copy.buffer).not.toBeInstanceOf(SharedArrayBuffer)
+    expect([...copy]).toEqual([1, 2, 3, 4])
+  })
+
+  it('zwykły bufor zostawia bez kopiowania', () => {
+    const plain = Buffer.from([5, 6])
+    expect(ownBuffer(plain)).toBe(plain)
+  })
+
+  it('processImage oddaje zdjęcie i miniaturę w zwykłej pamięci', async () => {
+    const result = await processed(await jpeg())
+    expect(result.full.buffer).not.toBeInstanceOf(SharedArrayBuffer)
+    expect(result.thumb.buffer).not.toBeInstanceOf(SharedArrayBuffer)
   })
 })
