@@ -33,7 +33,7 @@ const contact = (overrides: Record<string, unknown> = {}) => ({
   message: 'Zmniejszyć pierścionek po babci.',
   name: 'Marek',
   phone: '+48 600 100 200',
-  email: '',
+  email: 'marek@example.pl',
   consent: true,
   ...overrides,
 })

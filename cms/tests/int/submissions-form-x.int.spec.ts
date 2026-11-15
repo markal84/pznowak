@@ -13,7 +13,7 @@ const contact = (overrides: Record<string, unknown> = {}) => ({
   message: 'Pierścionek z szafirem.',
   name: 'Anna',
   phone: '501 321 347',
-  email: '',
+  email: 'anna@example.pl',
   consent: true,
   ...overrides,
 })
@@ -163,7 +163,7 @@ describe('Jak się z Tobą skontaktować?', () => {
     expect(!wrong.ok && wrong.errors.contactPreference).toBe(MESSAGES.choice)
   })
 
-  it('przy „E-mail” adres jest wymagany; telefon jest wymagany zawsze', () => {
+  it('e-mail i telefon są wymagane zawsze (na e-mail idzie potwierdzenie)', () => {
     const noEmail = validateContact(contact({ contactPreference: 'email', email: '' }))
     expect(!noEmail.ok && noEmail.errors.email).toBe(MESSAGES.emailRequired)
     const badEmail = validateContact(contact({ contactPreference: 'email', email: 'anna' }))
@@ -176,8 +176,14 @@ describe('Jak się z Tobą skontaktować?', () => {
       )
       expect(!noPhone.ok && noPhone.errors.phone, contactPreference).toBe(MESSAGES.phoneRequired)
     }
-    // przy telefonie i SMS-ie e-mail zostaje opcjonalny
-    expect(validateContact(contact({ contactPreference: 'sms', email: '' })).ok).toBe(true)
+    // także przy telefonie i SMS-ie (Marcin 15.11: bez e-maila klient nie dostaje potwierdzenia)
+    for (const contactPreference of ['telefon', 'sms'] as const) {
+      const result = validateContact(contact({ contactPreference, email: '' }))
+      expect(!result.ok && result.errors.email).toBe(MESSAGES.emailRequired)
+    }
+    expect(
+      validateContact(contact({ contactPreference: 'sms', email: 'anna@example.pl' })).ok,
+    ).toBe(true)
   })
 
   it('preferencja trafia do podsumowania (karta w panelu i mail)', () => {

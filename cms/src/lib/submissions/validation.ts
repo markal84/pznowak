@@ -106,7 +106,7 @@ export const MESSAGES = {
   phoneInvalid:
     'Sprawdź numer telefonu, np. 501 321 347. Zagraniczny wpisz z kierunkowym, np. +49 30 1234 5678.',
   email: 'Sprawdź adres e-mail.',
-  emailRequired: 'Podaj adres e-mail albo wybierz kontakt przez telefon lub SMS.',
+  emailRequired: 'Podaj adres e-mail – wyślemy na niego potwierdzenie z podsumowaniem.',
   meetingRequired: 'Wybierz, jak wolisz porozmawiać.',
   budgetAmountRequired: 'Wpisz kwotę w złotych.',
   budgetAmount: `Wpisz kwotę samymi cyframi, np. 6000 (najwyżej ${BUDGET_AMOUNT.maxDigits} cyfr).`,
@@ -399,7 +399,7 @@ export function validateContact(input: unknown): Validation<ContactSubmission> {
           : MESSAGES.choice
   }
 
-  // Preferowany kontakt: brak odpowiedzi = telefon (pierwsza opcja); przy e-mailu adres jest wymagany (niżej).
+  // Preferowany kontakt: brak odpowiedzi = telefon (pierwsza opcja). E-mail jest wymagany zawsze (niżej).
   const contactPreference = choice(
     data.contactPreference === undefined ||
       data.contactPreference === null ||
@@ -438,7 +438,8 @@ export function validateContact(input: unknown): Validation<ContactSubmission> {
   let emailValue = ''
   if ('error' in email) errors.email = email.error
   else if (email.value && !EMAIL.test(email.value)) errors.email = MESSAGES.email
-  else if (!email.value && contactPreference === 'email') errors.email = MESSAGES.emailRequired
+  // Zawsze wymagany (Marcin 15.11): na ten adres idzie potwierdzenie z podsumowaniem (`confirmation.ts`).
+  else if (!email.value) errors.email = MESSAGES.emailRequired
   else emailValue = email.value.toLowerCase()
 
   const person = contactFields(data, errors)

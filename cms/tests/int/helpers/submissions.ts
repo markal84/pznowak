@@ -68,7 +68,7 @@ export const validContactData = (overrides: Record<string, unknown> = {}) => ({
   message: 'Zgłoszenie z testów integracyjnych.',
   name: 'Test Automatyczny',
   phone: '600 100 200',
-  email: '',
+  email: 'klient@example.pl',
   consent: true,
   ...overrides,
 })

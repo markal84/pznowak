@@ -103,11 +103,17 @@ export function confirmationRecipient(submission: ConfirmedSubmission): string |
   return email && EMAIL.test(email) ? email : null
 }
 
+/** Pierwsze słowo imienia z wielką literą („marcin” → „Marcin”); reszta bez zmian (np. „McKenzie”). */
+export function greetingName(name: string): string {
+  const first = name.trim().split(/\s+/)[0] ?? ''
+  return first.charAt(0).toLocaleUpperCase('pl-PL') + first.slice(1)
+}
+
 export function buildClientConfirmation(
   submission: ConfirmedSubmission,
   options: { to: string; origin: string },
 ): StudioMail {
-  const firstName = submission.name.trim().split(/\s+/)[0] || submission.name.trim()
+  const firstName = greetingName(submission.name)
   const rows = summaryRows(submission.summary)
   const steps = confirmationSteps(submission)
   const lead = replyLead(submission)
