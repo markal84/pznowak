@@ -115,6 +115,7 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
       .fill('Zgłoszenie testowe Playwright, proszę zignorować.')
     await page.getByLabel('Imię').fill(E2E_NAME)
     await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('test-playwright@example.com')
     await page.getByLabel(/Zgadzam się na kontakt w sprawie mojej wiadomości/).check()
 
     const response = submissionResponse(page)
@@ -145,6 +146,7 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
     await page.getByLabel('Rozmiar w polskiej skali').selectOption('14')
     await page.getByLabel('Imię').fill(E2E_NAME)
     await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('test-playwright@example.com')
     await page.getByLabel(/Zgadzam się na kontakt w sprawie mojej wiadomości/).check()
 
     const response = submissionResponse(page)
@@ -183,6 +185,7 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
       .fill('Zgłoszenie testowe Playwright, proszę zignorować.')
     await page.getByLabel('Imię').fill(E2E_NAME)
     await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('test-playwright@example.com')
     await page.getByLabel(/Zgadzam się na kontakt w sprawie mojej wiadomości/).check()
 
     const response = submissionResponse(page)
@@ -222,6 +225,7 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
       .fill('Zgłoszenie testowe Playwright, proszę zignorować.')
     await page.getByLabel('Imię').fill(E2E_NAME)
     await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('test-playwright@example.com')
     await page.getByLabel(/Zgadzam się na kontakt/).check()
 
     const response = submissionResponse(page)
@@ -263,6 +267,7 @@ test.describe('Wysyłka zgłoszeń z Turnstile', () => {
     await page.getByLabel('Twoja wiadomość').fill('Pytanie testowe.')
     await page.getByLabel('Imię').fill(E2E_NAME)
     await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('test-playwright@example.com')
     await page.getByLabel(/Zgadzam się na kontakt/).check()
     await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
     const alert = page
@@ -304,6 +309,7 @@ test.describe('Formularz kontaktowy: rozmowa, kontakt i budżet (zlecenie X)', (
   async function fillPerson(page: Page) {
     await page.getByLabel('Imię').fill(E2E_NAME)
     await page.getByRole('textbox', { name: 'Telefon' }).fill('600 100 200')
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('test-playwright@example.com')
     await page.getByLabel(/Zgadzam się na kontakt w sprawie mojej wiadomości/).check()
   }
 
@@ -393,14 +399,16 @@ test.describe('Formularz kontaktowy: rozmowa, kontakt i budżet (zlecenie X)', (
     await budget.selectOption('kwota')
     await page.getByLabel('Kwota w złotych').fill('6000 zł')
     await page.getByRole('radio', { name: 'E-mail' }).check()
-    // przy „E-mail” znika dopisek „(opcjonalnie)”
+    // e-mail jest wymagany zawsze (bez dopisku „(opcjonalnie)”), z podpowiedzią o potwierdzeniu
     await expect(page.locator('label[for="k-mail"]')).toHaveText('E-mail')
+    await expect(page.getByText('Wyślemy na niego potwierdzenie z podsumowaniem.')).toBeVisible()
     await page.getByLabel('Opisz, czego szukasz').fill('Zgłoszenie testowe Playwright, proszę zignorować.')
     await fillPerson(page)
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('')
     await page.getByRole('button', { name: 'Wyślij wiadomość' }).click()
 
     await expect(page.getByText('Wpisz kwotę samymi cyframi, np. 6000 (najwyżej 7 cyfr).')).toBeVisible()
-    await expect(page.getByText('Podaj adres e-mail albo wybierz kontakt przez telefon lub SMS.')).toBeVisible()
+    await expect(page.getByText('Podaj adres e-mail – wyślemy na niego potwierdzenie z podsumowaniem.')).toBeVisible()
     await expect(page.getByLabel('Kwota w złotych')).toHaveAttribute('aria-invalid', 'true')
     await expect(page.getByRole('textbox', { name: 'E-mail' })).toHaveAttribute('aria-invalid', 'true')
     expect(bodies).toHaveLength(0)

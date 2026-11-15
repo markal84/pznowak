@@ -6,6 +6,7 @@ import {
   confirmToClient,
   confirmationSteps,
   escapeHtml,
+  greetingName,
   summaryRows,
   type ConfirmedSubmission,
 } from '@/lib/submissions/confirmation'
@@ -125,6 +126,18 @@ describe('potwierdzenie dla klienta', () => {
     expect(summaryRows('Temat: Inne pytanie\nSkąd o nas wie: Google')).toEqual([
       ['Temat', 'Inne pytanie'],
     ])
+  })
+
+  it('powitanie: pierwsze imię z wielkiej litery', () => {
+    expect(greetingName('marcinnn')).toBe('Marcinnn')
+    expect(greetingName('  łucja maria ')).toBe('Łucja')
+    expect(greetingName('McKenzie')).toBe('McKenzie')
+    const mail = buildClientConfirmation(
+      { ...submission, name: 'ola' },
+      { to: 'o@example.pl', origin },
+    )
+    expect(mail.text).toContain('Dzień dobry Ola,')
+    expect(mail.html).toContain('Dziękujemy, Ola.')
   })
 
   it('pomocnicze: wiersze podsumowania, escapowanie, wyłącznik', () => {

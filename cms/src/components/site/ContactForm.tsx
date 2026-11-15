@@ -69,7 +69,6 @@ export default function ContactForm({
   const ringDetails = RING_DETAIL_TOPICS.includes(topic)
   const asksMeeting = MEETING_TOPICS.includes(topic)
   const remote = effectiveMeeting(topic, meeting) === 'zdalnie'
-  const emailRequired = contactBy === 'email'
 
   // Po wysłaniu przewijamy do karty „Wiadomość wysłana”, a po „Napisz kolejną” – na początek formularza.
   // Bez tego na telefonie karta zostaje ~1800 px nad ekranem i klient widzi stopkę.
@@ -339,8 +338,6 @@ export default function ContactForm({
             <label className="check" key={c.id}>
               <input checked={contactBy === c.id} data-field="contactPreference" name="kontakt" onChange={() => {
                 setContactBy(c.id)
-                // „Podaj e-mail” dotyczyło wyboru „E-mail”; po zmianie wyboru komunikat znika.
-                clearError('email')
               }} type="radio" value={c.id} />
               <span>{c.label}</span>
             </label>
@@ -361,8 +358,9 @@ export default function ContactForm({
           <FieldError id="k-tel-err" message={fieldErrors.phone} />
         </div>
         <div className="field">
-          <label htmlFor="k-mail">E-mail{emailRequired ? null : <> <span className="opt-note">(opcjonalnie)</span></>}</label>
-          <input aria-required={emailRequired || undefined} autoComplete="email" className="fld" data-field="email" id="k-mail" maxLength={LIMITS.email} name="email" type="email" {...err('email', 'k-mail-err')} />
+          <label htmlFor="k-mail">E-mail</label>
+          <input aria-describedby="k-mail-hint" aria-required autoComplete="email" className="fld" data-field="email" id="k-mail" maxLength={LIMITS.email} name="email" type="email" {...err('email', 'k-mail-err')} />
+          <span className="field-hint" id="k-mail-hint">Wyślemy na niego potwierdzenie z podsumowaniem.</span>
           <FieldError id="k-mail-err" message={fieldErrors.email} />
         </div>
       </div>
