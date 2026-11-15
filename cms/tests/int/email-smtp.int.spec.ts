@@ -117,7 +117,7 @@ describe('konfiguracja SMTP ze zmiennych', () => {
 })
 
 describe('wiadomość do pracowni przez transport testowy', () => {
-  it('temat z rodzajem sprawy i imieniem, Reply-To klienta, nadawca ze skrzynki pracowni, tylko tekst', async () => {
+  it('temat z rodzajem sprawy i imieniem, Reply-To klienta, nadawca ze skrzynki pracowni, tekst + HTML', async () => {
     const transport = nodemailer.createTransport({
       streamTransport: true,
       buffer: true,
@@ -171,8 +171,10 @@ describe('wiadomość do pracowni przez transport testowy', () => {
     expect(raw).toMatch(/^From: "?Formularz pznowak\.pl"? <kontakt@pznowak\.pl>$/m)
     expect(raw).toMatch(/^Reply-To: klientka@example\.pl$/m)
     expect(raw).toMatch(/^To: pracownia@example\.pl$/m)
+    // tekst i czytelna wersja HTML (escapowanie treści sprawdza submissions-notify.int.spec.ts)
+    expect(raw).toMatch(/^Content-Type: multipart\/alternative;/m)
     expect(raw).toMatch(/^Content-Type: text\/plain; charset=utf-8$/m)
-    expect(raw).not.toMatch(/text\/html/)
+    expect(raw).toMatch(/^Content-Type: text\/html; charset=utf-8$/m)
     // temat zakodowany (polskie znaki), po zdekodowaniu: rodzaj sprawy i imię
     const subjectLine = /^Subject: (.+(?:\n .+)*)$/m.exec(raw)![1]
     const decoded = subjectLine
