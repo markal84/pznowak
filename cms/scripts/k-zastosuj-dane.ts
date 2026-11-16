@@ -3,10 +3,10 @@
  * przygotowanego przez `scripts/pierscionki/przygotuj_zmiany.py`.
  *
  * Domyślnie PODGLĄD (tabela „było / będzie” z bazy, bez zapisu). `--apply` zapisuje przez Payload Local API
- * wyłącznie na stagingu (`NEON_BRANCH=staging`); na produkcji skrypt odmawia: zapis tam robi Marcin po przeglądzie.
+ * wyłącznie na żywej bazie (`NEON_BRANCH=production` i endpoint żywej bazy, zob. db-guard.ts), po przeglądzie podglądu.
  *
  *   npm run k:dane -- ../data/pierscionki-k/plan.json            # podgląd
- *   npm run k:dane -- ../data/pierscionki-k/plan.json --apply    # zapis na stagingu
+ *   npm run k:dane -- ../data/pierscionki-k/plan.json --apply    # zapis na żywej bazie
  *   --pola=metal,stone   tylko te pola (domyślnie też `slug`; zmiana adresów działa razem z przekierowaniami z
  *                        `RENAMED_RING_SLUGS` w src/lib/legacy-redirects.ts, wdrażać razem)
  */
@@ -15,6 +15,7 @@ import { readFile } from 'node:fs/promises'
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
+import { requireLiveDatabase } from './db-guard'
 
 type Change = { slug: string; name: string; set: { metal?: string; stone?: string; slug?: string } }
 
@@ -23,9 +24,7 @@ const apply = process.argv.includes('--apply')
 const only = process.argv.find((a) => a.startsWith('--pola='))?.slice('--pola='.length).split(',')
 
 if (!planPath) throw new Error('Podaj ścieżkę do planu JSON (plan.json z przygotuj_zmiany.py)')
-if (apply && process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('Zapis tylko na stagingu (NEON_BRANCH=staging). Produkcja: po decyzji Marcina.')
-}
+if (apply) requireLiveDatabase('k-zastosuj-dane')
 
 const plan = JSON.parse(await readFile(planPath, 'utf8')) as Change[]
 const payload = await getPayload({ config: await config })

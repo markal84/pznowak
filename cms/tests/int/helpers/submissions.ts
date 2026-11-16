@@ -1,11 +1,10 @@
-import { readFileSync, existsSync } from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import type { SubmissionSettings } from '@/lib/submissions/config'
 import { deriveKey, issueFormToken } from '@/lib/submissions/form-token'
 import { DEFAULT_LIMITS, type LimitSettings } from '@/lib/submissions/limits'
 import type { FormKind } from '@/lib/submissions/options'
+
+import { LIVE_ENDPOINT } from '../../../scripts/live-db'
 
 // Oficjalne klucze testowe Cloudflare (publiczne): 1x… zawsze przechodzi, 2x… zawsze odrzuca, 3x… „token zużyty”.
 export const TEST_SECRET_PASS = '1x0000000000000000000000000000000AA'
@@ -98,24 +97,15 @@ export function submissionRequest(
 const endpointOf = (url: string) => new URL(url).hostname.split('.')[0].replace(/-pooler$/, '')
 
 /**
- * Bezpiecznik testów bazodanowych: tylko Neon branch `staging` i nigdy host produkcji
- * (porównanie z `backend/.env.local`, jeśli plik istnieje).
+ * Bezpiecznik testów bazodanowych: tylko osobna gałąź Neon z NEON_BRANCH=test i nigdy żywa baza
+ * (endpoint z `scripts/live-db.ts`). Dawny „staging” był żywą bazą, więc testy nie mogą już na nim działać.
  */
 export function stagingDatabaseOrSkipReason(): string | null {
   const url = process.env.DATABASE_URL
-  if (process.env.NEON_BRANCH !== 'staging' || !url)
-    return 'brak bazy stagingowej (uruchom: npm run test:int:staging)'
-  const here = path.dirname(fileURLToPath(import.meta.url))
-  const productionEnv = path.resolve(here, '../../../../backend/.env.local')
-  if (existsSync(productionEnv)) {
-    const productionUrl = /^DATABASE_URL="?([^"\n]+)"?/m.exec(
-      readFileSync(productionEnv, 'utf8'),
-    )?.[1]
-    if (productionUrl && endpointOf(productionUrl) === endpointOf(url)) {
-      throw new Error(
-        'STOP: DATABASE_URL wskazuje bazę produkcyjną. Testy bazodanowe działają tylko na stagingu.',
-      )
-    }
+  if (url && endpointOf(url).startsWith(LIVE_ENDPOINT)) {
+    throw new Error('STOP: DATABASE_URL wskazuje żywą bazę pznowak.pl. Testy bazodanowe tylko na gałęzi testowej.')
   }
+  if (process.env.NEON_BRANCH !== 'test' || !url)
+    return 'brak gałęzi testowej Neon (NEON_BRANCH=test); żywej bazy testy nie dotykają'
   return null
 }

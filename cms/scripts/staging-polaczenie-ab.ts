@@ -14,7 +14,7 @@
  * (`src/lib/legacy-redirects.ts`), nie w bazie: działają po wdrożeniu kodu.
  *
  * Idempotentne: drugie uruchomienie niczego nie zmienia. Tekst, który ktoś poprawił w panelu, zostaje (komunikat „pomin”).
- * Działa tylko z NEON_BRANCH=staging (jak `seed-staging.ts` i `staging-warianty-v.ts`).
+ * Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts) (jak `seed-staging.ts` i `staging-warianty-v.ts`).
  */
 import { getPayload } from 'payload'
 
@@ -33,12 +33,11 @@ import {
   planVariant,
   TARGET,
 } from './polaczenie-ab-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:polaczenie musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-polaczenie-ab')
 
 const payload = await getPayload({ config: await config })
 

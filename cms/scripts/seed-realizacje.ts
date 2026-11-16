@@ -11,7 +11,7 @@
  * Filmy realizacji (`videos`): mp4 z katalogu `--filmy <katalog>` albo `NOWE_KARTY_FILMY`/`REALIZACJE_FILMY` (domyślnie `data/facebook/media`
  * w repo, poza gitem). Brak pliku = ostrzeżenie, realizacja powstaje bez tego filmu. Filmy dopina się też do istniejącej realizacji, ale
  * tylko gdy nie ma jeszcze żadnego filmu (ręcznie dodanych w panelu nie ruszamy).
- * Dane nie mają prawa trafić na produkcję: skrypt działa tylko z NEON_BRANCH=staging (jak `seed-staging.ts`).
+ * skrypt działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts).
  */
 import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
@@ -24,6 +24,7 @@ import config from '../src/payload.config'
 import type { Media } from '../src/payload-types'
 import { SEED_WORKS, type SeedWork } from './realizacje-data'
 import { matchProduct, planPhotos, type CatalogProduct, type ProductMatch } from './realizacje-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 const photosDir = fileURLToPath(new URL('../seed/realizacje', import.meta.url))
@@ -36,9 +37,7 @@ const videosDir = path.resolve(
 )
 const videoKey = (file: string) => `seed://realizacje/film/${file}`
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:realizacje musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('seed-realizacje')
 
 // Sprawdzenie plików nie dotyka bazy: brakujące zdjęcie przerywa od razu.
 const photoFiles = SEED_WORKS.flatMap((work) => [
