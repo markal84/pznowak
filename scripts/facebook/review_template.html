@@ -34,6 +34,10 @@ h2{scroll-margin-top:150px;margin:28px 0 0;font-size:20px}
 h2 small{color:var(--muted);font-weight:400;font-size:14px}
 .item{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:10px;padding:10px 14px;margin:12px 0;scroll-margin-top:150px}
 .item.done{border-left-color:var(--muted)}
+/* zdjęcia z posta już są w karcie katalogu: zwinięte, bez decyzji do podjęcia (klik w zdjęcia rozwija) */
+.item.already:not(.open) .media,.item.already:not(.open) .fields,.item.already:not(.open) .bulk{display:none}
+.item.already .hintm{border:1px solid var(--ok)}
+.item.already .hintm .tg{cursor:pointer;text-decoration:underline;margin-left:6px}
 .item[data-dec=catalog]{border-left-color:var(--ok)}
 .item[data-dec=material]{border-left-color:var(--mat)}
 .item[data-dec=reject],.item[data-dec=skip]{border-left-color:var(--no)}
@@ -660,7 +664,7 @@ function hintHTML(g) {
   if (!h || !h.result) return '';
   const r = h.result;
   const target = r.product ? ` → <b>${esc(h.productName || r.product)}</b>` + (r.variant ? ` (${esc(r.variant)})` : '') : '';
-  const already = alreadyIn(g) ? ' · <b>zdjęcia z tego posta już są w tej karcie, nic nie trzeba zaznaczać</b>' : '';
+  const already = alreadyIn(g) ? ' · <b>✔ już w katalogu, nic nie trzeba zaznaczać</b><span class="tg" data-act="toggleOpen">pokaż zdjęcia</span>' : '';
   return `<div class="hintm">Podpowiedź modelu: <b>${esc(H_LABEL[r.category] || r.category)}</b>${target} · ${esc(r.confidence)} %${already}<br><span class="vr">${esc(r.reason)}</span></div>`;
 }
 function propsHTML(g, list) {
@@ -765,6 +769,7 @@ function sync() {
     if (done) prog[g.sec][0]++;
     el.classList.toggle('done', done);
     el.classList.toggle('complete', isComplete(g));
+    el.classList.toggle('already', g.type === 'card' && alreadyIn(g) && !(e && e.decision));
     const cb = $('.cbtn', el);
     if (cb) { cb.setAttribute('aria-pressed', String(isComplete(g))); cb.textContent = isComplete(g) ? '✔ kompletne – bez zmian' : 'kompletne – bez zmian'; }
     for (const dp of el.querySelectorAll('.dup')) {
@@ -923,6 +928,7 @@ document.addEventListener('click', async ev => {
   }
   if (act === 'dropPending') { try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ } lock(false); banner(''); return; }
   if (act === 'adoptOrphan') { S.cards[t.dataset.to] = S.cards[t.dataset.from]; delete S.cards[t.dataset.from]; fillFields(); changed(GBY['card:' + t.dataset.to]); return; }
+  if (act === 'toggleOpen') { const it = t.closest('.item'); it.classList.toggle('open'); t.textContent = it.classList.contains('open') ? 'zwiń zdjęcia' : 'pokaż zdjęcia'; return; }
   if (act === 'jump') { const g2 = GBY[t.dataset.to]; if (g2 && g2.el) { g2.el.scrollIntoView({ block: 'start', behavior: 'smooth' }); g2.el.classList.remove('flash'); void g2.el.offsetWidth; g2.el.classList.add('flash'); } return; }
   if (act === 'zoomfile') { const fl = t.dataset.file; window.open(fl.startsWith('frames/') ? fl : 'media/' + fl, '_blank', 'noopener'); return; }
   if (act === 'propMerge') { mergeInto(CARD[t.dataset.src], CARD[t.dataset.dst]); return; }
