@@ -19,39 +19,68 @@ export function goldInLocative(metal: string | null | undefined): string {
   return /z[łl]ot/i.test(nominative) ? 'złocie' : ''
 }
 
-/** Rzeczownik w narzędniku („diament” → „diamentem”, „perła” → „perłą”, „diamenty” → „diamentami”). */
+/**
+ * Rdzenie nazw kamieni. Rzeczownik w zapisie kamienia rozpoznajemy po rdzeniu, a nie po pozycji, bo w panelu bywa
+ * „Szafir różowy”, ale też „Różowy szafir” (wtedy pierwszym słowem jest przymiotnik).
+ */
+const STONE_NOUNS =
+  /^(diament|brylant|szafir|rubin|szmaragd|topaz|tanzanit|ametyst|cytryn|turmalin|morganit|oliwin|perydot|granat|akwamaryn|agat|opal|spinel|cyrkon|moissanit|kwarc|onyks|turkus|labradoryt|kamie[nń]|perł)(?:a|y|e|i|ie)?$/
+
+const isStoneNoun = (word: string) => STONE_NOUNS.test(word)
+const isPlural = (word: string) => /(?:y|e|i|ie)$/.test(word) && !/^kamie[nń]$/.test(word) && !/^perła$/.test(word)
+
+/** Rzeczownik w narzędniku („diament” → „diamentem”, „perła” → „perłą”, „diamenty” → „diamentami”, „kamień” → „kamieniem”). */
 function nounInstrumental(word: string): string {
-  if (/y$/.test(word) && word.length > 4) return `${word.slice(0, -1)}ami`
+  if (/^kamie[nń]$/.test(word)) return 'kamieniem'
+  if (/^kamienie$/.test(word)) return 'kamieniami'
+  if (/(?:y|e|i)$/.test(word)) return `${word.slice(0, -1)}ami`
   if (/a$/.test(word)) return `${word.slice(0, -1)}ą`
   if (/[kg]$/.test(word)) return `${word}iem`
   return `${word}em`
 }
 
-/** Przymiotnik w narzędniku, zgodny z rodzajem rzeczownika („niebieski” → „niebieskim”, „biała” → „białą”). */
-function adjectiveInstrumental(word: string, feminine: boolean): string {
-  if (feminine) return word.replace(/a$/, 'ą')
-  return word.replace(/[yi]$/, (end) => `${end}m`)
+/**
+ * Przymiotnik w narzędniku, zgodny z rodzajem i liczbą rzeczownika („niebieski” → „niebieskim”, „biała” → „białą”,
+ * „niebieskie” → „niebieskimi”). Pusty tekst, gdy słowo nie wygląda na przymiotnik.
+ */
+function adjectiveInstrumental(word: string, feminine: boolean, plural: boolean): string {
+  if (plural) {
+    if (/[kg]ie$/.test(word)) return `${word.slice(0, -1)}mi`
+    if (/e$/.test(word)) return `${word.slice(0, -1)}ymi`
+    return ''
+  }
+  if (feminine) return /a$/.test(word) ? word.replace(/a$/, 'ą') : ''
+  return /[yi]$/.test(word) ? `${word}m` : ''
 }
 
 /**
  * Kamień główny (pierwszy z listy) w narzędniku, do zwrotu „z …”: „Diament niebieski, Diament” → „niebieskim diamentem”,
- * „Topaz London Blue” → „topazem London Blue”. Kamienie boczne są pomijane (tytuł ma być krótki). Pusty tekst, gdy
- * zapisu nie da się bezpiecznie odmienić (cyfry, nawiasy, więcej niż dwa słowa).
+ * „Różowy szafir i diamenty” → „różowym szafirem”, „Topaz London Blue” → „topazem London Blue”. Kamienie boczne są
+ * pomijane (tytuł ma być krótki). Pusty tekst, gdy zapisu nie da się bezpiecznie odmienić (cyfry, nawiasy, nieznany
+ * kamień, więcej niż jeden przymiotnik) – wtedy tytuł zostawia kamień w mianowniku.
  */
 export function mainStoneInstrumental(stone: string | null | undefined): string {
   const main = (stone ?? '').split(/,|\s+i\s+|\s+oraz\s+|\+/i)[0]?.trim() ?? ''
   if (!main || /[^\p{L}\s-]/u.test(main)) return ''
-  const [noun, ...rest] = main.split(/\s+/)
-  const nounLower = noun.toLowerCase()
-  const feminine = /a$/.test(nounLower)
-  const instr = nounInstrumental(nounLower)
-  if (!rest.length) return instr
-  const tail = rest.join(' ')
-  // Polski przymiotnik po rzeczowniku („diament niebieski”) idzie przed rzeczownik; nazwa własna („London Blue”) zostaje za nim.
-  if (rest.length === 1 && /^\p{Ll}+(y|i|a)$/u.test(tail)) return `${adjectiveInstrumental(tail, feminine)} ${instr}`
-  if (/^london blue$/i.test(tail)) return `${instr} London Blue`
-  if (rest.length > 2) return ''
-  return `${instr} ${tail}`
+  const words = main.split(/\s+/)
+  const lower = words.map((w) => w.toLowerCase())
+  const nounAt = lower.findIndex(isStoneNoun)
+  if (nounAt < 0) return ''
+  const noun = lower[nounAt]
+  const instr = nounInstrumental(noun)
+  const feminine = /a$/.test(noun)
+  const plural = isPlural(noun)
+  const before = lower.slice(0, nounAt)
+  const after = words.slice(nounAt + 1)
+  const tail = after.join(' ')
+  // Nazwa własna odmiany („London Blue”) zostaje za rzeczownikiem w niezmienionej postaci.
+  if (!before.length && /^london blue$/i.test(tail)) return `${instr} London Blue`
+  // Polski przymiotnik idzie przed rzeczownik, niezależnie od tego, czy w panelu stał przed nim, czy za nim.
+  const adjectives = [...before, ...after.map((w) => w.toLowerCase())]
+  if (adjectives.length > 1) return ''
+  if (!adjectives.length) return instr
+  const adj = adjectiveInstrumental(adjectives[0], feminine, plural)
+  return adj ? `${adj} ${instr}` : ''
 }
 
 /** „z” albo „ze” przed zbitką spółgłosek: „ze szmaragdem”, ale „z szafirem”, „z diamentem”. */

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import GuideLayout from '@/components/site/GuideLayout'
 import RingCard from '@/components/site/RingCard'
 import { getProducts } from '@/lib/collection'
-import { catalogHref, pluralRing, priceExamples, toCatalogRing } from '@/lib/catalog'
+import { catalogHref, priceExamples, toCatalogRing } from '@/lib/catalog'
 import { findGuide, guidePath } from '@/lib/guides'
 import { formatPrice } from '@/lib/price'
 import { pageMetadata } from '@/lib/seo'
@@ -50,10 +50,8 @@ const SECTIONS = [
 export default async function PriceGuidePage() {
   const rings = (await getProducts()).map(toCatalogRing)
   const examples = priceExamples(rings)
-  const priced = rings.filter((r) => r.price !== null)
+  // Podajemy tylko cenę „od”: górna granica klienta nie interesuje, a zniechęca bardziej, niż pomaga.
   const lowest = examples[0]?.price ?? null
-  const highest = examples[examples.length - 1]?.price ?? null
-  const hasRange = lowest !== null && highest !== null && priced.length >= 2 && highest > lowest
   const sections = examples.length > 0 ? SECTIONS : SECTIONS.filter((s) => s.id !== 'przyklady')
 
   return (
@@ -64,12 +62,10 @@ export default async function PriceGuidePage() {
       sections={sections}
     >
       <h2 id="krotko">Krótka odpowiedź</h2>
-      {hasRange ? (
+      {lowest !== null ? (
         <p>
-          Pierścionki z naszej kolekcji kosztują dziś <strong>{formatPrice(lowest)}</strong>, a najdroższy wyceniony projekt{' '}
-          <strong>{formatPrice(highest, '')}</strong> (ceny z {priced.length} {pluralRing(priced.length)} w katalogu, w wersji
-          ze zdjęć). Pierścionek projektowany od zera wyceniamy po rozmowie, bo jego cena zależy od wybranego kamienia i
-          złota.
+          Pierścionki z naszej kolekcji kosztują <strong>{formatPrice(lowest)}</strong>. Pierścionek projektowany od zera
+          wyceniamy po rozmowie, bo jego cena zależy od wybranego kamienia i złota.
         </p>
       ) : (
         <p>
@@ -78,8 +74,9 @@ export default async function PriceGuidePage() {
         </p>
       )}
       <p>
-        Wycenę zawsze dostajesz <strong>przed rozpoczęciem pracy</strong>. Jeśli powiesz na początku, jaki budżet planujesz,
-        dopasujemy do niego projekt.
+        Wycenę zawsze dostajesz <strong>przed rozpoczęciem pracy</strong>. Powiedz nam na początku, jaki budżet planujesz:
+        to nie jest niezręczne pytanie, tylko najważniejsza informacja dla złotnika. Dopasujemy do niego kamień, jego
+        wielkość i oprawę.
       </p>
 
       <h2 id="skladniki">Z czego składa się cena pierścionka</h2>
@@ -166,7 +163,8 @@ export default async function PriceGuidePage() {
         <>
           <h2 id="przyklady">Przykłady cen z naszej kolekcji</h2>
           <p>
-            Ceny dotyczą wersji ze zdjęć. Inny kamień, kolor złota albo rozmiar mogą je zmienić w obie strony.
+            Ceny dotyczą pierścionków takich jak na zdjęciach. Inny kamień, kolor złota albo rozmiar mogą je zmienić w obie
+            strony.
           </p>
           <ul className="ring-grid guide-rings guide-rings-4">
             {examples.map((r) => (

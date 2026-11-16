@@ -39,10 +39,10 @@ export const GUIDES: readonly Guide[] = [
     title: 'Jaki kamień do pierścionka zaręczynowego? Szafir, rubin, szmaragd i inne',
     short: 'Jaki kamień do pierścionka zaręczynowego',
     description:
-      'Diament, szafir, rubin, szmaragd, tanzanit, topaz: twardość, kolory i to, jak znoszą codzienne noszenie. Z przykładami pierścionków z pracowni.',
+      'Diament, szafir, rubin, szmaragd, tanzanit, topaz: kolory, twardość i jak dbać o kamień na co dzień. Z przykładami pierścionków z pracowni.',
     topic: 'Kamienie',
     published: '2026-11-15',
-    updated: '2026-11-15',
+    updated: '2026-11-16',
     minutes: 8,
   },
   {
@@ -53,7 +53,7 @@ export const GUIDES: readonly Guide[] = [
       'Z czego składa się cena pierścionka na zamówienie, co ją podnosi, a co obniża, i jak zmieścić się w budżecie bez rezygnowania z jakości.',
     topic: 'Cena',
     published: '2026-11-15',
-    updated: '2026-11-15',
+    updated: '2026-11-16',
     minutes: 6,
   },
 ]
