@@ -98,6 +98,16 @@ describe('tytuł i opis pierścionka (wtyczka SEO i strona)', () => {
     expect(mainStoneInstrumental('Perła biała')).toBe('białą perłą')
     expect(mainStoneInstrumental('Turmalin różowy, Diament')).toBe('różowym turmalinem')
     expect(mainStoneInstrumental('Kamień 1,2 ct')).toBe('')
+    expect(mainStoneInstrumental('Różowy szafir i diamenty')).toBe('różowym szafirem')
+    expect(mainStoneInstrumental('Szafir różowy, Diament')).toBe('różowym szafirem')
+    expect(mainStoneInstrumental('Kamień różowy')).toBe('różowym kamieniem')
+    expect(mainStoneInstrumental('Diamenty niebieskie i białe')).toBe('niebieskimi diamentami')
+    expect(mainStoneInstrumental('Zielone i białe diamenty')).toBe('')
+    expect(mainStoneInstrumental('Szafir granatowy i diamenty')).toBe('granatowym szafirem')
+    expect(mainStoneInstrumental('Mystic topaz i diamenty')).toBe('')
+    expect(productSeoTitle({ name: 'Aion', stone: 'Różowy szafir i diamenty', metal: 'Żółty' })).toBe(
+      'Pierścionek Aion z różowym szafirem, żółte złoto',
+    )
     expect(productSeoTitle({ name: 'Test', stone: 'Moissanit 6,5 mm', metal: 'Biały' })).toBe(
       'Pierścionek Test — moissanit 6,5 mm, białe złoto',
     )

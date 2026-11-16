@@ -23,7 +23,7 @@ type Stone = {
   /** Twardość w skali Mohsa (dane mineralogiczne). */
   mohs: string
   colors: string
-  daily: 'Bardzo dobry' | 'Dobry' | 'Wymaga uwagi'
+  daily: 'Bardzo dobry' | 'Dobry' | 'Dobry w ochronnej oprawie'
   /** Kamień główny w kartach katalogu, które pokazujemy jako przykłady. */
   match: RegExp
   /** Filtr koloru w katalogu, do którego prowadzi link pod przykładami. */
@@ -57,8 +57,8 @@ const STONES: Stone[] = [
     filter: 'niebieskie',
     filterLabel: 'pierścionki z niebieskimi kamieniami',
     text: [
-      'Szafir to odmiana korundu, drugiego po diamencie najtwardszego kamienia jubilerskiego. Dobrze znosi codzienne noszenie, także przy pracy rękami.',
-      'Najbardziej znany jest niebieski, od jasnego, chabrowego, po głęboki granat. Ten sam minerał występuje też w innych barwach, więc szafir nie musi być niebieski.',
+      'Szafir to klasyka pierścionka zaręczynowego od pokoleń. Niebieski kolor kojarzy się z wiernością i spokojem, a jego głęboki odcień pięknie wygląda zarówno w żółtym, jak i w białym złocie.',
+      'Jest odmianą korundu, drugiego po diamencie najtwardszego kamienia jubilerskiego, więc można go nosić codziennie bez obaw, także przy pracy rękami. Najbardziej znany jest niebieski, od chabrowego po głęboki granat, ale szafiry bywają też różowe, żółte i zielone.',
     ],
   },
   {
@@ -71,8 +71,8 @@ const STONES: Stone[] = [
     filter: 'rozowe',
     filterLabel: 'pierścionki z czerwonymi i różowymi kamieniami',
     text: [
-      'Rubin to czerwona odmiana tego samego minerału co szafir, więc jest równie twardy i odporny. Wybierają go osoby, które chcą koloru wyraźnego i ciepłego.',
-      'Czerwień rubinu dobrze wygląda w żółtym złocie, które podbija jej ciepło, i w białym, które ją chłodzi i wyostrza.',
+      'Rubin to kamień miłości i namiętności: wyraźna, ciepła czerwień, której nie pomylisz z żadnym innym kamieniem. Wybierają go osoby, które chcą, żeby pierścionek był widoczny i miał charakter.',
+      'Jest czerwoną odmianą tego samego minerału co szafir, więc tak samo dobrze znosi codzienne noszenie. W żółtym złocie jego czerwień staje się cieplejsza, a w białym chłodniejsza i bardziej wyrazista.',
     ],
   },
   {
@@ -80,13 +80,13 @@ const STONES: Stone[] = [
     name: 'Szmaragd',
     mohs: '7,5–8',
     colors: 'Zielony',
-    daily: 'Wymaga uwagi',
+    daily: 'Dobry w ochronnej oprawie',
     match: /^szmaragd/,
     filter: 'zielone',
     filterLabel: 'pierścionki z zielonymi kamieniami',
     text: [
-      'Szmaragd jest twardy, ale kruchy. Niemal każdy naturalny szmaragd ma wewnątrz drobne wrostki, które są jego znakiem rozpoznawczym, a jednocześnie sprawiają, że gorzej znosi mocne uderzenia i gwałtowne zmiany temperatury.',
-      'To nie przeszkoda, tylko wskazówka: pierścionek ze szmaragdem warto zdejmować do sprzątania, sportu i pracy w ogrodzie, a oprawę dobrać tak, żeby osłaniała krawędzie kamienia.',
+      'Szmaragd zachwyca zielenią, jakiej nie ma żaden inny kamień: głęboką, soczystą i żywą. Od wieków jest symbolem nadziei i wierności, a w pierścionku zaręczynowym wygląda szlachetnie i nieoczywiście.',
+      'Naturalne szmaragdy mają w środku delikatne wrostki, które jubilerzy nazywają „ogrodem”. To znak naturalnego pochodzenia i część charakteru kamienia, dzięki której każdy szmaragd jest jedyny w swoim rodzaju. Dobieramy dla niego oprawę, która dobrze go trzyma i osłania, a o tym, jak o niego dbać, piszemy na końcu poradnika.',
     ],
   },
   {
@@ -94,13 +94,13 @@ const STONES: Stone[] = [
     name: 'Tanzanit',
     mohs: '6–7',
     colors: 'Niebieskofioletowy, zmienia odcień zależnie od światła',
-    daily: 'Wymaga uwagi',
+    daily: 'Dobry w ochronnej oprawie',
     match: /^tanzanit/,
     filter: 'niebieskie',
     filterLabel: 'pierścionki z niebieskimi kamieniami',
     text: [
-      'Tanzanit wydobywa się tylko w jednym rejonie świata, w północnej Tanzanii. Jego barwa przechodzi z niebieskiej w fioletową, gdy ogląda się kamień pod innym kątem albo w innym świetle.',
-      'Jest miększy od szafiru, więc z czasem może łapać drobne rysy. Sprawdza się w oprawie, która chroni kamień, i u osoby, która zdejmuje pierścionek do cięższych prac.',
+      'Tanzanit ma jeden z najpiękniejszych odcieni wśród kamieni: aksamitny niebieskofiolet, który zmienia się zależnie od światła i kąta patrzenia. Wydobywa się go tylko w jednym miejscu na świecie, w północnej Tanzanii, u stóp Kilimandżaro.',
+      'To wybór dla osób, które szukają koloru nieoczywistego i rzadko spotykanego. Jest delikatniejszy od szafiru, dlatego oprawiamy go tak, żeby był dobrze chroniony i służył latami.',
     ],
   },
   {
@@ -113,8 +113,8 @@ const STONES: Stone[] = [
     filter: 'niebieskie',
     filterLabel: 'pierścionki z niebieskimi kamieniami',
     text: [
-      'Topaz jest twardy i odporny na zarysowania, a przy tym dostępny w dużych rozmiarach, więc pozwala na okazały kamień w rozsądnej cenie. Odmiana London Blue ma głęboki, lekko stalowy odcień niebieskiego.',
-      'Ma jedną słabość: przy silnym, punktowym uderzeniu może pęknąć wzdłuż płaszczyzny kryształu. W zwykłym noszeniu rzadko ma to znaczenie.',
+      'Topaz daje dużo koloru i blasku w rozsądnej cenie, także w dużych rozmiarach, więc pozwala na okazały kamień bez wielkiego budżetu. Odmiana London Blue ma głęboki, lekko stalowy odcień niebieskiego, a jasny, błękitny topaz kojarzy się ze świeżością i lekkością.',
+      'Jest twardy i odporny na zarysowania, dlatego dobrze sprawdza się w codziennym noszeniu.',
     ],
   },
   {
@@ -127,8 +127,8 @@ const STONES: Stone[] = [
     filter: 'fioletowe',
     filterLabel: 'pierścionki z fioletowymi kamieniami',
     text: [
-      'Oba kamienie to odmiany kwarcu. Dają dużo koloru i sporą wielkość przy przystępnej cenie, dlatego dobrze sprawdzają się, gdy ważniejszy jest efekt niż rzadkość kamienia.',
-      'Twardość 7 wystarcza na co dzień, choć po latach na krawędziach szlifu mogą pojawić się drobne przetarcia. Kamień można wtedy przeszlifować albo wymienić.',
+      'Ametyst ma królewski fiolet, a cytryn ciepłą barwę miodu i słońca. Oba są odmianami kwarcu i dają dużo koloru oraz sporą wielkość kamienia przy przystępnej cenie, dlatego dobrze sprawdzają się, gdy najważniejszy jest ulubiony kolor i efekt.',
+      'Ametyst od dawna uchodzi za kamień spokoju i równowagi, a cytryn za kamień radości. Ich twardość wystarcza do codziennego noszenia.',
     ],
   },
   {
@@ -141,8 +141,8 @@ const STONES: Stone[] = [
     filter: 'rozowe',
     filterLabel: 'pierścionki z czerwonymi i różowymi kamieniami',
     text: [
-      'Turmalin występuje w wyjątkowo wielu barwach, od malinowej po oliwkową. Morganit, krewny szmaragdu, ma delikatny, pudrowy róż, który dobrze łączy się z żółtym złotem.',
-      'Oba nadają się do codziennego noszenia. Jasny morganit szybciej pokazuje zabrudzenia od kremu i mydła, więc warto go regularnie czyścić.',
+      'Turmalin występuje w wyjątkowo wielu barwach, od malinowej po oliwkową, więc łatwo znaleźć odcień dopasowany do osoby. Morganit, krewny szmaragdu, ma delikatny, pudrowy róż, który romantycznie wygląda w żółtym złocie.',
+      'Oba kamienie dobrze nadają się do codziennego noszenia i dają dużo koloru za rozsądną cenę.',
     ],
   },
 ]
@@ -153,6 +153,7 @@ const SECTIONS = [
   { id: 'porownanie', label: 'Porównanie kamieni' },
   ...STONES.map((s) => ({ id: s.id, label: s.name })),
   { id: 'jak-wybrac', label: 'Jak wybrać' },
+  { id: 'pielegnacja', label: 'Jak dbać o kamienie i pierścionki' },
   { id: 'pytania', label: 'Częste pytania' },
 ]
 
@@ -167,7 +168,11 @@ const FAQ = [
   },
   {
     q: 'Czy szmaragd nadaje się na co dzień?',
-    text: 'Tak, jeśli pamięta się o jego kruchości. Pierścionek ze szmaragdem warto zdejmować do sprzątania, sportu i cięższych prac, a oprawa powinna osłaniać krawędzie kamienia.',
+    text: 'Tak. Szmaragd ma twardość 7,5–8 w skali Mohsa i w dobrze dobranej oprawie służy latami. Wystarczy zdejmować go do sprzątania, sportu i cięższych prac, tak jak każdy pierścionek z kolorowym kamieniem.',
+  },
+  {
+    q: 'Jak wyczyścić pierścionek z kamieniem w domu?',
+    text: 'Ciepłą wodą z kroplą płynu do naczyń i miękką szczoteczką, delikatnie także od spodu kamienia. Potem opłucz i osusz miękką ściereczką. Szmaragdu i tanzanitu nie mocz długo i nie czyść w myjce ultradźwiękowej.',
   },
   {
     q: 'Czy w projekcie z kolekcji można zmienić kamień?',
@@ -181,15 +186,16 @@ export default async function StonesGuidePage() {
     <GuideLayout
       faq={FAQ}
       guide={guide}
-      lead="Do noszenia na co dzień najlepiej nadają się diament, szafir i rubin. Szmaragd i tanzanit są delikatniejsze, ale dobrze oprawione też służą latami. Poniżej porównanie i przykłady z naszej pracowni."
+      lead="Najtwardsze i najodporniejsze są diament, szafir i rubin. Szmaragd, tanzanit i inne kolorowe kamienie zachwycają barwą, a w dobrze dobranej oprawie też służą latami. Poniżej porównanie, przykłady z naszej pracowni i rady, jak dbać o pierścionek."
       sections={SECTIONS}
     >
       <h2 id="krotko">Krótka odpowiedź</h2>
       <p>
         Pierścionek zaręczynowy nosi się codziennie, więc kamień powinien łączyć dwie rzeczy: kolor, który podoba się osobie
-        obdarowanej, i odporność na zwykłe życie. <strong>Diament, szafir i rubin</strong> wybaczają najwięcej.{' '}
-        <strong>Szmaragd, tanzanit i kamienie o twardości około 7</strong> wymagają trochę więcej uwagi i dobrze dobranej
-        oprawy.
+        obdarowanej, i odporność na zwykłe życie. <strong>Diament, szafir i rubin</strong> są najtwardsze i najlepiej znoszą
+        codzienne noszenie. <strong>Szmaragd, tanzanit i kamienie o twardości około 7</strong> dają piękne, nasycone
+        kolory, a w dobrze dobranej oprawie też służą latami. Jak dbać o każdy z nich, piszemy{' '}
+        <a href="#pielegnacja">na końcu poradnika</a>.
       </p>
 
       <h2 id="twardosc">Twardość, czyli odporność na rysy</h2>
@@ -200,7 +206,7 @@ export default async function StonesGuidePage() {
       </p>
       <p>
         Twardość to nie wszystko. Kamień może być twardy, a mimo to pęknąć od mocnego uderzenia, jak szmaragd albo topaz.
-        Dlatego obok tabeli opisujemy każdy kamień osobno.
+        Dlatego obok tabeli opisujemy każdy kamień osobno, a na końcu podpowiadamy, jak o niego dbać.
       </p>
 
       <h2 id="porownanie">Porównanie kamieni</h2>
@@ -287,6 +293,63 @@ export default async function StonesGuidePage() {
       <p className="guide-note">
         Kamień w każdym projekcie z <Link href="/pierscionki">naszej kolekcji</Link> możemy zmienić. Kamienie pokazujemy na
         żywo w pracowni, a gdy zamawiasz z daleka, na zdjęciach i filmach.
+      </p>
+
+
+      <h2 id="pielegnacja">Jak dbać o kamienie i pierścionki</h2>
+      <p>
+        Każdy pierścionek, nawet z diamentem, posłuży dłużej, jeśli pamiętasz o kilku prostych zasadach. Przy kamieniach
+        kolorowych mają one większe znaczenie, dlatego przy każdej zasadzie piszemy, których kamieni dotyczy najbardziej.
+      </p>
+      <h3>Kiedy zdejmować pierścionek</h3>
+      <ul>
+        <li>Do sprzątania ze środkami czystości, pracy w ogrodzie, remontu i sportu, zwłaszcza na siłowni.</li>
+        <li>Na basen i do sauny, bo chlor i wysoka temperatura nie służą ani kamieniom, ani złotu.</li>
+        <li>Na noc. Krem, balsam i perfumy nałóż przed założeniem pierścionka, a nie po.</li>
+      </ul>
+      <h3>Kamienie, które lubią trochę więcej ostrożności</h3>
+      <ul>
+        <li>
+          <strong>Szmaragd.</strong> Naturalne wrostki sprawiają, że gorzej znosi mocne uderzenia i gwałtowne zmiany
+          temperatury. Nie czyść go w myjce ultradźwiękowej ani parą i nie zostawiaj w gorącej wodzie.
+        </li>
+        <li>
+          <strong>Tanzanit.</strong> Jest miększy od szafiru, więc z czasem może łapać drobne rysy. Chroń go przed
+          uderzeniami i nagłą zmianą temperatury, a do czyszczenia używaj tylko wody z płynem.
+        </li>
+        <li>
+          <strong>Topaz.</strong> Przy silnym, punktowym uderzeniu może pęknąć wzdłuż płaszczyzny kryształu. W zwykłym
+          noszeniu rzadko ma to znaczenie, ale do cięższych prac lepiej go zdjąć.
+        </li>
+        <li>
+          <strong>Ametyst i cytryn.</strong> Po latach na krawędziach szlifu mogą pojawić się drobne przetarcia. Kamień
+          można wtedy przeszlifować i przywrócić mu blask.
+        </li>
+        <li>
+          <strong>Morganit i jasne kamienie.</strong> Szybciej pokazują zabrudzenia od kremu i mydła, więc warto czyścić je
+          częściej.
+        </li>
+      </ul>
+      <h3>Czyszczenie w domu</h3>
+      <ol>
+        <li>Przygotuj miskę ciepłej, nie gorącej wody z kroplą płynu do naczyń.</li>
+        <li>Miękką szczoteczką do zębów delikatnie oczyść kamień, także od spodu, gdzie zbiera się najwięcej brudu.</li>
+        <li>Opłucz pod bieżącą wodą (zatkaj odpływ) i osusz miękką, niepylącą ściereczką.</li>
+      </ol>
+      <p>
+        Diament, szafir i rubin możesz krótko namoczyć. Szmaragd i tanzanit tylko przetrzyj, bez moczenia. Nie
+        używaj pasty do zębów, sody ani środków z chlorem, bo rysują złoto i matowią kamienie.
+      </p>
+      <h3>Przechowywanie</h3>
+      <p>
+        Trzymaj pierścionek osobno, w miękkim woreczku albo przegródce szkatułki. Diament i szafir są tak twarde, że mogą
+        zarysować inne kamienie i złoto, jeśli biżuteria leży razem.
+      </p>
+      <h3>Przegląd w pracowni</h3>
+      <p>
+        Raz w roku warto pokazać pierścionek złotnikowi. Sprawdzimy, czy kamienie dobrze siedzą w oprawie, w razie potrzeby
+        dociśniemy łapki, a pierścionek wyczyścimy i wypolerujemy. Więcej o tym na stronie{' '}
+        <Link href="/naprawy">Naprawy i przeróbki</Link>.
       </p>
 
       <h2 id="pytania">Częste pytania</h2>
