@@ -74,10 +74,9 @@ def video_thumb(video, dest):
         return False
 
 
-def main():
-    if len(sys.argv) != 3:
-        sys.exit(__doc__)
-    src, root = Path(sys.argv[1]).expanduser(), Path(sys.argv[2])
+def import_posts(src, root):
+    """Dopisuje nowe posty z kopii src do root/posts.json. Zwraca słownik z licznikami (używa go też refresh_posts.py)."""
+    src, root = Path(src).expanduser(), Path(root)
     posts_file = root / "posts.json"
     cur = json.loads(posts_file.read_text(encoding="utf-8"))
     known = {p["post_id"] for p in cur["posts"]}
@@ -109,13 +108,27 @@ def main():
     if added:
         shutil.copy2(posts_file, posts_file.with_suffix(".json.bak"))
         cur["posts"].extend(added)
-        posts_file.write_text(json.dumps(cur, ensure_ascii=False, indent=1), encoding="utf-8")
-    n = len(added)
-    print(f"posts.json: dopisano {n} {plural(n, 'nowy post', 'nowe posty', 'nowych postów')} "
-          f"({copied} {plural(copied, 'plik', 'pliki', 'plików')} do media/), pominięto już znane: {skipped}")
-    if no_thumb:
-        print(f"uwaga: filmy bez klatki podglądu (brak ffmpeg?): {no_thumb}; przegląd pokaże je bez miniatury")
-    if added:
+        tmp = posts_file.with_name(posts_file.name + ".tmp")
+        tmp.write_text(json.dumps(cur, ensure_ascii=False, indent=1), encoding="utf-8")
+        tmp.replace(posts_file)
+    return {"added": len(added), "skipped": skipped, "copied": copied, "no_thumb": no_thumb}
+
+
+def summary(r):
+    n, copied = r["added"], r["copied"]
+    lines = [f"posts.json: dopisano {n} {plural(n, 'nowy post', 'nowe posty', 'nowych postów')} "
+             f"({copied} {plural(copied, 'plik', 'pliki', 'plików')} do media/), pominięto już znane: {r['skipped']}"]
+    if r["no_thumb"]:
+        lines.append(f"uwaga: filmy bez klatki podglądu (brak ffmpeg?): {r['no_thumb']}; przegląd pokaże je bez miniatury")
+    return lines
+
+
+def main():
+    if len(sys.argv) != 3:
+        sys.exit(__doc__)
+    r = import_posts(sys.argv[1], sys.argv[2])
+    print("\n".join(summary(r)))
+    if r["added"]:
         print("dalej: python3 scripts/facebook/build_review.py data/facebook")
 
 

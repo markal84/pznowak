@@ -29,7 +29,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 #banner .b.info{background:var(--warn)}
 #banner .b button{margin-left:8px;color:#222}
 #banner code{background:#0003;border-radius:4px;padding:1px 5px;font-weight:400}
-body.nosync main button,body.nosync main input,body.nosync main textarea,body.nosync #nextBtn,body.nosync #exportBtn{pointer-events:none;opacity:.45}
+body.nosync main button,body.nosync main input,body.nosync main textarea,body.nosync #nextBtn,body.nosync #exportBtn,body.nosync #refreshBtn{pointer-events:none;opacity:.45}
 h2{scroll-margin-top:150px;margin:28px 0 0;font-size:20px}
 h2 small{color:var(--muted);font-weight:400;font-size:14px}
 .item{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:10px;padding:10px 14px;margin:12px 0;scroll-margin-top:150px}
@@ -158,6 +158,7 @@ body.only-fresh #main [data-sec]:not([data-sec=fresh]){display:none}
   <div class="row">
     <h1>Pierścionki z fanpage'a: przegląd i decyzje</h1>
     <span id="status">…</span>
+    <button id="refreshBtn" title="Ściąga nowe posty z serwera i dopisuje je do przeglądu (decyzje zostają)">Pobierz nowe posty</button>
     <button id="exportBtn" title="Zapisuje data/facebook/catalog-selection.json">Eksportuj wybór</button>
   </div>
   <div class="counters" id="counters"></div>
@@ -196,6 +197,7 @@ body.only-fresh #main [data-sec]:not([data-sec=fresh]){display:none}
 'use strict';
 const D = JSON.parse(document.getElementById('data').textContent);
 const API = '/api/selection';
+let refreshing = false; // trwa „Pobierz nowe posty”
 const PENDING_KEY = 'fbreview:pending';
 const START_CMD = 'python3 scripts/facebook/review_server.py';
 
@@ -424,9 +426,9 @@ function updateStatus() {
   if (seq !== savedSeq) setStatus(saving ? 'zapisywanie…' : 'niezapisane zmiany…');
   else if (lastSaved) setStatus('zapisano ' + hhmmss(lastSaved));
 }
-async function api(method, path, body) {
+async function api(method, path, body, ms) {
   const ctl = new AbortController();
-  const t = setTimeout(() => ctl.abort(), 8000);
+  const t = setTimeout(() => ctl.abort(), ms || 8000);
   try {
     const r = await fetch(path, { method, signal: ctl.signal, cache: 'no-store',
       headers: body ? { 'Content-Type': 'application/json' } : undefined, body: body ? JSON.stringify(body) : undefined });
@@ -514,7 +516,7 @@ function checkPending() {
 }
 // co kilka sekund: wykrywa wyłączony serwer i zmiany z innej karty
 setInterval(async () => {
-  if (!loaded || saving || seq !== savedSeq || conflict) return;
+  if (!loaded || saving || seq !== savedSeq || conflict || document.hidden || refreshing) return;
   try {
     const r = await api('GET', API);
     if (!r.ok || !r.data) throw new Error('bad');
@@ -969,6 +971,33 @@ onlyOpen.addEventListener('change', () => {
   document.body.classList.toggle('only-open', onlyOpen.checked);
   sync();
   try { localStorage.setItem('fbreview:onlyOpen', onlyOpen.checked ? '1' : ''); } catch (e) { /* ok */ }
+});
+// Pobierz nowe posty: serwer przeglądu ściąga kopię z MyDevil, dopisuje posty i przebudowuje stronę (refresh_posts.py).
+$('#refreshBtn').addEventListener('click', async () => {
+  if (!loaded || refreshing) return;
+  clearTimeout(saveTimer);
+  for (let i = 0; i < 5 && seq !== savedSeq && !conflict; i++) { await save(); if (seq !== savedSeq) await new Promise(r => setTimeout(r, 400)); }
+  if (conflict || seq !== savedSeq) { alert('Najpierw trzeba zapisać decyzje (zobacz czerwony baner).'); return; }
+  refreshing = true;
+  const btn = $('#refreshBtn');
+  btn.disabled = true; btn.textContent = 'Pobieram…';
+  setStatus('pobieranie nowych postów (może potrwać kilka minut)…');
+  try {
+    const r = await api('POST', '/api/refresh', undefined, 45 * 60 * 1000);
+    const d = r.data || {};
+    const info = (d.lines || []).join('\n');
+    if (d.rebuilt) {
+      alert(`Nowe posty: ${d.added}. Strona się teraz odświeży.\n\n${info}`);
+      location.reload();
+      return;
+    }
+    if (!r.ok || !d.ok) throw new Error(info || (d.error || 'HTTP ' + r.status));
+    alert(d.added ? info : 'Brak nowych postów.\n\n' + info);
+    updateStatus();
+  } catch (e) {
+    alert('Pobieranie nie wyszło:\n' + (e.name === 'AbortError' ? 'brak odpowiedzi serwera' : e.message));
+    updateStatus();
+  } finally { refreshing = false; btn.disabled = false; btn.textContent = 'Pobierz nowe posty'; }
 });
 $('#exportBtn').addEventListener('click', async () => {
   if (!loaded) return;
