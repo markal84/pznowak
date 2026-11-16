@@ -6,18 +6,17 @@
  *
  * Kartę szuka po nazwie (bez wielkości liter). Pomija nazwę, której nie ma albo która ma kilka kart, i kartę, która ma już
  * inną cenę (ktoś mógł ją wpisać ręcznie). Idempotentne: drugie uruchomienie niczego nie zmienia.
- * Wymaga migracji `20261106_100112_ceny_pierscionkow` (kolumna `price`). Działa tylko z NEON_BRANCH=staging.
+ * Wymaga migracji `20261106_100112_ceny_pierscionkow` (kolumna `price`). Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts).
  */
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import { loadPrices, planPrice, type PriceCard } from './ceny-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:ceny musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-ceny')
 
 const { ceny, bezKarty } = loadPrices()
 const payload = await getPayload({ config: await config })

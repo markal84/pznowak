@@ -7,18 +7,17 @@
  *
  * Karty szuka po id i nazwie (obie muszą się zgadzać). Pomija kartę zapisaną po eksporcie (`updatedAt` późniejsze niż
  * 2026-11-01T12:00:00Z), bo ktoś mógł ją poprawić ręcznie. Idempotentne: drugie uruchomienie niczego nie zmienia.
- * Działa tylko z NEON_BRANCH=staging (jak `staging:nazwy` i `staging:realizacje`).
+ * Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts) (jak `staging:nazwy` i `staging:realizacje`).
  */
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import { EXPORT_CUTOFF, loadSpecs, planCard, type CardState } from './opisy-u-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:opisy musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-opisy-u')
 
 const specs = loadSpecs()
 const payload = await getPayload({ config: await config })

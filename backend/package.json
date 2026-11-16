@@ -14,10 +14,10 @@
     "db:seed": "node --env-file=.env.local scripts/seed.js",
     "db:import": "node --env-file=.env.local scripts/import-catalog.js",
     "db:setup": "npm run db:migrate && npm run db:import",
-    "db:migrate:staging": "node --env-file=.env.staging.local scripts/migrate.js",
-    "db:import:staging": "node --env-file=.env.staging.local scripts/import-catalog.js",
+    "db:migrate:staging": "node --env-file=.env.test.local scripts/migrate.js",
+    "db:import:staging": "node --env-file=.env.test.local scripts/import-catalog.js",
     "db:setup:staging": "npm run db:migrate:staging && npm run db:import:staging",
-    "media:migrate:staging": "node --env-file=.env.local --env-file=.env.staging.local scripts/migrate-media.js"
+    "media:migrate:staging": "node --env-file=.env.local --env-file=.env.test.local scripts/migrate-media.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

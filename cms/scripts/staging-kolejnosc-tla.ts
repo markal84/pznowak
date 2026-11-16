@@ -10,7 +10,7 @@
  *   npm run staging:kolejnosc-tla -- --apply zapisuje; poprzednie numery idą do output/kolejnosc-tla-*.json
  *   npm run staging:kolejnosc-tla -- --cofnij output/kolejnosc-tla-XXXX.json   przywraca numery z kopii
  *
- * Działa tylko z NEON_BRANCH=staging.
+ * Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts).
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -20,10 +20,9 @@ import sharp from 'sharp'
 
 import config from '../src/payload.config'
 import { writeSortOrder } from '../src/lib/sort-order'
+import { requireLiveDatabase } from './db-guard'
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:kolejnosc-tla musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-kolejnosc-tla')
 
 const args = process.argv.slice(2)
 const applyChanges = args.includes('--apply')

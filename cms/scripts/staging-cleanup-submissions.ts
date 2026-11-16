@@ -8,13 +8,12 @@ import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import { drizzleOf } from '../src/lib/submissions/store'
+import { refuseLiveDatabase } from './db-guard'
 
 const apply = process.argv.includes('--apply')
 const resetPreviewLimits = process.argv.includes('--reset-preview-limits')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging-cleanup-submissions must run with NEON_BRANCH=staging')
-}
+refuseLiveDatabase('staging-cleanup-submissions')
 
 const TEST_NAMES = ['Test Playwright', 'Test Automatyczny']
 const payload = await getPayload({ config: await config })

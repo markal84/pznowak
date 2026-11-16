@@ -8,7 +8,7 @@
  *                                         ich stary tekst idzie na ekran i do seed/opisy/opisy-ac-kopia.json
  *
  * Karty szuka po id i nazwie. Nadpisuje tylko tekst ze zlecenia U (Urania: z AB); tekst poprawiony ręcznie w panelu
- * zostaje. Idempotentne. Działa tylko z NEON_BRANCH=staging.
+ * zostaje. Idempotentne. Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts).
  */
 import { writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -17,6 +17,7 @@ import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import { AC_PATH, loadAcSpecs, planAc } from './opisy-ac-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 /** `--nadpisz=46,17,thalia`: id albo slugi kart, które Marcin świadomie każe nadpisać mimo ręcznej zmiany w panelu. */
@@ -28,9 +29,7 @@ const overwrite = new Set(
 )
 const BACKUP_PATH = path.join(path.dirname(AC_PATH), 'opisy-ac-kopia.json')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:opisy-ac musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-opisy-ac')
 
 const specs = loadAcSpecs()
 const payload = await getPayload({ config: await config })

@@ -14,7 +14,7 @@
  * Przekierowania 308 (`/pierscionki/eirene` → `/pierscionki/harmonia?kamien=turmalin-malinowy-i-diamenty`,
  * `/pierscionki/leto` → `/pierscionki/harmonia`) są w kodzie (`src/lib/legacy-redirects.ts`): działają po wdrożeniu kodu.
  *
- * Idempotentne: drugie uruchomienie niczego nie zmienia. Działa tylko z NEON_BRANCH=staging.
+ * Idempotentne: drugie uruchomienie niczego nie zmienia. Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts).
  */
 import { getPayload } from 'payload'
 
@@ -24,12 +24,11 @@ import { stoneSlug } from '../src/lib/stone-variants'
 import { knownTexts, loadAcSpecs, planAc } from './opisy-ac-logic'
 import { assetId, featuredTransfer, imageIds, planArchive, planVariant, videoId } from './polaczenie-ab-logic'
 import { SOURCES, TARGET, VARIANT_MERGES } from './polaczenie-harmonia-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:harmonia musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-polaczenie-harmonia')
 
 const payload = await getPayload({ config: await config })
 
