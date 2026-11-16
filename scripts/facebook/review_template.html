@@ -111,6 +111,8 @@ figure.m .badges{position:absolute;left:4px;bottom:4px;z-index:3;display:flex;fl
 .vm .vb.same{background:var(--ok)}.vm .vb.different{background:var(--no)}.vm .vb.unsure{background:var(--warn)}
 .vm .vr{color:var(--muted)}
 .vm .vx{color:var(--bad);font-weight:600}
+.hintm{border:1px dashed var(--line);border-radius:8px;padding:4px 8px;margin:4px 0;font-size:13px}
+.hintm b{margin-right:6px}.hintm .vr{color:var(--muted)}
 .dup .vm{flex-basis:auto}
 .mrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;margin:6px 0;color:var(--muted)}
 .mrow b{color:var(--fg)}
@@ -643,6 +645,18 @@ function visionHTML(ops) {
     `<span class="vr">${esc(o.model)}: ${esc(o.reason)}</span></span>`).join('') + `</div>`;
 }
 const visionFor = (a, b) => VISION[[a, b].sort().join('|')];
+// Podpowiedź Terry (classify/results.json): co zrobić z postem względem katalogu. Decyzję i tak zapisujesz sam.
+const HINTS = D.hints || {};
+const H_LABEL = { 'nowy': 'nowy pierścionek do katalogu', 'dodatek': 'zdjęcia do istniejącej karty', 'zamiast-wizualizacji': 'prawdziwe zdjęcie zamiast wizualizacji',
+  'nowy-wariant': 'nowy kamień do istniejącego fasonu', 'material': 'materiał', 'pomin': 'nic do wykorzystania' };
+function hintHTML(g) {
+  const h = HINTS[g.key];
+  if (!h || !h.result) return '';
+  const r = h.result;
+  const target = r.product ? ` → <b>${esc(h.productName || r.product)}</b>` + (r.variant ? ` (${esc(r.variant)})` : '') : '';
+  const already = r.product && (h.fromPost || []).includes(r.product) ? ' · <b>zdjęcia z tego posta już są w tej karcie</b>' : '';
+  return `<div class="hintm">Podpowiedź modelu: <b>${esc(H_LABEL[r.category] || r.category)}</b>${target} · ${esc(r.confidence)} %${already}<br><span class="vr">${esc(r.reason)}</span></div>`;
+}
 function propsHTML(g, list) {
   return (list || []).map(p => {
     const o = CARD[p.other];
@@ -684,7 +698,7 @@ function itemHTML(g, n, label) {
   }
   if (g.type === 'card') {
     head = `<h3>${num}${esc(it.title)}</h3><span><button type="button" class="mergebtn" data-act="pickOpen">połącz z kartą…</button> ${seg('dec', CARD_DEC, 'data-act="decide"')}</span>`;
-    extra = `<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza" aria-label="Nazwa robocza" value="">` +
+    extra = `${hintHTML(g)}<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza" aria-label="Nazwa robocza" value="">` +
       `<textarea data-f="note" placeholder="Krótka notatka (np. „= karta 12”, żeby zaproponować połączenie)" aria-label="Notatka"></textarea></div>`;
   } else if (g.type === 'existing') {
     head = `<h3>${esc(it.title)}</h3><button type="button" class="cbtn" data-act="complete" aria-pressed="false" title="Nic z tych postów nie trafia do galerii; decyzje zdjęć zostają w pliku, ale eksport je pomija">kompletne – bez zmian</button>`;

@@ -12,7 +12,8 @@ Kategorie (classify_schema.json):
 Wynik to WYŁĄCZNIE podpowiedzi w data/facebook/classify/; decyzje zapisuje Marcin w przeglądzie (selection.json
 nie jest tu zapisywany).
 
-Użycie (z katalogu głównego repo; najpierw `cd cms && npm run katalog:snapshot` → data/facebook/katalog.json):
+Użycie (z katalogu głównego repo; najpierw `cd cms && npm run katalog:snapshot` → data/facebook/katalog.json;
+zwykle robi to samo refresh_posts.py, czyli start przeglądu albo przycisk „Pobierz nowe posty”):
   python3 scripts/facebook/classify_posts.py                 # karty z sekcji „Nowe od…”, bez modelu: kandydaci
   python3 scripts/facebook/classify_posts.py --run           # j.w. + Terra
   python3 scripts/facebook/classify_posts.py --test --run    # test na kartach rozstrzygniętych przez Marcina → raport
@@ -48,6 +49,7 @@ import vision_pairs as vp  # noqa: E402  (arkusze, klatki filmów, codex exec)
 SCHEMA = HERE / "classify_schema.json"
 TERRA = {"id": "gpt-6.1-terra", "effort": "medium", "dir": "terra", "counter": "terra-calls.json", "limit": None}
 MAX_CANDIDATES = 5
+SAME_PHOTO_DHASH = 6  # tyle bitów różnicy dHash = to samo zdjęcie (np. szkic zrobiony z tego posta)
 PROMPT_VERSION = 1
 SITE = "https://pznowak.pl"
 LOCK = threading.Lock()
@@ -284,7 +286,10 @@ def classify(root, vdir, card, catalog, test, run_model, expected=None):
     images = [post_sheet] + [s for s, _ in sheets if s]
     h = hashlib.sha1(json.dumps([PROMPT_VERSION, prompt, [Path(i).name for i in images]]).encode()).hexdigest()[:16]
     cache = vdir / "terra" / f"{h}.json"
-    rec = {"key": card["key"], "title": card.get("title"), "candidates": [c["product"]["slug"] for c in cands], "hash": h}
+    rec = {"key": card["key"], "title": card.get("title"), "candidates": [c["product"]["slug"] for c in cands], "hash": h,
+           # karty katalogu, które już mają zdjęcia z tego posta (np. szkic zrobiony wcześniej z tej karty przeglądu)
+           "fromPost": sorted({p["slug"] for p in catalog if made_from(p, blocked_sources(card)) or p.get("facebookKey") == card["key"]}
+                              | {c["product"]["slug"] for c in cands if c["dhash"] <= SAME_PHOTO_DHASH})}
     if cache.exists():
         rec["result"] = json.loads(cache.read_text())["result"]
         rec["cached"] = True
@@ -384,7 +389,12 @@ def main():
         out, ok = report(root, rows, taken)
         log(f"Trafione {ok}/{len(rows)}. Raport: {out}")
     else:
-        res = {r["key"]: {k: r.get(k) for k in ("result", "candidates", "error")} for r in rows}
+        names = {p["slug"]: p["name"] for p in catalog}
+        res = {}
+        for r in rows:
+            res[r["key"]] = {k: r.get(k) for k in ("result", "candidates", "error", "fromPost")}
+            if (r.get("result") or {}).get("product"):
+                res[r["key"]]["productName"] = names.get(r["result"]["product"], r["result"]["product"])
         (vdir / "results.json").write_text(json.dumps({"at": datetime.now(timezone.utc).isoformat(), "katalog": taken, "cards": res}, ensure_ascii=False, indent=1))
         log(f"Podpowiedzi: {vdir / 'results.json'}")
 

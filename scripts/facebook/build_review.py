@@ -210,6 +210,11 @@ if prop_path.exists():
 # Weryfikacja modelem (etap B, vision/results.json): plakietki i propozycje; osobny moduł, tu tylko wywołanie.
 sys.path.insert(0, str(Path(__file__).parent))
 __import__("vision_merge").add(root, page_data)
+# Podpowiedzi Terry (classify_posts.py → classify/results.json): co zrobić z kartą względem katalogu. Tylko podpowiedź.
+hints_path = root / "classify" / "results.json"
+if hints_path.exists():
+    hints = json.loads(hints_path.read_text(encoding="utf-8")).get("cards", {})
+    page_data["hints"] = {k: v for k, v in hints.items() if k in card_keys and v.get("result")}
 manual_media.annotate_manual(page_data, MANUAL)
 for w in manual_media.annotate_ai(page_data, manual_media.load_ai(root)):
     print("UWAGA:", w)

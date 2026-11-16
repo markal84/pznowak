@@ -2,8 +2,12 @@
 // modelu w przeglądzie FB (scripts/facebook/classify_posts.py): nazwy, kamienie, warianty (z oznaczeniem wizualizacji),
 // adresy zdjęć. Bierze najnowszą wersję każdej karty, także szkice.
 //
-//   npm run katalog:snapshot -- --env production     (domyślnie)
-//   npm run katalog:snapshot -- --env staging
+//   npm run katalog:snapshot                          żywa baza strony (domyślnie)
+//   npm run katalog:snapshot -- --env production       stara gałąź Neon „production” (archiwum, tylko do porównań)
+//
+// Uwaga na nazwy: strona na MyDevil działa na gałęzi Neon, którą pliki na Macu nazywają „staging”
+// (backend/.env.staging.local, NEON_BRANCH=staging); gałąź „production” to archiwum sprzed przeprowadzki
+// (zob. scripts/backup/README.md). Dlatego domyślne --env to staging.
 //
 // Opcje: --out <plik> (domyślnie data/facebook/katalog.json), --env-root <katalog z cms/.env* i backend/.env*>.
 // Niczego nie zapisuje w bazie ani w Blob.
@@ -18,7 +22,7 @@ const option = (name: string) => {
   const i = args.indexOf(name)
   return i >= 0 ? args[i + 1] : undefined
 }
-const env = option('--env') ?? 'production'
+const env = option('--env') ?? 'staging'
 if (env !== 'staging' && env !== 'production') throw new Error('Podaj --env staging albo --env production')
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))

@@ -9,6 +9,9 @@ Kroki:
      scripts/posty-meta/README.md, sekcja „Kopia na Maca”). --bez-serwera pomija ten krok (np. bez sieci).
   2. import_posty_meta.py: posty, których nie ma w posts.json, z katalogu kopii (CEL z ustawień kopii).
   3. build_review.py, tylko gdy coś doszło albo nie ma review.html.
+  4. Podpowiedzi modelu dla kart „Nowe od…”: zrzut katalogu z Payload (cms: npm run katalog:snapshot, tylko odczyt),
+     classify_posts.py --run (Terra; karty już ocenione biorą wynik z cache) i ponowne build_review.py.
+     --bez-podpowiedzi pomija ten krok. Gdy coś się nie uda, przegląd i tak jest gotowy, tylko bez podpowiedzi.
 Decyzji (selection.json) nie dotyka. Błąd kopii nie przerywa reszty: dopisuje to, co już jest na Macu.
 """
 import subprocess
@@ -50,7 +53,43 @@ def pull_from_server(timeout=1800):
     return r.returncode == 0, (out[-1] if out else f"kopia zakończona kodem {r.returncode}")
 
 
-def refresh(root, from_server=True, log=print):
+def build(root, say):
+    b = subprocess.run([sys.executable, str(HERE / "build_review.py"), str(root)], capture_output=True, text=True, timeout=1800)
+    if b.returncode != 0:
+        say("przebudowa przeglądu nie wyszła: " + (b.stderr or b.stdout).strip()[-600:])
+    return b.returncode == 0
+
+
+def hints(root, say):
+    """Zrzut katalogu + podpowiedzi Terry dla kart „Nowe od…”. True, gdy podpowiedzi są gotowe."""
+    cms = HERE.parent.parent / "cms"
+    say("Czytam katalog z Payload (tylko odczyt)…")
+    try:
+        k = subprocess.run(["npm", "run", "-s", "katalog:snapshot", "--", "--out", str(Path(root).resolve() / "katalog.json")],
+                           cwd=cms, capture_output=True, text=True, timeout=600)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        say(f"zrzut katalogu nie wyszedł ({e}); podpowiedzi pominięte")
+        return False
+    if k.returncode != 0:
+        say("zrzut katalogu nie wyszedł; podpowiedzi pominięte: " + (k.stderr or k.stdout).strip()[-300:])
+        return False
+    say((k.stdout.strip().splitlines() or ["katalog gotowy"])[-1].split(" → ")[0])
+    say("Model ocenia nowe posty (Terra)…")
+    try:
+        c = subprocess.run([sys.executable, str(HERE / "classify_posts.py"), "--dir", str(root), "--run"],
+                           capture_output=True, text=True, timeout=3600)
+    except subprocess.TimeoutExpired:
+        say("podpowiedzi trwały ponad godzinę, przerwane")
+        return False
+    errors = [ln for ln in c.stdout.splitlines() if "BŁĄD" in ln]
+    if c.returncode != 0:
+        say("podpowiedzi nie wyszły: " + (c.stderr or c.stdout).strip()[-300:])
+        return False
+    say(f"podpowiedzi gotowe{f', błędy przy {len(errors)} kartach' if errors else ''}")
+    return True
+
+
+def refresh(root, from_server=True, log=print, with_hints=True):
     """Zwraca {"ok", "added", "rebuilt", "lines"}. Równoległe wywołanie dostaje ok=False i „już trwa”."""
     root = Path(root)
     if not RUNNING.acquire(blocking=False):
@@ -74,13 +113,15 @@ def refresh(root, from_server=True, log=print):
         for ln in import_posty_meta.summary(r):
             say(ln)
         rebuilt = False
+        need_hints = with_hints and (r["added"] or not (root / "classify" / "results.json").exists())
         if r["added"] or not (root / "review.html").exists():
             say("Przebudowuję przegląd…")
-            b = subprocess.run([sys.executable, str(HERE / "build_review.py"), str(root)], capture_output=True, text=True, timeout=1800)
-            if b.returncode != 0:
-                say("przebudowa przeglądu nie wyszła: " + (b.stderr or b.stdout).strip()[-600:])
+            if not build(root, say):
                 return {"ok": False, "added": r["added"], "rebuilt": False, "lines": lines}
             rebuilt = True
+        if need_hints and hints(root, say):
+            rebuilt = build(root, say) or rebuilt
+        if rebuilt:
             say("przegląd gotowy")
         return {"ok": True, "added": r["added"], "rebuilt": rebuilt, "lines": lines}
     finally:
@@ -90,7 +131,7 @@ def refresh(root, from_server=True, log=print):
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     root = Path(args[0]) if args else HERE.parent.parent / "data" / "facebook"
-    res = refresh(root, from_server="--bez-serwera" not in sys.argv)
+    res = refresh(root, from_server="--bez-serwera" not in sys.argv, with_hints="--bez-podpowiedzi" not in sys.argv)
     sys.exit(0 if res["ok"] else 1)
 
 
