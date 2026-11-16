@@ -67,6 +67,14 @@ do `posts.json` i `media/` i przebudowuje `review.html` (`refresh_posts.py`). W 
 `--bez-pobierania` pomija pobieranie przy starcie (np. bez sieci). Bez zainstalowanej kopii na Macu (README
 `scripts/posty-meta`, „Kopia na Maca”) dopisuje tylko to, co już jest w `~/PZ Nowak posty`.
 
+Po dopisaniu nowych postów to samo polecenie robi **podpowiedzi modelu**: czyta katalog z Payload (`cms`: `npm run
+katalog:snapshot`, tylko odczyt, żywa baza strony, ze szkicami) i każe Terrze (`classify_posts.py`, przez Codex) ocenić
+każdą kartę „Nowe od…”: nowy pierścionek, zdjęcia do istniejącej karty, prawdziwe zdjęcie zamiast wizualizacji wariantu,
+nowy kamień do istniejącego fasonu albo materiał. Podpowiedź widać w karcie (ramka „Podpowiedź modelu”); decyzję
+zapisujesz sam. Karty już ocenione biorą wynik z pamięci (`classify/terra/`), więc ponowne pobieranie nic nie kosztuje.
+`--bez-podpowiedzi` pomija ten krok. Test na dotychczasowych decyzjach: `python3 scripts/facebook/classify_posts.py
+--test --run` → `data/facebook/classify/test-raport.md`.
+
 Ręcznie, bez serwera przeglądu: `python3 scripts/facebook/refresh_posts.py data/facebook` (albo jak dawniej
 `import_posty_meta.py` + `build_review.py`).
 

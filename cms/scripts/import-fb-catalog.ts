@@ -1,13 +1,15 @@
-// Import pierścionków z przeglądu FB (catalog-selection.json) do Payload jako szkice.
+// Import pierścionków z przeglądu FB (catalog-selection.json) do Payload jako szkice. Zawsze ŻYWA baza strony,
+// rozpoznana po endpoincie Neon (live-db.ts); nazwa gałęzi i pliku .env nie ma znaczenia.
 //
-//   npm run import:fb -- --env staging                    na sucho: plan i raport, bez zapisu
-//   npm run import:fb -- --env staging --apply            nowe pierścionki (szkice) + wgranie plików
-//   npm run import:fb -- --env staging --apply --gallery  tylko uzupełnienia galerii (wersja robocza produktu)
-//   npm run import:fb -- --env staging --rollback <plik przebiegu> [--apply]   cofnięcie przebiegu (tylko staging)
+//   npm run import:fb                              na sucho: plan i raport, bez zapisu
+//   npm run import:fb -- --apply                   nowe pierścionki (szkice) + wgranie plików
+//   npm run import:fb -- --apply --gallery         tylko uzupełnienia galerii (wersja robocza produktu)
+//   npm run import:fb -- --rollback <plik przebiegu> [--apply]   cofnięcie przebiegu
+// Każde --apply (także cofnięcie) wymaga wpisania słowa PRODUKCJA w terminalu.
 //
 // Opcje: --input <catalog-selection.json> (domyślnie data/facebook/), --data <katalog z media/> (domyślnie
 // data/facebook), --env-root <katalog z cms/.env* i backend/.env*> (domyślnie korzeń repozytorium).
-// Produkcja: --env production; --apply wymaga wpisania słowa PRODUKCJA w terminalu.
+// --env staging/production/live: przyjmowane dla zgodności ze starymi poleceniami, bez wpływu na wybór bazy.
 import { execFile } from 'node:child_process'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -16,7 +18,6 @@ import { createInterface } from 'node:readline/promises'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 
-import { parse } from 'dotenv'
 import sharp from 'sharp'
 
 import {
@@ -27,6 +28,7 @@ import {
   type PlannedFile,
 } from '../src/lib/fb-import'
 import type { Product } from '../src/payload-types'
+import { isLiveDatabase, loadLiveEnv } from './live-db'
 
 const run = promisify(execFile)
 const args = process.argv.slice(2)
@@ -36,14 +38,14 @@ const option = (name: string) => {
 }
 const flag = (name: string) => args.includes(name)
 
-const env = option('--env')
+// Zawsze żywa baza strony, rozpoznana po endpoincie Neon (live-db.ts). --env zostaje dla zgodności ze starymi
+// poleceniami (staging / production / live znaczą to samo), bo nazwy gałęzi się zmieniały.
+const envArg = option('--env') ?? 'live'
+if (!['live', 'production', 'staging'].includes(envArg)) throw new Error('--env: live (domyślnie)')
+const env = 'live'
 const apply = flag('--apply')
 const galleryMode = flag('--gallery')
 const rollbackFile = option('--rollback')
-if (env !== 'staging' && env !== 'production') {
-  throw new Error('Podaj --env staging albo --env production')
-}
-if (rollbackFile && env !== 'staging') throw new Error('--rollback działa tylko na stagingu')
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const envRoot = path.resolve(option('--env-root') ?? repoRoot)
@@ -52,25 +54,14 @@ const inputPath = path.resolve(option('--input') ?? path.join(dataDir, 'catalog-
 const outDir = path.dirname(inputPath)
 
 // Zmienne środowiska przed importem konfiguracji Payload (prefiks Blob i baza są czytane przy imporcie).
-const envFiles = [
-  'cms/.env',
-  'cms/.env.local',
-  env === 'staging' ? 'backend/.env.staging.local' : 'backend/.env.local',
-]
-for (const file of envFiles) {
-  Object.assign(process.env, parse(await readFile(path.join(envRoot, file))))
-}
-if (process.env.NEON_BRANCH !== env) {
-  throw new Error(`Zmienne wskazują NEON_BRANCH=${process.env.NEON_BRANCH ?? '?'}, a nie ${env}`)
-}
+const envFile = await loadLiveEnv(envRoot)
+if (!isLiveDatabase()) throw new Error('Zmienne nie wskazują żywej bazy')
 const dbHost = new URL(process.env.DATABASE_URL ?? 'postgres://brak').hostname
-console.log(`Środowisko: ${env} (${dbHost}) · tryb: ${apply ? 'ZAPIS' : 'na sucho'}`)
+console.log(`Żywa baza (${dbHost}, ${envFile}) · tryb: ${apply ? 'ZAPIS' : 'na sucho'}`)
 
 const { getPayload } = await import('payload')
 const { sql } = await import('@payloadcms/db-postgres')
 const { default: config } = await import('../src/payload.config')
-const { isStagingEnvironment, STAGING_MEDIA_PREFIX } = await import('../src/lib/staging-media')
-if (env === 'staging' && !isStagingEnvironment()) throw new Error('Konfiguracja nie widzi stagingu')
 
 const payload = await getPayload({ config: await config })
 // Skrypt działa poza Next (revalidateTag rzuca błąd), a szkice i wersje robocze nie zmieniają opublikowanej strony.
@@ -84,10 +75,14 @@ type RunLog = {
   runId: string
 }
 
+// Żywą bazę rozpoznajemy po endpoincie Neon (live-db.ts), nie po nazwie gałęzi: nazwy „staging”/„production” bywały
+// odwrotne (scripts/backup/README.md). Zapis do żywej bazy zawsze wymaga wpisania PRODUKCJA, niezależnie od --env.
 async function confirmProduction() {
-  if (env !== 'production' || !apply) return
+  if (!apply) return
   const rl = createInterface({ input: process.stdin, output: process.stdout })
-  const answer = await rl.question('Zapis na PRODUKCJI. Wpisz PRODUKCJA, aby kontynuować: ')
+  const answer = await rl.question(
+    'Zapis do ŻYWEJ bazy strony (szkice i wersje robocze). Wpisz PRODUKCJA, aby kontynuować: ',
+  )
   rl.close()
   if (answer.trim() !== 'PRODUKCJA') throw new Error('Przerwano: brak potwierdzenia')
 }
@@ -316,9 +311,6 @@ async function ensureMedia(
   if (!/^https:\/\/[a-z0-9]+\.public\.blob\.vercel-storage\.com\//.test(media.url ?? '')) {
     throw new Error(`Plik ${file.file} nie trafił do Vercel Blob (media #${media.id})`)
   }
-  if (env === 'staging' && (media as { prefix?: string }).prefix !== STAGING_MEDIA_PREFIX) {
-    throw new Error(`Plik ${file.file} poza prefiksem stagingu`)
-  }
   cache.set(file.source, media.id)
   log.createdMedia.push(media.id)
   console.log(`  ↑ ${file.file} → media #${media.id}`)
@@ -327,7 +319,7 @@ async function ensureMedia(
 
 async function rollback(file: string) {
   const log = JSON.parse(await readFile(path.resolve(file), 'utf8')) as RunLog
-  if (log.env !== 'staging') throw new Error('Ten przebieg nie był na stagingu')
+  if (!['live', 'staging'].includes(log.env)) throw new Error(`Ten przebieg był na innej bazie (${log.env})`)
   console.log(
     `Cofnięcie przebiegu ${log.runId}: ${log.createdProducts.length} produktów, ${log.createdMedia.length} plików` +
       (log.galleryDrafts.length
@@ -353,6 +345,7 @@ try {
     console.log(`! ${message}; na sucho zakładam, że żaden produkt nie ma jeszcze klucza FB.`)
   }
   if (rollbackFile) {
+    await confirmProduction()
     await rollback(rollbackFile)
   } else {
     const selection = JSON.parse(await readFile(inputPath, 'utf8')) as FbCatalogSelection

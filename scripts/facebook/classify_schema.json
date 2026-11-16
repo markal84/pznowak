@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["category", "product", "variant", "confidence", "reason"],
+  "properties": {
+    "category": {
+      "type": "string",
+      "enum": ["nowy", "dodatek", "zamiast-wizualizacji", "nowy-wariant", "material", "pomin"]
+    },
+    "product": { "type": "string", "description": "slug kandydata z katalogu albo pusty napis" },
+    "variant": { "type": "string", "description": "nazwa wariantu kamienia (z listy kandydata albo nowa) albo pusty napis" },
+    "confidence": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "reason": { "type": "string" }
+  }
+}

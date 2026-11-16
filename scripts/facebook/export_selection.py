@@ -9,6 +9,9 @@ Wynik:
   catalog            pierścionki do katalogu (decyzja karty „katalog”, co najmniej jedno zdjęcie „w katalogu”).
                      photos: okładka pierwsza, reszta w kolejności z karty; videos: filmy „w katalogu”.
   galleryAdditions   zdjęcia/filmy z postów pierścionków, które już są w katalogu, oznaczone „dodaj do galerii”.
+  toExisting         karty „katalog” z podpowiedzią Terry dla istniejącej karty (dodatek / zamiast-wizualizacji /
+                     nowy-wariant, classify_posts.py) → cms: npm run fb:do-istniejacych (wersje robocze). Nie tworzą szkicu.
+  alreadyInCatalog   karty, których zdjęcia już są w karcie katalogu (np. szkic zrobiony wcześniej z tego posta).
   materials          wszystko oznaczone „materiał” (płaska lista, bez duplikatów, z postem źródłowym).
   warnings           niespójności (np. zdjęcie „w katalogu” w karcie, która nie jest katalogowa).
 
@@ -71,7 +74,12 @@ def posts_out(group):
     return [post_out(p) for p in group["posts"]]
 
 
-CARDS = {g["key"]: g for sec in ("new", "maybe") for g in data[sec]}
+CARDS = {g["key"]: g for sec in ("new", "maybe", "fresh") for g in data.get(sec, [])}
+FRESH_KEYS = {g["key"] for g in data.get("fresh", [])}
+# Podpowiedzi Terry (classify_posts.py): karta „katalog” z podpowiedzią dla istniejącej karty idzie do toExisting,
+# a karta, której zdjęcia już są w katalogu (fromPost), nie tworzy drugiego szkicu.
+HINTS = data.get("hints") or {}
+TARGETED = ("dodatek", "zamiast-wizualizacji", "nowy-wariant")
 
 
 def root_of(key):
@@ -101,6 +109,7 @@ def card_eff(key, file):
 
 
 catalog, additions, materials, seen = [], [], [], set()
+to_existing, already = [], []
 complete_rings = 0
 undecided = rejected = 0
 
@@ -123,7 +132,7 @@ for k, g in CARDS.items():
     if root_of(k) != k:
         merged += 1
         continue
-    sec = "new" if g in data["new"] else "maybe"
+    sec = "fresh" if k in FRESH_KEYS else "new" if g in data["new"] else "maybe"
     e = cards.get(k) or {}
     dec = e.get("decision")
     label = g["title"]
@@ -169,6 +178,14 @@ for k, g in CARDS.items():
             "section": sec, "cover": f"media/{cover}" if cover else None,
             "photos": [f"media/{p}" for p in photos], "videos": [f"media/{v}" for v in videos], "posts": posts,
         }
+        hint = HINTS.get(k) or {}
+        h = hint.get("result") or {}
+        if h.get("product") and h.get("product") in (hint.get("fromPost") or []):
+            already.append({"key": k, "title": label, "product": h["product"], "productName": hint.get("productName") or h["product"]})
+            continue
+        if h.get("category") in TARGETED and h.get("product"):
+            item.update(action=h["category"], product=h["product"], productName=hint.get("productName") or h["product"],
+                        variant=h.get("variant") or "", confidence=h.get("confidence"), reason=h.get("reason") or "")
         if len(group) > 1:
             item["mergedFrom"] = []
             for m in group[1:]:
@@ -176,7 +193,7 @@ for k, g in CARDS.items():
                 item["mergedFrom"].append({"key": m["key"], "name": (me.get("name") or "").strip() or m["title"], "ownDecision": me.get("decision")})
                 if me.get("note"):
                     item["note"] = (item["note"] + "\n" if item["note"] else "") + f"[{m['title']}] {me['note']}"
-        catalog.append(item)
+        (to_existing if item.get("action") else catalog).append(item)
     elif cat:
         warnings.append(f"„{label}”: {len(cat)} plik(ów) „w katalogu”, ale karta ma decyzję „{dec or '?'}”, pominięto")
 
@@ -213,7 +230,7 @@ for g in data["skipped"]:
             add_material(g, v["file"], "video", "pominięty post", {"key": g["key"], "title": f"post #{g['idx']}"})
 
 # decyzje, których nie ma już w review-data.json
-known = {"cards": {g["key"] for s in ("new", "maybe") for g in data[s]}, "existing": {g["key"] for g in data["existing"]},
+known = {"cards": set(CARDS), "existing": {g["key"] for g in data["existing"]},
          "skipped": {g["key"] for g in data["skipped"]}}
 for b, keys in known.items():
     for k in sel.get(b, {}):
@@ -224,17 +241,20 @@ out = {
     "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     "selectionRev": sel.get("rev", 0),
     "summary": {
-        "catalogRings": len(catalog), "galleryAdditions": len(additions), "materials": len(materials),
+        "catalogRings": len(catalog), "toExisting": len(to_existing), "alreadyInCatalog": len(already), "galleryAdditions": len(additions), "materials": len(materials),
         "cardsUndecided": undecided, "cardsRejected": rejected, "ringsCompleteNoChange": complete_rings, "cardsMerged": merged,
         "warnings": len(warnings),
     },
     "catalog": catalog,
+    "toExisting": to_existing,
+    "alreadyInCatalog": already,
     "galleryAdditions": additions,
     "materials": materials,
     "warnings": warnings,
 }
 (root / "catalog-selection.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
 s = out["summary"]
-print(f"catalog-selection.json: {s['catalogRings']} pierścionków do katalogu, {s['galleryAdditions']} uzupełnień galerii, "
+print(f"catalog-selection.json: {s['catalogRings']} pierścionków do katalogu, {s['toExisting']} do istniejących kart "
+      f"(już w katalogu: {s['alreadyInCatalog']}), {s['galleryAdditions']} uzupełnień galerii, "
       f"{s['materials']} materiałów; połączonych kart: {merged}; kompletnych pierścionków (pominięte): {complete_rings}; "
       f"nieprzejrzanych kart: {undecided}; ostrzeżeń: {s['warnings']}")
