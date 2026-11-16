@@ -50,7 +50,7 @@ SCHEMA = HERE / "classify_schema.json"
 TERRA = {"id": "gpt-6.1-terra", "effort": "medium", "dir": "terra", "counter": "terra-calls.json", "limit": None}
 MAX_CANDIDATES = 5
 SAME_PHOTO_DHASH = 6  # tyle bitów różnicy dHash = to samo zdjęcie (np. szkic zrobiony z tego posta)
-PROMPT_VERSION = 1
+PROMPT_VERSION = 2  # 2: inny kamień w tym samym fasonie = nowa karta (decyzja z przeglądu 16.11)
 SITE = "https://pznowak.pl"
 LOCK = threading.Lock()
 
@@ -74,12 +74,16 @@ Masz post z fanpage'a pracowni (obraz 1: zdjęcia i klatki filmów z posta) i ka
 w podanej kolejności). Zdecyduj, co pracownia powinna zrobić z tym postem:
 
 - "nowy": na zdjęciach jest gotowy pierścionek (albo obrączka/sygnet), którego NIE MA wśród kandydatów → nowa karta.
+  Także ten sam fason co kandydat, ale z innym kamieniem na prawdziwych zdjęciach, jeśli tego kamienia nie ma
+  w wariantach kandydata: pracownia robi wtedy osobną kartę z własną nazwą (tak powstały np. Merope, Hesperia,
+  Ianthe: owal z trójkami diamentów, różne kamienie). Wtedy w reason napisz „fason jak <nazwa>”.
 - "dodatek": to ten sam model co jeden z kandydatów (ten sam fason i ten sam kamień, który karta już ma
   na prawdziwym zdjęciu) → nowe zdjęcia/film do tej karty. product = slug kandydata.
 - "zamiast-wizualizacji": to ten sam fason co kandydat, w kamieniu, który w katalogu ma tylko WIZUALIZACJĘ
   (oznaczoną niżej) → prawdziwe zdjęcie zastąpi wizualizację. product = slug, variant = nazwa tego wariantu z listy.
-- "nowy-wariant": ten sam fason co kandydat, ale w kamieniu, którego karta jeszcze nie ma → nowy wariant.
-  product = slug, variant = krótka nazwa kamienia (np. "Szmaragd i diamenty").
+- "nowy-wariant": tylko gdy post wprost pokazuje kamień jako odmianę konkretnego modelu z katalogu (np. ta sama
+  nazwa modelu w tekście, „wersja z…”), a karta tego kamienia jeszcze nie ma → nowy wariant w tej karcie.
+  product = slug, variant = krótka nazwa kamienia (np. "Szmaragd i diamenty"). W razie wątpliwości wybierz "nowy".
 - "material": nie ma gotowego pierścionka do katalogu: praca w warsztacie, proces, odlew, kamienie luzem, życzenia,
   ogłoszenia, kolaż wielu wyrobów, inna biżuteria (kolczyki, wisiorki) albo zdjęcia za słabe na katalog.
 - "pomin": nic przydatnego.
