@@ -55,18 +55,27 @@ oraz albumy, w których zdjęć jest więcej niż widać na osi czasu. Skrypt za
 
 ## B2. Nowe posty z automatu (Graph API, bez przeglądarki)
 
-Od 15.11.2026 posty pobiera sam serwer (`scripts/posty-meta`), a co 14 dni kopia trafia na Maca do `~/PZ Nowak posty`.
-Te posty dopisuje się do przeglądu jednym poleceniem (pliki są już pobrane, więc część C pomiń):
+Od 15.11.2026 posty pobiera sam serwer (`scripts/posty-meta`, cron na MyDevil). Do przeglądu trafiają same:
 
 ```
-python3 -I scripts/facebook/import_posty_meta.py ~/"PZ Nowak posty" data/facebook
-python3 scripts/facebook/build_review.py data/facebook
-python3 scripts/facebook/review_server.py
+cd /Volumes/crucial/projects/pznowak-cms && python3 scripts/facebook/review_server.py
 ```
+
+Przy starcie serwer przeglądu ściąga kopię z MyDevil (`~/.pznowak-posty-kopia/kopia.sh --teraz`), dopisuje nowe posty
+do `posts.json` i `media/` i przebudowuje `review.html` (`refresh_posts.py`). W trakcie pracy to samo robi przycisk
+**„Pobierz nowe posty”** w nagłówku przeglądu (najpierw zapisuje decyzje, po nowych postach odświeża stronę).
+`--bez-pobierania` pomija pobieranie przy starcie (np. bez sieci). Bez zainstalowanej kopii na Macu (README
+`scripts/posty-meta`, „Kopia na Maca”) dopisuje tylko to, co już jest w `~/PZ Nowak posty`.
+
+Ręcznie, bez serwera przeglądu: `python3 scripts/facebook/refresh_posts.py data/facebook` (albo jak dawniej
+`import_posty_meta.py` + `build_review.py`).
 
 Nowe posty lądują w sekcji „Nowe od DD.MM”. Przy niej w nagłówku przeglądu jest przełącznik „pokaż tylko nowe posty”
 (domyślnie włączony), który chowa stare, już rozstrzygnięte sekcje; decyzje w nich zostają bez zmian.
-Polecenie można powtarzać po każdej kopii: posty już obecne w `posts.json` są pomijane.
+Posty już obecne w `posts.json` są pomijane, więc pobieranie można powtarzać dowolnie.
+
+Terminal serwera przeglądu pokazuje tylko zapisy decyzji, eksport, pobieranie i błędy. Strona co 8 s pyta serwer o stan
+(wykrywa wyłączony serwer i zmiany z innej karty), ale te odczyty nie są już logowane, a w karcie w tle pytanie stoi.
 
 ## C. Pobranie mediów i przegląd (od razu po eksporcie)
 

@@ -9,6 +9,10 @@ Tylko stdlib. Nasłuchuje wyłącznie na 127.0.0.1.
   PUT  /api/selection   {"rev": N, "state": {...}}; zapis atomowy, kopia poprzedniej wersji w selection.json.bak,
                         409 gdy rev nie zgadza się z plikiem (zmiana z innej karty)
   POST /api/export      uruchamia export_selection.py
+  POST /api/refresh     pobiera nowe posty z serwera i przebudowuje przegląd (refresh_posts.py)
+
+Przy starcie najpierw pobiera nowe posty z serwera (refresh_posts.py); --bez-pobierania to pomija.
+Do terminala trafiają tylko zapisy, eksport, pobieranie i błędy; ciche sprawdzanie stanu (GET co kilka sekund) nie.
 """
 import argparse
 import json
@@ -18,12 +22,16 @@ import shutil
 import subprocess
 import sys
 import threading
+import time
 from datetime import datetime, timezone
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import refresh_posts  # noqa: E402
+
 MAX_BODY = 5 * 1024 * 1024
 BUCKETS = ("cards", "existing", "skipped")
 LOCK = threading.Lock()
@@ -57,6 +65,12 @@ class Handler(SimpleHTTPRequestHandler):
     port: int
 
     # ---- pomocnicze ----
+    def log_request(self, code="-", size="-"):
+        # Strona pyta o stan co kilka sekund: udane odczyty nie zaśmiecają terminala.
+        if self.command == "GET" and str(code).startswith(("2", "3")):
+            return
+        super().log_request(code, size)
+
     def log_message(self, fmt, *args):
         if "/api/" in (self.path or ""):
             super().log_message(fmt, *args)
@@ -188,6 +202,10 @@ class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
         if not self.guard(write=True):
             return
+        if self.path.split("?")[0] == "/api/refresh":
+            res = refresh_posts.refresh(self.root, log=lambda m: print(f"[pobieranie] {m}", flush=True))
+            self.send_json(409 if res.get("busy") else 200, res)
+            return
         if self.path.split("?")[0] != "/api/export":
             self.send_json(404, {"error": "nie ma"})
             return
@@ -243,10 +261,15 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dir", default=str(HERE.parent.parent / "data" / "facebook"), help="katalog z review.html i media/")
     ap.add_argument("--port", type=int, default=3011)
+    ap.add_argument("--bez-pobierania", action="store_true", help="nie pobieraj nowych postów z serwera przy starcie")
     a = ap.parse_args()
     root = Path(a.dir).resolve()
     if not (root / "media").is_dir():
         sys.exit(f"Brak {root}/media. Podaj --dir z danymi z Facebooka.")
+    if not a.bez_pobierania:
+        t0 = time.monotonic()
+        refresh_posts.refresh(root, log=lambda m: print(f"[pobieranie] {m}", flush=True))
+        print(f"[pobieranie] koniec ({time.monotonic() - t0:.0f} s)", flush=True)
     handler = type("H", (Handler,), {"root": root, "port": a.port})
     try:
         srv = Server(("127.0.0.1", a.port), partial(handler, directory=str(root)))
