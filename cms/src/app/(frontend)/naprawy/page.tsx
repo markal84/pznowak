@@ -37,6 +37,12 @@ const BEFORE_AFTER = {
     aspect: '1489 / 640',
     caption: 'Pierścionek z brylantami po prostowaniu i odnowieniu',
   },
+  pave: {
+    src: '/zdjecia/naprawy/brylanty-pave.webp',
+    alt: 'Pierścionek z drobnymi diamentami: po lewej z brakującym kamieniem, po prawej z uzupełnioną oprawą',
+    aspect: '946 / 533',
+    caption: 'Pierścionek z diamentami: brakujący kamień uzupełniony, oprawa odnowiona',
+  },
   grandfather: {
     src: '/zdjecia/naprawy/renowacja-dziadka.webp',
     alt: 'Złoty pierścionek z kwiatowym ornamentem i pustą oprawą, dwa ujęcia z renowacji',
@@ -47,6 +53,11 @@ const BEFORE_AFTER = {
     src: '/zdjecia/naprawy/powiekszanie-rozmiaru.webp',
     alt: 'Rozcięta obrączka pierścionka z ciemnym kamieniem na dłoni złotnika',
     caption: 'Powiększenie pierścionka z tanzanitem przez wstawienie szyny',
+  },
+  resizeAfter: {
+    src: '/zdjecia/naprawy/tanzanit-po.webp',
+    alt: 'Pierścionek z fioletowym kamieniem trzymany w palcach, po powiększeniu rozmiaru',
+    caption: 'Ten sam pierścionek po powiększeniu',
   },
 }
 
@@ -116,24 +127,30 @@ export default function RepairsPage() {
         <SectionIntro eyebrow="Efekty" title="Przed i po" />
         <div className="repairs-gallery">
           <div className="stack" style={{ gap: 32 }}>
-            {[BEFORE_AFTER.diamonds, BEFORE_AFTER.grandfather].map((p) => (
+            {[BEFORE_AFTER.diamonds, BEFORE_AFTER.pave, BEFORE_AFTER.grandfather].map((p) => (
               <figure className="stack" key={p.src} style={{ gap: 12 }}>
                 <Photo alt={p.alt} aspect={p.aspect} ratio="none" sizes="(max-width: 960px) 100vw, 60vw" src={p.src} />
                 <figcaption className="fig-cap">{p.caption}</figcaption>
               </figure>
             ))}
           </div>
-          <figure className="stack" style={{ gap: 12 }}>
-            <Photo
-              alt={BEFORE_AFTER.resize.alt}
-              className="ph-fill"
-              position="50% 55%"
-              ratio="none"
-              sizes="(max-width: 960px) 100vw, 40vw"
-              src={BEFORE_AFTER.resize.src}
-            />
-            <figcaption className="fig-cap">{BEFORE_AFTER.resize.caption}</figcaption>
-          </figure>
+          <div className="stack" style={{ gap: 32 }}>
+            <figure className="stack" style={{ gap: 12, flex: '1 1 auto' }}>
+              <Photo
+                alt={BEFORE_AFTER.resize.alt}
+                className="ph-fill"
+                position="50% 55%"
+                ratio="none"
+                sizes="(max-width: 960px) 100vw, 40vw"
+                src={BEFORE_AFTER.resize.src}
+              />
+              <figcaption className="fig-cap">{BEFORE_AFTER.resize.caption}</figcaption>
+            </figure>
+            <figure className="stack" style={{ gap: 12 }}>
+              <Photo alt={BEFORE_AFTER.resizeAfter.alt} ratio="11" sizes="(max-width: 960px) 100vw, 40vw" src={BEFORE_AFTER.resizeAfter.src} />
+              <figcaption className="fig-cap">{BEFORE_AFTER.resizeAfter.caption}</figcaption>
+            </figure>
+          </div>
         </div>
       </section>
 
