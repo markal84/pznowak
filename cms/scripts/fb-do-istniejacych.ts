@@ -162,6 +162,26 @@ for (const item of items) {
     log.products.push({ action: item.action, before: { stoneVariants: variants }, id: product.id, slug: product.slug })
     await payload.update({ collection: 'products', context, data: { stoneVariants: next }, draft: true, id: product.id, overrideAccess: true })
     console.log(`  ✓ zapisane jako wersja robocza`)
+  } else if (item.action === 'dodatek' && item.variant) {
+    // Zdjęcia dla konkretnego wariantu z prawdziwym zdjęciem: dopisane do jego moreImages.
+    const variants = product.stoneVariants ?? []
+    const i = variants.findIndex((v) => norm(v.stone ?? '') === norm(item.variant))
+    if (i < 0 || variants[i].isVisualization) {
+      console.log(`! ${where}: brak wariantu „${item.variant}” z prawdziwym zdjęciem, pomijam`)
+      continue
+    }
+    const v = variants[i]
+    const more = (v.moreImages ?? []).map((m) => (typeof m === 'object' ? m.id : m))
+    const alt = stripViz(v.alt ?? '') || `${product.name} – ${item.variant}`
+    console.log(`+ ${where} [${state}]: wariant „${v.stone}”: dopisz ${item.photos.length} zdj. (jest główne + ${more.length} dodatkowych)`)
+    for (const f of item.photos) console.log(`    · ${f}`)
+    if (!apply) continue
+    const ids: number[] = []
+    for (const f of item.photos) ids.push(await upload(f, alt, log))
+    const next = variants.map((x, j) => (j === i ? { ...x, moreImages: [...more, ...ids] } : x))
+    log.products.push({ action: item.action, before: { stoneVariants: variants }, id: product.id, slug: product.slug })
+    await payload.update({ collection: 'products', context, data: { stoneVariants: next }, draft: true, id: product.id, overrideAccess: true })
+    console.log(`  ✓ zapisane jako wersja robocza`)
   } else if (item.action === 'dodatek') {
     const media = product.media ?? []
     console.log(`+ ${where} [${state}]: dopisz ${item.photos.length} zdj. do galerii (jest ${media.length})`)

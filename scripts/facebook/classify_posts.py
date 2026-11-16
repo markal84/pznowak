@@ -204,7 +204,8 @@ def candidates(root, vdir, card, catalog, test, expected=None):
         s_text = len(w & pw) * 2 + (3 if norm(p["name"]) and re.search(r"\b" + re.escape(norm(p["name"])) + r"\b", norm(text)) else 0)
         best = 64
         # zdjęcia karty i zdjęcia wariantów (wariant mógł dostać zdjęcie z tego posta, np. Ariadne „Tanzanit”)
-        for m in p["media"][:3] + [v["image"] for v in p["variants"] if v["image"] and not v["isVisualization"]]:
+        real = [v for v in p["variants"] if v["image"] and not v["isVisualization"]]
+        for m in p["media"][:3] + [v["image"] for v in real] + [m for v in real for m in v.get("moreImages", [])]:
             if from_card(m, posts) or m.get("video"):
                 continue
             img = cat_image(root, m)
