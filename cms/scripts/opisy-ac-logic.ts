@@ -58,6 +58,12 @@ const THALIA_SAPPHIRE_TEXT: KnownText = {
     'Pierścionek z żółtego złota w okrągłej oprawie halo. Kamień centralny w łapkach otacza pierścień drobnych diamentów, diamenty biegną też wzdłuż ramion szyny, a z boku widać ażurowy koszyk z geometrycznymi wycięciami.\n\nKamienie oprawiamy ręcznie w naszej pracowni. Na zdjęciach w centrum jest szafir w głębokim, królewskim błękicie.\n\nModel wykonamy w wybranym rozmiarze, także z innym kamieniem centralnym.',
 }
 
+/** Opis Thalii z 07.11 z błędnym topazem London Blue; kamień to szafir (korekta 16.11). */
+const THALIA_TOPAZ_TEXT: KnownText = {
+  lead: THALIA_SAPPHIRE_TEXT.lead,
+  description: THALIA_SAPPHIRE_TEXT.description.replace('szafir w głębokim, królewskim błękicie', 'topaz London Blue w głębokim, stalowym błękicie'),
+}
+
 export function knownTexts(id: number, name?: string): KnownText[] {
   const known: KnownText[] = []
   if (name) known.push(...legacyTexts(name))
@@ -66,7 +72,7 @@ export function knownTexts(id: number, name?: string): KnownText[] {
   if (id === 17) known.push({ lead: URANIA_AB_TEXT.lead, description: URANIA_AB_TEXT.description })
   if (id === 20) known.push({ lead: HARMONIA_BEFORE_MERGE.lead, description: HARMONIA_BEFORE_MERGE.description })
   if (id === 46) known.push(AION_PREVIOUS_TEXT, AION_THALASSA_TEXT)
-  if (name === 'Thalia') known.push(THALIA_SAPPHIRE_TEXT)
+  if (name === 'Thalia') known.push(THALIA_SAPPHIRE_TEXT, THALIA_TOPAZ_TEXT)
   return known
 }
 
