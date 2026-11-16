@@ -50,6 +50,8 @@ export default function SiteFooter() {
             <Link href="/naprawy">Naprawy i przeróbki</Link>
             <Link href="/realizacje">Realizacje</Link>
             <Link href="/pracownia">Pracownia</Link>
+            <Link href="/poradniki">Poradniki</Link>
+            <Link href="/pracownia#dla-mediow">Dla mediów</Link>
             <Link href="/kontakt">Umów wizytę</Link>
           </nav>
         </div>

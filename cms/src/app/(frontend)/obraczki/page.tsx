@@ -3,7 +3,9 @@ import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import BandConfigurator from '@/components/site/BandConfigurator'
 import BandTypes from '@/components/site/BandTypes'
-import Faq, { type FaqItem } from '@/components/site/Faq'
+import Faq, { faqPlainItems, type FaqItem } from '@/components/site/Faq'
+import JsonLd from '@/components/site/JsonLd'
+import { faqJsonLd } from '@/lib/structured-data'
 import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import Photo from '@/components/site/Photo'
@@ -44,7 +46,7 @@ const WORKSHOP_PHOTOS = [
 export default function BandsPage() {
   return (
     <>
-      <section className="wrap stack" style={{ paddingTop: 64, paddingBottom: 40, gap: 32 }}>
+      <section className="wrap stack page-head">
         <SectionIntro
           as="h1"
           intro="Z naszych wzorów albo zaprojektowane dla Was dwojga. Mierzymy oboje, dobieramy szerokość i wykończenie, a w środku grawerujemy to, co ważne."
@@ -62,12 +64,16 @@ export default function BandsPage() {
       </section>
 
       {BAND_CONFIGURATOR_ENABLED ? (
-        <section aria-label="Dobierz obrączki" className="wrap" style={{ paddingTop: 24, paddingBottom: 104 }}>
-          <BandConfigurator />
+        <section aria-label="Dobierz obrączki" className="surface-paper">
+          <div className="wrap sec">
+            <BandConfigurator />
+          </div>
         </section>
       ) : (
-        <section aria-labelledby="rodzaje-obraczek" className="wrap" style={{ paddingTop: 24, paddingBottom: 104 }}>
-          <BandTypes />
+        <section aria-labelledby="rodzaje-obraczek" className="surface-paper">
+          <div className="wrap sec">
+            <BandTypes />
+          </div>
         </section>
       )}
 
@@ -85,7 +91,7 @@ export default function BandsPage() {
       </section>
 
       <section className="wrap sec stack" style={{ gap: 40 }}>
-        <h2 className="h2">Obrączki z pracowni</h2>
+        <SectionIntro eyebrow="Z warsztatu" title="Obrączki z pracowni" />
         <div className="cols-auto cols-300" data-reveal="" style={{ gap: 24 }}>
           {WORKSHOP_PHOTOS.map((p) => (
             <figure className="stack" key={p.src} style={{ gap: 12, margin: 0 }}>
@@ -96,10 +102,11 @@ export default function BandsPage() {
         </div>
       </section>
 
-      <section className="ruled">
-        <div className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '48px 96px' }}>
-          <h2 className="h2" style={{ flex: '1 1 320px' }}>Pytania o obrączki</h2>
-          <div style={{ flex: '2 1 560px', minWidth: 0 }}>
+      <section className="surface-paper">
+        <div className="wrap sec faq-split">
+          <SectionIntro eyebrow="Pytania i odpowiedzi" title="Pytania o obrączki" />
+          <div style={{ minWidth: 0 }}>
+            <JsonLd data={faqJsonLd(faqPlainItems(faq()))} />
             <Faq items={faq()} />
             <div className="row gap-14-28" style={{ marginTop: 40 }}>
               <Link className="btn" href="/kontakt?temat=obraczki">

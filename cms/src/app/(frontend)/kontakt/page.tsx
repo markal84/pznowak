@@ -3,6 +3,7 @@ import ContactForm from '@/components/site/ContactForm'
 import ContactMap from '@/components/site/ContactMap'
 import { ContactPlanProvider, NextSteps } from '@/components/site/ContactPlan'
 import NavigateLink from '@/components/site/NavigateLink'
+import SectionIntro from '@/components/site/SectionIntro'
 import { consentText } from '@/lib/submissions/consent'
 import { LIMITS, initialContactTopic } from '@/lib/submissions/options'
 import JsonLd from '@/components/site/JsonLd'
@@ -48,7 +49,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Sear
           <div style={{ flex: '2 1 560px', minWidth: 0 }}>
             <ContactForm choice={choice} consentText={consentText('kontakt')} initialTopic={initialTopic} project={project} />
           </div>
-          <aside className="stack" style={{ flex: '1 1 320px', minWidth: 0, gap: 36 }}>
+          <aside className="stack kontakt-aside" style={{ flex: '1 1 320px', minWidth: 0, gap: 36 }}>
             <div className="info-card">
               <h2>Pracownia</h2>
               <address>
@@ -78,14 +79,17 @@ export default async function ContactPage({ searchParams }: { searchParams: Sear
         </section>
       </ContactPlanProvider>
 
-      <section aria-labelledby="dojazd" className="wrap stack map-section">
-        <h2 id="dojazd" style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 34, lineHeight: 1.1 }}>
-          Jak dojechać
-        </h2>
-        <p className="lead" style={{ maxWidth: '36em' }}>
-          {SITE.street}, {SITE.city}. Przycisk „Prowadź do pracowni” uruchomi nawigację w aplikacji Mapy na telefonie.
-        </p>
-        <ContactMap />
+      <section aria-labelledby="dojazd" className="surface-paper">
+        <div className="wrap map-section">
+          <SectionIntro
+            eyebrow="Dojazd"
+            id="dojazd"
+            intro={`${SITE.street}, ${SITE.city}. Przycisk „Prowadź do pracowni” uruchomi nawigację w aplikacji Mapy na telefonie.`}
+            size="md"
+            title="Jak dojechać"
+          />
+          <ContactMap />
+        </div>
       </section>
     </>
   )

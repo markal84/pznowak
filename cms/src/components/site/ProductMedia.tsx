@@ -17,6 +17,8 @@ const SWIPE_MIN_PX = 40
 
 type ProductMediaProps = {
   name: string
+  /** Początek opisu zdjęć dla czytników i wyszukiwarek, np. „Pierścionek Aria z ametystem”; domyślnie sama nazwa. */
+  altBase?: string
   images: string[]
   video: string
   /** Kamień oryginału z karty (np. „Diament niebieski”) – do podpisu filmu przy wybranym innym kamieniu. */
@@ -42,7 +44,9 @@ function ArrowIcon({ dir }: { dir: 'left' | 'right' }) {
   )
 }
 
-export default function ProductMedia({ name, images, video, originalStone, children }: ProductMediaProps) {
+export default function ProductMedia({ name, altBase, images, video, originalStone, children }: ProductMediaProps) {
+  // Opis zdjęcia karty: co jest na zdjęciu i które to ujęcie, bez zgadywania kadru („widok z boku”).
+  const photoAlt = (item: { label: string }, i: number) => (altBase ? `${altBase}, zdjęcie ${i + 1}` : `${name}: ${item.label.toLowerCase()}`)
   const variant = useSelectedStoneVariant()
   // Wybrany inny kamień (zlecenie Y): cała galeria to obrazy wariantu, w kolejności zdjęć karty; zdjęć oryginału z nimi
   // nie mieszamy (pierścionek w dwóch kolorach naraz wyglądał niespójnie). Film zostaje prawdziwy, z okładką oryginału.
@@ -115,9 +119,9 @@ export default function ProductMedia({ name, images, video, originalStone, child
     if (Math.abs(dx) >= SWIPE_MIN_PX && Math.abs(dx) > Math.abs(t.clientY - start.y)) step(dx < 0 ? 1 : -1)
   }
 
-  const slides: Slide[] = items.map((item) =>
+  const slides: Slide[] = items.map((item, i) =>
     item.kind === 'image'
-      ? { src: item.src, alt: item.variant ? item.variant.alt : `${name}: ${item.label.toLowerCase()}` }
+      ? { src: item.src, alt: item.variant ? item.variant.alt : photoAlt(item, i) }
       : { type: 'video', sources: [{ src: item.src, type: 'video/mp4' }], poster: item.poster || undefined },
   )
 
@@ -139,7 +143,7 @@ export default function ProductMedia({ name, images, video, originalStone, child
                   uznaje go za największy obraz na ekranie (LCP liczy rozmiar własny obrazu), tylko zdjęcie pierścionka. */}
               <Image alt="" aria-hidden="true" className="ph-variant-bg" fill sizes="64px" src={current.src} />
               <Image
-                alt={current.variant ? current.variant.alt : `${name}: ${current.label.toLowerCase()}`}
+                alt={current.variant ? current.variant.alt : photoAlt(current, index)}
                 fill
                 priority={index === 0}
                 sizes="(max-width: 960px) 100vw, 55vw"

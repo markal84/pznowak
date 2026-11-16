@@ -6,10 +6,12 @@ import { toCatalogRing } from '@/lib/catalog'
 import { HERO_VITRINE, heroRing as pickHero, pickHomeRings } from '@/lib/home'
 import { showPlaceholders } from '@/lib/placeholders'
 import { pageMetadata } from '@/lib/seo'
+import { guidePath } from '@/lib/guides'
 import { CUSTOM_ORDER_LINK, FAMILY, HERO_TRUST, RING_CREATOR_ENABLED, SITE, openingHoursText } from '@/lib/site'
-import { jewelryStoreJsonLd } from '@/lib/structured-data'
+import { faqJsonLd, jewelryStoreJsonLd, websiteJsonLd } from '@/lib/structured-data'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
-import Faq, { type FaqItem } from '@/components/site/Faq'
+import Faq, { faqPlainItems, type FaqItem } from '@/components/site/Faq'
+import GuideCards from '@/components/site/GuideCards'
 import GoogleReviews from '@/components/site/GoogleReviews'
 import HeroVitrine, { type VitrineSlide } from '@/components/site/HeroVitrine'
 import Icon, { type IconName } from '@/components/site/Icon'
@@ -33,12 +35,22 @@ const faq = (): FaqItem[] => [
     a: (
       <>
         Cena zależy od kamieni i złota. Powiedz, jaki budżet planujesz, a dopasujemy do niego projekt. Wycenę dostajesz przed rozpoczęciem pracy.
+        Z czego składa się cena, opisujemy w poradniku{' '}
+        <Link href={guidePath('ile-kosztuje-pierscionek-na-zamowienie')}>ile kosztuje pierścionek na zamówienie</Link>.
       </>
     ),
+    text: 'Cena zależy od kamieni i złota. Powiedz, jaki budżet planujesz, a dopasujemy do niego projekt. Wycenę dostajesz przed rozpoczęciem pracy.',
   },
   {
     q: 'Jak dobrać rozmiar, jeśli to niespodzianka?',
-    a: 'Weź pierścionek, który ta osoba nosi na tym samym palcu, i pokaż go nam w pracowni albo jubilerowi w swojej okolicy. Możesz też odrysować jego wnętrze na kartce. Rozmiar można też poprawić po zaręczynach.',
+    a: (
+      <>
+        Weź pierścionek, który ta osoba nosi na tym samym palcu, i pokaż go nam w pracowni albo jubilerowi w swojej okolicy. Możesz też
+        odrysować jego wnętrze na kartce. Rozmiar można też poprawić po zaręczynach. Więcej sposobów i kalkulator znajdziesz w poradniku{' '}
+        <Link href={guidePath('jak-sprawdzic-rozmiar-pierscionka')}>jak sprawdzić rozmiar pierścionka</Link>.
+      </>
+    ),
+    text: 'Weź pierścionek, który ta osoba nosi na tym samym palcu, i pokaż go nam w pracowni albo jubilerowi w swojej okolicy. Możesz też odrysować jego wnętrze na kartce. Rozmiar można też poprawić po zaręczynach.',
   },
   {
     q: 'Czy mogę zamówić, jeśli mieszkam daleko od Buska?',
@@ -48,6 +60,7 @@ const faq = (): FaqItem[] => [
         albo wysyłamy go kurierem. Więcej na stronie <Link href="/na-zamowienie">Pierścionek na zamówienie</Link>.
       </>
     ),
+    text: 'Tak. Rozmawiamy przez telefon, rozmiar mierzy jubiler w Twojej okolicy, a gotowy pierścionek odbierasz w pracowni albo wysyłamy go kurierem.',
   },
   { q: 'Czy mogę użyć własnego kamienia lub złota?', a: 'Tak. Obejrzymy kamień i biżuterię w pracowni i powiemy, co da się z nich zrobić.' },
   { q: 'Na kiedy będzie gotowy?', a: 'Termin ustalamy razem z projektem. Jeśli pierścionek ma być gotowy na konkretną datę, napisz ją w pierwszej wiadomości.' },
@@ -82,6 +95,7 @@ export default async function HomePage() {
     products.filter((p) => !inVitrine.has(p.slug)),
     hero,
   ).map(toCatalogRing)
+  const faqItems = faq()
   const trust = HERO_TRUST.filter((t) => t.confirmed || showPlaceholders())
   // Ceny i dłuższe opisy są na podstronach; tu kafelek prowadzi dalej.
   const offers: { icon: IconName; title: string; text: string; href: string; link: string }[] = [
@@ -119,6 +133,8 @@ export default async function HomePage() {
   return (
     <>
       <JsonLd data={jewelryStoreJsonLd()} />
+      <JsonLd data={websiteJsonLd()} />
+      <JsonLd data={faqJsonLd(faqPlainItems(faqItems))} />
       {/* Hero: na komputerze tekst po lewej, zdjęcie na całą wysokość do prawej krawędzi ekranu; na telefonie zdjęcie nad tytułem. */}
       {/* Hero: na komputerze tekst po lewej, witryna pod lupą na całą wysokość do prawej krawędzi ekranu; na telefonie witryna nad tytułem. */}
       <section className={`hero-home${vitrine.length > 0 ? '' : ' hero-home-solo'}`}>
@@ -158,8 +174,17 @@ export default async function HomePage() {
       </section>
 
       {featured.length > 0 ? (
-        <section className="wrap stack" style={{ gap: 44 }}>
-          <SectionIntro intro="Każdy projekt to punkt wyjścia do Twojej wersji." title="Wybrane pierścionki" />
+        <section className="wrap stack home-rings" style={{ gap: 44 }}>
+          <SectionIntro
+            action={
+              <Link className="btn btn-line only-wide" href="/pierscionki">
+                Wszystkie pierścionki ({count})
+              </Link>
+            }
+            eyebrow="Kolekcja"
+            intro="Każdy projekt to punkt wyjścia do Twojej wersji."
+            title="Wybrane pierścionki"
+          />
           <ul className="ring-grid ring-grid-4" data-reveal="">
             {featured.map((r) => (
               <RingCard
@@ -173,14 +198,15 @@ export default async function HomePage() {
               />
             ))}
           </ul>
-          <Link className="btn btn-line" href="/pierscionki" style={{ alignSelf: 'flex-start' }}>
+          <Link className="btn btn-line only-narrow" href="/pierscionki" style={{ alignSelf: 'flex-start' }}>
             Wszystkie pierścionki ({count})
           </Link>
         </section>
       ) : null}
 
-      <section className="wrap sec stack" style={{ gap: 40 }}>
-        <SectionIntro title="Z czym możesz do nas przyjść" />
+      <section className="band">
+        <div className="wrap sec stack" style={{ gap: 40 }}>
+        <SectionIntro eyebrow="Co robimy" title="Z czym możesz do nas przyjść" />
         <ul className="tiles" data-reveal="">
           {offers.map((o) => (
             <li className="tile ic-host" key={o.title}>
@@ -193,12 +219,14 @@ export default async function HomePage() {
             </li>
           ))}
         </ul>
+        </div>
       </section>
 
       <section className="dark">
         <div className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '56px 80px', alignItems: 'stretch' }}>
           <div className="stack" style={{ flex: '1 1 520px', minWidth: 0, gap: 44 }}>
             <SectionIntro
+              eyebrow="Na zamówienie"
               intro={
                 <>
                   Cenę i wygląd znasz, zanim zaczniemy.
@@ -207,7 +235,7 @@ export default async function HomePage() {
               }
               title="Jak powstaje pierścionek na zamówienie"
             />
-            <ol className="steps">
+            <ol className="steps steps-2x2">
               <li className="step"><span className="n">1</span><h3>Rozmowa</h3><p>W pracowni albo przez telefon. Mówisz, dla kogo jest pierścionek, na jaką okazję i jaki masz budżet.</p></li>
               <li className="step"><span className="n">2</span><h3>Projekt i wycena</h3><p>Dobieramy kamień, kolor złota i proporcje, aż projekt będzie gotowy do wykonania.</p></li>
               <li className="step"><span className="n">3</span><h3>Wykonanie</h3><p>Pierścionek powstaje w naszej pracowni. Oprawę kamieni, wykończenie i polerowanie robimy ręcznie.</p></li>
@@ -233,7 +261,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <GoogleReviews config={reviews} />
+      <GoogleReviews config={reviews} eyebrow="Klienci o nas" surface />
 
       <section className="band">
         <div className="wrap sec-tight pracownia">
@@ -243,6 +271,7 @@ export default async function HomePage() {
           </figure>
           <div className="stack pracownia-copy" style={{ gap: 28 }}>
             <SectionIntro
+              eyebrow="Historia"
               intro="Od 1920 roku fach przechodzi w rodzinie Nowaków z ojca na syna: od kowala z Szańca, przez Stanisława i Mieczysława, po Michała. Pierścionki, które Mieczysław projektował w latach 80., do dziś wracają do nas na renowację. Z tą samą uwagą zajmiemy się pierścionkiem po babci."
               title="Pracownia od 1920"
             />
@@ -254,13 +283,27 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="ruled">
-        <div className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '64px 96px' }}>
+      <section className="wrap sec stack" style={{ gap: 40 }}>
+        <SectionIntro
+          action={
+            <Link className="tl" href="/poradniki">
+              Wszystkie poradniki
+            </Link>
+          }
+          eyebrow="Poradniki"
+          intro="Rozmiar, kamień i cena: trzy rzeczy, o które pytacie najczęściej, opisane tak, żeby dało się zdecydować przed pierwszą rozmową."
+          title="Zanim wybierzesz pierścionek"
+        />
+        <GuideCards />
+      </section>
+
+      <section className="surface-paper home-faq">
+        <div className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '64px 96px' }}>
           <div className="stack" style={{ flex: '1 1 520px', minWidth: 0, gap: 32 }}>
-            <h2 className="h2">Zanim przyjdziesz</h2>
-            <Faq items={faq()} />
+            <SectionIntro eyebrow="Pytania i odpowiedzi" title="Zanim przyjdziesz" />
+            <Faq items={faqItems} />
           </div>
-          <aside className="hint-panel" style={{ flex: '1 1 340px', minWidth: 0, alignSelf: 'flex-start' }}>
+          <aside className="hint-panel dark" style={{ flex: '1 1 340px', minWidth: 0, alignSelf: 'flex-start' }}>
             <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 34, lineHeight: 1.1 }}>Pracownia w Busku-Zdroju</h2>
             <address style={{ fontStyle: 'normal', fontSize: 17, lineHeight: 1.6 }}>
               {SITE.street}
@@ -279,9 +322,9 @@ export default async function HomePage() {
               <a href={SITE.phoneHref} style={{ textDecoration: 'none', fontWeight: 500 }}>{SITE.phone}</a>
               <a href={`mailto:${SITE.email}`} style={{ textDecoration: 'none' }}>{SITE.email}</a>
             </div>
-            <Link className="btn" href="/kontakt" style={{ alignSelf: 'flex-start' }}>Umów wizytę</Link>
+            <Link className="btn btn-light" href="/kontakt" style={{ alignSelf: 'flex-start' }}>Umów wizytę</Link>
             <p className="small">Na rozmowę o projekcie najlepiej umówić się wcześniej. Z naprawą możesz przyjść w godzinach otwarcia.</p>
-            <p className="small" style={{ borderTop: '1px solid var(--line-soft)', paddingTop: 18, color: 'var(--graphite-2)' }}>
+            <p className="small panel-note">
               Na miejscu jest też sklep z gotową biżuterią złotą i srebrną.
             </p>
           </aside>

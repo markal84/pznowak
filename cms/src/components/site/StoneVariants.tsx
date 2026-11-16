@@ -73,10 +73,20 @@ export function VariantStoneFact({ children }: { children: ReactNode }) {
 }
 
 /** „Zapytaj o ten pierścionek”: formularz dostaje nazwę projektu i wybrany kamień. */
-export function VariantInquiryLink({ projectName, className, children }: { projectName: string; className?: string; children: ReactNode }) {
+export function VariantInquiryLink({
+  projectName,
+  className,
+  tabIndex,
+  children,
+}: {
+  projectName: string
+  className?: string
+  tabIndex?: number
+  children: ReactNode
+}) {
   const selected = useSelectedStoneVariant()
   return (
-    <Link className={className} href={inquiryHref(projectName, selected?.stone)}>
+    <Link className={className} href={inquiryHref(projectName, selected?.stone)} tabIndex={tabIndex}>
       {children}
     </Link>
   )

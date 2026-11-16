@@ -36,7 +36,7 @@ export default async function WorksPage({ searchParams }: WorksPageProps) {
 
       <WorksBrowser initialSlug={initialSlug ?? null} works={works} />
 
-      <GoogleReviews config={reviews} title="Opinie klientów" />
+      <GoogleReviews config={reviews} eyebrow="Opinie z Google" surface title="Opinie klientów" />
 
       <section className="dark">
         <div className="wrap" style={{ paddingTop: 80, paddingBottom: 80, display: 'flex', flexWrap: 'wrap', gap: '24px 64px', alignItems: 'center', justifyContent: 'space-between' }}>

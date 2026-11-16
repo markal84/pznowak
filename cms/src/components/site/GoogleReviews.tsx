@@ -10,6 +10,10 @@ type GoogleReviewsProps = {
   config?: ReviewsConfig
   /** Dodatkowy styl sekcji (odstępy zależą od miejsca na stronie). */
   className?: string
+  /** Nadtytuł nad tytułem sekcji (SectionIntro). */
+  eyebrow?: string
+  /** Sekcja na jasnej powierzchni od krawędzi do krawędzi (`.surface-paper`), gdy sąsiednie sekcje są srebrne albo ciemne. */
+  surface?: boolean
 }
 
 function Stars({ rating }: { rating: number }) {
@@ -72,7 +76,7 @@ function Review({ review }: { review: GoogleReview }) {
  * bez oceny). Wstawienie na kolejnej stronie: `const reviews = await getGoogleReviews()` w stronie
  * (`@/lib/google-reviews-source`) i `<GoogleReviews config={reviews} />` (opcjonalnie `title`).
  */
-export default function GoogleReviews({ title = 'Opinie z Google', config = GOOGLE_REVIEWS, className }: GoogleReviewsProps) {
+export default function GoogleReviews({ title = 'Opinie z Google', config = GOOGLE_REVIEWS, className, eyebrow, surface = false }: GoogleReviewsProps) {
   const ready = reviewsReady(config)
   if (!ready) {
     return (
@@ -90,9 +94,10 @@ export default function GoogleReviews({ title = 'Opinie z Google', config = GOOG
   }
 
   const { summary, reviews, sourceNote } = config
-  return (
-    <section className={['wrap', 'sec-tight', 'stack', className].filter(Boolean).join(' ')} style={{ gap: 36 }}>
+  const body = (
+    <>
       <SectionIntro
+        eyebrow={eyebrow}
         action={
           <a className="tl" href={summary!.url} rel="noreferrer noopener" target="_blank">
             Zobacz wszystkie w Google
@@ -124,6 +129,20 @@ export default function GoogleReviews({ title = 'Opinie z Google', config = GOOG
           <DoUzupelnienia>[Zdanie o tym, skąd pochodzą opinie: do potwierdzenia]</DoUzupelnienia>
         </p>
       ) : null}
+    </>
+  )
+  if (surface) {
+    return (
+      <section className={['surface-paper', className].filter(Boolean).join(' ')}>
+        <div className="wrap sec-tight stack" style={{ gap: 36 }}>
+          {body}
+        </div>
+      </section>
+    )
+  }
+  return (
+    <section className={['wrap', 'sec-tight', 'stack', className].filter(Boolean).join(' ')} style={{ gap: 36 }}>
+      {body}
     </section>
   )
 }

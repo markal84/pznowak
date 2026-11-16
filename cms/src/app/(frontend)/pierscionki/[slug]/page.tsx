@@ -3,17 +3,21 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducts } from '@/lib/collection'
-import { descriptionParagraphs, formatStone, goldColorLabel, similarTo, toCatalogRing } from '@/lib/catalog'
-import { productPath, productSeoDescription, productSeoTitle } from '@/lib/product-seo'
+import { descriptionParagraphs, formatMetal, formatStone, goldColorLabel, similarTo, toCatalogRing } from '@/lib/catalog'
+import { productPath, productSeoDescription, productSeoTitle, productStonePhrase } from '@/lib/product-seo'
 import { pageMetadata } from '@/lib/seo'
-import { breadcrumbJsonLd } from '@/lib/structured-data'
+import { breadcrumbJsonLd, productJsonLd } from '@/lib/structured-data'
+import { guidePath } from '@/lib/guides'
+import { mainStoneGuideAnchor } from '@/lib/guide-links'
 import { showPlaceholders } from '@/lib/placeholders'
 import { SHOW_GOLD_FINENESS, SITE } from '@/lib/site'
 import CatalogCrumb from '@/components/site/CatalogCrumb'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import JsonLd from '@/components/site/JsonLd'
 import ProductMedia from '@/components/site/ProductMedia'
+import ProductStickyCta from '@/components/site/ProductStickyCta'
 import RingCard from '@/components/site/RingCard'
+import SectionIntro from '@/components/site/SectionIntro'
 import {
   ProductPrice,
   StoneVariantPicker,
@@ -59,6 +63,10 @@ export default async function ProductPage({ params, searchParams }: Params & { s
   const metal = goldColorLabel(product.metal)
   const description = descriptionParagraphs(product.description)
   const similar = similarTo(product, products, 4).map(toCatalogRing)
+  // Nadtytuł nad nazwą: „Pierścionek z ametystem” (ta sama odmiana co w tytule strony), a gdy kamienia nie da się odmienić, samo „Pierścionek”.
+  const stonePhrase = productStonePhrase(product.stone)
+  const eyebrow = stonePhrase ? `Pierścionek ${stonePhrase}` : 'Pierścionek'
+  const stoneGuide = mainStoneGuideAnchor(product.stone)
   // Pusty kamień albo metal: na produkcji wiersza nie ma, na podglądzie widać znacznik „do uzupełnienia”.
   const facts: [string, ReactNode][] = []
   if (stone) facts.push(['Kamień główny', <VariantStoneFact key="stone">{stone}</VariantStoneFact>])
@@ -90,6 +98,17 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           { name: product.name, path: productPath(product.slug) },
         ])}
       />
+      <JsonLd
+        data={productJsonLd({
+          name: product.name,
+          path: productPath(product.slug),
+          description: product.seoDescription || productSeoDescription(product),
+          images: product.images,
+          stone,
+          metal: formatMetal(product.metal),
+          price: product.price,
+        })}
+      />
       <nav aria-label="Ścieżka" className="wrap crumbs">
         <ol>
           <li>
@@ -107,7 +126,10 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           <div className="stack product-head" style={{ gap: 16 }}>
             {/* Na telefonie i tablecie nazwa z ceną stoi nad zdjęciem, żeby cena była na pierwszym ekranie (globals.css). */}
             <div className="product-title">
-              <h1 className="h1-product">{product.name}</h1>
+              {/* Nadtytuł jest częścią H1: nagłówek czyta się „Pierścionek z ametystem Aria”, a na ekranie zostaje duża nazwa. */}
+              <h1 className="h1-product">
+                <span className="eyebrow">{eyebrow}</span> {product.name}
+              </h1>
               <div className="product-price-compact">
                 <ProductPrice compact price={formatPrice(product.price)} />
               </div>
@@ -122,32 +144,8 @@ export default async function ProductPage({ params, searchParams }: Params & { s
             <ProductPrice price={formatPrice(product.price)} />
           </div>
 
-          <div className="tag tag-xl product-facts">
-            <span aria-hidden="true" className="hole" />
-            <dl className="facts">
-              {facts.map(([k, v]) => (
-                <div key={k} style={{ display: 'contents' }}>
-                  <dt>{k}</dt>
-                  <dd>{v}</dd>
-                </div>
-              ))}
-              <dt>Rozmiar</dt>
-              <dd>Wykonamy w Twoim rozmiarze</dd>
-              <dt>Czas wykonania</dt>
-              <dd>Ustalamy przy zamówieniu</dd>
-            </dl>
-          </div>
-
-          {description.length ? (
-            <div className="stack product-desc" style={{ gap: 12 }}>
-              {description.map((paragraph, index) => (
-                <p className="text" key={index} style={{ fontSize: 16 }}>
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-          ) : null}
-
+          {/* Przyciski stoją zaraz pod ceną (na komputerze widać je bez przewijania). Na telefonie kolejność ustawia
+              `order` w globals.css: opis, potem przyciski, jak dotąd. */}
           <div className="stack product-cta" style={{ gap: 14 }}>
             <div className="row" style={{ gap: '12px 20px' }}>
               <VariantInquiryLink className="btn" projectName={product.name}>
@@ -164,6 +162,35 @@ export default async function ProductPage({ params, searchParams }: Params & { s
             </p>
           </div>
 
+          <div className="tag tag-xl product-facts">
+            <span aria-hidden="true" className="hole" />
+            <dl className="facts">
+              {facts.map(([k, v]) => (
+                <div key={k} style={{ display: 'contents' }}>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+              <dt>Rozmiar</dt>
+              <dd>
+                Wykonamy w Twoim rozmiarze.{' '}
+                <Link href={guidePath('jak-sprawdzic-rozmiar-pierscionka')}>Jak sprawdzić rozmiar</Link>
+              </dd>
+              <dt>Czas wykonania</dt>
+              <dd>Ustalamy przy zamówieniu</dd>
+            </dl>
+          </div>
+
+          {description.length ? (
+            <div className="stack product-desc" style={{ gap: 12 }}>
+              {description.map((paragraph, index) => (
+                <p className="text" key={index} style={{ fontSize: 16 }}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          ) : null}
+
           <div className="stack product-changes" style={{ gap: 14, borderTop: '1px solid var(--line)', paddingTop: 24 }}>
             <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 26, lineHeight: 1.15 }}>Co możesz zmienić</h2>
             <ul style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 15.5, lineHeight: 1.55, color: 'var(--graphite-2)' }}>
@@ -172,19 +199,30 @@ export default async function ProductPage({ params, searchParams }: Params & { s
               <li>Grubość obrączki i wysokość osadzenia kamienia</li>
               <li>Grawer po wewnętrznej stronie</li>
             </ul>
+            <p className="small" style={{ fontSize: 14.5 }}>
+              Zastanawiasz się nad innym kamieniem? Zobacz{' '}
+              <Link href={`${guidePath('kamienie-do-pierscionka-zareczynowego')}${stoneGuide ? `#${stoneGuide}` : ''}`}>
+                porównanie kamieni do pierścionka
+              </Link>
+              . Mieszkasz daleko? Sprawdź, <Link href="/na-zamowienie">jak zamówić bez przyjazdu do Buska-Zdroju</Link>.
+            </p>
           </div>
         </div>
 
-        <ProductMedia images={product.images} name={product.name} originalStone={stone} video={product.video}>
+        <ProductMedia
+          altBase={`Pierścionek ${product.name}${stonePhrase ? ` ${stonePhrase}` : ''}`}
+          images={product.images}
+          name={product.name}
+          originalStone={stone}
+          video={product.video}
+        >
           <StoneVariantPicker originalStone={stone} originalSwatch={originalSwatch(product.stone)} />
         </ProductMedia>
       </section>
 
       <section className="dark">
         <div className="wrap sec-tight stack" style={{ gap: 44 }}>
-          <h2 className="h2 h2-md" style={{ maxWidth: '18em', fontSize: 'clamp(34px, 3.6vw, 50px)' }}>
-            Jak zamówić projekt z kolekcji
-          </h2>
+          <SectionIntro eyebrow="Zamówienie" size="md" title="Jak zamówić projekt z kolekcji" />
           <ol className="steps" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '32px 48px' }}>
             <li className="step"><span className="n">1</span><h3>Napisz lub zadzwoń</h3><p>Podaj nazwę projektu i powiedz, co chcesz w nim zmienić.</p></li>
             <li className="step"><span className="n">2</span><h3>Wybierz kamień i rozmiar</h3><p>W pracowni pokażemy kamienie i zmierzymy palec. Potem dostajesz wycenę.</p></li>
@@ -193,20 +231,24 @@ export default async function ProductPage({ params, searchParams }: Params & { s
         </div>
       </section>
 
+      <ProductStickyCta phoneHref={SITE.phoneHref} projectName={product.name} />
+
       {similar.length > 0 ? (
         <section className="wrap stack" style={{ paddingTop: 96, paddingBottom: 112, gap: 36 }}>
-          <div className="row" style={{ alignItems: 'flex-end', justifyContent: 'space-between', gap: '16px 40px' }}>
-            <h2 className="h2 h2-md" style={{ fontSize: 'clamp(34px, 3.6vw, 50px)' }}>Podobne pierścionki</h2>
-            <Link className="tl" href="/pierscionki">Wszystkie pierścionki</Link>
-          </div>
-          <ul className="ring-grid ring-grid-sm">
+          <SectionIntro
+            action={<Link className="tl" href="/pierscionki">Wszystkie pierścionki</Link>}
+            eyebrow="Kolekcja"
+            size="md"
+            title="Podobne pierścionki"
+          />
+          <ul className={`ring-grid ${similar.length === 4 ? 'ring-grid-4' : 'ring-grid-sm'}`}>
             {similar.map((r) => (
               <RingCard
                 alt={r.alt}
                 image={r.image}
                 key={r.slug}
                 name={r.name}
-                sizes="(max-width: 720px) 50vw, (max-width: 1320px) 25vw, 300px"
+                sizes="(max-width: 960px) 50vw, 25vw"
                 slug={r.slug}
                 stone={r.stone}
               />

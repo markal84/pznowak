@@ -21,6 +21,8 @@
   --error-bg: #f8eeeb;
   --serif: var(--font-newsreader), Georgia, serif;
   --sans: var(--font-schibsted), system-ui, sans-serif;
+  /* Szerokość treści: 1320 px na zwykłym laptopie, płynnie do 1600 px na dużym monitorze (mniej pustych marginesów). */
+  --wrap-max: clamp(1320px, 82vw, 1600px);
 }
 
 *,
@@ -100,7 +102,7 @@ summary::-webkit-details-marker {
 
 /* ---------- układ ---------- */
 .wrap {
-  max-width: 1320px;
+  max-width: var(--wrap-max);
   margin: 0 auto;
   padding-left: 40px;
   padding-right: 40px;
@@ -295,7 +297,7 @@ summary::-webkit-details-marker {
   border-bottom: 1px solid var(--line-soft);
 }
 .site-header-in {
-  max-width: 1320px;
+  max-width: var(--wrap-max);
   margin: 0 auto;
   padding: 18px 40px;
   display: flex;
@@ -391,7 +393,7 @@ summary::-webkit-details-marker {
   font-family: var(--sans);
 }
 .site-footer-in {
-  max-width: 1320px;
+  max-width: var(--wrap-max);
   margin: 0 auto;
   padding: 72px 40px 40px;
   display: flex;
@@ -3063,7 +3065,7 @@ fieldset.plain legend {
    Telefon i tablet (do 960 px): zdjęcie od krawędzi do krawędzi nad tytułem, tytuł płynie jednym akapitem. */
 .hero-home {
   /* Lewa krawędź treści jak w `.wrap` (max 1320 px + 40 px). cqw = szerokość sekcji; vw jako zapas dla starszych przeglądarek. */
-  --hero-pad: max(40px, calc((100vw - 1320px) / 2 + 40px));
+  --hero-pad: max(40px, calc((100vw - var(--wrap-max)) / 2 + 40px));
   container-type: inline-size;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -3108,7 +3110,7 @@ fieldset.plain legend {
 }
 @supports (width: 1cqw) {
   .hero-home > * {
-    --hero-pad: max(40px, calc((100cqw - 1320px) / 2 + 40px));
+    --hero-pad: max(40px, calc((100cqw - var(--wrap-max)) / 2 + 40px));
   }
   .hero-home .h1-hero {
     font-size: clamp(40px, calc((50cqw - var(--hero-pad) - 56px) / 10.5), 58px);
@@ -3819,7 +3821,7 @@ fieldset.plain legend {
   outline: none;
 }
 .cookie-in {
-  max-width: 1320px;
+  max-width: var(--wrap-max);
   margin: 0 auto;
   padding: 22px 40px;
   display: flex;
@@ -4330,3 +4332,1005 @@ fieldset.plain legend {
   font-weight: 600;
 }
 
+
+/* ---------- drobne pomocnicze ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+/* Nadtytuł: krótki opis nad nagłówkiem (rodzaj strony, kamień pierścionka). */
+.eyebrow {
+  display: block;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--patina);
+}
+.dark .eyebrow {
+  color: var(--gold);
+}
+
+/* ---------- poradniki ---------- */
+.guide-cards {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+.guide-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 30px 30px 28px;
+  background: var(--paper);
+  color: var(--graphite);
+  text-decoration: none;
+  border-top: 2px solid var(--line-soft);
+  transition:
+    border-color 0.25s,
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.25s;
+}
+.guide-card:hover,
+.guide-card:focus-visible {
+  color: var(--graphite);
+  border-top-color: var(--focus);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px -18px rgba(34, 38, 42, 0.35);
+}
+.guide-card-topic {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--patina);
+}
+.guide-card-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 27px;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+}
+.guide-card-text {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--graphite-2);
+}
+.guide-card-more {
+  margin-top: auto;
+  padding-top: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--velvet);
+}
+.guide-card-more span {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.guide-card:hover .guide-card-more span {
+  transform: translateX(4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide-card,
+  .guide-card-more span {
+    transition: none;
+  }
+  .guide-card:hover,
+  .guide-card:focus-visible {
+    transform: none;
+  }
+}
+
+.guide {
+  padding-top: 36px;
+  padding-bottom: 104px;
+}
+.guide-head {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 920px;
+  padding-bottom: 44px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.guide-title {
+  font-size: clamp(38px, 4.6vw, 66px);
+  line-height: 1.03;
+  text-wrap: balance;
+}
+.guide-lead {
+  max-width: 40em;
+  font-size: 19px;
+}
+.guide-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.guide-cols {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) minmax(0, 720px);
+  gap: 48px 80px;
+  padding-top: 48px;
+  align-items: start;
+}
+.guide-toc {
+  position: sticky;
+  top: 128px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.guide-toc-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+.guide-toc ol {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--line-soft);
+}
+.guide-toc a {
+  display: block;
+  padding: 7px 0 7px 16px;
+  margin-left: -1px;
+  border-left: 1px solid transparent;
+  color: var(--graphite-2);
+  text-decoration: none;
+}
+.guide-toc a:hover {
+  color: var(--velvet);
+  border-left-color: var(--focus);
+}
+.guide-body {
+  min-width: 0;
+  font-size: 17.5px;
+  line-height: 1.68;
+  color: var(--graphite-2);
+}
+.guide-body > * + *,
+.guide-stone > * + * {
+  margin-top: 18px;
+}
+.guide-body h2 {
+  margin-top: 64px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(28px, 2.6vw, 36px);
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  color: var(--graphite);
+  scroll-margin-top: 112px;
+}
+.guide-body > h2:first-child {
+  margin-top: 0;
+}
+.guide-body h3 {
+  margin-top: 32px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--graphite);
+}
+.guide-body strong {
+  color: var(--graphite);
+  font-weight: 600;
+}
+.guide-body a:not(.tl):not(.card) {
+  color: var(--velvet);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.guide-body a:not(.tl):not(.card):hover {
+  text-decoration-color: var(--focus);
+  text-decoration-thickness: 2px;
+}
+.guide-body ul:not(.ring-grid),
+.guide-body ol {
+  padding-left: 1.35em;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guide-body ul:not(.ring-grid) {
+  list-style: disc;
+}
+.guide-body li::marker {
+  color: var(--patina);
+  /* Cyfry tabelaryczne tego kroju rozsuwają kropkę po numerze. */
+  font-variant-numeric: normal;
+}
+.guide-stone {
+  margin-top: 64px;
+}
+.guide-stone h2 {
+  margin-top: 0;
+}
+.guide-stone-facts {
+  margin-top: 8px;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+.guide-note {
+  padding: 20px 24px;
+  background: var(--paper);
+  border-left: 2px solid var(--focus);
+  color: var(--graphite);
+}
+.guide-figure {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guide-figure svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  color: var(--line);
+  font-family: var(--sans);
+}
+.guide-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--paper);
+}
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15.5px;
+  line-height: 1.45;
+}
+.guide-table th,
+.guide-table td {
+  padding: 12px 18px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line-soft);
+}
+.guide-table thead th {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--muted);
+  border-bottom-color: var(--line);
+}
+.guide-table tbody th {
+  font-weight: 600;
+  color: var(--graphite);
+  white-space: nowrap;
+}
+.guide-table tbody tr:last-child th,
+.guide-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.guide-rings {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding-left: 0;
+}
+.guide-rings-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.guide-rings .tag .nm {
+  font-size: 17px;
+}
+.guide-faq {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.guide-faq > div {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.guide-faq dt {
+  font-weight: 600;
+  color: var(--graphite);
+}
+.guide-faq dd {
+  margin-top: 6px;
+}
+.guide-cta {
+  padding-top: 72px;
+  padding-bottom: 72px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 64px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Kalkulator rozmiaru pierścionka */
+.size-tool {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px 36px;
+  padding: 28px;
+  background: var(--paper);
+  border-top: 2px solid var(--velvet);
+}
+.size-tool-modes {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.size-tool .chip {
+  background: var(--silver);
+}
+.size-tool .chip[aria-pressed='true'] {
+  background: var(--velvet);
+}
+.size-tool-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.size-tool-field label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+.size-tool-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: var(--muted);
+}
+.size-tool-input input {
+  width: 100%;
+  max-width: 180px;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--graphite);
+  font-family: inherit;
+  font-size: 20px;
+}
+.size-tool-input input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-color: var(--graphite);
+}
+.size-tool-result {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 36px;
+  border-left: 1px solid var(--line-soft);
+  justify-content: center;
+}
+.size-tool-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.size-tool-main strong {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--velvet);
+}
+.size-tool-result dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.size-tool-result dt {
+  color: var(--muted);
+  font-size: 13px;
+}
+.size-tool-result dd {
+  color: var(--graphite);
+  font-weight: 500;
+}
+
+@media (max-width: 1000px) {
+  .guide-cols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+    padding-top: 36px;
+  }
+  .guide-toc {
+    position: static;
+    padding: 20px 22px;
+    background: var(--paper);
+  }
+}
+@media (max-width: 720px) {
+  .guide {
+    padding-top: 24px;
+    padding-bottom: 72px;
+  }
+  .guide-head {
+    gap: 18px;
+    padding-bottom: 32px;
+  }
+  .guide-lead {
+    font-size: 17.5px;
+  }
+  .guide-body {
+    font-size: 17px;
+  }
+  .guide-body h2,
+  .guide-stone {
+    margin-top: 48px;
+  }
+  .guide-stone h2 {
+    margin-top: 0;
+  }
+  .guide-table th,
+  .guide-table td {
+    padding: 10px 12px;
+  }
+  .guide-table {
+    font-size: 14.5px;
+  }
+  .guide-rings,
+  .guide-rings-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .size-tool {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 20px;
+  }
+  .size-tool-result {
+    padding-left: 0;
+    padding-top: 20px;
+    border-left: 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  .guide-card {
+    padding: 24px 22px;
+  }
+  .guide-card-title {
+    font-size: 24px;
+  }
+}
+
+/* ---------- karta pierścionka: nadtytuł, przyklejona galeria, pasek z przyciskami na telefonie ---------- */
+.h1-product .eyebrow {
+  margin-bottom: 14px;
+  letter-spacing: 0.08em;
+}
+.facts dd a {
+  color: var(--velvet);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+.product-changes .small a {
+  color: var(--velvet);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+/* Kolumna z opisem jest dłuższa od galerii: zdjęcia zostają w polu widzenia, gdy czytasz parametry i opis.
+   Tylko na wysokim ekranie, żeby galeria z miniaturami i wyborem kamienia mieściła się w oknie. */
+@media (min-width: 1152px) and (min-height: 760px) {
+  .product-media {
+    position: sticky;
+    top: 122px;
+  }
+}
+.product-sticky {
+  display: none;
+}
+@media (max-width: 1151px) {
+  .product-sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 8;
+    display: flex;
+    gap: 10px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: rgba(231, 232, 227, 0.94);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line-soft);
+    transform: translateY(110%);
+    visibility: hidden;
+    transition:
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      visibility 0s linear 0.3s;
+  }
+  .product-sticky[data-visible='true'] {
+    transform: none;
+    visibility: visible;
+    transition:
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      visibility 0s;
+  }
+  .product-sticky .btn {
+    min-height: 50px;
+    padding: 0 18px;
+  }
+  .product-sticky .btn:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .product-sticky-call {
+    flex: 0 0 auto;
+    gap: 8px;
+    background: var(--paper);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-sticky,
+  .product-sticky[data-visible='true'] {
+    transition: none;
+  }
+}
+@media print {
+  .product-sticky {
+    display: none;
+  }
+}
+
+/* ---------- pracownia: fakty dla mediów ---------- */
+.press {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 40px 80px;
+  align-items: start;
+}
+.press-facts {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.press-facts > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 190px) minmax(0, 1fr);
+  gap: 4px 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.press-facts dt {
+  font-size: 14px;
+  color: var(--muted);
+}
+.press-facts dd {
+  color: var(--graphite);
+}
+.press-facts a {
+  color: var(--velvet);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+@media (max-width: 900px) {
+  .press {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .press-facts > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Siedem pozycji menu: na najwęższym komputerowym układzie mniejsze odstępy, żeby menu nie spadało do drugiego rzędu. */
+@media (min-width: 1140px) and (max-width: 1199px) {
+  .main-nav {
+    gap: 6px 13px;
+  }
+  .site-header-in {
+    gap: 14px 18px;
+  }
+}
+
+/* ==========================================================================================================
+   Odświeżenie wyglądu (listopad 2026): wyraźny podział sekcji i mniej pustych przestrzeni na komputerze.
+   Zasady:
+   - sąsiednie sekcje mają różne powierzchnie (srebro → cień → papier → aksamit), więc granica jest widoczna bez
+     dodatkowych ozdobników; `.surface-paper` to jasna powierzchnia obok dotychczasowych `.band` i `.dark`;
+   - każda sekcja zaczyna się nadtytułem (`SectionIntro eyebrow`): wersaliki ze złotą kreską, ta sama kreska co w hero;
+   - akcja nagłówka sekcji stoi na komputerze po prawej (`.sec-intro-split`), więc nagłówek zajmuje całą szerokość;
+   - treść jest szersza na dużych monitorach (`--wrap-max` w `:root`).
+   Telefon: te same powierzchnie i nadtytuły, układ bez zmian.
+   ========================================================================================================== */
+
+/* Nadtytuł sekcji. */
+.sec-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12.5px;
+  letter-spacing: 0.16em;
+}
+.sec-eyebrow::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
+}
+.sec-intro-main {
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+  min-width: 0;
+}
+@media (min-width: 961px) {
+  .sec-intro-split {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px 56px;
+  }
+  .sec-intro-split .sec-intro-main {
+    flex: 1 1 auto;
+    gap: 16px;
+  }
+  .sec-intro-split .sec-intro-action {
+    flex: 0 0 auto;
+    margin: 0 0 6px;
+  }
+}
+/* Ten sam link raz przy nagłówku (komputer), raz pod treścią sekcji (telefon). */
+@media (max-width: 960px) {
+  .only-wide {
+    display: none;
+  }
+}
+@media (min-width: 961px) {
+  .only-narrow {
+    display: none;
+  }
+}
+
+/* Jasna powierzchnia sekcji. Linie na styku z `.band` nie dublują się. */
+.surface-paper {
+  background: var(--paper);
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+.band + .surface-paper,
+.surface-paper + .band,
+.band + .band {
+  border-top: 0;
+}
+/* Na papierze karty i panele są srebrne (papier na papierze by znikł). */
+.surface-paper .tile,
+.surface-paper .guide-card,
+.surface-paper .info-card,
+.surface-paper .hint-panel:not(.dark) {
+  background: var(--silver);
+}
+.surface-paper .chrono-year::before {
+  background: var(--paper);
+}
+
+/* Aksamit z lekkim światłem z góry, żeby duża ciemna płaszczyzna nie była płaska. */
+.dark {
+  background:
+    radial-gradient(110% 130% at 88% -10%, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0) 58%),
+    var(--velvet);
+}
+
+/* Nagłówek strony: lekko przezroczysty, treść rozmywa się pod nim przy przewijaniu. */
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .site-header {
+    background: rgba(231, 232, 227, 0.86);
+    -webkit-backdrop-filter: saturate(1.5) blur(16px);
+    backdrop-filter: saturate(1.5) blur(16px);
+  }
+}
+
+/* Kafelki: cienka obwódka i uniesienie pod wskaźnikiem, jak kafelki poradników. */
+.tile {
+  box-shadow: inset 0 0 0 1px rgba(34, 38, 42, 0.06);
+  transition:
+    background-color 0.3s,
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s;
+}
+.tile:hover,
+.tile:focus-within {
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 0 0 1px rgba(34, 38, 42, 0.06),
+    0 18px 34px -22px rgba(34, 38, 42, 0.4);
+}
+.dark .tile,
+.dark .tile:hover,
+.dark .tile:focus-within {
+  box-shadow: none;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile:hover,
+  .tile:focus-within {
+    transform: none;
+  }
+}
+
+/* Kroki: większa cyfra, czytelniejszy rytm. */
+.step .n {
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1;
+}
+.step {
+  gap: 12px;
+  padding-top: 20px;
+}
+
+/* Panel kontaktowy na aksamicie (strona główna, obok pytań). */
+.hint-panel.dark {
+  color: var(--on-velvet);
+}
+.hint-panel.dark a {
+  color: #f6f5ef;
+}
+.hint-panel.dark .hours dt,
+.hint-panel.dark .small {
+  color: var(--on-velvet-3);
+}
+.hint-panel.dark .panel-note {
+  border-top: 1px solid var(--velvet-line);
+  padding-top: 18px;
+}
+.hint-panel.dark .btn-light {
+  color: var(--velvet);
+}
+
+/* Strona główna: „Wybrane pierścionki” kończą się własnym odstępem (następna sekcja ma tło od krawędzi do krawędzi). */
+.home-rings {
+  padding-bottom: 104px;
+}
+@media (max-width: 720px) {
+  .home-rings {
+    padding-bottom: 64px;
+  }
+}
+
+/* Pytania obok tytułu: na komputerze tytuł po lewej (trzyma się przy przewijaniu), pytania po prawej; na telefonie jedno pod drugim. */
+.faq-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+}
+@media (min-width: 961px) {
+  .faq-split {
+    grid-template-columns: minmax(280px, 4fr) minmax(0, 7fr);
+    gap: 48px 96px;
+    align-items: start;
+  }
+  .faq-split > .sec-intro {
+    position: sticky;
+    top: 132px;
+  }
+}
+
+/* Nagłówek podstrony bez zdjęcia: na komputerze tytuł ze wstępem po lewej, cena albo akcja po prawej, w linii z dołem
+   tekstu (prawa połowa nie zostaje pusta). Na telefonie jedno pod drugim, jak dotąd. */
+.page-head {
+  padding-top: 64px;
+  padding-bottom: 56px;
+  gap: 32px;
+}
+@media (min-width: 961px) {
+  .page-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: end;
+    column-gap: 72px;
+  }
+  .page-head > :nth-child(2) {
+    justify-self: end;
+  }
+  .page-head.catalog-head {
+    padding-top: 64px;
+    padding-bottom: 40px;
+  }
+}
+@media (max-width: 720px) {
+  .page-head:not(.catalog-head) {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    gap: 28px;
+  }
+}
+
+/* ---------- karta pierścionka na komputerze: większa galeria ----------
+   Miniatury stoją w pionie po lewej stronie zdjęcia, a ramka zdjęcia jest kwadratowa zamiast poziomej (3:2), więc
+   pionowe zdjęcia pierścionków są wyraźnie większe i galeria wypełnia kolumnę. Wysokość ramki nie przekracza okna,
+   żeby cała galeria z wyborem kamienia mogła zostać na ekranie przy przewijaniu (`position: sticky` wyżej).
+   Poniżej 1152 px bez zmian. Przeglądarka bez `:has()` zostaje przy miniaturach pod zdjęciem. */
+@media (min-width: 1152px) {
+  .product {
+    gap: 48px 64px;
+  }
+  .product-media {
+    flex: 1.25 1 600px;
+  }
+  .product-main .ph,
+  .product-main video {
+    aspect-ratio: 1 / 1;
+    max-height: max(440px, calc(100svh - 340px));
+  }
+  .product-media:has(.thumbs) {
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+  }
+  .product-media:has(.thumbs) > * {
+    grid-column: 1 / -1;
+  }
+  .product-media:has(.thumbs) > .product-main {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  /* Kolumna miniatur ma wysokość zdjęcia (contain: size = sama nie wyznacza wysokości rzędu); nadmiar się przewija. */
+  .product-media:has(.thumbs) > .thumbs {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: stretch;
+    contain: size;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 10px;
+    padding: 2px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .product-media:has(.thumbs) > .stone-variants {
+    margin-top: 4px;
+  }
+}
+
+/* Kontakt: boczna kolumna jedzie obok formularza, mapa w pełnej szerokości obok krótkiego opisu. */
+.kontakt-layout {
+  padding-bottom: 104px;
+}
+@media (min-width: 1100px) {
+  .kontakt-aside {
+    position: sticky;
+    top: 124px;
+  }
+}
+.map-section {
+  display: grid;
+  gap: 28px;
+  padding-top: 72px;
+  padding-bottom: 96px;
+}
+.map-section .map-block {
+  max-width: none;
+}
+@media (min-width: 961px) {
+  .map-section {
+    grid-template-columns: minmax(260px, 4fr) minmax(0, 8fr);
+    gap: 48px 80px;
+    align-items: start;
+    padding-top: 96px;
+    padding-bottom: 104px;
+  }
+}
+@media (max-width: 720px) {
+  .kontakt-layout {
+    padding-bottom: 72px;
+  }
+  .map-section {
+    padding-top: 56px;
+    padding-bottom: 72px;
+  }
+}
+
+/* Poradnik: nagłówek na całą szerokość, na szerokim ekranie trzecia kolumna z kontaktem do pracowni. */
+.guide-head {
+  max-width: none;
+}
+.guide-title {
+  max-width: 920px;
+}
+.guide-rail {
+  display: none;
+}
+@media (min-width: 1360px) {
+  .guide-cols {
+    grid-template-columns: 210px minmax(0, 1fr) 250px;
+    gap: 48px 44px;
+  }
+  .guide-rail {
+    position: sticky;
+    top: 128px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 26px 24px 24px;
+    background: var(--paper);
+    border-top: 2px solid var(--focus);
+  }
+  .guide-rail-title {
+    font-family: var(--serif);
+    font-size: 25px;
+    line-height: 1.12;
+    color: var(--graphite);
+  }
+  .guide-rail .btn {
+    align-self: stretch;
+    margin-top: 4px;
+  }
+  .guide-rail .hours {
+    width: 100%;
+    margin-top: 6px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line-soft);
+    font-size: 14px;
+  }
+}
+@media (min-width: 1680px) {
+  .guide-cols {
+    grid-template-columns: 240px minmax(0, 760px) 280px;
+    justify-content: space-between;
+  }
+}
+
+/* Strona główna: cztery kroki w dwóch równych rzędach obok zdjęcia (wcześniej 3 + 1). */
+@media (min-width: 721px) {
+  .steps-2x2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px 56px;
+  }
+}
+/* Hero na dużym monitorze: tytuł i wysokość rosną razem z szerszą treścią. */
+@media (min-width: 1680px) {
+  .hero-home {
+    min-height: clamp(580px, calc(100svh - 99px), 860px);
+  }
+  .hero-home .hero-main {
+    max-width: 720px;
+  }
+  @supports (width: 1cqw) {
+    .hero-home .h1-hero {
+      font-size: clamp(40px, calc((50cqw - var(--hero-pad) - 56px) / 10.5), 66px);
+    }
+  }
+}
+
+/* Realizacje na najwęższym telefonie (320 px): przywieszka „Na zamówienie” nie wystaje poza kafelek. */
+@media (max-width: 360px) {
+  .work-tile .tag-corner {
+    max-width: calc(100% - 12px);
+    left: 6px;
+  }
+  .work-tile .tag-corner .nm {
+    font-size: 14px;
+  }
+}

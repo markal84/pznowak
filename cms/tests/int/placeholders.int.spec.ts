@@ -100,7 +100,7 @@ const html = (element: ReactElement) => renderToStaticMarkup(element)
 
 const pages = async () => ({
   '/': html(await HomePage()),
-  '/pierscionki': html(await CatalogPage()),
+  '/pierscionki': html(await CatalogPage({ searchParams: Promise.resolve({}) })),
   '/pierscionki/phoebe': html(await ProductPage({ params: Promise.resolve({ slug: 'phoebe' }), searchParams: Promise.resolve({}) })),
   '/pierscionki/harmonia': html(await ProductPage({ params: Promise.resolve({ slug: 'harmonia' }), searchParams: Promise.resolve({}) })),
   '/pierscionki/bez-kamienia': html(await ProductPage({ params: Promise.resolve({ slug: 'bez-kamienia' }), searchParams: Promise.resolve({}) })),
