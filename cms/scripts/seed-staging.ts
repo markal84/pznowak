@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import type { Media } from '../src/payload-types'
+import { refuseLiveDatabase } from './db-guard'
 
 type Snapshot = {
   gallery: Array<{ id: number; image: string; name: string }>
@@ -25,9 +26,7 @@ type Snapshot = {
 const applyChanges = process.argv.includes('--apply')
 const snapshotPath = fileURLToPath(new URL('../../data/legacy/collection.json', import.meta.url))
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('seed-staging must run with NEON_BRANCH=staging')
-}
+refuseLiveDatabase('seed-staging')
 
 const snapshot = JSON.parse(await readFile(snapshotPath, 'utf8')) as Snapshot
 const productSource = snapshot.products[0]

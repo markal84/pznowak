@@ -19,18 +19,20 @@ produktami są obsługiwane przez osobną aplikację Payload w katalogu `cms`.
 
 ## Konfiguracja bazy
 
-Sekrety produkcji znajdują się w `.env.local`, sekrety gałęzi staging w
-`.env.staging.local`, a lokalny kontekst Neon w `.neon`. Wszystkie te pliki są
+Sekrety żywej bazy (gałąź Neon `production`) znajdują się w `.env.production.local`,
+starej gałęzi `archiwum-2026-11` w `.env.local`, a lokalny kontekst Neon w `.neon`
+(patrz tabela „Bazy Neon” w `cms/README.md`). Wszystkie te pliki są
 wykluczone z Gita. Wymagane nazwy zmiennych są opisane w `.env.example`;
 prawdziwych wartości nie należy kopiować do repozytorium.
 
-Na Vercelu `DATABASE_URL` dla środowiska Preview wskazuje na gałąź Neon
-`staging`, a zmienna dla Production na gałąź `production`. Migracje i importy
+Na Vercelu `DATABASE_URL` tego historycznego projektu wskazuje dla Preview żywą bazę
+(gałąź `production`, dawniej `staging`), a dla Production starą gałąź `archiwum-2026-11`. Migracje i importy
 korzystają z bezpośredniego `DATABASE_URL_UNPOOLED`; działające API korzysta z
 połączenia puli `DATABASE_URL`.
 
-Docelową strukturę katalogu i dane z `data/legacy/collection.json` przygotowuje na
-staging:
+Docelową strukturę katalogu i dane z `data/legacy/collection.json` przygotowywały dawniej
+staging. Skrypty `*:staging` czytają teraz `.env.test.local` (gałąź testowa, dziś nie istnieje), żeby nie
+dotknęły żywej bazy:
 
 ```bash
 npm run db:setup:staging

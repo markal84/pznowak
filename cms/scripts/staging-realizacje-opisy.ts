@@ -8,20 +8,19 @@
  * Teksty są w `scripts/realizacje-data.ts` (`title`, `task`, `whatWeDid`). Pole zmieniamy tylko wtedy, gdy w bazie jest
  * dokładnie poprzednia wersja z seeda (`previousTexts`); ręcznie poprawiony tekst zostaje, chyba że jest `--wymus`.
  * Adres (slug) realizacji się nie zmienia. Zapis przez `payload.update`, więc panel (najnowsza wersja) widzi to samo co strona.
- * Działa tylko z NEON_BRANCH=staging.
+ * Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts).
  */
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import { SEED_WORKS } from './realizacje-data'
 import { planTexts } from './realizacje-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 const force = process.argv.includes('--wymus')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:realizacje-opisy musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-realizacje-opisy')
 
 const LABELS = { title: 'Tytuł', task: 'Zadanie', whatWeDid: 'Co zrobiliśmy' } as const
 const payload = await getPayload({ config: await config })

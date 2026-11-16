@@ -7,18 +7,17 @@
  *   npm run staging:kolejnosc            sprawdzenie: nic nie zapisuje, pokazuje plan
  *   npm run staging:kolejnosc -- --apply zapisuje nowe wartości (bez nowych wersji i bez zmiany statusu kart)
  *
- * Działa tylko z NEON_BRANCH=staging.
+ * Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts).
  */
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import { planNormalize, writeSortOrder } from '../src/lib/sort-order'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:kolejnosc musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-kolejnosc')
 
 type Row = { id: number | string; name?: null | string; sortOrder?: null | number }
 
