@@ -2,38 +2,27 @@
 // modelu w przeglądzie FB (scripts/facebook/classify_posts.py): nazwy, kamienie, warianty (z oznaczeniem wizualizacji),
 // adresy zdjęć. Bierze najnowszą wersję każdej karty, także szkice.
 //
-//   npm run katalog:snapshot                          żywa baza strony (domyślnie)
-//   npm run katalog:snapshot -- --env production       stara gałąź Neon „production” (archiwum, tylko do porównań)
-//
-// Uwaga na nazwy: strona na MyDevil działa na gałęzi Neon, którą pliki na Macu nazywają „staging”
-// (backend/.env.staging.local, NEON_BRANCH=staging); gałąź „production” to archiwum sprzed przeprowadzki
-// (zob. scripts/backup/README.md). Dlatego domyślne --env to staging.
+//   npm run katalog:snapshot      żywa baza strony, rozpoznana po endpoincie Neon (live-db.ts), nie po nazwie gałęzi
 //
 // Opcje: --out <plik> (domyślnie data/facebook/katalog.json), --env-root <katalog z cms/.env* i backend/.env*>.
 // Niczego nie zapisuje w bazie ani w Blob.
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { parse } from 'dotenv'
+import { loadLiveEnv } from './live-db'
 
 const args = process.argv.slice(2)
 const option = (name: string) => {
   const i = args.indexOf(name)
   return i >= 0 ? args[i + 1] : undefined
 }
-const env = option('--env') ?? 'staging'
-if (env !== 'staging' && env !== 'production') throw new Error('Podaj --env staging albo --env production')
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const envRoot = path.resolve(option('--env-root') ?? repoRoot)
 const outPath = path.resolve(option('--out') ?? path.join(repoRoot, 'data/facebook/katalog.json'))
-for (const file of ['cms/.env', 'cms/.env.local', env === 'staging' ? 'backend/.env.staging.local' : 'backend/.env.local']) {
-  Object.assign(process.env, parse(await readFile(path.join(envRoot, file))))
-}
-if (process.env.NEON_BRANCH !== env) {
-  throw new Error(`Zmienne wskazują NEON_BRANCH=${process.env.NEON_BRANCH ?? '?'}, a nie ${env}`)
-}
+const env = 'live'
+await loadLiveEnv(envRoot)
 
 const { getPayload } = await import('payload')
 const { default: config } = await import('../src/payload.config')

@@ -1,7 +1,7 @@
 // Zdjęcia z przeglądu FB do ISTNIEJĄCYCH kart (catalog-selection.json → toExisting), tylko jako wersja robocza.
 //
 //   npm run fb:do-istniejacych                 na sucho: co się zmieni, bez zapisu
-//   npm run fb:do-istniejacych -- --apply      zapis (wymaga wpisania słowa ZAPISZ w terminalu)
+//   npm run fb:do-istniejacych -- --apply      zapis (wymaga wpisania słowa PRODUKCJA w terminalu)
 //
 // Obsługuje:
 //   zamiast-wizualizacji  wariant kamienia, który ma dziś wizualizację, dostaje prawdziwe zdjęcia z posta
@@ -12,16 +12,17 @@
 // Opublikowana karta dostaje NOWĄ WERSJĘ ROBOCZĄ (draft: true): strona się nie zmienia, dopóki Marcin nie opublikuje
 // zmian w panelu. Szkic zostaje szkicem.
 //
-// Baza: --env live (domyślnie) czyta backend/.env.staging.local, bo żywa strona działa na gałęzi Neon nazwanej na
-// Macu „staging” (scripts/backup/README.md). Opcje: --input <catalog-selection.json>, --data <katalog z media/>,
+// Baza: zawsze żywa baza strony, rozpoznana po endpoincie Neon (live-db.ts), niezależnie od nazw gałęzi i plików .env.
+// Opcje: --input <catalog-selection.json>, --data <katalog z media/>,
 // --env-root <katalog z cms/.env* i backend/.env*>, --rollback <plik przebiegu> [--apply].
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createInterface } from 'node:readline/promises'
 import { fileURLToPath } from 'node:url'
 
-import { parse } from 'dotenv'
 import sharp from 'sharp'
+
+import { isLiveDatabase, loadLiveEnv } from './live-db'
 
 const args = process.argv.slice(2)
 const option = (name: string) => {
@@ -30,17 +31,13 @@ const option = (name: string) => {
 }
 const apply = args.includes('--apply')
 const rollbackFile = option('--rollback')
-const env = option('--env') ?? 'live'
-if (env !== 'live') throw new Error('Na razie tylko --env live (żywa baza strony)')
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const envRoot = path.resolve(option('--env-root') ?? repoRoot)
 const dataDir = path.resolve(option('--data') ?? path.join(repoRoot, 'data/facebook'))
 const inputPath = path.resolve(option('--input') ?? path.join(dataDir, 'catalog-selection.json'))
-for (const file of ['cms/.env', 'cms/.env.local', 'backend/.env.staging.local']) {
-  Object.assign(process.env, parse(await readFile(path.join(envRoot, file))))
-}
-if (process.env.NEON_BRANCH !== 'staging') throw new Error('Zmienne nie wskazują żywej bazy (NEON_BRANCH=staging)')
+await loadLiveEnv(envRoot)
+if (!isLiveDatabase()) throw new Error('Zmienne nie wskazują żywej bazy')
 
 const { getPayload } = await import('payload')
 const { default: config } = await import('../src/payload.config')
@@ -71,9 +68,9 @@ const stripViz = (alt: string) => alt.replace(/\s*\(wizualizacja\)\s*$/i, '').tr
 
 async function confirm() {
   const rl = createInterface({ input: process.stdin, output: process.stdout })
-  const answer = await rl.question('Zapis do ŻYWEJ bazy (tylko wersje robocze). Wpisz ZAPISZ, aby kontynuować: ')
+  const answer = await rl.question('Zapis do ŻYWEJ bazy (tylko wersje robocze). Wpisz PRODUKCJA, aby kontynuować: ')
   rl.close()
-  if (answer.trim() !== 'ZAPISZ') throw new Error('Przerwano: brak potwierdzenia')
+  if (answer.trim() !== 'PRODUKCJA') throw new Error('Przerwano: brak potwierdzenia')
 }
 
 async function upload(file: string, alt: string, log: RunLog): Promise<number> {

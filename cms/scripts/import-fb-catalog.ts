@@ -27,6 +27,7 @@ import {
   type PlannedFile,
 } from '../src/lib/fb-import'
 import type { Product } from '../src/payload-types'
+import { isLiveDatabase } from './live-db'
 
 const run = promisify(execFile)
 const args = process.argv.slice(2)
@@ -84,10 +85,14 @@ type RunLog = {
   runId: string
 }
 
+// Żywą bazę rozpoznajemy po endpoincie Neon (live-db.ts), nie po nazwie gałęzi: nazwy „staging”/„production” bywały
+// odwrotne (scripts/backup/README.md). Zapis do żywej bazy zawsze wymaga wpisania PRODUKCJA, niezależnie od --env.
 async function confirmProduction() {
-  if (env !== 'production' || !apply) return
+  if (!apply || !(env === 'production' || isLiveDatabase())) return
   const rl = createInterface({ input: process.stdin, output: process.stdout })
-  const answer = await rl.question('Zapis na PRODUKCJI. Wpisz PRODUKCJA, aby kontynuować: ')
+  const answer = await rl.question(
+    `Zapis do ${isLiveDatabase() ? 'ŻYWEJ bazy strony' : 'bazy „production”'}. Wpisz PRODUKCJA, aby kontynuować: `,
+  )
   rl.close()
   if (answer.trim() !== 'PRODUKCJA') throw new Error('Przerwano: brak potwierdzenia')
 }
@@ -353,6 +358,7 @@ try {
     console.log(`! ${message}; na sucho zakładam, że żaden produkt nie ma jeszcze klucza FB.`)
   }
   if (rollbackFile) {
+    await confirmProduction()
     await rollback(rollbackFile)
   } else {
     const selection = JSON.parse(await readFile(inputPath, 'utf8')) as FbCatalogSelection
