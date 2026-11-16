@@ -174,8 +174,17 @@ export default async function HomePage() {
       </section>
 
       {featured.length > 0 ? (
-        <section className="wrap stack" style={{ gap: 44 }}>
-          <SectionIntro intro="Każdy projekt to punkt wyjścia do Twojej wersji." title="Wybrane pierścionki" />
+        <section className="wrap stack home-rings" style={{ gap: 44 }}>
+          <SectionIntro
+            action={
+              <Link className="btn btn-line only-wide" href="/pierscionki">
+                Wszystkie pierścionki ({count})
+              </Link>
+            }
+            eyebrow="Kolekcja"
+            intro="Każdy projekt to punkt wyjścia do Twojej wersji."
+            title="Wybrane pierścionki"
+          />
           <ul className="ring-grid ring-grid-4" data-reveal="">
             {featured.map((r) => (
               <RingCard
@@ -189,14 +198,15 @@ export default async function HomePage() {
               />
             ))}
           </ul>
-          <Link className="btn btn-line" href="/pierscionki" style={{ alignSelf: 'flex-start' }}>
+          <Link className="btn btn-line only-narrow" href="/pierscionki" style={{ alignSelf: 'flex-start' }}>
             Wszystkie pierścionki ({count})
           </Link>
         </section>
       ) : null}
 
-      <section className="wrap sec stack" style={{ gap: 40 }}>
-        <SectionIntro title="Z czym możesz do nas przyjść" />
+      <section className="band">
+        <div className="wrap sec stack" style={{ gap: 40 }}>
+        <SectionIntro eyebrow="Co robimy" title="Z czym możesz do nas przyjść" />
         <ul className="tiles" data-reveal="">
           {offers.map((o) => (
             <li className="tile ic-host" key={o.title}>
@@ -209,12 +219,14 @@ export default async function HomePage() {
             </li>
           ))}
         </ul>
+        </div>
       </section>
 
       <section className="dark">
         <div className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '56px 80px', alignItems: 'stretch' }}>
           <div className="stack" style={{ flex: '1 1 520px', minWidth: 0, gap: 44 }}>
             <SectionIntro
+              eyebrow="Na zamówienie"
               intro={
                 <>
                   Cenę i wygląd znasz, zanim zaczniemy.
@@ -223,7 +235,7 @@ export default async function HomePage() {
               }
               title="Jak powstaje pierścionek na zamówienie"
             />
-            <ol className="steps">
+            <ol className="steps steps-2x2">
               <li className="step"><span className="n">1</span><h3>Rozmowa</h3><p>W pracowni albo przez telefon. Mówisz, dla kogo jest pierścionek, na jaką okazję i jaki masz budżet.</p></li>
               <li className="step"><span className="n">2</span><h3>Projekt i wycena</h3><p>Dobieramy kamień, kolor złota i proporcje, aż projekt będzie gotowy do wykonania.</p></li>
               <li className="step"><span className="n">3</span><h3>Wykonanie</h3><p>Pierścionek powstaje w naszej pracowni. Oprawę kamieni, wykończenie i polerowanie robimy ręcznie.</p></li>
@@ -249,7 +261,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <GoogleReviews config={reviews} />
+      <GoogleReviews config={reviews} eyebrow="Klienci o nas" surface />
 
       <section className="band">
         <div className="wrap sec-tight pracownia">
@@ -259,6 +271,7 @@ export default async function HomePage() {
           </figure>
           <div className="stack pracownia-copy" style={{ gap: 28 }}>
             <SectionIntro
+              eyebrow="Historia"
               intro="Od 1920 roku fach przechodzi w rodzinie Nowaków z ojca na syna: od kowala z Szańca, przez Stanisława i Mieczysława, po Michała. Pierścionki, które Mieczysław projektował w latach 80., do dziś wracają do nas na renowację. Z tą samą uwagą zajmiemy się pierścionkiem po babci."
               title="Pracownia od 1920"
             />
@@ -277,19 +290,20 @@ export default async function HomePage() {
               Wszystkie poradniki
             </Link>
           }
+          eyebrow="Poradniki"
           intro="Rozmiar, kamień i cena: trzy rzeczy, o które pytacie najczęściej, opisane tak, żeby dało się zdecydować przed pierwszą rozmową."
           title="Zanim wybierzesz pierścionek"
         />
         <GuideCards />
       </section>
 
-      <section className="ruled">
-        <div className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '64px 96px' }}>
+      <section className="surface-paper home-faq">
+        <div className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '64px 96px' }}>
           <div className="stack" style={{ flex: '1 1 520px', minWidth: 0, gap: 32 }}>
-            <h2 className="h2">Zanim przyjdziesz</h2>
+            <SectionIntro eyebrow="Pytania i odpowiedzi" title="Zanim przyjdziesz" />
             <Faq items={faqItems} />
           </div>
-          <aside className="hint-panel" style={{ flex: '1 1 340px', minWidth: 0, alignSelf: 'flex-start' }}>
+          <aside className="hint-panel dark" style={{ flex: '1 1 340px', minWidth: 0, alignSelf: 'flex-start' }}>
             <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 34, lineHeight: 1.1 }}>Pracownia w Busku-Zdroju</h2>
             <address style={{ fontStyle: 'normal', fontSize: 17, lineHeight: 1.6 }}>
               {SITE.street}
@@ -308,9 +322,9 @@ export default async function HomePage() {
               <a href={SITE.phoneHref} style={{ textDecoration: 'none', fontWeight: 500 }}>{SITE.phone}</a>
               <a href={`mailto:${SITE.email}`} style={{ textDecoration: 'none' }}>{SITE.email}</a>
             </div>
-            <Link className="btn" href="/kontakt" style={{ alignSelf: 'flex-start' }}>Umów wizytę</Link>
+            <Link className="btn btn-light" href="/kontakt" style={{ alignSelf: 'flex-start' }}>Umów wizytę</Link>
             <p className="small">Na rozmowę o projekcie najlepiej umówić się wcześniej. Z naprawą możesz przyjść w godzinach otwarcia.</p>
-            <p className="small" style={{ borderTop: '1px solid var(--line-soft)', paddingTop: 18, color: 'var(--graphite-2)' }}>
+            <p className="small panel-note">
               Na miejscu jest też sklep z gotową biżuterią złotą i srebrną.
             </p>
           </aside>

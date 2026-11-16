@@ -87,8 +87,10 @@ export default function RepairsPage() {
         </figure>
       </section>
 
-      <section className="wrap stack" style={{ paddingTop: 24, paddingBottom: 104, gap: 40 }}>
+      <section className="surface-paper">
+        <div className="wrap sec stack" style={{ gap: 40 }}>
         <SectionIntro
+          eyebrow="Usługi"
           intro="Ceny są orientacyjne. Pozostałe naprawy wyceniamy na miejscu, po obejrzeniu przedmiotu."
           title={byEnv('Co robimy i ile to trwa', 'Co robimy')}
         />
@@ -107,10 +109,11 @@ export default function RepairsPage() {
             </li>
           ))}
         </ul>
+        </div>
       </section>
 
-      <section className="wrap stack" style={{ paddingTop: 0, paddingBottom: 104, gap: 40 }}>
-        <SectionIntro title="Przed i po" />
+      <section className="wrap sec stack" style={{ gap: 40 }}>
+        <SectionIntro eyebrow="Efekty" title="Przed i po" />
         <div className="repairs-gallery">
           <div className="stack" style={{ gap: 32 }}>
             {[BEFORE_AFTER.diamonds, BEFORE_AFTER.grandfather].map((p) => (
@@ -136,7 +139,7 @@ export default function RepairsPage() {
 
       <section className="band">
         <div className="wrap sec-tight stack" style={{ gap: 40 }}>
-          <h2 className="h2">Jak przyjmujemy naprawę</h2>
+          <SectionIntro eyebrow="Krok po kroku" title="Jak przyjmujemy naprawę" />
           <ol className="steps steps-light" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '32px 48px' }}>
             <li className="step"><span className="n">1</span><h3>Oglądamy przy Tobie</h3><p>Pod lupą sprawdzamy oprawę i złoto. Mówimy wprost, co warto naprawić.</p></li>
             <li className="step"><span className="n">2</span><h3>Ustalamy cenę i termin</h3><p>Znasz je, zanim zaczniemy pracę.</p></li>
@@ -145,7 +148,7 @@ export default function RepairsPage() {
         </div>
       </section>
 
-      <section className="wrap" style={{ paddingTop: 88 }}>
+      <section className="wrap sec-tight">
         <div className="dark" style={{ display: 'flex', flexWrap: 'wrap', gap: '28px 64px', alignItems: 'center', padding: 48 }}>
           <div className="stack" style={{ flex: '2 1 480px', minWidth: 0, gap: 14 }}>
             <h2 className="h2 h2-md">Jesteś w Busku na turnusie?</h2>
@@ -162,18 +165,23 @@ export default function RepairsPage() {
         </div>
       </section>
 
-      <section className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '48px 80px', alignItems: 'center' }}>
+      <section className="surface-paper">
+        <div className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '48px 80px', alignItems: 'center' }}>
         <figure className="stack" style={{ flex: '1 1 460px', minWidth: 0, gap: 12 }}>
           <Photo alt={wiktor.alt} position="50% 25%" sizes="(max-width: 960px) 100vw, 45vw" src={wiktor.img} />
           <figcaption className="fig-cap">Wiktor Nowak z rodziną, początek historii pracowni.</figcaption>
         </figure>
         <div className="stack" style={{ flex: '1 1 420px', minWidth: 0, gap: 22 }}>
-          <h2 className="h2">Nowy pierścionek z rodzinnego złota</h2>
-          <p className="text">Obrączki po dziadkach, pojedynczy kolczyk, nienoszony pierścionek. Możemy przetopić złoto i odzyskać kamienie. Zaczynamy od sprawdzenia próby i stanu kamieni.</p>
+          <SectionIntro
+            eyebrow="Przeróbki"
+            intro="Obrączki po dziadkach, pojedynczy kolczyk, nienoszony pierścionek. Możemy przetopić złoto i odzyskać kamienie. Zaczynamy od sprawdzenia próby i stanu kamieni."
+            title="Nowy pierścionek z rodzinnego złota"
+          />
           <div className="row gap-14-28">
             <Link className="btn" href="/kontakt?temat=naprawa">Umów rozmowę o przeróbce</Link>
             <Link className="tl" href="/realizacje">Zobacz realizacje</Link>
           </div>
+        </div>
         </div>
       </section>
     </>

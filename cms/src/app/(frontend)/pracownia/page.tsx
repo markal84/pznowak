@@ -60,7 +60,7 @@ export default function StudioPage() {
           <StudioFilm style={{ flex: '1 1 340px', maxWidth: 480, minWidth: 0 }} />
           <div style={{ flex: '1 1 400px', minWidth: 0, maxWidth: 620 }}>
             <div className="stack" style={{ gap: 20 }}>
-              <h2 className="h2">Od Michała</h2>
+              <SectionIntro eyebrow="Złotnik" title="Od Michała" />
               <blockquote style={{ margin: 0, fontFamily: 'var(--serif)', fontSize: 23, lineHeight: 1.45 }}>
                 Nie wszystkiego można nauczyć się z książek. Niektóre rzeczy dziedziczy się, patrząc na ręce ojca.
               </blockquote>
@@ -89,6 +89,7 @@ export default function StudioPage() {
       <section className="dark">
         <div className="wrap sec stack" style={{ gap: 48 }}>
           <SectionIntro
+            eyebrow="Zasady pracy"
             intro="Pierścionek nosi się codziennie przez lata. Dlatego wygląd to dla nas tylko połowa pracy."
             title="Na czym nam zależy"
           />
@@ -110,9 +111,10 @@ export default function StudioPage() {
         </div>
       </section>
 
-      <section className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '48px 80px', alignItems: 'center' }}>
+      <section className="surface-paper">
+        <div className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '48px 80px', alignItems: 'center' }}>
         <div className="stack" style={{ flex: '1 1 420px', minWidth: 0, gap: 22 }}>
-          <h2 className="h2">Odwiedź pracownię</h2>
+          <SectionIntro eyebrow="Busko-Zdrój" title="Odwiedź pracownię" />
           <p className="text" style={{ maxWidth: '30em' }}>
             Pracownia mieści się przy ulicy {SITE.street} w Busku-Zdroju. Na rozmowę o projekcie umów się wcześniej, wtedy mamy dla Ciebie czas i kamienie do obejrzenia.
           </p>
@@ -139,19 +141,20 @@ export default function StudioPage() {
         <div style={{ flex: '1 1 520px', minWidth: 0 }}>
           <ContactMap />
         </div>
+        </div>
       </section>
 
       {/* Dla dziennikarzy, blogerów i lokalnych serwisów: fakty do zacytowania, podpis i kontakt w jednym miejscu. */}
       <section aria-labelledby="dla-mediow" className="band" style={{ borderBottom: 0 }}>
         <div className="wrap sec-tight press">
           <div className="stack" style={{ gap: 20 }}>
-            <h2 className="h2 h2-md" id="dla-mediow">
-              Dla mediów i partnerów
-            </h2>
-            <p className="text" style={{ maxWidth: '30em' }}>
-              Piszesz o rzemiośle, Busku-Zdroju albo biżuterii na zamówienie? Poniżej najważniejsze fakty o pracowni.
-              Zdjęcia w pełnej rozdzielczości i odpowiedzi na pytania wyślemy na prośbę.
-            </p>
+            <SectionIntro
+              eyebrow="Fakty o pracowni"
+              id="dla-mediow"
+              intro="Piszesz o rzemiośle, Busku-Zdroju albo biżuterii na zamówienie? Poniżej najważniejsze fakty o pracowni. Zdjęcia w pełnej rozdzielczości i odpowiedzi na pytania wyślemy na prośbę."
+              size="md"
+              title="Dla mediów i partnerów"
+            />
             <div className="row gap-14-28">
               <a className="btn btn-line" href={`mailto:${SITE.email}?subject=${encodeURIComponent('Pytanie od mediów')}`}>
                 Napisz: {SITE.email}

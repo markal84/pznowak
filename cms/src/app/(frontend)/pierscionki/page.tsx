@@ -46,7 +46,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
   return (
     <>
       <JsonLd data={itemListJsonLd(shown.map((r) => ({ name: `Pierścionek ${r.name}`, path: productPath(r.slug) })))} />
-      <section className="wrap stack catalog-head">
+      <section className="wrap stack catalog-head page-head">
         <SectionIntro
           as="h1"
           intro="Każdy projekt wykonamy w Twoim rozmiarze. Kamień i kolor złota możemy zmienić."

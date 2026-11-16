@@ -30,6 +30,7 @@ export default function BandTypes() {
   return (
     <div className="stack" style={{ gap: 40 }}>
       <SectionIntro
+        eyebrow="Fasony"
         id="rodzaje-obraczek"
         intro="Klasyczne obrączki robimy w dwóch fasonach – płaskim i półokrągłym – od podstaw ręcznie, w każdej szerokości. Na przymiarce pokażemy próbki i razem dobierzemy wykończenie."
         title="Rodzaje obrączek"

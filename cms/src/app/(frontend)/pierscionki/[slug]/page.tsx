@@ -17,6 +17,7 @@ import JsonLd from '@/components/site/JsonLd'
 import ProductMedia from '@/components/site/ProductMedia'
 import ProductStickyCta from '@/components/site/ProductStickyCta'
 import RingCard from '@/components/site/RingCard'
+import SectionIntro from '@/components/site/SectionIntro'
 import {
   ProductPrice,
   StoneVariantPicker,
@@ -143,6 +144,24 @@ export default async function ProductPage({ params, searchParams }: Params & { s
             <ProductPrice price={formatPrice(product.price)} />
           </div>
 
+          {/* Przyciski stoją zaraz pod ceną (na komputerze widać je bez przewijania). Na telefonie kolejność ustawia
+              `order` w globals.css: opis, potem przyciski, jak dotąd. */}
+          <div className="stack product-cta" style={{ gap: 14 }}>
+            <div className="row" style={{ gap: '12px 20px' }}>
+              <VariantInquiryLink className="btn" projectName={product.name}>
+                Zapytaj o ten pierścionek
+              </VariantInquiryLink>
+              <a className="btn btn-line" href={SITE.phoneHref}>
+                Zadzwoń: {SITE.phoneShort}
+              </a>
+            </div>
+            <p className="small" style={{ fontSize: 14.5 }}>
+              {product.stoneVariants.length
+                ? 'Formularz otworzy się z nazwą projektu i wybranym kamieniem. Wystarczy dopisać, co chcesz zmienić.'
+                : 'Formularz otworzy się z nazwą tego projektu. Wystarczy dopisać, co chcesz zmienić.'}
+            </p>
+          </div>
+
           <div className="tag tag-xl product-facts">
             <span aria-hidden="true" className="hole" />
             <dl className="facts">
@@ -171,22 +190,6 @@ export default async function ProductPage({ params, searchParams }: Params & { s
               ))}
             </div>
           ) : null}
-
-          <div className="stack product-cta" style={{ gap: 14 }}>
-            <div className="row" style={{ gap: '12px 20px' }}>
-              <VariantInquiryLink className="btn" projectName={product.name}>
-                Zapytaj o ten pierścionek
-              </VariantInquiryLink>
-              <a className="btn btn-line" href={SITE.phoneHref}>
-                Zadzwoń: {SITE.phoneShort}
-              </a>
-            </div>
-            <p className="small" style={{ fontSize: 14.5 }}>
-              {product.stoneVariants.length
-                ? 'Formularz otworzy się z nazwą projektu i wybranym kamieniem. Wystarczy dopisać, co chcesz zmienić.'
-                : 'Formularz otworzy się z nazwą tego projektu. Wystarczy dopisać, co chcesz zmienić.'}
-            </p>
-          </div>
 
           <div className="stack product-changes" style={{ gap: 14, borderTop: '1px solid var(--line)', paddingTop: 24 }}>
             <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 26, lineHeight: 1.15 }}>Co możesz zmienić</h2>
@@ -219,9 +222,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
 
       <section className="dark">
         <div className="wrap sec-tight stack" style={{ gap: 44 }}>
-          <h2 className="h2 h2-md" style={{ maxWidth: '18em', fontSize: 'clamp(34px, 3.6vw, 50px)' }}>
-            Jak zamówić projekt z kolekcji
-          </h2>
+          <SectionIntro eyebrow="Zamówienie" size="md" title="Jak zamówić projekt z kolekcji" />
           <ol className="steps" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '32px 48px' }}>
             <li className="step"><span className="n">1</span><h3>Napisz lub zadzwoń</h3><p>Podaj nazwę projektu i powiedz, co chcesz w nim zmienić.</p></li>
             <li className="step"><span className="n">2</span><h3>Wybierz kamień i rozmiar</h3><p>W pracowni pokażemy kamienie i zmierzymy palec. Potem dostajesz wycenę.</p></li>
@@ -234,18 +235,20 @@ export default async function ProductPage({ params, searchParams }: Params & { s
 
       {similar.length > 0 ? (
         <section className="wrap stack" style={{ paddingTop: 96, paddingBottom: 112, gap: 36 }}>
-          <div className="row" style={{ alignItems: 'flex-end', justifyContent: 'space-between', gap: '16px 40px' }}>
-            <h2 className="h2 h2-md" style={{ fontSize: 'clamp(34px, 3.6vw, 50px)' }}>Podobne pierścionki</h2>
-            <Link className="tl" href="/pierscionki">Wszystkie pierścionki</Link>
-          </div>
-          <ul className="ring-grid ring-grid-sm">
+          <SectionIntro
+            action={<Link className="tl" href="/pierscionki">Wszystkie pierścionki</Link>}
+            eyebrow="Kolekcja"
+            size="md"
+            title="Podobne pierścionki"
+          />
+          <ul className={`ring-grid ${similar.length === 4 ? 'ring-grid-4' : 'ring-grid-sm'}`}>
             {similar.map((r) => (
               <RingCard
                 alt={r.alt}
                 image={r.image}
                 key={r.slug}
                 name={r.name}
-                sizes="(max-width: 720px) 50vw, (max-width: 1320px) 25vw, 300px"
+                sizes="(max-width: 960px) 50vw, 25vw"
                 slug={r.slug}
                 stone={r.stone}
               />

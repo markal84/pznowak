@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import GuideCards from '@/components/site/GuideCards'
 import JsonLd from '@/components/site/JsonLd'
+import SectionIntro from '@/components/site/SectionIntro'
 import { GUIDES_PATH, guideDateLabel, guidePath, type Guide } from '@/lib/guides'
 import { SITE } from '@/lib/site'
 import { articleJsonLd, breadcrumbJsonLd, faqJsonLd } from '@/lib/structured-data'
@@ -84,12 +85,33 @@ export default function GuideLayout({ guide, lead, sections, faq, image, childre
             </ol>
           </nav>
           <div className="guide-body">{children}</div>
+          {/* Szeroki ekran: kontakt do pracowni jedzie obok treści. Węższy ekran ma to samo wezwanie pod artykułem. */}
+          <aside aria-label="Kontakt z pracownią" className="guide-rail">
+            <p className="eyebrow">Pracownia</p>
+            <p className="guide-rail-title">Zapytaj złotnika</p>
+            <p className="small">W pracowni zmierzymy palec i pokażemy kamienie. Możesz też po prostu zadzwonić.</p>
+            <Link className="btn" href="/kontakt?temat=nowy">
+              Napisz do pracowni
+            </Link>
+            <a className="tl" href={SITE.phoneHref}>
+              Zadzwoń: {SITE.phoneShort}
+            </a>
+            <dl className="hours">
+              {SITE.hours.map((h) => (
+                <div key={h.days} style={{ display: 'contents' }}>
+                  <dt>{h.days}</dt>
+                  <dd>{h.time}</dd>
+                </div>
+              ))}
+            </dl>
+          </aside>
         </div>
       </article>
 
       <section className="dark">
         <div className="wrap guide-cta">
           <div className="stack" style={{ gap: 16, flex: '1 1 480px', minWidth: 0 }}>
+            <p className="eyebrow sec-eyebrow">Kontakt</p>
             <h2 className="h2 h2-md">Wolisz zapytać złotnika?</h2>
             <p className="text" style={{ maxWidth: '34em' }}>
               Napisz albo zadzwoń. Odpowiemy na pytania o rozmiar, kamień i cenę, zanim cokolwiek zamówisz.
@@ -107,7 +129,7 @@ export default function GuideLayout({ guide, lead, sections, faq, image, childre
       </section>
 
       <section className="wrap sec-tight stack" style={{ gap: 36 }}>
-        <h2 className="h2 h2-md">Czytaj dalej</h2>
+        <SectionIntro eyebrow="Poradniki" size="md" title="Czytaj dalej" />
         <GuideCards exclude={guide.slug} />
       </section>
     </>

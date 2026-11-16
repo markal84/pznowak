@@ -125,7 +125,7 @@ export default async function OnOrderPage() {
 
       <section className="band">
         <div className="wrap sec-tight stack" style={{ gap: 40 }}>
-          <SectionIntro title="Na początek wystarczy jedno z nich" />
+          <SectionIntro eyebrow="Od czego zacząć" title="Na początek wystarczy jedno z nich" />
           <ul className="cols-auto cols-240" data-reveal="" style={{ listStyle: 'none', gap: '32px 40px' }}>
             {(
               [
@@ -147,6 +147,7 @@ export default async function OnOrderPage() {
 
       <section className="wrap sec stack" id="proces" style={{ gap: 56 }}>
         <SectionIntro
+          eyebrow="Jak pracujemy"
           intro={
             <>
               Przez cały czas rozmawiasz z osobą, która robi Twój pierścionek.
@@ -176,11 +177,11 @@ export default async function OnOrderPage() {
       <section className="dark">
         <div className="wrap sec" style={{ display: 'flex', flexWrap: 'wrap', gap: '56px 96px', alignItems: 'center' }}>
           <div className="stack" style={{ flex: '1 1 400px', minWidth: 0, gap: 22 }}>
-            <h2 className="h2">Co ustalimy przy pierwszej rozmowie</h2>
-            <p className="text" style={{ maxWidth: '30em' }}>
-              Każde zlecenie w pracowni ma swoją kartę. Tak może wyglądać po pierwszym spotkaniu. Jeśli czegoś nie
-              wiesz, zostawiamy puste pole i wracamy do niego później.
-            </p>
+            <SectionIntro
+              eyebrow="Pierwsza rozmowa"
+              intro="Każde zlecenie w pracowni ma swoją kartę. Tak może wyglądać po pierwszym spotkaniu. Jeśli czegoś nie wiesz, zostawiamy puste pole i wracamy do niego później."
+              title="Co ustalimy przy pierwszej rozmowie"
+            />
             <Link className="btn btn-light" href="/kontakt?temat=nowy" style={{ alignSelf: 'flex-start' }}>
               Umów pierwszą rozmowę
             </Link>
@@ -213,9 +214,9 @@ export default async function OnOrderPage() {
         </div>
       </section>
 
-      <section className="wrap" style={{ paddingTop: 104, paddingBottom: 120, display: 'flex', flexWrap: 'wrap', gap: '48px 96px' }}>
-        <h2 className="h2" style={{ flex: '1 1 320px' }}>Pytania o pracę na zamówienie</h2>
-        <div style={{ flex: '2 1 560px', minWidth: 0 }}>
+      <section className="surface-paper">
+        <div className="wrap sec faq-split">
+          <SectionIntro eyebrow="Pytania i odpowiedzi" title="Pytania o pracę na zamówienie" />
           <Faq items={faqItems} />
         </div>
       </section>
@@ -223,6 +224,7 @@ export default async function OnOrderPage() {
       <section className="band">
         <div className="wrap sec-tight stack" style={{ gap: 36 }}>
           <SectionIntro
+            eyebrow="Poradniki"
             intro="Trzy decyzje, które warto przemyśleć przed pierwszą rozmową."
             title="Poradniki przed zamówieniem"
           />
