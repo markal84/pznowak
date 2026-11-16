@@ -13,7 +13,7 @@
  * Przekierowanie 308 (`/pierscionki/thalassa` → `/pierscionki/aion?kamien=zielone-i-biale-diamenty`) jest w kodzie
  * (`src/lib/legacy-redirects.ts`): działa po wdrożeniu kodu.
  *
- * Idempotentne: drugie uruchomienie niczego nie zmienia. Tekst poprawiony w panelu zostaje. Tylko NEON_BRANCH=staging.
+ * Idempotentne: drugie uruchomienie niczego nie zmienia. Tekst poprawiony w panelu zostaje. Tylko żywa baza (zob. db-guard.ts).
  */
 import { getPayload } from 'payload'
 
@@ -31,12 +31,11 @@ import {
   videoId,
 } from './polaczenie-thalassa-logic'
 import { knownTexts } from './opisy-ac-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:thalassa musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-polaczenie-thalassa')
 
 const payload = await getPayload({ config: await config })
 

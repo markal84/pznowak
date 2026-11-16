@@ -66,6 +66,7 @@ const products = found.docs.map((p) => {
       swatch: v.swatch ?? null,
       isVisualization: Boolean(v.isVisualization),
       image: file(v.image as Upload),
+      moreImages: ((v.moreImages ?? []) as Upload[]).map(file).filter(Boolean),
       hasVideo: Boolean(v.video),
     })),
   }

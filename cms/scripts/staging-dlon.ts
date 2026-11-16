@@ -13,7 +13,7 @@
  * zostają w Media, więc ponowne `--apply` niczego nie wgrywa drugi raz. Reszta karty i status bez zmian.
  * Kolejność: wariant Iris z oliwinem powstaje w `staging:warianty`, więc najpierw ten skrypt, potem `staging:dlon`.
  * Po zapisie odśwież katalog: zapisz dowolną kartę w panelu (skrypt działa poza Next.js, bez odświeżania strony).
- * Działa tylko z NEON_BRANCH=staging.
+ * Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts).
  */
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -35,13 +35,12 @@ import {
   withoutHand,
   type HandSpec,
 } from './dlon-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 const undo = process.argv.includes('--cofnij')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:dlon musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-dlon')
 
 const specs = loadSpecs()
 if (!undo) {

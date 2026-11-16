@@ -8,7 +8,7 @@
  *
  * Kartę szuka po slugu. Istniejącej nie nadpisuje tekstów; do szkicu dopina tylko zdjęcia, których jeszcze nie ma
  * (np. zdjęcia Kamili skopiowane później do docs/od-kamili/2026-11-06/). Opublikowanej karty nie rusza.
- * Idempotentne. Działa tylko z NEON_BRANCH=staging. Publikuje Marcin w panelu, po obejrzeniu.
+ * Idempotentne. Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts). Publikuje Marcin w panelu, po obejrzeniu.
  */
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -18,14 +18,13 @@ import { getPayload } from 'payload'
 import config from '../src/payload.config'
 import { SWATCHES, type SwatchId } from '../src/lib/stone-variants'
 import { collectPhotos, collectVariants, collectVideo, FILMY_DIR, KAMILA_DIR, loadNewCards, planNewCard, type PlannedPhoto } from './nowe-karty-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 const filmyArg = process.argv.indexOf('--filmy')
 const videoDir = path.resolve((filmyArg >= 0 ? process.argv[filmyArg + 1] : undefined) ?? process.env.NOWE_KARTY_FILMY ?? FILMY_DIR)
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:nowe-karty musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-nowe-karty')
 
 const specs = loadNewCards()
 const payload = await getPayload({ config: await config })

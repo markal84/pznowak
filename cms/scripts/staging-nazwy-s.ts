@@ -7,18 +7,17 @@
  * Karty szuka po id i dotychczasowej nazwie (obie muszą się zgadzać, inaczej pomija z komunikatem).
  * Gdy publikacja nie przechodzi walidacji (np. brak zdjęcia), zostawia szkic z nową nazwą i wypisuje, czego brakuje.
  * Idempotentne: drugie uruchomienie niczego nie zmienia. Adresy szkiców nie były publiczne, więc bez przekierowań.
- * Działa tylko z NEON_BRANCH=staging (jak `seed-staging.ts` i `seed-realizacje.ts`).
+ * Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts) (jak `seed-staging.ts` i `seed-realizacje.ts`).
  */
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 import { NAME_SPECS, planRename, type CardState } from './nazwy-s-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:nazwy musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-nazwy-s')
 
 const payload = await getPayload({ config: await config })
 

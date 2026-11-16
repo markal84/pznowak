@@ -15,7 +15,7 @@
  * kolor kółka i alt wariantu bez zmian.
  * Kolejność ze zleceniem U: jeśli opisy U nie są jeszcze zapisane na kartach, które ten skrypt zmienia, zatrzymuje się
  * (zapis zmieniłby `updatedAt`, a `staging:opisy` pominąłby wtedy te karty jako poprawione ręcznie).
- * Działa tylko z NEON_BRANCH=staging (jak `seed-staging.ts` i `seed-realizacje.ts`).
+ * Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts) (jak `seed-staging.ts` i `seed-realizacje.ts`).
  */
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
@@ -42,14 +42,13 @@ import {
   sourceKey,
   type CurrentVariant,
 } from './warianty-v-logic'
+import { requireLiveDatabase } from './db-guard'
 
 const applyChanges = process.argv.includes('--apply')
 const replaceIndex = process.argv.indexOf('--podmien-obraz')
 const replaceTarget = replaceIndex >= 0 ? parseReplaceArg(process.argv[replaceIndex + 1]) : null
 
-if (process.env.NEON_BRANCH !== 'staging') {
-  throw new Error('staging:warianty musi działać z NEON_BRANCH=staging (backend/.env.staging.local)')
-}
+requireLiveDatabase('staging-warianty-v')
 
 // Sprawdzenie plików nie dotyka bazy: brakujący albo za duży obraz przerywa od razu.
 const specs = loadSpecs()
