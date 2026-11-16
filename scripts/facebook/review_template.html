@@ -307,10 +307,16 @@ function eff(g, file) {
 }
 function explicit(g, file) { const e = entry(g); return !!((e && e.media && e.media[file]) || (g.type === 'card' && memberExplicit(g, file))); }
 function isComplete(g) { const e = entry(g); return g.type === 'existing' && !!(e && e.complete); }
+// Karta, której zdjęcia już są w karcie katalogu wskazanej przez podpowiedź modelu (np. szkic zrobiony z tego posta):
+// nic do zrobienia, liczy się jako przejrzana. Eksport i tak nie zrobi z niej drugiego szkicu (alreadyInCatalog).
+function alreadyIn(g) {
+  const h = (D.hints || {})[g.key];
+  return !!(h && h.result && h.result.product && (h.fromPost || []).includes(h.result.product));
+}
 function isDone(g) {
   const e = entry(g);
   if (isComplete(g) || isMerged(g)) return true;
-  if (g.type === 'card') return !!(e && e.decision);
+  if (g.type === 'card') return !!(e && e.decision) || alreadyIn(g);
   if (g.type === 'skipped') return !!(e && e.decision) || !g.files.length;
   return g.files.every(f => e && e.media && e.media[f.file]);
 }
@@ -654,7 +660,7 @@ function hintHTML(g) {
   if (!h || !h.result) return '';
   const r = h.result;
   const target = r.product ? ` → <b>${esc(h.productName || r.product)}</b>` + (r.variant ? ` (${esc(r.variant)})` : '') : '';
-  const already = r.product && (h.fromPost || []).includes(r.product) ? ' · <b>zdjęcia z tego posta już są w tej karcie</b>' : '';
+  const already = alreadyIn(g) ? ' · <b>zdjęcia z tego posta już są w tej karcie, nic nie trzeba zaznaczać</b>' : '';
   return `<div class="hintm">Podpowiedź modelu: <b>${esc(H_LABEL[r.category] || r.category)}</b>${target} · ${esc(r.confidence)} %${already}<br><span class="vr">${esc(r.reason)}</span></div>`;
 }
 function propsHTML(g, list) {
