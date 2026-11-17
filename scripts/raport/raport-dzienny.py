@@ -129,7 +129,13 @@ def check_posts():
     ok_at = parse_iso(stan.get("lastSuccessAt"))
     if ok_at:
         h = age_h(ok_at)
-        add(OK if h < 12 else ERR, "Posty FB", f"ostatnie udane uruchomienie: {h:.1f} h temu ({source})")
+        ref = now()
+        if source.startswith("lustro"):  # lustro jest z chwili ostatniej pełnej kopii: mierzymy wiek względem niej
+            snaps = sorted((BACKUP_ROOT / "migawki").glob("*/OK"))
+            if snaps:
+                ref = dt.datetime.fromtimestamp(snaps[-1].stat().st_mtime, dt.timezone.utc)
+        gap = (ref - ok_at).total_seconds() / 3600
+        add(OK if gap < 12 else ERR, "Posty FB", f"ostatnie udane uruchomienie: {h:.1f} h temu ({source}); w chwili kopii minęło {gap:.1f} h")
     else:
         add(ERR, "Posty FB", "brak udanego uruchomienia w stan.json")
     if stan.get("failStreak"):

@@ -19,7 +19,7 @@ Plik z ustawieniami poczty (dane skrzynki pracowni, tej samej co formularz na st
 ```sh
 mkdir -p ~/.config/pznowak-raport && umask 077 && cat > ~/.config/pznowak-raport/smtp.env <<'X'
 SMTP_HOST=mail0.mydevil.net
-SMTP_PORT=465
+SMTP_PORT=587
 SMTP_USER=kontakt@pznowak.pl
 SMTP_PASS=TU_HASLO_SKRZYNKI
 SMTP_FROM="Raport Hetzner <kontakt@pznowak.pl>"
@@ -28,7 +28,7 @@ X
 chmod 600 ~/.config/pznowak-raport/smtp.env
 ```
 
-(`SMTP_HOST` i `SMTP_USER` jak w `cms/.env.production.local` na MyDevil.) Test bez wysyłki, potem z wysyłką, potem cron:
+Hetzner blokuje wychodzące porty 25 i 465, dlatego port 587 (STARTTLS). (`SMTP_HOST` i `SMTP_USER` jak w `cms/.env.production.local` na MyDevil.) Test bez wysyłki, potem z wysyłką, potem cron:
 
 ```sh
 python3 ~/pznowak-raport/raport-dzienny.py --na-sucho
