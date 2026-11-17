@@ -3,9 +3,10 @@ import Link from 'next/link'
 import GuideLayout from '@/components/site/GuideLayout'
 import RingCard from '@/components/site/RingCard'
 import { getProducts } from '@/lib/collection'
-import { catalogHref, ringsWithMainStone, toCatalogRing, type StoneGroup } from '@/lib/catalog'
+import { catalogHref, formatStone, mainStoneOf, ringsWithMainStone, toCatalogRing, type StoneGroup } from '@/lib/catalog'
 import { findGuide, guidePath } from '@/lib/guides'
 import { pageMetadata } from '@/lib/seo'
+import { variantImageAlt } from '@/lib/stone-variants'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,11 @@ type Stone = {
   daily: 'Bardzo dobry' | 'Dobry' | 'Dobry w ochronnej oprawie'
   /** Kamień główny w kartach katalogu, które pokazujemy jako przykłady. */
   match: RegExp
+  /**
+   * Gdy kamień ma mało pierścionków jako kamień główny, uzupełniamy przykłady kartami, które oferują go jako wariant
+   * kamienia (`?kamien=…`); wzorzec dotyczy nazwy kamienia wariantu.
+   */
+  variantMatch?: RegExp
   /** Filtr koloru w katalogu, do którego prowadzi link pod przykładami. */
   filter: StoneGroup
   filterLabel: string
@@ -118,6 +124,21 @@ const STONES: Stone[] = [
     ],
   },
   {
+    id: 'oliwin',
+    name: 'Oliwin',
+    mohs: '6,5–7',
+    colors: 'Żółtozielony, soczysta zieleń, oliwkowy',
+    daily: 'Dobry w ochronnej oprawie',
+    match: /^oliwin/,
+    variantMatch: /^oliwin/,
+    filter: 'zielone',
+    filterLabel: 'pierścionki z zielonymi kamieniami',
+    text: [
+      'Oliwin, nazywany też perydotem, ma świeżą, żółtawozieloną barwę, od soczystej zieleni po oliwkę. Kolor daje mu żelazo zawarte w kamieniu, dlatego jest stały i nie zależy od światła. To zieleń lżejsza i bardziej słoneczna niż szmaragdu, a przy tym wyraźnie szlachetna.',
+      'Jest trochę miększy od szafiru i szmaragdu, dlatego oprawiamy go tak, żeby był dobrze osłonięty, a przy cięższych pracach pierścionek warto zdjąć. Do czyszczenia wystarczy ciepła woda z płynem, bez myjki ultradźwiękowej. Dobrze wygląda w żółtym złocie, w którym jego zieleń robi się cieplejsza, a z diamentami zyskuje dodatkowy blask.',
+    ],
+  },
+  {
     id: 'ametyst-cytryn',
     name: 'Ametyst i cytryn',
     mohs: '7',
@@ -172,7 +193,7 @@ const FAQ = [
   },
   {
     q: 'Jak wyczyścić pierścionek z kamieniem w domu?',
-    text: 'Ciepłą wodą z kroplą płynu do naczyń i miękką szczoteczką, delikatnie także od spodu kamienia. Potem opłucz i osusz miękką ściereczką. Szmaragdu i tanzanitu nie mocz długo i nie czyść w myjce ultradźwiękowej.',
+    text: 'Ciepłą wodą z kroplą płynu do naczyń i miękką szczoteczką, delikatnie także od spodu kamienia. Potem opłucz i osusz miękką ściereczką. Szmaragdu, tanzanitu i oliwinu nie mocz długo i nie czyść w myjce ultradźwiękowej.',
   },
   {
     q: 'Czy w projekcie z kolekcji można zmienić kamień?',
@@ -237,7 +258,25 @@ export default async function StonesGuidePage() {
       </div>
 
       {STONES.map((s) => {
-        const examples = ringsWithMainStone(products, s.match, 3).map(toCatalogRing)
+        const direct = ringsWithMainStone(products, s.match, 3).map((p) => ({ ...toCatalogRing(p), href: undefined as string | undefined }))
+        const variants = s.variantMatch
+          ? products
+              .filter((p) => !direct.some((r) => r.slug === p.slug))
+              .flatMap((p) =>
+                p.stoneVariants
+                  .filter((v) => s.variantMatch?.test(mainStoneOf(v.stone)))
+                  .slice(0, 1)
+                  .map((v) => ({
+                    slug: p.slug,
+                    name: p.name,
+                    stone: formatStone(v.stone),
+                    image: v.image,
+                    alt: variantImageAlt(`Pierścionek ${p.name}`, v),
+                    href: `/pierscionki/${p.slug}?kamien=${v.slug}`,
+                  })),
+              )
+          : []
+        const examples = [...direct, ...variants].slice(0, 3)
         return (
           <section aria-labelledby={s.id} className="guide-stone" key={s.id}>
             <h2 id={s.id}>{s.name}</h2>
@@ -254,6 +293,7 @@ export default async function StonesGuidePage() {
                   {examples.map((r) => (
                     <RingCard
                       alt={r.alt}
+                      href={r.href}
                       image={r.image}
                       key={r.slug}
                       name={r.name}
@@ -318,6 +358,10 @@ export default async function StonesGuidePage() {
           uderzeniami i nagłą zmianą temperatury, a do czyszczenia używaj tylko wody z płynem.
         </li>
         <li>
+          <strong>Oliwin.</strong> Jest delikatniejszy od szafiru i może łapać drobne rysy, a mocne uderzenie albo nagła
+          zmiana temperatury mu nie służą. Czyść go wodą z płynem, bez myjki ultradźwiękowej i bez kwasów.
+        </li>
+        <li>
           <strong>Topaz.</strong> Przy silnym, punktowym uderzeniu może pęknąć wzdłuż płaszczyzny kryształu. W zwykłym
           noszeniu rzadko ma to znaczenie, ale do cięższych prac lepiej go zdjąć.
         </li>
@@ -337,7 +381,7 @@ export default async function StonesGuidePage() {
         <li>Opłucz pod bieżącą wodą (zatkaj odpływ) i osusz miękką, niepylącą ściereczką.</li>
       </ol>
       <p>
-        Diament, szafir i rubin możesz krótko namoczyć. Szmaragd i tanzanit tylko przetrzyj, bez moczenia. Nie
+        Diament, szafir i rubin możesz krótko namoczyć. Szmaragd, tanzanit i oliwin tylko przetrzyj, bez moczenia. Nie
         używaj pasty do zębów, sody ani środków z chlorem, bo rysują złoto i matowią kamienie.
       </p>
       <h3>Przechowywanie</h3>
