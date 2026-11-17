@@ -179,6 +179,31 @@ def check_docker():
         add(WARN, "Docker", "brak kontenerów")
 
 
+PAYLOAD_KEY = Path(os.environ.get("PZNOWAK_PAYLOAD_KEY", HOME / ".config/pznowak-raport/automat.key"))
+DRAFT_COLLECTIONS = [("products", "pierścionki"), ("works", "realizacje"), ("gallery-items", "galeria")]
+
+
+def check_drafts():
+    """Liczba szkiców w Payload (konto „Automat", tylko odczyt). Pomijane, dopóki nie ma pliku z kluczem."""
+    if not PAYLOAD_KEY.exists():
+        return
+    key = PAYLOAD_KEY.read_text().strip()
+    parts, failed = [], False
+    for slug, label in DRAFT_COLLECTIONS:
+        url = f"{SITE}/api/{slug}?where[_status][equals]=draft&limit=1&depth=0"
+        req = urllib.request.Request(url, headers={"Authorization": f"users API-Key {key}", "User-Agent": "pznowak-raport/1"})
+        try:
+            with urllib.request.urlopen(req, timeout=20) as r:
+                parts.append(f"{label}: {json.load(r).get('totalDocs', '?')}")
+        except urllib.error.HTTPError as e:
+            failed = True
+            parts.append(f"{label}: błąd {e.code}")
+        except Exception as e:  # noqa: BLE001
+            failed = True
+            parts.append(f"{label}: {type(e).__name__}")
+    add(WARN if failed else OK, "Payload", "szkice czekające na publikację: " + ", ".join(parts))
+
+
 def load_env(path):
     env = {}
     for line in Path(path).read_text().splitlines():
@@ -199,7 +224,8 @@ def build():
             lines += ["", sec.upper()]
             section = sec
         lines.append(f" {({OK: '✓', WARN: '!', ERR: '✗'})[lvl]} {txt}")
-    lines += ["", "Sprawdzenie szkiców w Payload: jeszcze nie włączone (czeka na konto „Automat”)."]
+    if not PAYLOAD_KEY.exists():
+        lines += ["", "Sprawdzenie szkiców w Payload: jeszcze nie włączone (czeka na klucz konta „Automat”)."]
     return subject, "\n".join(lines).strip() + "\n"
 
 
@@ -219,7 +245,7 @@ def send(subject, body):
 
 
 def main():
-    for fn in (check_site, check_backups, check_posts, check_docker):
+    for fn in (check_site, check_backups, check_posts, check_docker, check_drafts):
         try:
             fn()
         except Exception as e:  # noqa: BLE001  jedno sprawdzenie nie może zepsuć reszty raportu
