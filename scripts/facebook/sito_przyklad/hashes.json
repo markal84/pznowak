@@ -1,0 +1,54 @@
+{
+ "version": 1,
+ "fb": {
+  "p1_a.jpg": {
+   "f": "dda1494c73cf256d",
+   "c": "dda1494c73cf29ed"
+  },
+  "p1_b.jpg": {
+   "f": "cb5bdfabcf4c3e27",
+   "c": "5b5b1fabcd453e67"
+  },
+  "p2_a.jpg": {
+   "f": "c7fdc804ec99108d",
+   "c": "87fde807ec99149c"
+  },
+  "p2_b.jpg": {
+   "f": "73ab48767734d7c1",
+   "c": "73af4a76773cd781"
+  },
+  "p3_a.jpg": {
+   "f": "dae445508201e2bd",
+   "c": "dae5c550a200e2bd"
+  },
+  "p3_b.jpg": {
+   "f": "309d6b79965eda32",
+   "c": "389deb7d965cda32"
+  },
+  "p5_a.jpg": {
+   "f": "30dd6b79965eda22",
+   "c": "3a5f6b71965eda32"
+  },
+  "p5_b.jpg": {
+   "f": "cae445548201e2bd",
+   "c": "feec4d528205e2bd"
+  },
+  "p6_a.jpg": {
+   "f": "dda09fce73c8857d",
+   "c": "dda9d14e774fa362"
+  },
+  "p7_a.jpg": {
+   "f": "cdcc69292f45e678",
+   "c": "fdcc29292f45e678"
+  },
+  "p8_a.jpg": {
+   "f": "79cb9e86830c71c2",
+   "c": "79ebdec6830c71c2"
+  },
+  "p9_pusta.jpg": {
+   "f": "0000000000000000",
+   "c": "0000000000000000"
+  }
+ },
+ "legacy": {}
+}
