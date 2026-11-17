@@ -223,6 +223,7 @@ def main():
         print(subject + "\n\n" + body)
         return
     send(subject, body)
+    print(f"{now():%F %T} UTC: mail wysłany: {subject}")
 
 
 if __name__ == "__main__":
