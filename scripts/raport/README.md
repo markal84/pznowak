@@ -18,7 +18,7 @@ Plik z ustawieniami poczty (dane skrzynki pracowni, tej samej co formularz na st
 
 ```sh
 mkdir -p ~/.config/pznowak-raport && umask 077 && cat > ~/.config/pznowak-raport/smtp.env <<'X'
-SMTP_HOST=mail0.mydevil.net
+SMTP_HOST=mail92.mydevil.net
 SMTP_PORT=587
 SMTP_USER=kontakt@pznowak.pl
 SMTP_PASS=TU_HASLO_SKRZYNKI
