@@ -135,7 +135,7 @@ const STONES: Stone[] = [
     filterLabel: 'pierścionki z zielonymi kamieniami',
     text: [
       'Oliwin, nazywany też perydotem, ma świeżą, żółtawozieloną barwę, od soczystej zieleni po oliwkę. Kolor daje mu żelazo zawarte w kamieniu, dlatego jest stały i nie zależy od światła. To zieleń lżejsza i bardziej słoneczna niż szmaragdu, a przy tym wyraźnie szlachetna.',
-      'Jest trochę miększy od szafiru i szmaragdu, dlatego oprawiamy go tak, żeby był dobrze osłonięty, a przy cięższych pracach pierścionek warto zdjąć. Do czyszczenia wystarczy ciepła woda z płynem, bez myjki ultradźwiękowej. Dobrze wygląda w żółtym złocie, w którym jego zieleń robi się cieplejsza, a z diamentami zyskuje dodatkowy blask.',
+      'Jest trochę miększy od szafiru i szmaragdu, dlatego oprawiamy go tak, żeby był dobrze osłonięty, a przy cięższych pracach pierścionek warto zdjąć. Dobrze wygląda w żółtym złocie, w którym jego zieleń robi się cieplejsza, a z diamentami zyskuje dodatkowy blask.',
     ],
   },
   {
@@ -167,6 +167,14 @@ const STONES: Stone[] = [
     ],
   },
 ]
+
+/** Środek przedziału twardości z zapisu „7,5–8”; do ułożenia tabeli od najtwardszego do najbardziej miękkiego kamienia. */
+const mohsMidpoint = (mohs: string) => {
+  const values = mohs.split('–').map((part) => Number(part.replace(',', '.')))
+  return values.reduce((sum, value) => sum + value, 0) / values.length
+}
+
+const STONES_BY_HARDNESS = [...STONES].sort((a, b) => mohsMidpoint(b.mohs) - mohsMidpoint(a.mohs))
 
 const SECTIONS = [
   { id: 'krotko', label: 'Krótka odpowiedź' },
@@ -243,7 +251,7 @@ export default async function StonesGuidePage() {
             </tr>
           </thead>
           <tbody>
-            {STONES.map((s) => (
+            {STONES_BY_HARDNESS.map((s) => (
               <tr key={s.id}>
                 <th scope="row">
                   <a href={`#${s.id}`}>{s.name}</a>
