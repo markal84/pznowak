@@ -39,6 +39,9 @@ h2 small{color:var(--muted);font-weight:400;font-size:14px}
 .item.already .hintm{border:1px solid var(--ok)}
 .item.already .hintm .tg{cursor:pointer;text-decoration:underline;margin-left:6px}
 .item[data-dec=catalog]{border-left-color:var(--ok)}
+.item[data-dec=addto]{border-left-color:var(--ok);border-left-style:dashed}
+.fields .target{display:none}.item[data-dec=addto] .fields .target{display:block}
+.warnbox{border:1px solid #c0392b;background:#fdecea;color:#7b1f14;border-radius:8px;padding:6px 10px;margin:6px 0;font-size:13px}
 .item[data-dec=material]{border-left-color:var(--mat)}
 .item[data-dec=reject],.item[data-dec=skip]{border-left-color:var(--no)}
 .item:not(.done){border-left-color:var(--warn)}
@@ -197,11 +200,13 @@ body.only-fresh #main [data-sec]:not([data-sec=fresh]){display:none}
   <ul id="pickList"></ul>
 </dialog>
 <noscript>Ta strona wymaga JavaScriptu.</noscript>
+<datalist id="catalogProducts"></datalist>
 <script type="application/json" id="data">__DATA__</script>
 <script>
 (() => {
 'use strict';
 const D = JSON.parse(document.getElementById('data').textContent);
+document.getElementById('catalogProducts').innerHTML = (D.catalogProducts || []).map(p => `<option value="${String(p.name).replace(/"/g, '&quot;')}"></option>`).join('');
 const API = '/api/selection';
 let refreshing = false; // trwa „Pobierz nowe posty”
 const PENDING_KEY = 'fbreview:pending';
@@ -212,8 +217,9 @@ const OPTS = {
   existing: [['gallery', 'dodaj do galerii'], ['material', 'materiał'], ['skip', 'pomiń']],
   skipped: [['material', 'zachowaj jako materiał'], ['skip', 'pomiń']],
 };
-const CARD_DEC = [['catalog', 'katalog'], ['material', 'materiały'], ['reject', 'odrzuć'], ['', '?']];
-const INHERIT = { catalog: 'catalog', material: 'material', reject: 'skip' };
+// „nowa karta” tworzy NOWY szkic pierścionka; „dodaj do karty…” dokłada zdjęcia/film do istniejącej karty (pole obok).
+const CARD_DEC = [['catalog', 'nowa karta'], ['addto', 'dodaj do karty…'], ['material', 'materiały'], ['reject', 'odrzuć'], ['', '?']];
+const INHERIT = { catalog: 'catalog', addto: 'gallery', material: 'material', reject: 'skip' };
 const LABEL = { catalog: 'w katalogu', gallery: 'do galerii', material: 'materiał', skip: 'pomiń' };
 const SECTIONS = [
   ['new', 'Nowe pierścionki', 'card', 'Nowe'],
@@ -296,7 +302,7 @@ function prune(g) {
   const e = entry(g);
   if (!e) return;
   const empty = g.type === 'skipped' ? !e.decision
-    : !e.decision && !e.name && !e.note && !e.cover && !e.complete && !e.sameAs && !(e.notSame || []).length && !Object.keys(e.media || {}).length;
+    : !e.decision && !e.name && !e.note && !e.target && !e.cover && !e.complete && !e.sameAs && !(e.notSame || []).length && !Object.keys(e.media || {}).length;
   if (empty) delete bucket(g)[g.key];
 }
 function eff(g, file) {
@@ -667,6 +673,13 @@ function hintHTML(g) {
   const already = alreadyIn(g) ? ' · <b>✔ już w katalogu, nic nie trzeba zaznaczać</b><span class="tg" data-act="toggleOpen">pokaż zdjęcia</span>' : '';
   return `<div class="hintm">Podpowiedź modelu: <b>${esc(H_LABEL[r.category] || r.category)}</b>${target} · ${esc(r.confidence)} %${already}<br><span class="vr">${esc(r.reason)}</span></div>`;
 }
+// Post bez zdjęć (sam film) to prawie zawsze dodatek do istniejącej karty, nie nowy pierścionek.
+function modeWarn(g) {
+  const photos = g.files.filter(f => f.kind === 'photo').length, videos = g.files.filter(f => f.kind === 'video').length;
+  const h = (D.hints || {})[g.key], r = h && h.result;
+  const guess = r && r.product ? ` Model podpowiada kartę <b>${esc(h.productName || r.product)}</b>.` : '';
+  return !photos && videos ? `<div class="warnbox">Ta karta to sam film (${videos}), bez zdjęć. Wybierz <b>dodaj do karty…</b> i wskaż istniejący pierścionek. Jako <b>nową kartę</b> nie zostanie utworzona.${guess}</div>` : '';
+}
 function propsHTML(g, list) {
   return (list || []).map(p => {
     const o = CARD[p.other];
@@ -708,8 +721,9 @@ function itemHTML(g, n, label) {
   }
   if (g.type === 'card') {
     head = `<h3>${num}${esc(it.title)}</h3><span><button type="button" class="mergebtn" data-act="pickOpen">połącz z kartą…</button> ${seg('dec', CARD_DEC, 'data-act="decide"')}</span>`;
-    extra = `${hintHTML(g)}<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza" aria-label="Nazwa robocza" value="">` +
-      `<textarea data-f="note" placeholder="Krótka notatka (np. „= karta 12”, żeby zaproponować połączenie)" aria-label="Notatka"></textarea></div>`;
+    extra = `${hintHTML(g)}<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza (nowa karta: imię z mitologii, nie tytuł posta)" aria-label="Nazwa robocza" value="">` +
+      `<input class="target" data-f="target" type="text" list="catalogProducts" placeholder="Do której istniejącej karty (nazwa z katalogu)" aria-label="Istniejąca karta docelowa" value="">` +
+      `<textarea data-f="note" placeholder="Krótka notatka (np. „= karta 12”, żeby zaproponować połączenie)" aria-label="Notatka"></textarea></div>${modeWarn(g)}`;
   } else if (g.type === 'existing') {
     head = `<h3>${esc(it.title)}</h3><button type="button" class="cbtn" data-act="complete" aria-pressed="false" title="Nic z tych postów nie trafia do galerii; decyzje zdjęć zostają w pliku, ale eksport je pomija">kompletne – bez zmian</button>`;
     extra = existingSummary(g) + `<div class="bulk">Wszystkie (${g.files.length}): ${seg('sm', g.opts, 'data-act="bulk"')}</div>`;
@@ -739,8 +753,9 @@ function fillFields() {
   for (const g of G) {
     if (g.type !== 'card' || !g.el) continue;
     const e = entry(g) || {};
-    const n = $('[data-f=name]', g.el), t = $('[data-f=note]', g.el);
+    const n = $('[data-f=name]', g.el), t = $('[data-f=note]', g.el), tg = $('[data-f=target]', g.el);
     if (!n || !t) continue;
+    if (tg) tg.value = e.target ?? '';
     n.value = e.name ?? g.it.title;
     t.value = e.note ?? '';
   }
@@ -886,7 +901,7 @@ function pickOpen(g) {
 }
 function pickRender() {
   const q = $('#pickFilter').value.trim().toLowerCase();
-  const DEC = { catalog: 'katalog', material: 'materiały', reject: 'odrzuć' };
+  const DEC = { catalog: 'nowa karta', addto: 'dodaj do karty', material: 'materiały', reject: 'odrzuć' };
   const rows = Object.values(CARD).filter(c => c.root === c.key && c.key !== pickFor.root).filter(c => {
     if (!q) return true;
     const hay = [LBL[c.key], 'karta ' + LBL[c.key], c.it.title, cardTitle(c), (entry(c) || {}).note || '', ...c.it.posts.map(p => p.text || '')].join(' ').toLowerCase();
@@ -959,6 +974,7 @@ document.addEventListener('input', ev => {
   const e = ensure(g);
   const val = t.value;
   if (t.dataset.f === 'name') { if (!val.trim() || val.trim() === g.it.title) delete e.name; else e.name = val; }
+  else if (t.dataset.f === 'target') { if (!val.trim()) delete e.target; else e.target = val.trim(); }
   else if (!val.trim()) delete e.note; else e.note = val;
   changed(g);
 });

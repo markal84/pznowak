@@ -6,6 +6,7 @@ import {
   draftDescription,
   draftLead,
   extractDetails,
+  looksLikePostTitle,
   mediaSourceKey,
   slugify,
   type ExistingProduct,
@@ -208,4 +209,48 @@ describe('fb-import: plan', () => {
     expect(plan.products[0].data).toMatchObject({ name: 'Eos', slug: 'eos', stone: 'Morganit, Diament' })
   })
 
+  it('nowa karta nie kopiuje z posta ani nazwy, ani opisu', () => {
+    const title = 'Turmalin – zieleń, której nie da się zamknąć w jednym odcieniu'
+    const base = selection().catalog[0]
+    const plan = buildImportPlan(
+      selection({
+        catalog: [{ ...base, key: 'N12', name: title, titleOpus: title, posts: [post(`${title}\nDługi opis z FB.`)] }],
+      }),
+      { mediaBySource: new Map(), products: [] },
+    )
+    const [product] = plan.products
+    expect(product.action).toBe('create')
+    expect(product.data).toMatchObject({ description: '', lead: '', name: 'Do nazwania N12' })
+    expect(product.data.slug).toBe('do-nazwania-n12')
+    expect(product.warnings.join(' ')).toContain('Do nazwania')
+    expect(product.posts).toHaveLength(1)
+  })
+
+  it('puste imię (brak własnego i z kanonu) też daje „Do nazwania”, własne imię zostaje', () => {
+    const base = selection().catalog[0]
+    const empty = buildImportPlan(selection({ catalog: [{ ...base, name: '' }] }), { mediaBySource: new Map(), products: [] })
+    expect(empty.products[0].data.name).toBe('Do nazwania morganit@111')
+    const named = buildImportPlan(selection({ catalog: [{ ...base, name: 'Chloris' }] }), { mediaBySource: new Map(), products: [] })
+    expect(named.products[0].data).toMatchObject({ name: 'Chloris', slug: 'chloris' })
+  })
+
+  it('post z samym filmem nie tworzy nowej karty', () => {
+    const base = selection().catalog[0]
+    const plan = buildImportPlan(
+      selection({ catalog: [{ ...base, name: 'Chloris', cover: null, photos: [], videos: ['media/9_v.mp4'] }] }),
+      { mediaBySource: new Map(), products: [] },
+    )
+    expect(plan.products[0].action).toBe('skip-no-photos')
+    expect(plan.summary.productsToCreate).toBe(0)
+    expect(plan.products[0].warnings.join(' ')).toContain('dodaj do karty')
+  })
+
+  it('looksLikePostTitle: imię przechodzi, tytuł i pierwsza linijka posta nie', () => {
+    const item = { posts: [post('Turmalin w kolorze lasu\nCała reszta')], titleOpus: 'Turmalin zieleń' }
+    expect(looksLikePostTitle('Aglaia', item)).toBe(false)
+    expect(looksLikePostTitle('Turmalin w kolorze lasu', item)).toBe(true)
+    expect(looksLikePostTitle('Turmalin zieleń', item)).toBe(true)
+    expect(looksLikePostTitle('', item)).toBe(true)
+    expect(looksLikePostTitle('Jakiś długi opisowy tytuł z pięcioma słowami', item)).toBe(true)
+  })
 })

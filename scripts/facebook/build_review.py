@@ -215,6 +215,13 @@ hints_path = root / "classify" / "results.json"
 if hints_path.exists():
     hints = json.loads(hints_path.read_text(encoding="utf-8")).get("cards", {})
     page_data["hints"] = {k: v for k, v in hints.items() if k in card_keys and v.get("result")}
+# Istniejące karty z katalog.json (zrzut: npm run katalog:snapshot) do pola „dodaj do karty…” w przeglądzie.
+snap_path = root / "katalog.json"
+page_data["catalogProducts"] = []
+if snap_path.exists():
+    page_data["catalogProducts"] = sorted(
+        ({"slug": x["slug"], "name": x["name"]} for x in json.loads(snap_path.read_text(encoding="utf-8")).get("products", []) if not x.get("archived")),
+        key=lambda x: x["name"].lower())
 manual_media.annotate_manual(page_data, MANUAL)
 for w in manual_media.annotate_ai(page_data, manual_media.load_ai(root)):
     print("UWAGA:", w)
