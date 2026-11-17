@@ -6,6 +6,10 @@ import {
   isAuthenticatedOrPublished,
 } from '../access/permissions'
 import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-publication'
+import {
+  apiKeyDraftOnlyBeforeChange,
+  apiKeyDraftOnlyBeforeOperation,
+} from '../lib/api-key-draft-only'
 
 /** Rodzaje realizacji i biżuterii: te same wartości używa strona (`src/lib/works.ts`). */
 export const WORK_KINDS = [
@@ -54,6 +58,8 @@ export const Works: CollectionConfig = {
     maxPerDoc: 30,
   },
   hooks: {
+    beforeOperation: [apiKeyDraftOnlyBeforeOperation],
+    beforeChange: [apiKeyDraftOnlyBeforeChange],
     afterChange: [
       async ({ doc, previousDoc, req }) => {
         revalidateAfterChange('work', doc, previousDoc, req)

@@ -6,6 +6,10 @@ import {
   isAuthenticatedOrPublished,
 } from '../access/permissions'
 import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-publication'
+import {
+  apiKeyDraftOnlyBeforeChange,
+  apiKeyDraftOnlyBeforeOperation,
+} from '../lib/api-key-draft-only'
 
 export const GalleryItems: CollectionConfig = {
   slug: 'gallery-items',
@@ -34,6 +38,8 @@ export const GalleryItems: CollectionConfig = {
     maxPerDoc: 30,
   },
   hooks: {
+    beforeOperation: [apiKeyDraftOnlyBeforeOperation],
+    beforeChange: [apiKeyDraftOnlyBeforeChange],
     afterChange: [
       async ({ doc, previousDoc, req }) => {
         revalidateAfterChange('gallery', doc, previousDoc, req)

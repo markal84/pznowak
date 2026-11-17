@@ -10,6 +10,10 @@ import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-pu
 import { applyArchiveStatus, validateProductMedia } from '../lib/product-workflow'
 import { shiftOtherProducts } from '../lib/sort-order'
 import { SWATCHES } from '../lib/stone-variants'
+import {
+  apiKeyDraftOnlyBeforeChange,
+  apiKeyDraftOnlyBeforeOperation,
+} from '../lib/api-key-draft-only'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -47,7 +51,8 @@ export const Products: CollectionConfig = {
       },
     ],
     afterDelete: [({ doc, req }) => revalidateAfterDelete('product', doc, req)],
-    beforeChange: [({ data }) => applyArchiveStatus(data)],
+    beforeOperation: [apiKeyDraftOnlyBeforeOperation],
+    beforeChange: [apiKeyDraftOnlyBeforeChange, ({ data }) => applyArchiveStatus(data)],
   },
   fields: [
     {
