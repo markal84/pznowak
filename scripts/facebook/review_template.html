@@ -41,6 +41,7 @@ h2 small{color:var(--muted);font-weight:400;font-size:14px}
 .item[data-dec=catalog]{border-left-color:var(--ok)}
 .item[data-dec=addto]{border-left-color:var(--ok);border-left-style:dashed}
 .fields .target{display:none}.item[data-dec=addto] .fields .target{display:block}
+.item.col .media,.item.col .fields,.item.col .hintm,.item.col .props,.item.col .dups,.item.col .warnbox,.item.col .mrow,.item.col .bulk{display:none}
 .warnbox{border:1px solid #c0392b;background:#fdecea;color:#7b1f14;border-radius:8px;padding:6px 10px;margin:6px 0;font-size:13px}
 .item[data-dec=material]{border-left-color:var(--mat)}
 .item[data-dec=reject],.item[data-dec=skip]{border-left-color:var(--no)}
@@ -720,7 +721,7 @@ function itemHTML(g, n, label) {
       `<div class="bulk">Decyzję, okładkę i wybór zdjęć tej karty ustala teraz ${esc(cardLabel(r.key))}.</div>${posts(it)}</section>`;
   }
   if (g.type === 'card') {
-    head = `<h3>${num}${esc(it.title)}</h3><span><button type="button" class="mergebtn" data-act="pickOpen">połącz z kartą…</button> ${seg('dec', CARD_DEC, 'data-act="decide"')}</span>`;
+    head = `<h3>${num}${esc(it.title)}</h3><span><button type="button" class="mergebtn" data-act="collapse" title="Zwija zdjęcia i pola tej karty (decyzja zostaje, karta nadal jest na liście „dodaj do karty…”)">zwiń</button> <button type="button" class="mergebtn" data-act="pickOpen">połącz z kartą…</button> ${seg('dec', CARD_DEC, 'data-act="decide"')}</span>`;
     extra = `${hintHTML(g)}<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza (nowa karta: imię z mitologii, nie tytuł posta)" aria-label="Nazwa robocza" value="">` +
       `<input class="target" data-f="target" type="text" list="catalogProducts" placeholder="Do której istniejącej karty (nazwa z katalogu)" aria-label="Istniejąca karta docelowa" value="">` +
       `<textarea data-f="note" placeholder="Krótka notatka (np. „= karta 12”, żeby zaproponować połączenie)" aria-label="Notatka"></textarea></div>${modeWarn(g)}`;
@@ -943,6 +944,7 @@ document.addEventListener('click', async ev => {
   }
   if (act === 'dropPending') { try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ } lock(false); banner(''); return; }
   if (act === 'adoptOrphan') { S.cards[t.dataset.to] = S.cards[t.dataset.from]; delete S.cards[t.dataset.from]; fillFields(); changed(GBY['card:' + t.dataset.to]); return; }
+  if (act === 'collapse') { const it = t.closest('.item'); it.classList.toggle('col'); t.textContent = it.classList.contains('col') ? 'rozwiń' : 'zwiń'; return; }
   if (act === 'toggleOpen') { const it = t.closest('.item'); it.classList.toggle('open'); t.textContent = it.classList.contains('open') ? 'zwiń zdjęcia' : 'pokaż zdjęcia'; return; }
   if (act === 'jump') { const g2 = GBY[t.dataset.to]; if (g2 && g2.el) { g2.el.scrollIntoView({ block: 'start', behavior: 'smooth' }); g2.el.classList.remove('flash'); void g2.el.offsetWidth; g2.el.classList.add('flash'); } return; }
   if (act === 'zoomfile') { const fl = t.dataset.file; window.open(fl.startsWith('frames/') ? fl : 'media/' + fl, '_blank', 'noopener'); return; }

@@ -15,15 +15,19 @@
 // Baza: zawsze żywa baza strony, rozpoznana po endpoincie Neon (live-db.ts), niezależnie od nazw gałęzi i plików .env.
 // Opcje: --input <catalog-selection.json>, --data <katalog z media/>,
 // --env-root <katalog z cms/.env* i backend/.env*>, --rollback <plik przebiegu> [--apply].
-import { readFile, writeFile } from 'node:fs/promises'
+import { execFile } from 'node:child_process'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { createInterface } from 'node:readline/promises'
 import { fileURLToPath } from 'node:url'
+import { promisify } from 'node:util'
 
 import sharp from 'sharp'
 
 import { isLiveDatabase, loadLiveEnv } from './live-db'
 
+const run = promisify(execFile)
 const args = process.argv.slice(2)
 const option = (name: string) => {
   const i = args.indexOf(name)
@@ -73,12 +77,44 @@ async function confirm() {
   if (answer.trim() !== 'PRODUKCJA') throw new Error('Przerwano: brak potwierdzenia')
 }
 
+const isVideoFile = (file: string) => /\.(mp4|mov|m4v|webm)$/i.test(file)
+
+// Film: MP4 H.264 do 1280 px; inne kodeki z FB (VP9/AV1) są przekodowywane (tak samo jak w import-fb-catalog.ts).
+async function prepareVideo(fullPath: string): Promise<{ data: Buffer; mimetype: string; name: string }> {
+  const { stdout } = await run('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,codec_name', '-of', 'json', fullPath])
+  const [v] = (JSON.parse(stdout) as { streams: Array<{ codec_name: string; height: number; width: number }> }).streams
+  const copy = v.codec_name === 'h264' && Math.max(v.width, v.height) <= 1280
+  const video = copy
+    ? ['-c:v', 'copy']
+    : ['-vf', "scale=w='min(1280,iw)':h='min(1280,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2", '-c:v', 'libx264', '-crf', '23', '-preset', 'slow', '-pix_fmt', 'yuv420p']
+  const dir = await mkdtemp(path.join(tmpdir(), 'fb-video-'))
+  try {
+    const out = path.join(dir, 'out.mp4')
+    await run('ffmpeg', ['-v', 'error', '-i', fullPath, '-map', '0:v:0', '-map', '0:a?', '-map_metadata', '-1', '-map_chapters', '-1', ...video, '-c:a', 'copy', '-movflags', '+faststart', out])
+    return { data: await readFile(out), mimetype: 'video/mp4', name: `fb-${path.basename(fullPath, path.extname(fullPath))}.mp4` }
+  } finally {
+    await rm(dir, { force: true, recursive: true })
+  }
+}
+
 async function upload(file: string, alt: string, log: RunLog): Promise<number> {
   const source = `fb:${file.replace(/^media\//, '')}`
   const known = await payload.find({ collection: 'media', depth: 0, limit: 1, overrideAccess: true, where: { legacySourceUrl: { equals: source } } })
   if (known.docs[0]) {
     console.log(`  = ${file} już jest w mediach (#${known.docs[0].id})`)
     return known.docs[0].id
+  }
+  if (isVideoFile(file)) {
+    const prepared = await prepareVideo(path.join(dataDir, file))
+    const media = await payload.create({
+      collection: 'media',
+      data: { alt, legacySourceUrl: source },
+      file: { ...prepared, size: prepared.data.byteLength },
+      overrideAccess: true,
+    })
+    log.createdMedia.push(media.id)
+    console.log(`  ↑ ${file} → media #${media.id} (film)`)
+    return media.id
   }
   const data = await sharp(path.join(dataDir, file))
     .rotate()
@@ -138,11 +174,13 @@ for (const item of items) {
     console.log(`= ${where}: nowy wariant – pomijam (inny kamień w tym fasonie robimy jako nową kartę)`)
     continue
   }
-  if (!item.photos.length) {
-    console.log(`! ${where}: brak zdjęć „w katalogu”, pomijam`)
+  if (!item.photos.length && !item.videos?.length) {
+    console.log(`! ${where}: brak zdjęć i filmu „w katalogu”, pomijam`)
     continue
   }
-  if (item.action === 'zamiast-wizualizacji') {
+  const videoFile = item.videos?.[0]
+  if (item.videos && item.videos.length > 1) console.log(`  ! ${item.videos.length} filmów, wgrywam tylko pierwszy (${videoFile}), reszta czeka na galerię filmów`)
+  if (item.action === 'zamiast-wizualizacji' || (item.action === 'dodatek' && item.variant)) {
     const variants = product.stoneVariants ?? []
     const i = variants.findIndex((v) => norm(v.stone ?? '') === norm(item.variant))
     if (i < 0) {
@@ -151,44 +189,47 @@ for (const item of items) {
     }
     const v = variants[i]
     const alt = stripViz(v.alt ?? '') || `${product.name} – ${item.variant}`
-    console.log(`+ ${where} [${state}]`)
-    console.log(`    wariant „${v.stone}”: ${v.isVisualization ? 'wizualizacja' : 'zdjęcie'} #${v.image} → prawdziwe zdjęcia z posta (${item.photos.length}), bez znacznika wizualizacji`)
-    console.log(`    alt: ${alt}`)
-    for (const f of item.photos) console.log(`    · ${f}`)
-    if (!apply) continue
-    const ids: number[] = []
-    for (const f of item.photos) ids.push(await upload(f, alt, log))
-    const next = variants.map((x, j) => (j === i ? { ...x, alt, image: ids[0], isVisualization: false, moreImages: ids.slice(1) } : x))
-    log.products.push({ action: item.action, before: { stoneVariants: variants }, id: product.id, slug: product.slug })
-    await payload.update({ collection: 'products', context, data: { stoneVariants: next }, draft: true, id: product.id, overrideAccess: true })
-    console.log(`  ✓ zapisane jako wersja robocza`)
-  } else if (item.action === 'dodatek' && item.variant) {
-    // Zdjęcia dla konkretnego wariantu z prawdziwym zdjęciem: dopisane do jego moreImages.
-    const variants = product.stoneVariants ?? []
-    const i = variants.findIndex((v) => norm(v.stone ?? '') === norm(item.variant))
-    if (i < 0 || variants[i].isVisualization) {
-      console.log(`! ${where}: brak wariantu „${item.variant}” z prawdziwym zdjęciem, pomijam`)
-      continue
-    }
-    const v = variants[i]
+    // Wariant, który ma już prawdziwe zdjęcie (np. uzupełnione ręcznie po podpowiedzi modelu), zostaje bez zmian w zdjęciach:
+    // podmiana zdjęć dotyczy tylko wizualizacji, dla prawdziwego wariantu zdjęcia z posta idą na koniec moreImages.
+    const replace = item.action === 'zamiast-wizualizacji' && Boolean(v.isVisualization)
     const more = (v.moreImages ?? []).map((m) => (typeof m === 'object' ? m.id : m))
-    const alt = stripViz(v.alt ?? '') || `${product.name} – ${item.variant}`
-    console.log(`+ ${where} [${state}]: wariant „${v.stone}”: dopisz ${item.photos.length} zdj. (jest główne + ${more.length} dodatkowych)`)
+    console.log(`+ ${where} [${state}]`)
+    console.log(
+      `    wariant „${v.stone}”: ${v.isVisualization ? 'wizualizacja' : 'prawdziwe zdjęcie'} #${typeof v.image === 'object' ? v.image.id : v.image} → ` +
+        (replace
+          ? `prawdziwe zdjęcia z posta (${item.photos.length}), bez znacznika wizualizacji`
+          : `zdjęcia dopisane do moreImages (${item.photos.length}), główne zostaje`),
+    )
     for (const f of item.photos) console.log(`    · ${f}`)
+    const hasVideo = Boolean(v.video)
+    if (videoFile) console.log(`    ${hasVideo ? '⏸' : '▶'} film ${videoFile} ${hasVideo ? '– wariant ma już film, pomijam' : '→ pole „Film” wariantu'}`)
     if (!apply) continue
     const ids: number[] = []
     for (const f of item.photos) ids.push(await upload(f, alt, log))
-    const next = variants.map((x, j) => (j === i ? { ...x, moreImages: [...more, ...ids] } : x))
+    const patch: Record<string, unknown> = {}
+    if (replace && ids.length) Object.assign(patch, { alt, image: ids[0], isVisualization: false, moreImages: ids.slice(1) })
+    else if (ids.length) patch.moreImages = [...more, ...ids]
+    if (videoFile && !hasVideo) patch.video = await upload(videoFile, `${product.name} – ${item.variant} – film`, log)
+    if (!Object.keys(patch).length) continue
+    const next = variants.map((x, j) => (j === i ? { ...x, ...patch } : x))
     log.products.push({ action: item.action, before: { stoneVariants: variants }, id: product.id, slug: product.slug })
     await payload.update({ collection: 'products', context, data: { stoneVariants: next }, draft: true, id: product.id, overrideAccess: true })
     console.log(`  ✓ zapisane jako wersja robocza`)
   } else if (item.action === 'dodatek') {
     const media = product.media ?? []
-    console.log(`+ ${where} [${state}]: dopisz ${item.photos.length} zdj. do galerii (jest ${media.length})`)
+    const ids0 = media.map((m) => (typeof m.asset === 'object' ? m.asset.id : m.asset))
+    const existingVideos = ids0.length
+      ? await payload.find({ collection: 'media', depth: 0, limit: 1, overrideAccess: true, where: { and: [{ id: { in: ids0 } }, { mimeType: { like: 'video/' } }] } })
+      : { docs: [] }
+    const addVideo = Boolean(videoFile) && !existingVideos.docs.length
+    console.log(`+ ${where} [${state}]: dopisz ${item.photos.length} zdj.${addVideo ? ' + film' : ''} do galerii (jest ${media.length})`)
     for (const f of item.photos) console.log(`    · ${f}`)
+    if (videoFile) console.log(`    ${addVideo ? '▶' : '⏸'} film ${videoFile}${addVideo ? '' : ' – karta ma już film (limit jednego), pomijam'}`)
     if (!apply) continue
     const ids: number[] = []
     for (const f of item.photos) ids.push(await upload(f, `${product.name} – zdjęcie z pracowni`, log))
+    if (addVideo) ids.push(await upload(videoFile as string, `${product.name} – film`, log))
+    if (!ids.length) continue
     log.products.push({ action: item.action, before: { media }, id: product.id, slug: product.slug })
     await payload.update({
       collection: 'products',
