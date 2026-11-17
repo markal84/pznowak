@@ -5,7 +5,7 @@
 1. `https://pznowak.pl/` i `/admin` zwracają 200,
 2. wiek ostatniej pełnej kopii (limit 26 h) i kopii bazy co 6 h (limit 7 h), wolne miejsce na dysku (próg 5 GB),
 3. skrypt postów FB na MyDevil: ostatnie udane uruchomienie, błędy z `posty.log` z ostatniej doby, nowe posty z 24 h
-   (odczyt przez SSH kluczem `pznowak_backup_pull`; jeśli klucz nie pozwala, skrypt bierze dane z lustra ostatniej
+   (odczyt przez rsync kluczem `pznowak_backup_pull`, który wpuszcza tylko rsync do odczytu; jeśli rsync zawiedzie, skrypt bierze dane z lustra ostatniej
    kopii i dopisuje ostrzeżenie, bez logu),
 4. kontenery Dockera (wszystkie ma być `Up`; opcjonalnie lista wymaganych nazw w `PZNOWAK_KONTENERY`).
 

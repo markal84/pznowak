@@ -24,7 +24,6 @@ CONF = Path(os.environ.get("PZNOWAK_RAPORT_CONF", HOME / ".config/pznowak-raport
 BACKUP_ROOT = Path(os.environ.get("PZNOWAK_BACKUP_ROOT", HOME / "backups/pznowak-full"))
 MYDEVIL = os.environ.get("PZNOWAK_MYDEVIL", "pznowak@s92.mydevil.net")
 SSH_KEY = os.environ.get("PZNOWAK_SSH_KEY", str(HOME / ".ssh/pznowak_backup_pull"))
-NODE = "/usr/local/bin/node24"
 SITE = "https://pznowak.pl"
 FULL_MAX_H, DB_MAX_H, DISK_MIN_GB = 26, 7, 5
 EXPECTED_CONTAINERS = [c for c in os.environ.get("PZNOWAK_KONTENERY", "").split(",") if c]
@@ -80,24 +79,33 @@ def check_backups():
     add(OK if free >= DISK_MIN_GB else WARN, "Dysk", f"wolne {free:.1f} GB (próg {DISK_MIN_GB} GB)")
 
 
-def ssh_read(remote_cmd):
-    """Odczyt na MyDevil kluczem kopii. Zwraca tekst albo None, gdy się nie da."""
-    cmd = ["ssh", "-i", SSH_KEY, "-o", "IdentitiesOnly=yes", "-o", "BatchMode=yes", "-o", "ConnectTimeout=20", MYDEVIL, remote_cmd]
-    try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
-    except Exception:  # noqa: BLE001
-        return None
-    return r.stdout if r.returncode == 0 and r.stdout.strip() else None
-
-
-REMOTE_SUMMARY = (
-    f"{NODE} -e \"const fs=require('fs'),d=process.env.HOME+'/pznowak-posty';"
-    "const j=f=>{try{return JSON.parse(fs.readFileSync(d+f,'utf8'))}catch{return null}};"
-    "let log='';try{log=fs.readFileSync(d+'/posty.log','utf8').split('\\n').slice(-400)}catch{log=[]}"
-    "console.log(JSON.stringify({stan:j('/dane/stan.json')&&{lastRunAt:j('/dane/stan.json').lastRunAt,"
-    "lastSuccessAt:j('/dane/stan.json').lastSuccessAt,failStreak:j('/dane/stan.json').failStreak},"
-    "indeks:j('/dane/indeks.json'),log:log.filter(l=>l.slice(0,10)>=new Date(Date.now()-864e5).toISOString().slice(0,10)&&/BŁĄD|problem/i.test(l)).slice(-5)}))\""
-)
+def rsync_live():
+    """Pobiera na żywo stan.json, indeks.json i posty.log z MyDevil przez rsync (klucz kopii wpuszcza tylko rsync do odczytu,
+    więc zwykłego polecenia przez SSH nie wykonamy). Zwraca słownik jak z lustra albo None."""
+    import tempfile
+    ssh = f"ssh -i {SSH_KEY} -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=20"
+    with tempfile.TemporaryDirectory() as tmp:
+        for remote in ("pznowak-posty/dane/stan.json", "pznowak-posty/dane/indeks.json", "pznowak-posty/posty.log"):
+            r = subprocess.run(["rsync", "-a", "-e", ssh, f"{MYDEVIL}:{remote}", tmp + "/"], capture_output=True, text=True, timeout=90)
+            if r.returncode != 0 and remote.endswith("stan.json"):
+                return None
+        try:
+            st = json.loads((Path(tmp) / "stan.json").read_text())
+        except Exception:  # noqa: BLE001
+            return None
+        try:
+            ix = json.loads((Path(tmp) / "indeks.json").read_text())
+        except Exception:  # noqa: BLE001
+            ix = None
+        yesterday = (now() - dt.timedelta(hours=26)).strftime("%Y-%m-%d")
+        lines = []
+        try:
+            for l in (Path(tmp) / "posty.log").read_text(errors="replace").splitlines()[-400:]:
+                if l[:10] >= yesterday and ("BŁĄD" in l or "problem" in l.lower()):
+                    lines.append(l)
+        except Exception:  # noqa: BLE001
+            pass
+        return {"stan": {k: st.get(k) for k in ("lastRunAt", "lastSuccessAt", "failStreak")}, "indeks": ix, "log": lines[-5:]}
 
 
 def parse_iso(s):
@@ -105,14 +113,11 @@ def parse_iso(s):
 
 
 def check_posts():
-    out = ssh_read(REMOTE_SUMMARY)
-    source = "SSH na żywo"
-    data = None
-    if out:
-        try:
-            data = json.loads(out.strip().splitlines()[-1])
-        except Exception:  # noqa: BLE001
-            data = None
+    source = "na żywo przez rsync"
+    try:
+        data = rsync_live()
+    except Exception:  # noqa: BLE001
+        data = None
     if data is None:
         # zapas: lustro z ostatniej pełnej kopii (do 24 h starości), bez logu
         mirror = BACKUP_ROOT / "_lustro/mydevil/posty-dane"
@@ -120,8 +125,8 @@ def check_posts():
             st = json.loads((mirror / "stan.json").read_text())
             ix = json.loads((mirror / "indeks.json").read_text())
             data = {"stan": {k: st.get(k) for k in ("lastRunAt", "lastSuccessAt", "failStreak")}, "indeks": ix, "log": []}
-            source = "lustro z kopii (do 24 h starości; SSH nie odpowiedział lub klucz nie pozwala)"
-            add(WARN, "Posty FB", "SSH do MyDevil nie zadziałał, dane z lustra kopii zapasowej")
+            source = "lustro z kopii (do 24 h starości; rsync nie odpowiedział)"
+            add(WARN, "Posty FB", "rsync z MyDevil nie zadziałał, dane z lustra kopii zapasowej")
         except Exception as e:  # noqa: BLE001
             add(ERR, "Posty FB", f"nie mogę odczytać stanu skryptu postów ({type(e).__name__})")
             return
