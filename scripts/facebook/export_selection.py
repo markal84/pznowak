@@ -148,6 +148,13 @@ for k, g in CARDS.items():
     e = cards.get(k) or {}
     dec = e.get("decision")
     label = g["title"]
+    # Karta bez decyzji, której zdjęcia już są w katalogu (podpowiedź „już w katalogu”), ale z plikiem zaznaczonym ręcznie „w katalogu”
+    # (np. film z dołączonej karty): to jawna decyzja o pliku, więc liczy się jak „katalog” (film trafi do tej karty, nie zginie).
+    pre = HINTS.get(k) or {}
+    pre_r = pre.get("result") or {}
+    if not dec and pre_r.get("product") and pre_r["product"] in (pre.get("fromPost") or []) and any(
+            v == "catalog" for kk in [k, *MEMBERS.get(k, [])] for v in ((cards.get(kk) or {}).get("media") or {}).values()):
+        dec = "catalog"
     if not dec:
         undecided += 1
     elif dec == "reject":
