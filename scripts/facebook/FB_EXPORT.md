@@ -75,6 +75,22 @@ zapisujesz sam. Karty już ocenione biorą wynik z pamięci (`classify/terra/`),
 `--bez-podpowiedzi` pomija ten krok. Test na dotychczasowych decyzjach: `python3 scripts/facebook/classify_posts.py
 --test --run` → `data/facebook/classify/test-raport.md`.
 
+## B3. Sito przed modelem (`sito.py`)
+
+Darmowy etap przed `classify_posts.py`: zdjęcia nowych postów („fresh”) porównuje z odciskami zdjęć katalogu (progi z
+`similarity.py`) i zapisuje, który pierścionek i które zdjęcie już jest (`rozpoznany`), co jest tylko częściowo
+(`czesciowo`) albo nowe (`nowy`). Do modelu trafiają tylko `nowy` i `czesciowo`: jedno wywołanie na post, wynik w
+`classify/sito/wyniki.json` razem z odciskiem zestawu zdjęć (ten sam zestaw nie kosztuje drugi raz), twardy dzienny limit
+(domyślnie 15, `--limit-dzienny`). Model woła wymienny adapter (`sito_adapters.py`), domyślnie wyłączony. Nic nie zapisuje
+do Payload ani do selection.json, wynik leży w `data/facebook/classify/sito/` (`sito.json`, `raport.md`).
+
+```
+python3 scripts/facebook/sito.py --odciski-katalogu   # po zmianie katalogu (wymaga katalog.json)
+python3 scripts/facebook/sito.py                      # samo sito, za darmo
+python3 scripts/facebook/sito.py --adapter claude-haiku --run
+python3 -m unittest scripts/facebook/test_sito.py
+```
+
 Ręcznie, bez serwera przeglądu: `python3 scripts/facebook/refresh_posts.py data/facebook` (albo jak dawniej
 `import_posty_meta.py` + `build_review.py`).
 

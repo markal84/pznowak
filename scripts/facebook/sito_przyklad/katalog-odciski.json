@@ -1,0 +1,29 @@
+{
+ "about": "Przyk\u0142adowe odciski katalogu (dane testowe)",
+ "images": {
+  "iris/101": {
+   "f": "dda1494c73cf256d",
+   "c": "dda1494e73c7256d",
+   "slug": "iris",
+   "name": "Iris",
+   "variant": null,
+   "isVisualization": false
+  },
+  "iris/102": {
+   "f": "db5b5fab8f4d3e27",
+   "c": "db5b5fab8f4d3e27",
+   "slug": "iris",
+   "name": "Iris",
+   "variant": "Szafir",
+   "isVisualization": false
+  },
+  "aion/201": {
+   "f": "c7fde805ec99108d",
+   "c": "c7fde805ec99108d",
+   "slug": "aion",
+   "name": "Aion",
+   "variant": "Tanzanit",
+   "isVisualization": true
+  }
+ }
+}

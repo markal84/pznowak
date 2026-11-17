@@ -1,0 +1,135 @@
+{
+ "new": [],
+ "maybe": [],
+ "existing": [],
+ "fresh": [
+  {
+   "key": "p1",
+   "title": "Iris – nowe zdjęcia",
+   "photos": [
+    "p1_a.jpg",
+    "p1_b.jpg"
+   ],
+   "videos": [],
+   "posts": [
+    {
+     "post_id": "p1",
+     "text": "Iris w komplecie"
+    }
+   ]
+  },
+  {
+   "key": "p2",
+   "title": "Aion + coś nowego",
+   "photos": [
+    "p2_a.jpg",
+    "p2_b.jpg"
+   ],
+   "videos": [],
+   "posts": [
+    {
+     "post_id": "p2",
+     "text": "Dwa zdjęcia"
+    }
+   ]
+  },
+  {
+   "key": "p3",
+   "title": "Nowy pierścionek z szafirem",
+   "photos": [
+    "p3_a.jpg",
+    "p3_b.jpg"
+   ],
+   "videos": [],
+   "posts": [
+    {
+     "post_id": "p3",
+     "text": "Nowość"
+    }
+   ]
+  },
+  {
+   "key": "p4",
+   "title": "Same życzenia",
+   "photos": [],
+   "videos": [],
+   "posts": [
+    {
+     "post_id": "p4",
+     "text": "Wesołych Świąt"
+    }
+   ]
+  },
+  {
+   "key": "p5",
+   "title": "Ten sam zestaw co p3",
+   "photos": [
+    "p5_a.jpg",
+    "p5_b.jpg"
+   ],
+   "videos": [],
+   "posts": [
+    {
+     "post_id": "p5",
+     "text": "Powtórka"
+    }
+   ]
+  },
+  {
+   "key": "p6",
+   "title": "Podobne, ale nie to samo",
+   "photos": [
+    "p6_a.jpg"
+   ],
+   "videos": [],
+   "posts": [
+    {
+     "post_id": "p6",
+     "text": "Chyba coś nowego"
+    }
+   ]
+  },
+  {
+   "key": "p7",
+   "title": "Kolejny nowy",
+   "photos": [
+    "p7_a.jpg"
+   ],
+   "videos": [],
+   "posts": [
+    {
+     "post_id": "p7",
+     "text": "Nowy"
+    }
+   ]
+  },
+  {
+   "key": "p8",
+   "title": "I jeszcze jeden",
+   "photos": [
+    "p8_a.jpg"
+   ],
+   "videos": [],
+   "posts": [
+    {
+     "post_id": "p8",
+     "text": "Nowy 2"
+    }
+   ]
+  },
+  {
+   "key": "p9",
+   "title": "Pusty kadr",
+   "photos": [
+    "p9_pusta.jpg"
+   ],
+   "videos": [],
+   "posts": [
+    {
+     "post_id": "p9",
+     "text": ""
+    }
+   ]
+  }
+ ]
+}
