@@ -221,7 +221,12 @@ for (const item of items) {
     const existingVideos = ids0.length
       ? await payload.find({ collection: 'media', depth: 0, limit: 1, overrideAccess: true, where: { and: [{ id: { in: ids0 } }, { mimeType: { like: 'video/' } }] } })
       : { docs: [] }
-    const addVideo = Boolean(videoFile) && !existingVideos.docs.length
+    // Film, który karta już ma (ten sam plik z FB wgrany wcześniej), nie jest dopisywany drugi raz.
+    const sameVideo = videoFile
+      ? await payload.find({ collection: 'media', depth: 0, limit: 1, overrideAccess: true, where: { legacySourceUrl: { equals: `fb:${videoFile.replace(/^media\//, '')}` } } })
+      : { docs: [] }
+    const alreadyThere = sameVideo.docs.some((d) => ids0.includes(d.id))
+    const addVideo = Boolean(videoFile) && !existingVideos.docs.length && !alreadyThere
     console.log(`+ ${where} [${state}]: dopisz ${item.photos.length} zdj.${addVideo ? ' + film' : ''} do galerii (jest ${media.length})`)
     for (const f of item.photos) console.log(`    · ${f}`)
     if (videoFile) console.log(`    ${addVideo ? '▶' : '⏸'} film ${videoFile}${addVideo ? '' : ' – karta ma już film (limit jednego), pomijam'}`)

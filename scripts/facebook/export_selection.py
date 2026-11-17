@@ -194,6 +194,12 @@ for k, g in CARDS.items():
         h = hint.get("result") or {}
         if h.get("product") and h.get("product") in (hint.get("fromPost") or []):
             already.append({"key": k, "title": label, "product": h["product"], "productName": hint.get("productName") or h["product"]})
+            if videos:
+                # Zdjęcia już są w karcie, ale film (np. z dołączonej karty innego posta) nie: dodatek tylko z filmem.
+                # Import pomija film, który karta już ma, więc ponowny eksport niczego nie dubluje.
+                to_existing.append({**item, "photos": [], "cover": None, "action": "dodatek", "product": h["product"],
+                                    "productName": hint.get("productName") or h["product"], "variant": "",
+                                    "confidence": h.get("confidence"), "reason": "film do karty, której zdjęcia już są w katalogu"})
             continue
         if not photos:
             # Sam film nie jest nowym pierścionkiem: dodatek do karty z podpowiedzi albo do ręcznego wskazania w przeglądzie.
