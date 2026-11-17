@@ -9,11 +9,16 @@ Wynik:
   catalog            pierścionki do katalogu (decyzja karty „katalog”, co najmniej jedno zdjęcie „w katalogu”).
                      photos: okładka pierwsza, reszta w kolejności z karty; videos: filmy „w katalogu”.
   galleryAdditions   zdjęcia/filmy z postów pierścionków, które już są w katalogu, oznaczone „dodaj do galerii”.
+  videoOnly          karty „nowa karta” z samym filmem (bez zdjęć): nie tworzą szkicu, bo to dodatek do istniejącej karty.
   toExisting         karty „katalog” z podpowiedzią Terry dla istniejącej karty (dodatek / zamiast-wizualizacji /
                      nowy-wariant, classify_posts.py) → cms: npm run fb:do-istniejacych (wersje robocze). Nie tworzą szkicu.
   alreadyInCatalog   karty, których zdjęcia już są w karcie katalogu (np. szkic zrobiony wcześniej z tego posta).
   materials          wszystko oznaczone „materiał” (płaska lista, bez duplikatów, z postem źródłowym).
   warnings           niespójności (np. zdjęcie „w katalogu” w karcie, która nie jest katalogowa).
+
+Decyzje karty: „katalog” = NOWA karta (szkic w CMS), „addto” = dodaj do istniejącej karty (pole target = nazwa karty, trafia
+do galleryAdditions). Nowa karta dostaje nazwę tylko z przeglądu (własna) albo z kanonu; tytuł posta nigdy nie jest nazwą
+(name = "" → import zostawia nazwę i opis do uzupełnienia). Opis nigdy nie jest kopią posta.
 
 Pierścienie „Już w katalogu” oznaczone „kompletne – bez zmian” są pomijane w całości (decyzje zdjęć zostają w
 selection.json, ale eksport ich nie widzi). Karty z polem sameAs (to ten sam pierścionek co inna karta) dołączają
@@ -45,6 +50,12 @@ import manual_media  # noqa: E402
 CANON = json.loads((Path(__file__).parent / "nazwy-kanon.json").read_text(encoding="utf-8"))["rules"]
 
 
+def own_name(e, label):
+    """Nazwa nowej karty: własna z przeglądu (nie sam tytuł posta) albo z kanonu; inaczej pusta, do uzupełnienia."""
+    own = (e.get("name") or "").strip()
+    return "" if own == label.strip() else own or canon_name(label)
+
+
 def canon_name(title):
     for rule in CANON:
         if re.search(rule["match"], title, re.IGNORECASE):
@@ -54,7 +65,7 @@ def canon_name(title):
 
 AI_BLOCKED = {f for sec in ("new", "maybe", "existing", "fresh") for g in data.get(sec, []) for f, a in g.get("ai", {}).items() if not a.get("allow")}
 AI_ALL = {f for sec in ("new", "maybe", "existing", "fresh") for g in data.get(sec, []) for f in g.get("ai", {})}
-INHERIT = {"catalog": "catalog", "material": "material", "reject": "skip"}
+INHERIT = {"catalog": "catalog", "addto": "gallery", "material": "material", "reject": "skip"}
 warnings = []
 
 
@@ -109,6 +120,7 @@ def card_eff(key, file):
 
 
 catalog, additions, materials, seen = [], [], [], set()
+video_only = []
 to_existing, already = [], []
 complete_rings = 0
 undecided = rejected = 0
@@ -174,7 +186,7 @@ for k, g in CARDS.items():
                     have.add(p["postId"])
                     posts.append(p)
         item = {
-            "key": k, "name": (e.get("name") or "").strip() or canon_name(label) or label, "titleOpus": label, "note": note,
+            "key": k, "name": own_name(e, label), "titleOpus": label, "note": note,
             "section": sec, "cover": f"media/{cover}" if cover else None,
             "photos": [f"media/{p}" for p in photos], "videos": [f"media/{v}" for v in videos], "posts": posts,
         }
@@ -182,6 +194,22 @@ for k, g in CARDS.items():
         h = hint.get("result") or {}
         if h.get("product") and h.get("product") in (hint.get("fromPost") or []):
             already.append({"key": k, "title": label, "product": h["product"], "productName": hint.get("productName") or h["product"]})
+            if videos:
+                # Zdjęcia już są w karcie, ale film (np. z dołączonej karty innego posta) nie: dodatek tylko z filmem.
+                # Import pomija film, który karta już ma, więc ponowny eksport niczego nie dubluje.
+                to_existing.append({**item, "photos": [], "cover": None, "action": "dodatek", "product": h["product"],
+                                    "productName": hint.get("productName") or h["product"], "variant": "",
+                                    "confidence": h.get("confidence"), "reason": "film do karty, której zdjęcia już są w katalogu"})
+            continue
+        if not photos:
+            # Sam film nie jest nowym pierścionkiem: dodatek do karty z podpowiedzi albo do ręcznego wskazania w przeglądzie.
+            prod = h.get("product") and (hint.get("productName") or h["product"])
+            if prod and videos:
+                additions.append({"key": k, "ring": prod, "photos": [], "videos": [f"media/{v}" for v in videos], "posts": posts})
+                warnings.append(f"„{label}”: sam film, bez zdjęć – zamiast nowej karty dodany do „{prod}” (podpowiedź modelu, do sprawdzenia)")
+            elif videos:
+                video_only.append({"key": k, "title": label, "videos": [f"media/{v}" for v in videos], "posts": posts})
+                warnings.append(f"„{label}”: sam film, bez zdjęć – nie tworzę nowej karty; wskaż w przeglądzie „dodaj do karty…”")
             continue
         if h.get("category") in TARGETED and h.get("product"):
             item.update(action=h["category"], product=h["product"], productName=hint.get("productName") or h["product"],
@@ -194,6 +222,32 @@ for k, g in CARDS.items():
                 if me.get("note"):
                     item["note"] = (item["note"] + "\n" if item["note"] else "") + f"[{m['title']}] {me['note']}"
         (to_existing if item.get("action") else catalog).append(item)
+    elif dec == "addto":
+        target = (e.get("target") or "").strip()
+        cat = [(f, kind) for f, kind in files if card_eff(k, f) == "gallery" and f not in AI_BLOCKED]
+        photos, videos = [f for f, kind in cat if kind == "photo"], [f for f, kind in cat if kind == "video"]
+        if not target:
+            warnings.append(f"„{label}”: decyzja „dodaj do karty…” bez wskazanej karty – pominięta")
+        elif photos or videos:
+            seen_posts, posts = set(), []
+            for gg in group:
+                for p in posts_out(gg):
+                    if p["postId"] not in seen_posts:
+                        seen_posts.add(p["postId"])
+                        posts.append(p)
+            variant = (e.get("variant") or "").strip()
+            if variant:
+                # Film/zdjęcia do WARIANTU karty (np. Hesperia → Turmalin). Decyzja zostaje w selection.json: gdy wariantu jeszcze nie ma
+                # albo ma tylko wizualizację, import czeka (fb:do-istniejacych) i zrobi swoje przy kolejnym uruchomieniu.
+                slug = next((x["slug"] for x in data.get("catalogProducts", []) if x["name"].strip().lower() == target.lower() or x["slug"] == target), "")
+                if not slug:
+                    warnings.append(f"„{label}”: nie znaleziono karty „{target}” w katalog.json (npm run katalog:snapshot) – wariant „{variant}” pominięty")
+                else:
+                    to_existing.append({"key": k, "name": label, "titleOpus": label, "note": e.get("note", ""), "cover": None, "photos": [f"media/{p}" for p in photos],
+                                        "videos": [f"media/{v}" for v in videos], "posts": posts, "action": "dodatek", "product": slug, "productName": target,
+                                        "variant": variant, "confidence": None, "reason": "ręczna decyzja w przeglądzie (dodaj do karty + wariant)"})
+            else:
+                additions.append({"key": k, "ring": target, "photos": [f"media/{p}" for p in photos], "videos": [f"media/{v}" for v in videos], "posts": posts})
     elif cat:
         warnings.append(f"„{label}”: {len(cat)} plik(ów) „w katalogu”, ale karta ma decyzję „{dec or '?'}”, pominięto")
 
@@ -241,11 +295,12 @@ out = {
     "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     "selectionRev": sel.get("rev", 0),
     "summary": {
-        "catalogRings": len(catalog), "toExisting": len(to_existing), "alreadyInCatalog": len(already), "galleryAdditions": len(additions), "materials": len(materials),
+        "catalogRings": len(catalog), "videoOnly": len(video_only), "toExisting": len(to_existing), "alreadyInCatalog": len(already), "galleryAdditions": len(additions), "materials": len(materials),
         "cardsUndecided": undecided, "cardsRejected": rejected, "ringsCompleteNoChange": complete_rings, "cardsMerged": merged,
         "warnings": len(warnings),
     },
     "catalog": catalog,
+    "videoOnly": video_only,
     "toExisting": to_existing,
     "alreadyInCatalog": already,
     "galleryAdditions": additions,

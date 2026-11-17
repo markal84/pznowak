@@ -68,7 +68,7 @@ export type PlannedFile = {
 }
 
 export type PlannedProduct = {
-  action: 'create' | 'skip-existing'
+  action: 'create' | 'skip-existing' | 'skip-no-photos'
   data: {
     carats: string
     clarity: string
@@ -286,6 +286,26 @@ function isVideo(media: ExistingMedia): boolean {
   return Boolean(media.mimeType?.startsWith('video/'))
 }
 
+/** Nazwa zastępcza nowej karty, gdy Marcin jeszcze nie nadał imienia (imię z mitologii, jak Chloris, Thalia). */
+export const NAME_PLACEHOLDER = 'Do nazwania'
+
+/**
+ * Czy „nazwa” to w rzeczywistości tytuł albo pierwsze zdanie posta z FB, a nie imię z naszego schematu.
+ * Nazwa karty to jedno–dwa słowa (imię, ewentualnie z dopiskiem); tytuł posta jest dłuższy albo identyczny z tekstem.
+ */
+export function looksLikePostTitle(name: string, item: Pick<FbCatalogItem, 'posts' | 'titleOpus'>): boolean {
+  const value = name.trim()
+  if (!value) return true
+  const norm = (text: string) => text.trim().toLowerCase().replace(/\s+/g, ' ')
+  const same = (other?: string) => Boolean(other) && norm(other as string) === norm(value)
+  if (same(item.titleOpus)) return true
+  for (const post of item.posts) {
+    const lines = [post.text, cleanPostText(post.text), ...cleanPostText(post.text).split('\n')]
+    if (lines.some(same)) return true
+  }
+  return value.split(/\s+/).length > 4
+}
+
 export function buildImportPlan(selection: FbCatalogSelection, state: ImportState): ImportPlan {
   const warnings = selection.warnings.map((warning) => `eksport: ${warning}`)
   const byKey = new Map(
@@ -304,7 +324,15 @@ export function buildImportPlan(selection: FbCatalogSelection, state: ImportStat
       [...(item.mergedFrom ?? []).map((m) => m.name), ...(item.titleOpus && item.titleOpus !== item.name ? [item.titleOpus] : [])],
     )
     const existing = byKey.get(item.key)
-    const baseSlug = slugify(item.name)
+    // Nazwa i opis nowej karty NIE pochodzą z posta (zostawiamy puste/„Do nazwania”): imię nadaje Marcin według schematu
+    // (mitologiczne imiona), opis powstaje jak w cms/seed/opisy. Tekst posta zostaje w source.facebookPayload.posts.
+    const named = !looksLikePostTitle(item.name, item)
+    const name = named ? item.name.trim() : `${NAME_PLACEHOLDER} ${item.key}`
+    if (!named) {
+      itemWarnings.push('brak imienia z naszego schematu – nazwa „Do nazwania”, nadać ręcznie (tytuł posta nie jest nazwą)')
+    }
+    itemWarnings.push('opis i krótki opis do napisania według schematu opisów (tekst posta zostaje tylko w źródle)')
+    const baseSlug = slugify(name)
     const slug = existing ? existing.slug : uniqueSlug(baseSlug, takenSlugs)
     if (!existing) {
       takenSlugs.add(slug)
@@ -314,7 +342,13 @@ export function buildImportPlan(selection: FbCatalogSelection, state: ImportStat
     const photos = item.cover
       ? [item.cover, ...item.photos.filter((p) => p !== item.cover)]
       : item.photos
-    if (!photos.length) itemWarnings.push('brak zdjęć „w katalogu” – szkic bez zdjęcia głównego')
+    // Sam film to nie pierścionek: ma trafić do istniejącej karty (decyzja „dodaj do karty…”), nie do nowego szkicu.
+    const videoOnly = !photos.length
+    if (videoOnly) {
+      itemWarnings.push(
+        'sam film, bez zdjęć – nowa karta nie powstanie; dodaj film do istniejącej karty (przegląd: „dodaj do karty…”)',
+      )
+    }
     const [video, ...pendingVideos] = item.videos
     if (pendingVideos.length) {
       itemWarnings.push(
@@ -323,22 +357,22 @@ export function buildImportPlan(selection: FbCatalogSelection, state: ImportStat
     }
     const files = [
       ...photos.map((file, i) =>
-        plannedFile(file, i === 0, `${item.name} – zdjęcie ${i + 1}`, state),
+        plannedFile(file, i === 0, `${name} – zdjęcie ${i + 1}`, state),
       ),
-      ...(video ? [plannedFile(video, false, `${item.name} – film`, state)] : []),
+      ...(video ? [plannedFile(video, false, `${name} – film`, state)] : []),
     ]
     if (!parsed.stone) itemWarnings.push('nie rozpoznano kamienia – uzupełnić ręcznie')
     if (!parsed.metal) itemWarnings.push('nie rozpoznano koloru złota – uzupełnić ręcznie')
 
     return {
-      action: existing ? 'skip-existing' : 'create',
+      action: existing ? 'skip-existing' : videoOnly ? 'skip-no-photos' : 'create',
       data: {
         carats: parsed.carats,
         clarity: parsed.clarity,
-        description: draftDescription(item.posts),
-        lead: draftLead(item.posts),
+        description: '',
+        lead: '',
         metal: parsed.metal,
-        name: item.name,
+        name,
         slug,
         sortOrder: existing ? (existing.sortOrder ?? 0) : (sortOrder += 1),
         stone: parsed.stone,

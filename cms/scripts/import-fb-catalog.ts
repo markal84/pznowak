@@ -259,7 +259,11 @@ function printPlan(plan: ImportPlan, details: Map<string, string>) {
   )
   for (const p of plan.products) {
     const head =
-      p.action === 'create' ? '+ UTWÓRZ SZKIC' : '= JEST (id ' + p.existingProductId + '), pomijam'
+      p.action === 'create'
+        ? '+ UTWÓRZ SZKIC'
+        : p.action === 'skip-no-photos'
+          ? '− POMIJAM (sam film, bez zdjęć: dodaj do istniejącej karty)'
+          : '= JEST (id ' + p.existingProductId + '), pomijam'
     console.log(`${head}: ${p.data.name}  /pierscionki/${p.data.slug}`)
     console.log(
       `    kamień: ${p.data.stone || '–'} · metal: ${p.data.metal || '–'} · karaty: ${p.data.carats || '–'} · czystość: ${p.data.clarity || '–'}${p.parsed.certificate ? ` · certyfikat: ${p.parsed.certificate}` : ''}`,
