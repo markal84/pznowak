@@ -204,6 +204,27 @@ def check_drafts():
     add(WARN if failed else OK, "Payload", "szkice czekające na publikację: " + ", ".join(parts))
 
 
+DEPLOY_RESULT = Path(os.environ.get("PZNOWAK_DEPLOY_DIR", HOME / "pznowak-autodeploy")) / "wynik.json"
+
+
+def check_deploy():
+    """Wynik nocnego auto-deployu (scripts/deploy/auto-deploy.py). Pomijane, dopóki auto-deploy nie jest zainstalowany."""
+    if not DEPLOY_RESULT.parent.exists():
+        return
+    try:
+        w = json.loads(DEPLOY_RESULT.read_text())
+    except Exception:  # noqa: BLE001
+        add(WARN, "Deploy", "brak wyniku nocnego auto-deployu (wynik.json)")
+        return
+    h = age_h(parse_iso(w["czas"]))
+    zakres = f" ({w['od']} → {w['do']})" if w.get("od") and w.get("do") else ""
+    level = {"brak": OK, "wdrozono": OK, "migracje": WARN}.get(w["status"], ERR)
+    label = {"brak": "brak zmian", "wdrozono": "wdrożono", "migracje": "NIE wdrożono (migracje)"}.get(w["status"], "BŁĄD")
+    add(level, "Deploy", f"{label}{zakres}: {w['opis']} [{h:.1f} h temu]")
+    if h > 30:
+        add(WARN, "Deploy", f"wynik jest stary ({h:.0f} h): cron auto-deployu nie działa?")
+
+
 def load_env(path):
     env = {}
     for line in Path(path).read_text().splitlines():
@@ -245,7 +266,7 @@ def send(subject, body):
 
 
 def main():
-    for fn in (check_site, check_backups, check_posts, check_docker, check_drafts):
+    for fn in (check_site, check_backups, check_posts, check_docker, check_deploy, check_drafts):
         try:
             fn()
         except Exception as e:  # noqa: BLE001  jedno sprawdzenie nie może zepsuć reszty raportu
