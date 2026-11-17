@@ -9,6 +9,7 @@ Uruchomienie: raport-dzienny.py [--na-sucho]   (na sucho: wypisuje mail na ekran
 import datetime as dt
 import json
 import os
+import re
 import shutil
 import smtplib
 import ssl
@@ -101,7 +102,7 @@ def rsync_live():
         lines = []
         try:
             for l in (Path(tmp) / "posty.log").read_text(errors="replace").splitlines()[-400:]:
-                if l[:10] >= yesterday and ("BŁĄD" in l or "problem" in l.lower()):
+                if l[:10] >= yesterday and ("BŁĄD" in l or "problem:" in l.lower() or re.search(r"\b[1-9]\d* problem", l)):
                     lines.append(l)
         except Exception:  # noqa: BLE001
             pass
@@ -140,7 +141,7 @@ def check_posts():
             if snaps:
                 ref = dt.datetime.fromtimestamp(snaps[-1].stat().st_mtime, dt.timezone.utc)
         gap = (ref - ok_at).total_seconds() / 3600
-        add(OK if gap < 12 else ERR, "Posty FB", f"ostatnie udane uruchomienie: {h:.1f} h temu ({source}); w chwili kopii minęło {gap:.1f} h")
+        add(OK if gap < 12 else ERR, "Posty FB", f"ostatnie udane uruchomienie: {h:.1f} h temu ({source})" + (f"; w chwili kopii minęło {gap:.1f} h" if source.startswith("lustro") else ""))
     else:
         add(ERR, "Posty FB", "brak udanego uruchomienia w stan.json")
     if stan.get("failStreak"):
