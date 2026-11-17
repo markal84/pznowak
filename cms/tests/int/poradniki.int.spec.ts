@@ -83,6 +83,7 @@ describe('kamień główny i linki do poradnika', () => {
   it('kotwica sekcji poradnika dla kamienia z karty', () => {
     expect(mainStoneGuideAnchor('Ametyst, Diament')).toBe('ametyst-cytryn')
     expect(mainStoneGuideAnchor('Szmaragd i szafiry kolorowe')).toBe('szmaragd')
+    expect(mainStoneGuideAnchor('Oliwin, Diament')).toBe('oliwin')
     expect(mainStoneGuideAnchor('Mystic topaz')).toBeNull()
     expect(mainStoneGuideAnchor(null)).toBeNull()
   })

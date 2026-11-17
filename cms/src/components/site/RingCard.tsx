@@ -11,6 +11,8 @@ type RingCardProps = {
   image: string
   alt: string
   sizes: string
+  /** własny adres karty (np. pierścionek z wybranym wariantem kamienia `?kamien=…`); domyślnie strona pierścionka */
+  href?: string
   /** wariant katalogowy: opis pod zdjęciem zamiast podpisu na przywieszce */
   gold?: string
   /** cena z panelu (tylko wariant katalogowy); bez ceny „Na zapytanie”, jak na karcie pierścionka */
@@ -20,8 +22,8 @@ type RingCardProps = {
   eager?: boolean
 }
 
-export default function RingCard({ slug, name, stone, image, alt, sizes, gold, price, detailed = false, eager = false }: RingCardProps) {
-  const href = `/pierscionki/${slug}`
+export default function RingCard({ slug, name, stone, image, alt, sizes, href: customHref, gold, price, detailed = false, eager = false }: RingCardProps) {
+  const href = customHref ?? `/pierscionki/${slug}`
   if (detailed) {
     const parts = priceParts(price)
     // „od” i „Na zapytanie” zwykłym krojem, sama kwota większa (wyróżnia się na przywieszce)

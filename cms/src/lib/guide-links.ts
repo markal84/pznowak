@@ -12,6 +12,7 @@ const ANCHORS: [RegExp, string][] = [
   [/^szmaragd/, 'szmaragd'],
   [/^tanzanit/, 'tanzanit'],
   [/^topaz/, 'topaz'],
+  [/^(oliwin|perydot)/, 'oliwin'],
   [/^(ametyst|cytryn)/, 'ametyst-cytryn'],
   [/^(turmalin|morganit)/, 'turmalin-morganit'],
 ]

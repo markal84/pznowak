@@ -39,10 +39,10 @@ export const GUIDES: readonly Guide[] = [
     title: 'Jaki kamień do pierścionka zaręczynowego? Szafir, rubin, szmaragd i inne',
     short: 'Jaki kamień do pierścionka zaręczynowego',
     description:
-      'Diament, szafir, rubin, szmaragd, tanzanit, topaz: kolory, twardość i jak dbać o kamień na co dzień. Z przykładami pierścionków z pracowni.',
+      'Diament, szafir, rubin, szmaragd, tanzanit, topaz, oliwin: kolory, twardość i jak dbać o kamień na co dzień. Z przykładami pierścionków z pracowni.',
     topic: 'Kamienie',
     published: '2026-11-15',
-    updated: '2026-11-16',
+    updated: '2026-11-17',
     minutes: 8,
   },
   {
