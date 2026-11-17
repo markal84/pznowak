@@ -161,6 +161,7 @@ if (!items.length) process.exit(0)
 if (apply) await confirm()
 
 const log: RunLog = { at: new Date().toISOString(), createdMedia: [], products: [] }
+const waiting: string[] = []
 for (const item of items) {
   const found = await payload.find({ collection: 'products', depth: 0, draft: true, limit: 1, overrideAccess: true, where: { slug: { equals: item.product } } })
   const product = found.docs[0]
@@ -183,6 +184,13 @@ for (const item of items) {
   if (item.action === 'zamiast-wizualizacji' || (item.action === 'dodatek' && item.variant)) {
     const variants = product.stoneVariants ?? []
     const i = variants.findIndex((v) => norm(v.stone ?? '') === norm(item.variant))
+    if (item.action === 'dodatek' && (i < 0 || variants[i].isVisualization)) {
+      // Decyzja zostaje w selection.json: kolejne uruchomienie (po dodaniu wariantu z prawdziwym zdjęciem) dopnie film i zdjęcia.
+      const why = i < 0 ? 'wariantu jeszcze nie ma' : 'wariant ma na razie tylko wizualizację'
+      console.log(`⏸ ${where}: wariant „${item.variant}” – ${why}; czeka (${item.photos.length} zdj., ${item.videos?.length ?? 0} film)`)
+      waiting.push(`${item.productName} → ${item.variant}: ${why}`)
+      continue
+    }
     if (i < 0) {
       console.log(`! ${where}: karta nie ma wariantu „${item.variant}” (są: ${variants.map((v) => v.stone).join(', ')}), pomijam`)
       continue
@@ -247,6 +255,8 @@ for (const item of items) {
     console.log(`  ✓ zapisane jako wersja robocza`)
   }
 }
+
+if (waiting.length) console.log(`\nCzekające (${waiting.length}), zrobią się same przy kolejnym uruchomieniu, gdy warunek się spełni:\n${waiting.map((w) => `  ⏸ ${w}`).join('\n')}`)
 
 if (apply) {
   const out = path.join(dataDir, `fb-do-istniejacych-${log.at.replace(/[:.]/g, '-')}.json`)

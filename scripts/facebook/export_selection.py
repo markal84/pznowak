@@ -235,7 +235,19 @@ for k, g in CARDS.items():
                     if p["postId"] not in seen_posts:
                         seen_posts.add(p["postId"])
                         posts.append(p)
-            additions.append({"key": k, "ring": target, "photos": [f"media/{p}" for p in photos], "videos": [f"media/{v}" for v in videos], "posts": posts})
+            variant = (e.get("variant") or "").strip()
+            if variant:
+                # Film/zdjęcia do WARIANTU karty (np. Hesperia → Turmalin). Decyzja zostaje w selection.json: gdy wariantu jeszcze nie ma
+                # albo ma tylko wizualizację, import czeka (fb:do-istniejacych) i zrobi swoje przy kolejnym uruchomieniu.
+                slug = next((x["slug"] for x in data.get("catalogProducts", []) if x["name"].strip().lower() == target.lower() or x["slug"] == target), "")
+                if not slug:
+                    warnings.append(f"„{label}”: nie znaleziono karty „{target}” w katalog.json (npm run katalog:snapshot) – wariant „{variant}” pominięty")
+                else:
+                    to_existing.append({"key": k, "name": label, "titleOpus": label, "note": e.get("note", ""), "cover": None, "photos": [f"media/{p}" for p in photos],
+                                        "videos": [f"media/{v}" for v in videos], "posts": posts, "action": "dodatek", "product": slug, "productName": target,
+                                        "variant": variant, "confidence": None, "reason": "ręczna decyzja w przeglądzie (dodaj do karty + wariant)"})
+            else:
+                additions.append({"key": k, "ring": target, "photos": [f"media/{p}" for p in photos], "videos": [f"media/{v}" for v in videos], "posts": posts})
     elif cat:
         warnings.append(f"„{label}”: {len(cat)} plik(ów) „w katalogu”, ale karta ma decyzję „{dec or '?'}”, pominięto")
 

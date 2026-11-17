@@ -303,7 +303,7 @@ function prune(g) {
   const e = entry(g);
   if (!e) return;
   const empty = g.type === 'skipped' ? !e.decision
-    : !e.decision && !e.name && !e.note && !e.target && !e.cover && !e.complete && !e.sameAs && !(e.notSame || []).length && !Object.keys(e.media || {}).length;
+    : !e.decision && !e.name && !e.note && !e.target && !e.variant && !e.cover && !e.complete && !e.sameAs && !(e.notSame || []).length && !Object.keys(e.media || {}).length;
   if (empty) delete bucket(g)[g.key];
 }
 function eff(g, file) {
@@ -724,6 +724,7 @@ function itemHTML(g, n, label) {
     head = `<h3>${num}${esc(it.title)}</h3><span><button type="button" class="mergebtn" data-act="collapse" title="Zwija zdjęcia i pola tej karty (decyzja zostaje, karta nadal jest na liście „dodaj do karty…”)">zwiń</button> <button type="button" class="mergebtn" data-act="pickOpen">połącz z kartą…</button> ${seg('dec', CARD_DEC, 'data-act="decide"')}</span>`;
     extra = `${hintHTML(g)}<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza (nowa karta: imię z mitologii, nie tytuł posta)" aria-label="Nazwa robocza" value="">` +
       `<input class="target" data-f="target" type="text" list="catalogProducts" placeholder="Do której istniejącej karty (nazwa z katalogu)" aria-label="Istniejąca karta docelowa" value="">` +
+      `<input class="target" data-f="variant" type="text" placeholder="Wariant kamienia (opcjonalnie, np. Turmalin): film/zdjęcia poczekają, aż wariant powstanie" aria-label="Wariant karty docelowej" value="">` +
       `<textarea data-f="note" placeholder="Krótka notatka (np. „= karta 12”, żeby zaproponować połączenie)" aria-label="Notatka"></textarea></div>${modeWarn(g)}`;
   } else if (g.type === 'existing') {
     head = `<h3>${esc(it.title)}</h3><button type="button" class="cbtn" data-act="complete" aria-pressed="false" title="Nic z tych postów nie trafia do galerii; decyzje zdjęć zostają w pliku, ale eksport je pomija">kompletne – bez zmian</button>`;
@@ -754,9 +755,10 @@ function fillFields() {
   for (const g of G) {
     if (g.type !== 'card' || !g.el) continue;
     const e = entry(g) || {};
-    const n = $('[data-f=name]', g.el), t = $('[data-f=note]', g.el), tg = $('[data-f=target]', g.el);
+    const n = $('[data-f=name]', g.el), t = $('[data-f=note]', g.el), tg = $('[data-f=target]', g.el), vr = $('[data-f=variant]', g.el);
     if (!n || !t) continue;
     if (tg) tg.value = e.target ?? '';
+    if (vr) vr.value = e.variant ?? '';
     n.value = e.name ?? g.it.title;
     t.value = e.note ?? '';
   }
@@ -976,6 +978,7 @@ document.addEventListener('input', ev => {
   const e = ensure(g);
   const val = t.value;
   if (t.dataset.f === 'name') { if (!val.trim() || val.trim() === g.it.title) delete e.name; else e.name = val; }
+  else if (t.dataset.f === 'variant') { if (!val.trim()) delete e.variant; else e.variant = val.trim(); }
   else if (t.dataset.f === 'target') { if (!val.trim()) delete e.target; else e.target = val.trim(); }
   else if (!val.trim()) delete e.note; else e.note = val;
   changed(g);
