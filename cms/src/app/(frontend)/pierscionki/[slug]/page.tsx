@@ -26,7 +26,7 @@ import {
   VariantStoneFact,
 } from '@/components/site/StoneVariants'
 import { formatPrice } from '@/lib/price'
-import { originalSwatch } from '@/lib/stone-variants'
+import { findVariant, originalSwatch } from '@/lib/stone-variants'
 
 export const dynamic = 'force-dynamic'
 
@@ -90,6 +90,22 @@ export default async function ProductPage({ params, searchParams }: Params & { s
   if (product.carats) facts.push(['Masa kamienia', product.carats])
   if (product.clarity) facts.push(['Czystość kamienia', product.clarity])
 
+  // Product tylko wtedy, gdy przy pierwszym wyświetleniu karta pokazuje kwotę. Bez ceny („Na zapytanie”) Google zgłasza
+  // brak offers/review/aggregateRating. Z `?kamien=<wariant>` (linki z poradnika, RingCard, stare adresy) przywieszka
+  // też mówi „Na zapytanie” (warianty są bez ceny), więc cena w danych nie zgadzałaby się ze stroną.
+  const variantShown = findVariant(product.stoneVariants, initialStone ?? null)
+  const productData = variantShown
+    ? null
+    : productJsonLd({
+        name: product.name,
+        path: productPath(product.slug),
+        description: product.seoDescription || productSeoDescription(product),
+        images: product.images,
+        stone,
+        metal: formatMetal(product.metal),
+        price: product.price,
+      })
+
   return (
     <StoneVariantProvider initialSlug={initialStone ?? null} variants={product.stoneVariants}>
       <JsonLd
@@ -98,17 +114,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           { name: product.name, path: productPath(product.slug) },
         ])}
       />
-      <JsonLd
-        data={productJsonLd({
-          name: product.name,
-          path: productPath(product.slug),
-          description: product.seoDescription || productSeoDescription(product),
-          images: product.images,
-          stone,
-          metal: formatMetal(product.metal),
-          price: product.price,
-        })}
-      />
+      {productData ? <JsonLd data={productData} /> : null}
       <nav aria-label="Ścieżka" className="wrap crumbs">
         <ol>
           <li>

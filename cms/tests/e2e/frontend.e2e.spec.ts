@@ -297,8 +297,12 @@ test.describe('Katalog i karta pierścionka', () => {
     await visit(page, '/pierscionki')
     await page.locator('.ring-grid-lg > li:not(.cta-card) a').first().click()
     await expect(page).toHaveURL(/\/pierscionki\/[^/]+$/)
+    // Product (z ofertą) tylko na karcie z kwotą; karta „Na zapytanie” nie ma go wcale (Google: brak offers = błąd).
+    const priced = /\d\s*zł/.test((await page.locator('.product-price').textContent()) ?? '')
     const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents()
-    expect(jsonLd.filter((text) => text.includes('"@type":"Product"'))).toHaveLength(1)
+    const products = jsonLd.filter((text) => text.includes('"@type":"Product"'))
+    expect(products).toHaveLength(priced ? 1 : 0)
+    for (const text of products) expect(text).toContain('"offers"')
     await page.getByRole('link', { name: 'Jak sprawdzić rozmiar' }).click()
     await expect(page).toHaveURL(/\/poradniki\/jak-sprawdzic-rozmiar-pierscionka$/)
     await expect(page.locator('.guide-body').getByRole('link', { name: 'naszej kolekcji pierścionków' })).toHaveAttribute('href', '/pierscionki')
