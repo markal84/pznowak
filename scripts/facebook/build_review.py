@@ -1,6 +1,8 @@
-"""Buduje propozycję katalogu (rings-proposal.json), dane przeglądu (review-data.json) i stronę review.html z eksportu FB.
+"""Buduje propozycję katalogu (rings-proposal.json), dane przeglądu (review-data.json) i strony przeglądu z eksportu FB.
 
 Użycie: python3 build_review.py data/facebook
+Strony:  review.html     tablica: posty do decyzji, gotowe, w katalogu; przegląd po jednym poście (review_template.html)
+         szczegoly.html  dawny widok wszystkich sekcji z decyzjami pojedynczych zdjęć (szczegoly_template.html)
 Decyzje (selection.json) obsługuje review_server.py; ten skrypt ich nie dotyka.
 Przy okazji odświeża miniatury (make_thumbs.py) i podobieństwa zdjęć (hash_images.mjs, similarity.py).
 Propozycje połączeń kart („to ten sam pierścionek”) czyta z data/facebook/merge-proposals.json, jeśli plik jest.
@@ -13,67 +15,13 @@ import sys
 import unicodedata
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
 import manual_media  # noqa: E402
+import vision_merge  # noqa: E402
 
-root = Path(sys.argv[1])
-# Media spoza FB trafiają do media/ przed wszystkim innym, żeby miniatury i hashe podobieństwa objęły je jak zdjęcia z FB.
-MANUAL = manual_media.load_manual(root)
-if MANUAL:
-    print(f"media spoza FB: {len(MANUAL)} kart, skopiowano {manual_media.sync_media(root, MANUAL)} plików do media/")
-MANUAL_EXTRA = manual_media.extras_by_post(MANUAL)
-posts = json.loads((root / "posts.json").read_text())["posts"]
-posts.sort(key=lambda p: p["time"] or 0)
-media = sorted(p.name for p in (root / "media").iterdir())
-
-# Grupowanie postów w karty leży w groups.json (adresowane po post_id, nie po numerze w kolejności).
-# Format: {"version":1, "new":[{"title","posts":[post_id,..],"pick":{post_id:[nr zdjęcia,..]}}], "maybe":[..], "existing":[..],
-#          "skipped":[post_id,..]}. Pierwszy jednorazowy zapis robi init_groups.py; dalej plik edytuje się ręcznie/skryptem.
-# Post, którego nie ma w żadnej karcie ani w "skipped", jest nowy: dostaje własną kartę w sekcji „Nowe od DD.MM”.
-groups = json.loads((root / "groups.json").read_text(encoding="utf-8"))
-by_id = {p["post_id"]: i for i, p in enumerate(posts)}
-assert len(by_id) == len(posts), "zdublowane post_id w posts.json"
-for sec in ("new", "maybe", "existing"):
-    for card in groups[sec]:
-        for pid in card["posts"]:
-            assert pid in by_id, f"groups.json: post {pid} (karta „{card['title']}”) nie istnieje w posts.json"
-NEW = [(c["title"], [by_id[p] for p in c["posts"]]) for c in groups["new"]]
-# Zdjęcia posta przypisane do konkretnej karty (np. post z dwoma ametystami rozdzielony na dwie karty).
-SPLIT = {(c["title"], by_id[pid]): pick for c in groups["new"] for pid, pick in c.get("pick", {}).items()}
-MAYBE = {c["title"]: [by_id[p] for p in c["posts"]] for c in groups["maybe"]}
-EXISTING = {c["title"]: [by_id[p] for p in c["posts"]] for c in groups["existing"]}
-assert len(MAYBE) == len(groups["maybe"]) and len(EXISTING) == len(groups["existing"]), "zdublowany tytuł karty w groups.json"
-KNOWN = {p for sec in ("new", "maybe", "existing") for c in groups[sec] for p in c["posts"]} | set(groups.get("skipped", []))
-FRESH = [i for i, p in enumerate(posts) if p["post_id"] not in KNOWN]
-
-
-def files_for(idx, pick=None):
-    p = posts[idx]
-    photos = [f for f in media if f.startswith(p["post_id"] + "_") and f.endswith(".jpg") and "_thumb" not in f]
-    order = [ph["id"] for ph in p["photos"]]
-    photos.sort(key=lambda f: order.index(f.split("_")[1].split(".")[0]) if f.split("_")[1].split(".")[0] in order else 99)
-    if pick is not None:
-        photos = [photos[i] for i in pick if i < len(photos)]
-    photos = photos + [f for f in MANUAL_EXTRA.get(p["post_id"], []) if f in media]
-    videos = [f for f in media if f.startswith(p["post_id"] + "_") and f.endswith(".mp4")]
-    return photos, videos
-
-
-def video_height(name):
-    out = subprocess.run(
-        ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", str(root / "media" / name)],
-        capture_output=True, text=True,
-    ).stdout.strip().split("\n")[0].strip(",")
-    w, h = (int(x) for x in out.split(",")[:2])
-    return min(w, h)
-
-
-def post_info(idx):
-    p = posts[idx]
-    return {"idx": idx, "post_id": p["post_id"], "date": (p["date"] or "")[:10], "text": p["text"]}
-
-
-EMOJI = re.compile("[\u2190-\u2bff\u2600-\u27bf\u3030\u303d\u3297\u3299\u200d\ufe0f\U0001f000-\U0001faff\U000e0020-\U000e007f]")
+PAGES = (("review_template.html", "review.html"), ("szczegoly_template.html", "szczegoly.html"))
+EMOJI = re.compile("[←-⯿☀-➿〰〽㊗㊙‍️\U0001f000-\U0001faff\U000e0020-\U000e007f]")
 
 
 def fresh_title(post, maxlen=70):
@@ -97,180 +45,261 @@ def ddmm(date):
     return f"{date[8:10]}.{date[5:7]}"
 
 
-proposal = {"new": [], "maybe": [], "existing": []}
-for name, idxs in NEW:
-    photos, videos = [], []
-    for i in idxs:
-        ph, vi = files_for(i, SPLIT.get((name, i)))
-        photos += ph
-        videos += vi
-    proposal["new"].append({"title": name, "posts": [post_info(i) for i in idxs], "photos": photos, "videos": videos})
-for name, idxs in MAYBE.items():
-    photos, videos = [], []
-    for i in idxs:
-        ph, vi = files_for(i)
-        photos += ph
-        videos += vi
-    proposal["maybe"].append({"title": name, "posts": [post_info(i) for i in idxs], "photos": photos, "videos": videos})
-for name, idxs in EXISTING.items():
-    proposal["existing"].append({"title": name, "posts": [post_info(i) for i in idxs]})
-if FRESH:
-    # Nowe od ostatniego grupowania: jedna karta na post, w kolejności chronologicznej. Etykieta sekcji z daty najstarszego z nich.
-    proposal["fresh"] = []
-    for i in FRESH:
-        ph, vi = files_for(i)
-        proposal["fresh"].append({"title": fresh_title(posts[i]), "posts": [post_info(i)], "photos": ph, "videos": vi})
-used = {p["idx"] for sec in proposal.values() for r in sec for p in r["posts"]}
-proposal["skipped"] = [post_info(i) for i in range(len(posts)) if i not in used]
-(root / "rings-proposal.json").write_text(json.dumps(proposal, ensure_ascii=False, indent=1))
-
-
 def slug(title):
     t = title.lower().replace("ł", "l")
     t = unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", "-", t).strip("-")
 
 
-def video_info(name):
-    stem = name[:-4]
-    poster = f"frames/{stem}_25.jpg"
-    return {"file": name, "q": video_height(name), "poster": poster if (root / poster).exists() else None}
+def video_height(path):
+    """Krótszy bok filmu w pikselach (720 = HD) albo None, gdy ffprobe nie zna pliku. Zły plik nie wywraca budowania."""
+    try:
+        out = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", str(path)],
+            capture_output=True, text=True, timeout=60,
+        ).stdout.strip().split("\n")[0].strip(",")
+        w, h = (int(x) for x in out.split(",")[:2])
+        return min(w, h)
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        return None
 
 
-def group(key, idxs, photos, videos, title=None):
-    g = {"key": key, "posts": [post_info(i) for i in idxs], "photos": photos, "videos": [video_info(v) for v in videos]}
-    if title is not None:
-        g["title"] = title
-    return g
+class Review:
+    def __init__(self, root):
+        self.root = Path(root)
+        # Media spoza FB trafiają do media/ przed wszystkim innym, żeby miniatury i hashe podobieństwa objęły je jak zdjęcia z FB.
+        self.manual = manual_media.load_manual(self.root)
+        if self.manual:
+            print(f"media spoza FB: {len(self.manual)} kart, skopiowano {manual_media.sync_media(self.root, self.manual)} plików do media/")
+        self.manual_extra = manual_media.extras_by_post(self.manual)
+        export = json.loads((self.root / "posts.json").read_text(encoding="utf-8"))
+        self.exported_at = export["exportedAt"][:10]
+        self.posts = sorted(export["posts"], key=lambda p: p["time"] or 0)
+        self.media = {p.name for p in (self.root / "media").iterdir()}
+        # Pliki posta po prefiksie post_id (zamiast przeszukiwać cały media/ dla każdego posta).
+        self.by_post = {}
+        for name in sorted(self.media):
+            self.by_post.setdefault(name.split("_", 1)[0], []).append(name)
+        self.video_q = {}
+
+    # ---- pliki ----
+    def files_for(self, idx, pick=None):
+        p = self.posts[idx]
+        own = self.by_post.get(p["post_id"], [])
+        photos = [f for f in own if f.endswith(".jpg") and "_thumb" not in f]
+        order = {ph["id"]: i for i, ph in enumerate(p["photos"])}
+        photos.sort(key=lambda f: order.get(f.split("_")[1].split(".")[0], 99))
+        if pick is not None:
+            photos = [photos[i] for i in pick if i < len(photos)]
+        photos = photos + [f for f in self.manual_extra.get(p["post_id"], []) if f in self.media]
+        videos = [f for f in own if f.endswith(".mp4")]
+        return photos, videos
+
+    def files_of(self, idxs, split=None):
+        photos, videos = [], []
+        for i in idxs:
+            ph, vi = self.files_for(i, split(i) if split else None)
+            photos += ph
+            videos += vi
+        return photos, videos
+
+    def post_info(self, idx):
+        p = self.posts[idx]
+        return {"idx": idx, "post_id": p["post_id"], "date": (p["date"] or "")[:10], "text": p["text"]}
+
+    def video_info(self, name):
+        stem = name[:-4]
+        # Kadr z 25% filmu (frames/), a gdy go nie ma, miniatura z Facebooka zapisana obok filmu (media/<film>_thumb.jpg).
+        poster = next((p for p in (f"frames/{stem}_25.jpg", f"media/{stem}_thumb.jpg") if (self.root / p).exists()), None)
+        if name not in self.video_q:
+            self.video_q[name] = video_height(self.root / "media" / name)
+            if self.video_q[name] is None:
+                print(f"UWAGA: ffprobe nie odczytał filmu {name} (jakość nieznana)")
+        return {"file": name, "q": self.video_q[name], "poster": poster}
+
+    def group(self, key, idxs, photos, videos, title=None):
+        g = {"key": key, "posts": [self.post_info(i) for i in idxs], "photos": photos, "videos": [self.video_info(v) for v in videos]}
+        if title is not None:
+            g["title"] = title
+        return g
+
+    # ---- karty ----
+    def load_groups(self):
+        """Grupowanie postów w karty leży w groups.json (adresowane po post_id, nie po numerze w kolejności).
+
+        Format: {"version":1, "new":[{"title","posts":[post_id,..],"pick":{post_id:[nr zdjęcia,..]}}], "maybe":[..], "existing":[..],
+                 "skipped":[post_id,..]}. Pierwszy jednorazowy zapis robi init_groups.py; dalej plik edytuje się ręcznie/skryptem.
+        Post, którego nie ma w żadnej karcie ani w "skipped", jest nowy: dostaje własną kartę w sekcji „Nowe od DD.MM”.
+        """
+        groups = json.loads((self.root / "groups.json").read_text(encoding="utf-8"))
+        by_id = {p["post_id"]: i for i, p in enumerate(self.posts)}
+        assert len(by_id) == len(self.posts), "zdublowane post_id w posts.json"
+        for sec in ("new", "maybe", "existing"):
+            for card in groups[sec]:
+                for pid in card["posts"]:
+                    assert pid in by_id, f"groups.json: post {pid} (karta „{card['title']}”) nie istnieje w posts.json"
+        titles = {sec: [c["title"] for c in groups[sec]] for sec in ("maybe", "existing")}
+        assert all(len(t) == len(set(t)) for t in titles.values()), "zdublowany tytuł karty w groups.json"
+        known = {p for sec in ("new", "maybe", "existing") for c in groups[sec] for p in c["posts"]} | set(groups.get("skipped", []))
+        self.fresh = [i for i, p in enumerate(self.posts) if p["post_id"] not in known]
+        return groups, by_id
+
+    def proposal(self):
+        groups, by_id = self.load_groups()
+        prop = {"new": [], "maybe": [], "existing": []}
+        for c in groups["new"]:
+            idxs = [by_id[p] for p in c["posts"]]
+            # Zdjęcia posta przypisane do konkretnej karty (np. post z dwoma ametystami rozdzielony na dwie karty).
+            pick = {by_id[pid]: v for pid, v in c.get("pick", {}).items()}
+            photos, videos = self.files_of(idxs, pick.get)
+            prop["new"].append({"title": c["title"], "posts": [self.post_info(i) for i in idxs], "photos": photos, "videos": videos})
+        for c in groups["maybe"]:
+            idxs = [by_id[p] for p in c["posts"]]
+            photos, videos = self.files_of(idxs)
+            prop["maybe"].append({"title": c["title"], "posts": [self.post_info(i) for i in idxs], "photos": photos, "videos": videos})
+        for c in groups["existing"]:
+            prop["existing"].append({"title": c["title"], "posts": [self.post_info(by_id[p]) for p in c["posts"]]})
+        if self.fresh:
+            # Nowe od ostatniego grupowania: jedna karta na post, w kolejności chronologicznej.
+            prop["fresh"] = []
+            for i in self.fresh:
+                ph, vi = self.files_for(i)
+                prop["fresh"].append({"title": fresh_title(self.posts[i]), "posts": [self.post_info(i)], "photos": ph, "videos": vi})
+        used = {p["idx"] for sec in prop.values() for r in sec for p in r["posts"]}
+        prop["skipped"] = [self.post_info(i) for i in range(len(self.posts)) if i not in used]
+        return prop
+
+    def page_data(self, prop):
+        def card_key(r):
+            return f"{slug(r['title'])}@{r['posts'][0]['post_id']}"
+
+        def with_key(r):
+            return self.group(card_key(r), [p["idx"] for p in r["posts"]], r.get("photos", []), r.get("videos", []), r["title"])
+
+        pd = {"exportedAt": self.exported_at, "nPosts": len(self.posts),
+              "new": [with_key(r) for r in prop["new"]], "maybe": [with_key(r) for r in prop["maybe"]], "existing": [], "skipped": []}
+        if self.fresh:
+            pd["freshSince"] = ddmm(min(self.post_info(i)["date"] for i in self.fresh))
+            pd["fresh"] = [with_key(r) for r in prop["fresh"]]
+        for card in manual_media.standalone_cards(self.manual):
+            # Osobna karta ze źródła ręcznego: na końcu „Nowych pierścionków”, więc numery wcześniejszych kart się nie zmieniają.
+            pd["new"].append({"key": f"{slug(card['title'])}@{manual_media.pseudo_post_id(card['id'])}", "title": card["title"],
+                              "posts": [manual_media.pseudo_post(card)], "photos": [n for _, n in card["files"]], "videos": [],
+                              "manualCard": card["source"]})
+        for r in prop["existing"]:
+            idxs = [p["idx"] for p in r["posts"]]
+            photos, videos = self.files_of(idxs)
+            pd["existing"].append(self.group(card_key(r), idxs, photos, videos, r["title"]))
+        for p in prop["skipped"]:
+            ph, vi = self.files_for(p["idx"])
+            g = self.group(p["post_id"], [p["idx"]], ph, vi)
+            g.update(idx=p["idx"], post_id=p["post_id"], date=p["date"], text=p["text"])
+            pd["skipped"].append(g)
+        keys = [g["key"] for sec in ("new", "maybe", "existing", "fresh") for g in pd.get(sec, [])]
+        assert len(keys) == len(set(keys)), "zdublowane klucze kart"
+        return pd
+
+    # ---- podpowiedzi i katalog ----
+    def add_similarity(self, pd):
+        """Podobieństwo zdjęć (plakietki „na stronie” i „możliwy dubel”). Bez node/sharp strona działa, tylko bez plakietek."""
+        legacy = self.root.parent / "legacy"
+        try:
+            subprocess.run(["node", str(HERE / "hash_images.mjs"), str(legacy), str(self.root)], check=True)
+            import similarity
+
+            pd["sim"], report = similarity.compute(self.root, legacy, pd)
+            (self.root / "similarity-report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1))
+        except (OSError, subprocess.CalledProcessError, KeyError) as e:
+            print(f"UWAGA: bez plakietek podobieństwa ({e})")
+
+    def add_proposals(self, pd, card_keys):
+        """Propozycje połączeń kart (ręczne, z weryfikacji modelem). Tylko podpowiedź: decyzję zapisuje Marcin przyciskiem."""
+        pd["proposals"] = []
+        path = self.root / "merge-proposals.json"
+        if path.exists():
+            for p in json.loads(path.read_text(encoding="utf-8")).get("proposals", []):
+                if p.get("a") in card_keys and p.get("b") in card_keys and p["a"] != p["b"]:
+                    pd["proposals"].append({k: p.get(k, "") for k in ("a", "b", "source", "reason")})
+                else:
+                    print(f"UWAGA: pominięto propozycję połączenia z nieznaną kartą: {p.get('a')} ↔ {p.get('b')}")
+        # Weryfikacja modelem (etap B, vision/results.json): plakietki i propozycje; osobny moduł.
+        vision_merge.add(self.root, pd)
+
+    def add_catalog(self, pd, card_keys):
+        """Podpowiedzi Terry (classify/results.json) i karty z katalog.json (zrzut: npm run katalog:snapshot, tylko odczyt).
+
+        catalogProducts  nazwy kart do pola „dodaj do karty…”,
+        catalogCards     zdjęcie, kamień, status i warianty każdej karty: przegląd pokazuje pierścionek, a nie samą nazwę,
+        inCatalog        {klucz karty: [slugi]} karty katalogu zrobione z tego posta (facebookKey albo źródło zdjęcia),
+        hints[k].fromPost uzupełnione o to samo, żeby „już w karcie” zgadzało się ze świeżym katalogiem.
+        """
+        hints_path = self.root / "classify" / "results.json"
+        if hints_path.exists():
+            hints = json.loads(hints_path.read_text(encoding="utf-8")).get("cards", {})
+            pd["hints"] = {k: v for k, v in hints.items() if k in card_keys and v.get("result")}
+        pd["catalogProducts"], pd["catalogCards"], pd["inCatalog"] = [], {}, {}
+        snap_path = self.root / "katalog.json"
+        if not snap_path.exists():
+            return
+        snap = json.loads(snap_path.read_text(encoding="utf-8"))
+        products = [x for x in snap.get("products", []) if not x.get("archived")]
+        pd["catalogTakenAt"] = snap.get("takenAt")
+        pd["catalogProducts"] = sorted(({"slug": x["slug"], "name": x["name"]} for x in products), key=lambda x: x["name"].lower())
+        post_ids = {g["key"]: {p["post_id"] for p in g.get("posts", [])} for sec in ("new", "maybe", "fresh") for g in pd.get(sec, [])}
+
+        def from_post(x, key):
+            if x.get("facebookKey") == key:
+                return True
+            imgs = list(x.get("media") or []) + [m for v in x.get("variants") or [] for m in [v.get("image")] + list(v.get("moreImages") or [])]
+            return any(m and not m.get("video") and any(pid in (m.get("source") or "") for pid in post_ids.get(key, ())) for m in imgs)
+
+        for key in post_ids:
+            have = sorted(x["slug"] for x in products if from_post(x, key))
+            if have:
+                pd["inCatalog"][key] = have
+        for key, h in pd.get("hints", {}).items():
+            h["fromPost"] = sorted(set(h.get("fromPost") or []) | set(pd["inCatalog"].get(key, [])))
+
+        def url(m):
+            return (m or {}).get("url") if m and not m.get("video") else None
+
+        for x in products:
+            photos = [u for u in (url(m) for m in x.get("media") or []) if u]
+            pd["catalogCards"][x["slug"]] = {
+                "name": x.get("name"), "status": x.get("status"), "stone": x.get("stone") or "", "metal": x.get("metal") or "",
+                "lead": x.get("lead") or "", "thumb": photos[0] if photos else None, "photos": photos[:6],
+                "variants": [{"stone": v.get("stone"), "vis": bool(v.get("isVisualization")), "thumb": url(v.get("image")),
+                              "video": bool(v.get("hasVideo"))} for v in (x.get("variants") or [])],
+            }
+
+    def build(self):
+        prop = self.proposal()
+        (self.root / "rings-proposal.json").write_text(json.dumps(prop, ensure_ascii=False, indent=1))
+        pd = self.page_data(prop)
+        self.add_similarity(pd)
+        card_keys = {g["key"] for sec in ("new", "maybe", "fresh") for g in pd.get(sec, [])}
+        self.add_proposals(pd, card_keys)
+        self.add_catalog(pd, card_keys)
+        manual_media.annotate_manual(pd, self.manual)
+        for w in manual_media.annotate_ai(pd, manual_media.load_ai(self.root)):
+            print("UWAGA:", w)
+        (self.root / "review-data.json").write_text(json.dumps(pd, ensure_ascii=False, indent=1))
+        # Miniatury (thumbs/) do szybkiego przeglądu; oryginały w media/ zostają nietknięte.
+        subprocess.run([sys.executable, str(HERE / "make_thumbs.py"), str(self.root)], check=False)
+        write_pages(self.root, pd)
+        print(len(prop["new"]), len(prop["maybe"]), len(prop["existing"]), len(prop["skipped"]),
+              *([f"nowe od {pd['freshSince']}: {len(self.fresh)}"] if self.fresh else []))
+        return pd
 
 
-def card_key(r):
-    return f"{slug(r['title'])}@{r['posts'][0]['post_id']}"
+def write_pages(root, pd):
+    """Wstawia dane do szablonów. Dane idą do <script type="application/json">, więc „</” i „<!--” są zamaskowane."""
+    blob = json.dumps(pd, ensure_ascii=False).replace("</", "<\\/").replace("<!--", "<\\!--")
+    for template, out in PAGES:
+        html = (HERE / template).read_text(encoding="utf-8")
+        assert html.count("__DATA__") == 1, f"{template}: brak (albo kilka) miejsc na dane __DATA__"
+        (Path(root) / out).write_text(html.replace("__DATA__", blob), encoding="utf-8")
 
 
-def with_key(r):
-    return group(card_key(r), [p["idx"] for p in r["posts"]], r.get("photos", []), r.get("videos", []), r["title"])
-
-
-page_data = {
-    "exportedAt": json.loads((root / "posts.json").read_text())["exportedAt"][:10],
-    "nPosts": len(posts),
-    "new": [with_key(r) for r in proposal["new"]],
-    "maybe": [with_key(r) for r in proposal["maybe"]],
-    "existing": [],
-    "skipped": [],
-}
-if FRESH:
-    page_data["freshSince"] = ddmm(min(post_info(i)["date"] for i in FRESH))
-    page_data["fresh"] = [with_key(r) for r in proposal["fresh"]]
-for card in manual_media.standalone_cards(MANUAL):
-    # Osobna karta ze źródła ręcznego: na końcu „Nowych pierścionków”, więc numery wcześniejszych kart się nie zmieniają.
-    g = {"key": f"{slug(card['title'])}@{manual_media.pseudo_post_id(card['id'])}", "title": card["title"],
-         "posts": [manual_media.pseudo_post(card)], "photos": [n for _, n in card["files"]], "videos": [], "manualCard": card["source"]}
-    page_data["new"].append(g)
-for r in proposal["existing"]:
-    photos, videos = [], []
-    for p in r["posts"]:
-        ph, vi = files_for(p["idx"])
-        photos += ph
-        videos += vi
-    page_data["existing"].append(group(card_key(r), [p["idx"] for p in r["posts"]], photos, videos, r["title"]))
-for p in proposal["skipped"]:
-    ph, vi = files_for(p["idx"])
-    g = group(p["post_id"], [p["idx"]], ph, vi)
-    g.update(idx=p["idx"], post_id=p["post_id"], date=p["date"], text=p["text"])
-    page_data["skipped"].append(g)
-
-# Podobieństwo zdjęć (plakietki „na stronie” i „możliwy dubel”). Bez node/sharp strona działa, tylko bez plakietek.
-legacy = root.parent / "legacy"
-try:
-    subprocess.run(["node", str(Path(__file__).parent / "hash_images.mjs"), str(legacy), str(root)], check=True)
-    sys.path.insert(0, str(Path(__file__).parent))
-    import similarity
-
-    page_data["sim"], sim_report = similarity.compute(root, legacy, page_data)
-    (root / "similarity-report.json").write_text(json.dumps(sim_report, ensure_ascii=False, indent=1))
-except (OSError, subprocess.CalledProcessError, KeyError) as e:
-    print(f"UWAGA: bez plakietek podobieństwa ({e})")
-
-keys = [g["key"] for sec in ("new", "maybe", "existing", "fresh") for g in page_data.get(sec, [])]
-assert len(keys) == len(set(keys)), "zdublowane klucze kart"
-
-# Propozycje połączeń kart (ręczne, później także z weryfikacji modelem). To tylko podpowiedź w przeglądzie:
-# decyzję zapisuje Marcin przyciskiem, ten skrypt selection.json nie dotyka.
-card_keys = {g["key"] for sec in ("new", "maybe", "fresh") for g in page_data.get(sec, [])}
-page_data["proposals"] = []
-prop_path = root / "merge-proposals.json"
-if prop_path.exists():
-    for p in json.loads(prop_path.read_text(encoding="utf-8")).get("proposals", []):
-        if p.get("a") in card_keys and p.get("b") in card_keys and p["a"] != p["b"]:
-            page_data["proposals"].append({k: p.get(k, "") for k in ("a", "b", "source", "reason")})
-        else:
-            print(f"UWAGA: pominięto propozycję połączenia z nieznaną kartą: {p.get('a')} ↔ {p.get('b')}")
-# Weryfikacja modelem (etap B, vision/results.json): plakietki i propozycje; osobny moduł, tu tylko wywołanie.
-sys.path.insert(0, str(Path(__file__).parent))
-__import__("vision_merge").add(root, page_data)
-# Podpowiedzi Terry (classify_posts.py → classify/results.json): co zrobić z kartą względem katalogu. Tylko podpowiedź.
-hints_path = root / "classify" / "results.json"
-if hints_path.exists():
-    hints = json.loads(hints_path.read_text(encoding="utf-8")).get("cards", {})
-    page_data["hints"] = {k: v for k, v in hints.items() if k in card_keys and v.get("result")}
-# Istniejące karty z katalog.json (zrzut: npm run katalog:snapshot) do pola „dodaj do karty…” w przeglądzie.
-snap_path = root / "katalog.json"
-page_data["catalogProducts"] = []
-if snap_path.exists():
-    page_data["catalogProducts"] = sorted(
-        ({"slug": x["slug"], "name": x["name"]} for x in json.loads(snap_path.read_text(encoding="utf-8")).get("products", []) if not x.get("archived")),
-        key=lambda x: x["name"].lower())
-# Karty katalogu, o których mówią podpowiedzi (cel + kandydaci): zdjęcie, kamień, status i warianty, żeby przegląd
-# pokazał je obok zdjęć posta zamiast samej nazwy. Tylko to, co potrzebne, żeby review-data.json nie puchło.
-page_data["catalogCards"] = {}
-if snap_path.exists():
-    snap_products = json.loads(snap_path.read_text(encoding="utf-8")).get("products", [])
-    # „Już w karcie”: liczone tu ze świeżego katalogu (zdjęcia karty, wariantów i facebookKey wskazują post), a nie tylko
-    # z przeliczenia podpowiedzi, które mogło powstać przed dodaniem wariantu. Dopisuje do fromPost, niczego nie zabiera.
-    post_ids = {g["key"]: {p["post_id"] for p in g.get("posts", [])} for sec in ("new", "maybe", "fresh") for g in page_data.get(sec, [])}
-
-    def from_post(x, key):
-        if x.get("facebookKey") == key:
-            return True
-        imgs = list(x.get("media") or []) + [m for v in x.get("variants") or [] for m in [v.get("image")] + list(v.get("moreImages") or [])]
-        return any(m and not m.get("video") and any(pid in (m.get("source") or "") for pid in post_ids.get(key, ())) for m in imgs)
-    for key, h in page_data.get("hints", {}).items():
-        have = set(h.get("fromPost") or [])
-        have |= {x["slug"] for x in snap_products if from_post(x, key)}
-        h["fromPost"] = sorted(have)
-    wanted = {s for h in page_data.get("hints", {}).values()
-              for s in [((h.get("result") or {}).get("product"))] + list(h.get("candidates") or []) if s}
-    for x in snap_products:
-        if x.get("slug") not in wanted:
-            continue
-        media = x.get("media") or []
-        page_data["catalogCards"][x["slug"]] = {
-            "name": x.get("name"), "status": x.get("status"), "stone": x.get("stone") or "", "metal": x.get("metal") or "",
-            "thumb": (media[0] or {}).get("url") if media else None,
-            "variants": [{"stone": v.get("stone"), "vis": bool(v.get("isVisualization")), "thumb": (v.get("image") or {}).get("url")}
-                         for v in (x.get("variants") or [])][:8],
-        }
-manual_media.annotate_manual(page_data, MANUAL)
-for w in manual_media.annotate_ai(page_data, manual_media.load_ai(root)):
-    print("UWAGA:", w)
-(root / "review-data.json").write_text(json.dumps(page_data, ensure_ascii=False, indent=1))
-
-# Miniatury (thumbs/) do szybkiego przeglądu; oryginały w media/ zostają nietknięte.
-subprocess.run([sys.executable, str(Path(__file__).parent / "make_thumbs.py"), str(root)], check=False)
-
-template = (Path(__file__).parent / "review_template.html").read_text()
-if FRESH:
-    # Sekcja „Nowe od DD.MM” pojawia się w stronie tylko wtedy, gdy są nowe posty (bez nich review.html zostaje bajt w bajt taki jak dawniej).
-    for old, new in (
-        ("  ['existing', 'Już w katalogu', 'existing', 'W katalogu'],\n",
-         "  ['fresh', 'Nowe od ' + D.freshSince, 'card', 'Nowe od ' + D.freshSince],\n  ['existing', 'Już w katalogu', 'existing', 'W katalogu'],\n"),
-        ("for (const sec of ['new', 'maybe']) G.filter(", "for (const sec of ['new', 'maybe', 'fresh']) G.filter("),
-        ("(sec === 'maybe' ? 'D' : '')", "(sec === 'maybe' ? 'D' : sec === 'fresh' ? 'N' : '')"),
-    ):
-        assert old in template, f"szablon review_template.html się zmienił, nie znaleziono: {old.strip()}"
-        template = template.replace(old, new)
-blob = json.dumps(page_data, ensure_ascii=False).replace("</", "<\\/").replace("<!--", "<\\!--")
-(root / "review.html").write_text(template.replace("__DATA__", blob))
-print(len(proposal["new"]), len(proposal["maybe"]), len(proposal["existing"]), len(proposal["skipped"]), *([f"nowe od {page_data['freshSince']}: {len(FRESH)}"] if FRESH else []))
+if __name__ == "__main__":
+    Review(sys.argv[1]).build()

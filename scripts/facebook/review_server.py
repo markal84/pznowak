@@ -2,12 +2,13 @@
 """Lokalny serwer przeglądu zdjęć z FB: pliki z data/facebook + zapis decyzji w selection.json.
 
 Użycie (z katalogu głównego repo):  python3 scripts/facebook/review_server.py
-Potem:  http://127.0.0.1:3011/review.html
+Potem:  http://127.0.0.1:3011/review.html  (tablica; widok szczegółowy: /szczegoly.html)
 
 Tylko stdlib. Nasłuchuje wyłącznie na 127.0.0.1.
   GET  /api/selection   aktualne decyzje (albo pusty stan, gdy pliku jeszcze nie ma)
   PUT  /api/selection   {"rev": N, "state": {...}}; zapis atomowy, kopia poprzedniej wersji w selection.json.bak,
                         409 gdy rev nie zgadza się z plikiem (zmiana z innej karty)
+  GET  /api/plan        co eksport zrobi z każdą kartą przy obecnych decyzjach (export_selection.compute, bez zapisu)
   POST /api/export      uruchamia export_selection.py
   POST /api/refresh     pobiera nowe posty z serwera i przebudowuje przegląd (refresh_posts.py)
 
@@ -30,6 +31,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import export_selection  # noqa: E402
 import refresh_posts  # noqa: E402
 
 MAX_BODY = 5 * 1024 * 1024
@@ -152,6 +154,16 @@ class Handler(SimpleHTTPRequestHandler):
                     self.send_json(200, self.load_state())
                 except (ValueError, OSError) as e:
                     self.send_json(500, {"error": f"selection.json nieczytelny: {e}"})
+            return
+        if path == "/api/plan":
+            with LOCK:
+                try:
+                    data, sel = export_selection.load(self.root)
+                    out, outcomes = export_selection.compute(data, sel)
+                except (ValueError, OSError, KeyError) as e:
+                    self.send_json(500, {"error": f"nie umiem policzyć planu: {e}"})
+                    return
+            self.send_json(200, {"rev": sel.get("rev", 0), "outcomes": outcomes, "summary": out["summary"], "warnings": out["warnings"]})
             return
         if path == "/":
             self.send_response(302)
