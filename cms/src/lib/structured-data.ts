@@ -1,4 +1,5 @@
 import { DEFAULT_OG_IMAGE, absoluteUrl, siteUrl } from './seo'
+import { normalizePrice } from './price'
 import { SITE, WORKSHOP_COORDINATES } from './site'
 
 /**
@@ -130,8 +131,10 @@ type ProductJsonLdInput = {
  * Oferta: cena z panelu to cena „od” za wersję ze zdjęć (na stronie „od … zł”); dostępność to wykonanie na zamówienie.
  * Bez zmyślonych identyfikatorów (GTIN); marka i sprzedawca to pracownia z `jewelryStoreId()`.
  */
-export function productJsonLd({ name, path, description, images, stone, metal, price }: ProductJsonLdInput) {
-  if (typeof price !== 'number' || !Number.isFinite(price) || price <= 0) return null
+export function productJsonLd({ name, path, description, images, stone, metal, price: rawPrice }: ProductJsonLdInput) {
+  // Ta sama reguła co przy wyświetlaniu ceny (`formatPrice`): oferta jest w danych dokładnie wtedy, gdy na karcie jest kwota.
+  const price = normalizePrice(rawPrice)
+  if (price === null) return null
   const url = absoluteUrl(path)
   const offer = {
     offers: {

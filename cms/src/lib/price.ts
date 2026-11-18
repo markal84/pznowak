@@ -21,7 +21,9 @@ function amount(value: number): string {
 
 /** Cena z panelu, gdy jest sensowna (dodatnia liczba); inaczej `null`. */
 export function normalizePrice(value: unknown): number | null {
-  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.round(value) : null
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
+  const rounded = Math.round(value)
+  return rounded > 0 ? rounded : null
 }
 
 /** „od 2949 zł” (spacje nierozdzielające, żeby kwota nie łamała się na końcu wiersza); bez ceny pusty tekst. */

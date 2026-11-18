@@ -117,6 +117,9 @@ describe('dane strukturalne poradników i kart', () => {
     })
     expect(productJsonLd({ ...base, price: null })).toBeNull()
     expect(productJsonLd({ ...base, price: 0 })).toBeNull()
+    expect(productJsonLd({ ...base, price: 0.4 })).toBeNull() // zaokrągla się do 0: na karcie „Na zapytanie”
+    expect(productJsonLd({ ...base, price: Number.NaN })).toBeNull()
+    expect(productJsonLd({ ...base, price: 2949.4 })).toMatchObject({ offers: { price: 2949 } })
     expect(productJsonLd({ ...base })).toBeNull()
     expect(productJsonLd({ ...base, price: 2949, images: [], stone: '', metal: '' })).not.toHaveProperty('image')
   })
