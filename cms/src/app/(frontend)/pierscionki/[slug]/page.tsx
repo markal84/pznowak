@@ -90,6 +90,17 @@ export default async function ProductPage({ params, searchParams }: Params & { s
   if (product.carats) facts.push(['Masa kamienia', product.carats])
   if (product.clarity) facts.push(['Czystość kamienia', product.clarity])
 
+  // Karta bez ceny („Na zapytanie”) nie dostaje znacznika Product: Google wymaga offers, review lub aggregateRating.
+  const productData = productJsonLd({
+    name: product.name,
+    path: productPath(product.slug),
+    description: product.seoDescription || productSeoDescription(product),
+    images: product.images,
+    stone,
+    metal: formatMetal(product.metal),
+    price: product.price,
+  })
+
   return (
     <StoneVariantProvider initialSlug={initialStone ?? null} variants={product.stoneVariants}>
       <JsonLd
@@ -98,17 +109,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           { name: product.name, path: productPath(product.slug) },
         ])}
       />
-      <JsonLd
-        data={productJsonLd({
-          name: product.name,
-          path: productPath(product.slug),
-          description: product.seoDescription || productSeoDescription(product),
-          images: product.images,
-          stone,
-          metal: formatMetal(product.metal),
-          price: product.price,
-        })}
-      />
+      {productData ? <JsonLd data={productData} /> : null}
       <nav aria-label="Ścieżka" className="wrap crumbs">
         <ol>
           <li>

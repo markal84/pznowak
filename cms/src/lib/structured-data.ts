@@ -118,32 +118,33 @@ type ProductJsonLdInput = {
   /** Kamień i złoto w mianowniku, jak na karcie („Ametyst, diamenty”, „Żółte złoto”); puste są pomijane. */
   stone?: string
   metal?: string
-  /** Cena z panelu w zł; bez ceny karta nie dostaje oferty (Google wymaga ceny w `Offer`). */
+  /** Cena z panelu w zł; bez ceny karta nie dostaje znacznika `Product` w ogóle (patrz `productJsonLd`). */
   price?: number | null
 }
 
 /**
- * Dane strukturalne pierścionka (Product). Oferta tylko dla kart z ceną: cena z panelu to cena „od” za wersję ze
- * zdjęć (na stronie „od … zł”); dostępność to wykonanie na zamówienie.
- * Bez ocen i bez zmyślonych identyfikatorów (GTIN); marka i sprzedawca to pracownia z `jewelryStoreId()`.
+ * Dane strukturalne pierścionka (Product), albo `null` dla karty bez ceny. Google wymaga w `Product` jednej z
+ * właściwości `offers`, `review`, `aggregateRating` (błąd w Search Console z 18.11.2026 dla kart bez ceny, które na
+ * stronie mają „Na zapytanie”). Nie mamy opinii ani ocen i nie wolno ich zmyślać, a ceny bez ceny nie da się
+ * uczciwie podać, więc taka karta zostaje bez znacznika `Product` (strona nadal się indeksuje jako zwykły wynik).
+ * Oferta: cena z panelu to cena „od” za wersję ze zdjęć (na stronie „od … zł”); dostępność to wykonanie na zamówienie.
+ * Bez zmyślonych identyfikatorów (GTIN); marka i sprzedawca to pracownia z `jewelryStoreId()`.
  */
 export function productJsonLd({ name, path, description, images, stone, metal, price }: ProductJsonLdInput) {
+  if (typeof price !== 'number' || !Number.isFinite(price) || price <= 0) return null
   const url = absoluteUrl(path)
-  const offer =
-    typeof price === 'number' && price > 0
-      ? {
-          offers: {
-            '@type': 'Offer',
-            url,
-            price,
-            priceCurrency: 'PLN',
-            // Wykonanie po zamówieniu: z wartości, które rozumie Google, najbliższa jest „BackOrder” (przyjmujemy zamówienia).
-            availability: 'https://schema.org/BackOrder',
-            itemCondition: 'https://schema.org/NewCondition',
-            seller: { '@id': jewelryStoreId() },
-          },
-        }
-      : {}
+  const offer = {
+    offers: {
+      '@type': 'Offer',
+      url,
+      price,
+      priceCurrency: 'PLN',
+      // Wykonanie po zamówieniu: z wartości, które rozumie Google, najbliższa jest „BackOrder” (przyjmujemy zamówienia).
+      availability: 'https://schema.org/BackOrder',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@id': jewelryStoreId() },
+    },
+  }
   const additionalProperty = stone ? [{ '@type': 'PropertyValue', name: 'Kamień', value: stone }] : []
   return {
     '@context': 'https://schema.org',
