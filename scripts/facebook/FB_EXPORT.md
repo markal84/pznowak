@@ -67,7 +67,23 @@ do `posts.json` i `media/` i przebudowuje `review.html` (`refresh_posts.py`). W 
 `--bez-pobierania` pomija pobieranie przy starcie (np. bez sieci). Bez zainstalowanej kopii na Macu (README
 `scripts/posty-meta`, „Kopia na Maca”) dopisuje tylko to, co już jest w `~/PZ Nowak posty`.
 
-Przy każdej karcie „Nowe od…” z podpowiedzią przegląd pokazuje **czytelny werdykt**: zdjęcia posta obok miniatur sugerowanej karty z katalogu (nazwa, kamień, status, warianty, link do strony), zdanie po ludzku i przyciski „Tak, dodaj do: …” / „Nie, to nowy pierścionek” / „To materiał” / „Pomiń”. Przycisk ustawia tę samą decyzję, co pola niżej (decyzja, karta docelowa, wariant), więc eksport działa bez zmian. Dane kart bierze z `katalog.json` (zrzut przy pobieraniu nowych postów).
+**Tablica (`review.html`, od 18.11.2026).** Cztery kolumny: *Do decyzji*, *Gotowe do katalogu*, *Już w katalogu*, *Poza
+katalogiem*. Przycisk „Przejrzyj po kolei” otwiera jeden post na ekranie: zdjęcia i film posta, podpowiedź modelu ze zdjęciem
+sugerowanej karty z katalogu obok (Tak / „Nie, to coś innego”), a niżej proste wybory: *Nowy pierścionek*, *Pierścionek z
+katalogu* (wybór po zdjęciach, z wyszukiwarką, najpierw karty najbardziej podobne według modelu), *Ten sam co inny post*,
+*Materiał*, *Pomiń*. Przy karcie z katalogu wybierasz wariant kamienia (wariant z samą wizualizacją = prawdziwe zdjęcie
+zamiast wizualizacji) i które zdjęcia mają trafić dalej. Pod decyzją jest zdanie, co zrobi eksport, liczone przez serwer
+tą samą funkcją, co eksport (`GET /api/plan` → `export_selection.compute`). Działa też na telefonie; strzałki ←/→
+przełączają zdjęcia, Enter przechodzi do następnego posta do decyzji, Esc zamyka.
+
+Dawny widok ze wszystkimi polami został jako **`szczegoly.html`** (link „Widok szczegółowy” w nagłówku); oba widoki
+zapisują do tego samego `selection.json`. Nowe pola w karcie: `newRing` (to nowy pierścionek mimo podpowiedzi modelu),
+`product` (slug karty z katalogu) i `action: zamiast-wizualizacji`; opis w docstringu `export_selection.py`, testy:
+`python3 -m unittest scripts/facebook/test_export_selection.py`.
+
+Tablica jest narzędziem na Macu (`127.0.0.1`): serwer nie ma logowania, a „Pobierz nowe posty” uruchamia skrypty i czyta
+żywą bazę. Nie wystawiaj go do internetu w tej postaci; podgląd dla innych osób to osobny tryb tylko do odczytu za
+logowaniem (np. Cloudflare Access).
 
 Po dopisaniu nowych postów to samo polecenie robi **podpowiedzi modelu**: czyta katalog z Payload (`cms`: `npm run
 katalog:snapshot`, tylko odczyt, żywa baza strony, ze szkicami) i każe Terrze (`classify_posts.py`, przez Codex) ocenić
@@ -96,8 +112,8 @@ python3 -m unittest scripts/facebook/test_sito.py
 Ręcznie, bez serwera przeglądu: `python3 scripts/facebook/refresh_posts.py data/facebook` (albo jak dawniej
 `import_posty_meta.py` + `build_review.py`).
 
-Nowe posty lądują w sekcji „Nowe od DD.MM”. Przy niej w nagłówku przeglądu jest przełącznik „pokaż tylko nowe posty”
-(domyślnie włączony), który chowa stare, już rozstrzygnięte sekcje; decyzje w nich zostają bez zmian.
+Nowe posty lądują w sekcji „Nowe od DD.MM”. Na tablicy przełącznik „Nowe od DD.MM / Wszystkie” (domyślnie nowe) chowa
+stare, już rozstrzygnięte posty; decyzje w nich zostają bez zmian.
 Posty już obecne w `posts.json` są pomijane, więc pobieranie można powtarzać dowolnie.
 
 Terminal serwera przeglądu pokazuje tylko zapisy decyzji, eksport, pobieranie i błędy. Strona co 8 s pyta serwer o stan

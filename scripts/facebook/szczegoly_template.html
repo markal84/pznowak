@@ -1,0 +1,1187 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Przegląd FB: szczegóły</title>
+<style>
+:root{color-scheme:light dark;--bg:#faf8f5;--fg:#222;--muted:#777;--card:#fff;--line:#ddd;--ok:#2e7d32;--mat:#1565c0;--no:#757575;--warn:#b26a00;--bad:#c62828;--sel:#e8f0fe}
+@media (prefers-color-scheme:dark){:root{--bg:#161616;--fg:#eee;--muted:#999;--card:#222;--line:#3a3a3a;--ok:#66bb6a;--mat:#64b5f6;--no:#9e9e9e;--warn:#ffb74d;--bad:#ef5350;--sel:#26324a}}
+*{box-sizing:border-box}
+body{font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0}
+body.lbopen{overflow:hidden}
+main,footer,#banner{max-width:1200px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 16px}
+header .in{max-width:1200px;margin:0 auto}
+header .row{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+header h1{font-size:17px;margin:0;flex:1 1 auto}
+.counters{font-size:13px;color:var(--muted);margin-top:4px}
+.counters b{color:var(--fg)}
+.counters span{white-space:nowrap;margin-right:14px}
+.tools{font-size:13px;margin-top:4px;color:var(--muted)}
+#status{font-size:13px;color:var(--muted)}
+#status.err{color:var(--bad);font-weight:600}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:6px;padding:2px 10px}
+button:hover{border-color:var(--muted)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--mat);outline-offset:1px}
+#banner{margin-top:10px}
+#banner .b{background:var(--bad);color:#fff;border-radius:8px;padding:10px 14px;font-weight:600}
+#banner .b.info{background:var(--warn)}
+#banner .b button{margin-left:8px;color:#222}
+#banner code{background:#0003;border-radius:4px;padding:1px 5px;font-weight:400}
+body.nosync main button,body.nosync main input,body.nosync main textarea,body.nosync #nextBtn,body.nosync #exportBtn,body.nosync #refreshBtn{pointer-events:none;opacity:.45}
+h2{scroll-margin-top:150px;margin:28px 0 0;font-size:20px}
+h2 small{color:var(--muted);font-weight:400;font-size:14px}
+.item{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:10px;padding:10px 14px;margin:12px 0;scroll-margin-top:150px}
+.item.done{border-left-color:var(--muted)}
+/* zdjęcia z posta już są w karcie katalogu: zwinięte, bez decyzji do podjęcia (klik w zdjęcia rozwija) */
+.item.already:not(.open) .media,.item.already:not(.open) .fields,.item.already:not(.open) .bulk{display:none}
+.item.already .hintm{border:1px solid var(--ok)}
+.item.already .hintm .tg{cursor:pointer;text-decoration:underline;margin-left:6px}
+.item[data-dec=catalog]{border-left-color:var(--ok)}
+.item[data-dec=addto]{border-left-color:var(--ok);border-left-style:dashed}
+.fields .target{display:none}.item[data-dec=addto] .fields .target{display:block}
+.item.col .media,.item.col .fields,.item.col .hintm,.item.col .props,.item.col .dups,.item.col .warnbox,.item.col .mrow,.item.col .bulk{display:none}
+.warnbox{border:1px solid #c0392b;background:#fdecea;color:#7b1f14;border-radius:8px;padding:6px 10px;margin:6px 0;font-size:13px}
+.item[data-dec=material]{border-left-color:var(--mat)}
+.item[data-dec=reject],.item[data-dec=skip]{border-left-color:var(--no)}
+.item:not(.done){border-left-color:var(--warn)}
+.item.flash{animation:flash 1.4s}
+@keyframes flash{0%,60%{background:var(--sel)}100%{background:var(--card)}}
+body.only-open .item.done:not(.touched){display:none}
+.head{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}
+.head h3{margin:0;font-size:17px}
+.seg{display:inline-flex;gap:0}
+.seg button{border-radius:0;margin-left:-1px;padding:2px 9px;font-size:13px}
+.seg button:first-child{border-radius:6px 0 0 6px;margin-left:0}
+.seg button:last-child{border-radius:0 6px 6px 0}
+.seg button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.seg.dec button[aria-pressed=true][data-v=catalog],.seg.sm button[aria-pressed=true][data-v=catalog],.seg.sm button[aria-pressed=true][data-v=gallery]{background:var(--ok);border-color:var(--ok);color:#fff}
+.seg.dec button[aria-pressed=true][data-v=material],.seg.sm button[aria-pressed=true][data-v=material],.seg.post button[aria-pressed=true][data-v=material]{background:var(--mat);border-color:var(--mat);color:#fff}
+.seg.dec button[aria-pressed=true][data-v=reject],.seg.sm button[aria-pressed=true][data-v=skip],.seg.post button[aria-pressed=true][data-v=skip]{background:var(--no);border-color:var(--no);color:#fff}
+.fields{display:grid;grid-template-columns:minmax(200px,1fr) minmax(200px,2fr);gap:8px;margin:8px 0}
+.fields input,.fields textarea{font:inherit;width:100%;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);resize:vertical}
+.fields textarea{height:34px}
+@media (max-width:700px){.fields{grid-template-columns:1fr}}
+.bulk{font-size:13px;color:var(--muted);margin:4px 0}
+.media{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+figure.m{margin:0;position:relative;display:flex;flex-direction:column;gap:3px}
+figure.m .th{align-self:flex-start;position:relative;border:3px solid var(--line);border-radius:8px;overflow:hidden;background:#000;line-height:0}
+figure.m[data-d=catalog] .th,figure.m[data-d=gallery] .th{border-color:var(--ok)}
+figure.m[data-d=material] .th{border-color:var(--mat)}
+figure.m[data-d=skip] .th{border-color:var(--no)}
+figure.m[data-d=skip] img,figure.m[data-d=skip] video{opacity:.4}
+figure.m[data-d="?"] .th{border-style:dashed}
+figure.m img,figure.m video{height:180px;width:auto;max-width:100%;cursor:zoom-in;object-fit:cover}
+figure.m video{cursor:auto}
+figure.m .cover,figure.m .zoom{position:absolute;top:4px;background:#000b;color:#fff;border:0;border-radius:4px;padding:0 6px;line-height:1.5;font-size:14px}
+figure.m .cover{right:4px}
+figure.m .zoom{right:4px}
+figure.m .cover[aria-pressed=true]{background:#f9a825;color:#000}
+figure.m .q{position:absolute;top:4px;left:4px;background:#000b;color:#fff;font-size:12px;line-height:1.4;padding:0 6px;border-radius:4px}
+figure.m .q.low{background:#c00}
+figure.m .seg button{padding:0 6px;font-size:12px}
+figure.m .ov{font-size:11px;color:var(--muted);text-align:center}
+figure.m .ovf{font-size:11px;color:var(--mat);text-align:center}
+.seg.post button{font-size:13px}
+figure.m .badges{position:absolute;left:4px;bottom:4px;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:3px;pointer-events:none}
+.nofb,.aib{font-size:11px;line-height:1.5;padding:0 7px;border-radius:10px;font-weight:600;color:#fff}
+.nofb{background:#455a64}
+.aib{background:#d32f2f}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0;font-size:13px}
+.tags .nofb,.tags .aib{font-size:12px;padding:1px 9px}
+.site{position:absolute;top:7px;left:7px;z-index:3;font-size:11px;line-height:1.5;padding:0 7px;border-radius:10px;color:#fff;background:var(--ok);cursor:default}
+.site.similar{background:#f9a825;color:#000}
+.site .tip{display:none;position:absolute;top:100%;left:0;margin-top:4px;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:6px;font-size:12px;line-height:1.3;width:max-content;max-width:240px;box-shadow:0 4px 14px #0005}
+.site .tip img{display:block;height:150px;width:auto;max-width:230px;border-radius:4px;margin-bottom:4px;cursor:default}
+.site:hover .tip,.site:focus .tip{display:block}
+.sum{font-size:13px;color:var(--muted);margin:2px 0 6px}
+.sum b{color:var(--fg)}
+.ok{color:var(--ok)}.warn{color:var(--warn)}
+.dups{display:flex;flex-direction:column;gap:6px;margin:6px 0}
+.dup{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;border:1px solid var(--warn);border-radius:8px;padding:4px 8px;font-size:13px}
+.dup .bd{background:#f9a825;color:#000;border-radius:10px;padding:0 8px;font-weight:600}
+.dup a.go{color:inherit;cursor:pointer;text-decoration:underline}
+.dup .pr{display:inline-flex;align-items:center;gap:4px}
+.dup .pr img{height:56px;width:auto;border-radius:4px;border:1px solid var(--line);cursor:zoom-in}
+.dup .state{color:var(--muted);font-size:12px}
+.dup button[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
+.cbtn[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
+.props{display:flex;flex-direction:column;gap:6px;margin:6px 0}
+.props:empty{display:none}
+.prop{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;border:1px solid var(--mat);border-radius:8px;padding:4px 8px;font-size:13px}
+.prop .bd{background:var(--mat);color:#fff;border-radius:10px;padding:0 8px;font-weight:600}
+.prop .why{color:var(--muted)}
+.prop img,.mrow img,.pick-row img{height:56px;width:auto;border-radius:4px;border:1px solid var(--line)}
+.prop a.go,.mrow a.go{color:inherit;cursor:pointer;text-decoration:underline}
+.vm{display:flex;flex-direction:column;gap:2px;flex-basis:100%;font-size:13px}
+.vm .vb{display:inline-block;border-radius:10px;padding:0 8px;font-weight:600;color:#fff;margin-right:6px}
+.vm .vb.same{background:var(--ok)}.vm .vb.different{background:var(--no)}.vm .vb.unsure{background:var(--warn)}
+.vm .vr{color:var(--muted)}
+.vm .vx{color:var(--bad);font-weight:600}
+.hintm{border:1px dashed var(--line);border-radius:8px;padding:4px 8px;margin:4px 0;font-size:13px}
+.vd{border:2px solid var(--mat);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:15px}
+.vd .say{font-size:16px;margin-bottom:8px}.vd .why{color:var(--muted);font-size:13px}
+.vd .cols{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-start}
+.vd .col h4{margin:0 0 4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.vd .strip{display:flex;gap:6px;flex-wrap:wrap}
+.vd .strip img{height:120px;width:auto;max-width:160px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.vd .rc{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+.vd .rc img.main{height:120px;width:120px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.vd .rc .alt img.main{height:72px;width:72px}
+.vd .rc .nm{font-weight:600}.vd .rc small{color:var(--muted)}
+.vd .vthumbs{display:flex;gap:4px;margin-top:4px}.vd .vthumbs img{height:44px;width:44px;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
+.vd .vthumbs .vis{opacity:.55;outline:1px dashed var(--muted)}
+.vd .act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.vd .act button{padding:8px 14px;font-weight:600;border-radius:8px}
+.vd .act button.yes{background:var(--ok);color:#fff;border-color:var(--ok)}
+.vd.ok{border-color:var(--ok)}.vd .tg{cursor:pointer;text-decoration:underline;font-size:13px;margin-left:6px}
+.vd .picked{margin-top:8px;font-weight:600;color:var(--ok)}
+.hintm b{margin-right:6px}.hintm .vr{color:var(--muted)}
+.dup .vm{flex-basis:auto}
+.mrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;margin:6px 0;color:var(--muted)}
+.mrow b{color:var(--fg)}
+.item.merged{border-left-color:var(--muted);opacity:.8}
+.item.merged .head h3{font-size:15px}
+.mergebtn{font-size:13px}
+#pick{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--fg);padding:0;width:min(720px,calc(100vw - 32px));max-height:min(80vh,800px)}
+#pick::backdrop{background:#0008}
+#pick .ph{position:sticky;top:0;background:var(--card);padding:12px 14px 8px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+#pick .ph .r{display:flex;gap:8px;align-items:center;justify-content:space-between}
+#pick input[type=search]{font:inherit;width:100%;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+#pick .dir{font-size:13px;color:var(--muted)}
+#pick ul{list-style:none;margin:0;padding:6px 8px 12px}
+.pick-row{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:6px 8px;margin:2px 0;border-radius:8px}
+.pick-row .t{display:flex;flex-direction:column;line-height:1.3}
+.pick-row small{color:var(--muted)}
+.pick-row .ph0{width:56px;height:56px;border-radius:4px;background:var(--line)}
+.item.complete figure.m{opacity:.35;filter:grayscale(1)}
+.item.complete .bulk{opacity:.5}
+.item.complete .bulk .seg,.item.complete figure.m .seg{pointer-events:none}
+details{margin:2px 0}
+summary{cursor:pointer;color:var(--muted);font-size:13px}
+details p{white-space:pre-wrap;margin:4px 0 8px;font-size:14px}
+footer{padding-bottom:60px;color:var(--muted);font-size:13px}
+footer .orph{background:var(--card);border:1px solid var(--warn);border-radius:8px;padding:8px 12px;margin-top:10px}
+#lb{position:fixed;inset:0;z-index:50;background:#000e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px}
+#lb[hidden]{display:none}
+#lb .stage{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;width:100%}
+#lb .stage img,#lb .stage video{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px}
+#lb .nav{position:absolute;top:50%;transform:translateY(-50%);font-size:34px;background:#0006;color:#fff;border:0;border-radius:8px;padding:6px 14px}
+#lb .nav.prev{left:10px}#lb .nav.next{right:10px}
+#lb .x{position:absolute;top:10px;right:14px;font-size:28px;background:#0006;color:#fff;border:0;border-radius:8px;padding:0 12px}
+#lb .cap{color:#eee;text-align:center;font-size:14px;max-width:900px}
+#lb .cap .seg{margin:4px 0}
+#lb .cap .hint{color:#aaa;font-size:12px}
+#lb .cap button{background:#333;color:#eee;border-color:#666;padding:3px 12px}
+#lb .cap .seg button[aria-pressed=true]{background:#fff;color:#000;font-weight:700;border-color:#fff}
+#lb .cap button[data-lbcover][aria-pressed=true]{background:#f9a825;color:#000;border-color:#f9a825}
+#lb .cap label{font-size:12px;color:#aaa;margin-left:10px}
+body.only-fresh #main [data-sec]:not([data-sec=fresh]){display:none}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <div class="row">
+    <h1>Pierścionki z fanpage'a: widok szczegółowy</h1>
+    <a href="review.html">← tablica (prosty widok)</a>
+    <span id="status">…</span>
+    <button id="refreshBtn" title="Ściąga nowe posty z serwera i dopisuje je do przeglądu (decyzje zostają)">Pobierz nowe posty</button>
+    <button id="exportBtn" title="Zapisuje data/facebook/catalog-selection.json">Eksportuj wybór</button>
+  </div>
+  <div class="counters" id="counters"></div>
+  <div class="tools">
+    <label><input type="checkbox" id="onlyOpen"> pokaż tylko nieprzejrzane</label>
+    <span id="onlyFreshL" hidden>· <label><input type="checkbox" id="onlyFresh"> pokaż tylko nowe posty (<span id="freshLbl"></span>)</label></span>
+    · <button id="nextBtn">Następna nieprzejrzana (n)</button>
+    · klik w zdjęcie = powiększenie; w podglądzie: ←/→ zdjęcia, 1/2/3 decyzja, 0 wyczyść, c okładka, Esc zamknij
+  </div>
+</div></header>
+<div id="banner"></div>
+<main id="main"></main>
+<footer id="foot"></footer>
+<div id="lb" hidden role="dialog" aria-modal="true" aria-label="Podgląd zdjęcia">
+  <button class="x" data-lb="close" aria-label="Zamknij">×</button>
+  <button class="nav prev" data-lb="prev" aria-label="Poprzednie">‹</button>
+  <div class="stage"></div>
+  <button class="nav next" data-lb="next" aria-label="Następne">›</button>
+  <div class="cap"></div>
+</div>
+<dialog id="pick" aria-label="Połącz z kartą">
+  <div class="ph">
+    <div class="r"><b id="pickTitle">Połącz z kartą</b><button type="button" data-act="pickClose" aria-label="Zamknij">×</button></div>
+    <div class="dir">
+      <label><input type="radio" name="pickDir" value="into" checked> ta karta dołącza do wybranej (zostaje wybrana)</label><br>
+      <label><input type="radio" name="pickDir" value="from"> wybrana dołącza do tej karty (zostaje ta)</label>
+    </div>
+    <input type="search" id="pickFilter" placeholder="Szukaj po numerze, nazwie, kamieniu…" aria-label="Szukaj karty">
+  </div>
+  <ul id="pickList"></ul>
+</dialog>
+<noscript>Ta strona wymaga JavaScriptu.</noscript>
+<datalist id="catalogProducts"></datalist>
+<script type="application/json" id="data">__DATA__</script>
+<script>
+(() => {
+'use strict';
+const D = JSON.parse(document.getElementById('data').textContent);
+document.getElementById('catalogProducts').innerHTML = (D.catalogProducts || []).map(p => `<option value="${String(p.name).replace(/"/g, '&quot;')}"></option>`).join('');
+const API = '/api/selection';
+let refreshing = false; // trwa „Pobierz nowe posty”
+const PENDING_KEY = 'fbreview:pending';
+const START_CMD = 'python3 scripts/facebook/review_server.py';
+
+const OPTS = {
+  card: [['catalog', 'w katalogu'], ['material', 'materiał'], ['skip', 'pomiń']],
+  existing: [['gallery', 'dodaj do galerii'], ['material', 'materiał'], ['skip', 'pomiń']],
+  skipped: [['material', 'zachowaj jako materiał'], ['skip', 'pomiń']],
+};
+// „nowa karta” tworzy NOWY szkic pierścionka; „dodaj do karty…” dokłada zdjęcia/film do istniejącej karty (pole obok).
+const CARD_DEC = [['catalog', 'nowa karta'], ['addto', 'dodaj do karty…'], ['material', 'materiały'], ['reject', 'odrzuć'], ['', '?']];
+const INHERIT = { catalog: 'catalog', addto: 'gallery', material: 'material', reject: 'skip' };
+const LABEL = { catalog: 'w katalogu', gallery: 'do galerii', material: 'materiał', skip: 'pomiń' };
+const SECTIONS = [
+  ['new', 'Nowe pierścionki', 'card', 'Nowe'],
+  ['maybe', 'Do decyzji: pierścionki klientów, sygnety', 'card', 'Do decyzji'],
+  ['existing', 'Już w katalogu', 'existing', 'W katalogu'],
+  ['skipped', 'Pominięte posty', 'skipped', 'Pominięte'],
+];
+// Sekcja „Nowe od DD.MM” jest tylko wtedy, gdy są posty spoza groups.json (build_review.py).
+if (D.fresh && D.fresh.length) SECTIONS.splice(2, 0, ['fresh', 'Nowe od ' + D.freshSince, 'card', 'Nowe od ' + D.freshSince]);
+const BUCKET = { card: 'cards', existing: 'existing', skipped: 'skipped' };
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (s, r = document) => r.querySelector(s);
+const hhmmss = d => d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+// ---------- stan ----------
+let S = blank();
+let serverRev = 0;
+function blank() { return { version: 1, rev: 0, cards: {}, existing: {}, skipped: {} }; }
+function normalize(o) {
+  const s = (o && typeof o === 'object') ? o : {};
+  for (const b of ['cards', 'existing', 'skipped']) if (!s[b] || typeof s[b] !== 'object') s[b] = {};
+  s.version = 1;
+  return s;
+}
+
+// ---------- model grup ----------
+const G = [];
+const GBY = {};
+for (const [sec, , type] of SECTIONS) {
+  for (const it of D[sec]) {
+    const files = [...it.photos.map(f => ({ file: f, kind: 'photo' })), ...it.videos.map(v => ({ file: v.file, kind: 'video', q: v.q, poster: v.poster }))];
+    const g = { gid: type + ':' + it.key, type, sec, key: it.key, it, files, own: files, opts: OPTS[type], el: null, root: null, members: [] };
+    G.push(g); GBY[g.gid] = g;
+  }
+}
+const bucket = g => S[BUCKET[g.type]];
+const entry = g => bucket(g)[g.key];
+
+// ---------- łączenie kart (sameAs) ----------
+// Karta z sameAs dołącza do karty docelowej: znika z listy (zwinięta), dziedziczy jej decyzję, a jej zdjęcia i filmy
+// pokazuje i rozstrzyga karta docelowa. Łańcuchy rozwiązujemy do korzenia; w cyklu korzeniem jest najmniejszy klucz.
+const CARD = {}, LBL = {}, BYLBL = {};
+for (const sec of ['new', 'maybe', 'fresh']) G.filter(g => g.sec === sec).forEach((g, i) => {
+  CARD[g.key] = g; LBL[g.key] = (sec === 'maybe' ? 'D' : sec === 'fresh' ? 'N' : '') + (i + 1); BYLBL[LBL[g.key]] = g.key;
+});
+const cardLabel = k => 'karta ' + (LBL[k] || '?');
+function rootOf(k) {
+  const path = [];
+  let cur = k;
+  while (S.cards[cur] && CARD[S.cards[cur].sameAs] && !path.includes(cur)) { path.push(cur); cur = S.cards[cur].sameAs; }
+  if (path.includes(cur)) cur = path.slice(path.indexOf(cur)).sort()[0];
+  return cur;
+}
+let renderedSig = null;  // stan połączeń, dla którego narysowano karty; po zmianie rysujemy od nowa
+function currentMergeSig() { return JSON.stringify(Object.keys(CARD).map(k => [k, (S.cards[k] || {}).sameAs || ''])); }
+function rebuildMerge() {
+  for (const g of Object.values(CARD)) { g.root = rootOf(g.key); g.members = []; }
+  for (const g of Object.values(CARD)) if (g.root !== g.key) CARD[g.root].members.push(g);
+  for (const g of Object.values(CARD)) {
+    const seen = new Set(g.own.map(f => f.file));
+    g.files = g.root !== g.key ? g.own : [...g.own, ...g.members.flatMap(m => m.own.filter(f => !seen.has(f.file) && seen.add(f.file)).map(f => ({ ...f, from: m.key })))];
+  }
+}
+function flash(g) {
+  if (!g || !g.el) return;
+  g.el.classList.remove('flash'); void g.el.offsetWidth; g.el.classList.add('flash');
+}
+const isMerged = g => g.type === 'card' && g.root !== g.key;
+function groupOf(g) { return [g, ...g.members]; }
+function memberExplicit(g, file) {
+  for (const m of g.members) { const e = S.cards[m.key]; if (e && e.media && e.media[file]) return e.media[file]; }
+  return null;
+}
+function ensure(g) {
+  const b = bucket(g);
+  if (!b[g.key]) b[g.key] = g.type === 'skipped' ? {} : { media: {} };
+  if (g.type !== 'skipped' && !b[g.key].media) b[g.key].media = {};
+  return b[g.key];
+}
+function prune(g) {
+  const e = entry(g);
+  if (!e) return;
+  const empty = g.type === 'skipped' ? !e.decision
+    : !e.decision && !e.name && !e.note && !e.target && !e.variant && !e.product && !e.action && !e.newRing && !e.cover && !e.complete && !e.sameAs && !(e.notSame || []).length && !Object.keys(e.media || {}).length;
+  if (empty) delete bucket(g)[g.key];
+}
+function eff(g, file) {
+  if (g.type === 'card') {
+    const e = entry(g) || {};
+    return (e.media && e.media[file]) || memberExplicit(g, file) || (INHERIT[e.decision] ?? null);
+  }
+  const e = entry(g);
+  if (!e) return null;
+  if (g.type === 'skipped') return e.decision ?? null;
+  return (e.media && e.media[file]) || null;
+}
+function explicit(g, file) { const e = entry(g); return !!((e && e.media && e.media[file]) || (g.type === 'card' && memberExplicit(g, file))); }
+function isComplete(g) { const e = entry(g); return g.type === 'existing' && !!(e && e.complete); }
+// Karta, której zdjęcia już są w karcie katalogu wskazanej przez podpowiedź modelu (np. szkic zrobiony z tego posta):
+// nic do zrobienia, liczy się jako przejrzana. Eksport i tak nie zrobi z niej drugiego szkicu (alreadyInCatalog).
+function alreadyIn(g) {
+  const h = (D.hints || {})[g.key];
+  return !!(h && h.result && h.result.product && (h.fromPost || []).includes(h.result.product));
+}
+function isDone(g) {
+  const e = entry(g);
+  if (isComplete(g) || isMerged(g)) return true;
+  if (g.type === 'card') return !!(e && e.decision) || alreadyIn(g);
+  if (g.type === 'skipped') return !!(e && e.decision) || !g.files.length;
+  return g.files.every(f => e && e.media && e.media[f.file]);
+}
+function fixCover(g) {
+  const e = entry(g);
+  if (e && e.cover && eff(g, e.cover) !== 'catalog') delete e.cover;
+}
+
+// ---------- zmiany ----------
+const touched = new Set();
+let seq = 0, savedSeq = 0, loaded = false, conflict = false, saving = false, saveTimer = null, retryTimer = null, lastSaved = null;
+
+function changed(g) {
+  if (g) { touched.add(g.gid); prune(g); }
+  seq++;
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify({ ts: Date.now(), state: S })); } catch (e) { /* bufor opcjonalny */ }
+  sync();
+  scheduleSave(500);
+}
+function setMedia(g, file, val) {
+  if (isComplete(g)) return;
+  const e = ensure(g);
+  if (g.type === 'skipped') {
+    if (!val || e.decision === val) delete e.decision; else e.decision = val;
+  } else {
+    const cur = g.type === 'card' ? (e.media[file] || memberExplicit(g, file)) : e.media[file];
+    if (!val || cur === val) delete e.media[file]; else e.media[file] = val;
+    if (g.type === 'card') {
+      // decyzja dla pliku z dołączonej karty należy teraz do karty docelowej
+      for (const m of g.members) { const me = S.cards[m.key]; if (me && me.media) { delete me.media[file]; prune(m); } }
+      fixCover(g);
+    }
+  }
+  changed(g);
+}
+function setDecision(g, val) {
+  const e = ensure(g);
+  if (val) e.decision = val; else delete e.decision;
+  if (val === 'catalog') e.newRing = true; else delete e.newRing;
+  fixCover(g);
+  changed(g);
+}
+function setCover(g, file) {
+  const e = ensure(g);
+  if (e.cover === file) { delete e.cover; changed(g); return; }
+  e.cover = file;
+  if (eff(g, file) !== 'catalog') e.media[file] = 'catalog';
+  changed(g);
+}
+function bulk(g, val) {
+  if (isComplete(g)) return;
+  const e = ensure(g);
+  for (const f of g.files) e.media[f.file] = val;
+  changed(g);
+}
+function toggleComplete(g) {
+  const e = ensure(g);
+  if (e.complete) delete e.complete; else e.complete = true;
+  changed(g);
+}
+function mergeInto(src, dst) {
+  // src (z całą swoją grupą) dołącza do grupy dst
+  const target = CARD[rootOf(dst.key)];
+  if (!target || rootOf(src.key) === target.key) return;
+  if (isMerged(src)) unmerge(src, true);
+  ensure(src).sameAs = target.key;
+  const ns = (entry(target) || {}).notSame;
+  if (ns) { const e = entry(target); e.notSame = ns.filter(k => k !== src.key); if (!e.notSame.length) delete e.notSame; }
+  changed(src);
+  flash(target);
+}
+function unmerge(g, quiet) {
+  const old = CARD[g.root];
+  const e = entry(g);
+  if (!e || !e.sameAs) return;
+  delete e.sameAs;
+  // decyzje plików i okładka zapisane w karcie docelowej wracają do kart, które teraz pokazują te pliki
+  rebuildMerge();
+  const oe = entry(old);
+  if (oe) {
+    const have = new Set(old.files.map(f => f.file));
+    for (const [f, v] of Object.entries(oe.media || {})) {
+      if (have.has(f)) continue;
+      const home = Object.values(CARD).find(c => c.root === c.key && c.files.some(x => x.file === f));
+      if (home) { const he = ensure(home); if (!he.media[f]) he.media[f] = v; }
+      delete oe.media[f];
+    }
+    if (oe.cover && !have.has(oe.cover)) delete oe.cover;
+  }
+  if (quiet) return;
+  changed(g);
+  prune(old);
+}
+function markNotSame(g, otherKey) {
+  const e = ensure(g);
+  e.notSame = [...new Set([...(e.notSame || []), otherKey])];
+  changed(g);
+}
+function resetOverrides(g) {
+  for (const m of groupOf(g)) {
+    const e = entry(m);
+    if (!e) continue;
+    e.media = {};
+    if (m === g) delete e.cover;
+    prune(m);
+  }
+  changed(g);
+}
+
+// ---------- zapis ----------
+function setStatus(txt, err) { const s = $('#status'); s.textContent = txt; s.classList.toggle('err', !!err); }
+function banner(html, info) { $('#banner').innerHTML = html ? `<div class="b${info ? ' info' : ''}">${html}</div>` : ''; }
+function lock(on) { document.body.classList.toggle('nosync', on); }
+function updateStatus() {
+  if (conflict) return;
+  if (seq !== savedSeq) setStatus(saving ? 'zapisywanie…' : 'niezapisane zmiany…');
+  else if (lastSaved) setStatus('zapisano ' + hhmmss(lastSaved));
+}
+async function api(method, path, body, ms) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), ms || 8000);
+  try {
+    const r = await fetch(path, { method, signal: ctl.signal, cache: 'no-store',
+      headers: body ? { 'Content-Type': 'application/json' } : undefined, body: body ? JSON.stringify(body) : undefined });
+    let data = null;
+    try { data = await r.json(); } catch (e) { /* nie JSON */ }
+    return { ok: r.ok, status: r.status, data };
+  } finally { clearTimeout(t); }
+}
+function offlineBanner() {
+  banner(`Serwer zapisu nie odpowiada: decyzje się NIE zapisują. Uruchom <code>${START_CMD}</code> i zostaw to okno otwarte. <button data-act="retry">Spróbuj teraz</button>`);
+  setStatus('NIE zapisano', true);
+}
+function scheduleSave(ms) {
+  clearTimeout(saveTimer);
+  if (!loaded || conflict) return;
+  saveTimer = setTimeout(save, ms);
+  updateStatus();
+}
+async function save() {
+  if (!loaded || conflict || saving || seq === savedSeq) return;
+  saving = true;
+  const mySeq = seq;
+  updateStatus();
+  let ok = false;
+  try {
+    const r = await api('PUT', API, { rev: serverRev, state: S });
+    if (r.ok && r.data && typeof r.data.rev === 'number') {
+      ok = true;
+      serverRev = S.rev = r.data.rev;
+      savedSeq = mySeq; lastSaved = new Date();
+      if (seq === savedSeq) { try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ } }
+      banner('');
+    } else if (r.status === 409) {
+      conflict = true;
+      const cur = r.data && r.data.rev;
+      banner(`Plik decyzji zmienił się poza tą kartą (inna karta lub ręczna edycja). Nic nie zostało nadpisane. <button data-act="reload">Wczytaj z serwera</button> <button data-act="force" data-rev="${esc(cur)}">Nadpisz moimi zmianami</button>`);
+      setStatus('KONFLIKT, nie zapisano', true);
+    } else {
+      throw new Error((r.data && r.data.error) || 'HTTP ' + r.status);
+    }
+  } catch (e) {
+    offlineBanner();
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(save, 4000);
+  } finally {
+    saving = false;
+  }
+  if (ok) { updateStatus(); if (seq !== savedSeq) scheduleSave(200); }
+}
+
+function adopt(remote) {
+  S = normalize(remote);
+  serverRev = S.rev || 0;
+  seq = savedSeq = 0;
+  fillFields();
+  sync();
+}
+async function load(first) {
+  try {
+    const r = await api('GET', API);
+    if (!r.ok || !r.data || typeof r.data !== 'object' || !('cards' in r.data)) throw new Error((r.data && r.data.error) || 'HTTP ' + r.status);
+    adopt(r.data);
+    loaded = true; conflict = false;
+    banner(''); lock(false);
+    lastSaved = new Date(); setStatus('wczytano ' + hhmmss(lastSaved));
+    if (first) checkPending();
+    return true;
+  } catch (e) {
+    if (!loaded) lock(true);
+    offlineBanner();
+    return false;
+  }
+}
+function checkPending() {
+  let p = null;
+  try { p = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); } catch (e) { /* brak */ }
+  if (!p || !p.state) return;
+  if (JSON.stringify(p.state.cards) === JSON.stringify(S.cards) && JSON.stringify(p.state.existing) === JSON.stringify(S.existing)
+      && JSON.stringify(p.state.skipped) === JSON.stringify(S.skipped)) {
+    try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ }
+    return;
+  }
+  lock(true);
+  banner(`W tej przeglądarce są niezapisane zmiany z ${esc(new Date(p.ts).toLocaleString('pl-PL'))} (serwer ich nie dostał). <button data-act="sendPending">Wyślij zaległe</button> <button data-act="dropPending">Odrzuć je</button>`, true);
+}
+// co kilka sekund: wykrywa wyłączony serwer i zmiany z innej karty
+setInterval(async () => {
+  if (!loaded || saving || seq !== savedSeq || conflict || document.hidden || refreshing) return;
+  try {
+    const r = await api('GET', API);
+    if (!r.ok || !r.data) throw new Error('bad');
+    if (!$('#banner .b.info')) banner('');
+    if (r.data.rev !== serverRev) { adopt(r.data); lastSaved = new Date(); setStatus('wczytano nowszy stan ' + hhmmss(lastSaved)); }
+  } catch (e) { offlineBanner(); }
+}, 8000);
+window.addEventListener('beforeunload', e => { if (loaded && seq !== savedSeq) { e.preventDefault(); e.returnValue = ''; } });
+
+// ---------- render ----------
+function seg(cls, opts, attrs) {
+  return `<span class="seg ${cls}" ${attrs || ''}>${opts.map(([v, l]) => `<button type="button" data-v="${esc(v)}" aria-pressed="false">${esc(l)}</button>`).join('')}</span>`;
+}
+const SIM = D.sim || null;
+// Media spoza FB (manualFiles) i treści AI (ai) per plik; nazwy plików są unikalne w całym media/.
+const MANF = {}, AIF = {};
+for (const sec of ['new', 'maybe', 'existing', 'fresh']) for (const it of D[sec] || []) { Object.assign(MANF, it.manualFiles || {}); Object.assign(AIF, it.ai || {}); }
+function fileBadges(file) {
+  const a = AIF[file], m = MANF[file];
+  if (!a && !m) return '';
+  return `<span class="badges">${a ? `<span class="aib" title="${esc(a.label + (a.source ? ' · ' + a.source : '') + (a.allow ? ' · dopuszczone' : ' · wykluczone z katalogu'))}">AI${a.allow ? ' (dopuszczone)' : ''}</span>` : ''}` +
+    `${m ? `<span class="nofb" title="${esc(m)}">spoza FB</span>` : ''}</span>`;
+}
+function cardTags(it) {
+  const ai = Object.keys(it.ai || {}).length, man = Object.keys(it.manualFiles || {}).length;
+  if (!it.manualCard && !man && !ai) return '';
+  return `<div class="tags">` + (it.manualCard ? `<span class="nofb" title="${esc(it.manualCard)}">karta spoza FB · ${esc(it.manualCard)}</span>` : '') +
+    (man && !it.manualCard ? `<span class="nofb">${man} zdj. spoza FB · ${esc(Object.values(it.manualFiles)[0])}</span>` : '') +
+    (ai ? `<span class="aib">AI: ${ai} plik(i) z oznaczeniem treści AI – eksport nie wpuści ich do katalogu bez zgody Marcina (ai-flags.json)</span>` : '') + `</div>`;
+}
+const GKEY = {};
+for (const g of G) GKEY[g.key] = g;
+const thumbOf = f => (f.startsWith('frames/') ? f : 'thumbs/' + encodeURI(f));
+function siteInfo(g, file) {
+  if (!SIM) return null;
+  if (g.type === 'existing') return (SIM.existing[g.key] && SIM.existing[g.key].files[file]) || null;
+  if (g.type === 'card') return (SIM.newOnSite[g.key] && SIM.newOnSite[g.key][file]) || null;
+  return null;
+}
+function siteBadge(g, f) {
+  const x = f.kind === 'photo' ? siteInfo(g, f.file) : null;
+  if (!x) return '';
+  const lbl = x.level === 'on' ? (x.product === 'galeria' ? 'na stronie (galeria)' : x.other ? 'na stronie (inny: ' + x.product + ')' : 'na stronie') : 'podobne?';
+  const th = 'legacy-thumbs/' + encodeURI(x.img.replace(/\.\w+$/, '') + '.jpg');
+  return `<span class="site ${x.level}" tabindex="0">${esc(lbl)}<span class="tip"><img src="${th}" alt="">${esc(x.product || '')} · odległość ${x.d} (${esc(x.method)})<br>${esc(x.img)}</span></span>`;
+}
+function figure(g, f) {
+  const src = 'media/' + encodeURI(f.file);
+  let th;
+  if (f.kind === 'photo') th = `<img loading="lazy" decoding="async" src="thumbs/${encodeURI(f.file)}" onerror="this.onerror=null;this.src='${src}'" alt="" data-act="zoom">`;
+  else th = `<video controls preload="none" ${f.poster ? `poster="${esc(f.poster)}"` : ''} src="${src}"></video>` +
+    `<span class="q${f.q && f.q < 720 ? ' low' : ''}">${f.q ? f.q + 'p' : 'film'}</span><button type="button" class="zoom" data-act="zoom" title="Powiększ">⤢</button>`;
+  const cover = g.type === 'card' && f.kind === 'photo' ? `<button type="button" class="cover" data-act="cover" aria-pressed="false" title="Okładka (c)">★</button>` : '';
+  const ctrl = g.type === 'skipped' ? '' : seg('sm', g.opts, 'data-act="media"');
+  const from = f.from ? `<div class="ovf">z karty ${esc(LBL[f.from])}</div>` : '';
+  return `<figure class="m" data-file="${esc(f.file)}" data-d="?">${siteBadge(g, f)}<div class="th">${th}${f.kind === 'photo' ? cover : ''}${fileBadges(f.file)}</div>${ctrl}<div class="ov"></div>${from}</figure>`;
+}
+function posts(it) {
+  const ps = it.posts || [it];
+  return ps.map(p => p.manual ? `<details><summary>spoza FB · ${esc(p.date || 'brak daty')} · ${esc(p.source || '')}</summary><p>${p.text ? esc(p.text) : '<i>bez opisu</i>'}</p></details>`
+    : `<details><summary>#${p.idx} · ${esc(p.date || 'brak daty')} · <a href="https://www.facebook.com/${esc(p.post_id)}" target="_blank" rel="noopener">post</a></summary><p>${p.text ? esc(p.text) : '<i>bez tekstu</i>'}</p></details>`).join('');
+}
+function snippet(t) { t = (t || '').replace(/\s+/g, ' ').trim(); return t.length > 140 ? t.slice(0, 140) + '…' : t; }
+function existingSummary(g) {
+  const x = SIM && SIM.existing[g.key];
+  if (!x) return '';
+  const vals = Object.values(x.files);
+  const on = vals.filter(v => v.level === 'on').length, sim = vals.filter(v => v.level === 'similar').length;
+  const nw = g.it.photos.length - on - sim;
+  const vid = g.it.videos.length;
+  return `<div class="sum">na stronie: <b class="ok">${on}</b> zdj.${sim ? ` · podobne?: <b class="warn">${sim}</b>` : ''} · nowe: <b>${nw}</b> zdj. · filmy: <b>${vid}</b>` +
+    `${vid || x.siteVideo ? ` · film na stronie: <b class="${x.siteVideo ? 'ok' : 'warn'}">${x.siteVideo ? 'jest' : 'nie ma'}</b>` : ''}</div>`;
+}
+function groupName(k) {
+  const g = GKEY[k];
+  if (!g) return k;
+  if (g.type === 'existing') return `«${g.it.title}» (już w katalogu)`;
+  return cardLabel(k);
+}
+const cardTitle = g => ((entry(g) || {}).name || '').trim() || g.it.title;
+function thumbFor(g) {
+  const e = entry(g) || {};
+  const ph = g.files.filter(f => f.kind === 'photo');
+  const f = ph.find(x => x.file === e.cover) || ph[0];
+  if (f) return 'thumbs/' + encodeURI(f.file);
+  const v = g.files.find(x => x.kind === 'video' && x.poster);
+  return v ? v.poster : null;
+}
+const thumbImg = g => { const t = thumbFor(g); return t ? `<img src="${esc(t)}" alt="" loading="lazy">` : `<span class="ph0"></span>`; };
+// Propozycje połączeń: z pliku merge-proposals.json i z notatek „= karta N”. Pokazujemy je na obu kartach (na korzeniach
+// grup), dopóki karty nie są połączone i żadna nie ma drugiej na liście „to nie ten” (notSame).
+const NOTE_REF = /=\s*karta\s*(d?\d+)/gi;
+function proposals() {
+  const raw = (D.proposals || []).map(p => ({ ...p }));
+  for (const g of Object.values(CARD)) {
+    const note = (entry(g) || {}).note || '';
+    for (const m of note.matchAll(NOTE_REF)) {
+      const k = BYLBL[m[1].toUpperCase()];
+      if (k && k !== g.key) raw.push({ a: g.key, b: k, source: 'notatka', reason: `${cardLabel(g.key)}: „${note.trim().slice(0, 80)}”` });
+    }
+  }
+  const out = {}, seen = new Set();
+  for (const p of raw) {
+    const ra = rootOf(p.a), rb = rootOf(p.b);
+    if (ra === rb) continue;
+    const id = [ra, rb].sort().join('|');
+    if (seen.has(id)) continue;
+    const no = k => (S.cards[k] || {}).notSame || [];
+    if ([p.a, ra].some(k => no(k).includes(p.b) || no(k).includes(rb)) || [p.b, rb].some(k => no(k).includes(p.a) || no(k).includes(ra))) continue;
+    seen.add(id);
+    (out[ra] ||= []).push({ other: rb, source: p.source, reason: p.reason, model: p.model });
+    (out[rb] ||= []).push({ other: ra, source: p.source, reason: p.reason, model: p.model });
+  }
+  return out;
+}
+// Opinie modeli (etap B, vision/results.json): tylko podpowiedź, decyzję i tak zapisuje przycisk.
+const VISION = D.vision || {};
+const V_LABEL = { same: 'prawdopodobnie ten sam', different: 'raczej inny', unsure: 'niepewne' };
+function visionHTML(ops) {
+  if (!ops || !ops.length) return '';
+  const split = new Set(ops.map(o => o.verdict)).size > 1;
+  return `<div class="vm">` + (split ? `<span class="vx">modele się różnią – oceń sam:</span>` : '') + ops.map(o =>
+    `<span title="${esc('na co patrzył: ' + (o.looked || []).join(', '))}"><span class="vb ${esc(o.verdict)}">model: ${esc(V_LABEL[o.verdict] || o.verdict)} – ${esc(o.confidence)} %</span>` +
+    `<span class="vr">${esc(o.model)}: ${esc(o.reason)}</span></span>`).join('') + `</div>`;
+}
+const visionFor = (a, b) => VISION[[a, b].sort().join('|')];
+// Podpowiedź Terry (classify/results.json): co zrobić z postem względem katalogu. Decyzję i tak zapisujesz sam.
+const HINTS = D.hints || {};
+const H_LABEL = { 'nowy': 'nowy pierścionek do katalogu', 'dodatek': 'zdjęcia do istniejącej karty', 'zamiast-wizualizacji': 'prawdziwe zdjęcie zamiast wizualizacji',
+  'nowy-wariant': 'nowy kamień do istniejącego fasonu', 'material': 'materiał', 'pomin': 'nic do wykorzystania' };
+function hintHTML(g) {
+  const h = HINTS[g.key];
+  if (!h || !h.result) return '';
+  const r = h.result;
+  const target = r.product ? ` → <b>${esc(h.productName || r.product)}</b>` + (r.variant ? ` (${esc(r.variant)})` : '') : '';
+  const already = alreadyIn(g) ? ' · <b>✔ już w katalogu, nic nie trzeba zaznaczać</b><span class="tg" data-act="toggleOpen">pokaż zdjęcia</span>' : '';
+  return `<div class="hintm">Podpowiedź modelu: <b>${esc(H_LABEL[r.category] || r.category)}</b>${target} · ${esc(r.confidence)} %${already}<br><span class="vr">${esc(r.reason)}</span></div>`;
+}
+// Czytelny werdykt: zdjęcia posta obok miniatur kart z katalogu, zdanie po ludzku i przyciski jednym kliknięciem.
+const CARDS = D.catalogCards || {};
+const imgTag = (u, cls) => u ? `<img class="${cls || ''}" src="${esc(u)}" alt="" loading="lazy">` : `<span class="ph0"></span>`;
+function cardBlock(slug, variant, alt) {
+  const c = CARDS[slug];
+  if (!c) return '';
+  const vt = (c.variants || []).map(v => `<span title="${esc(v.stone + (v.vis ? ' (wizualizacja)' : ''))}">${v.thumb ? `<img class="${v.vis ? 'vis' : ''}" src="${esc(v.thumb)}" alt="${esc(v.stone)}" loading="lazy">` : ''}</span>`).join('');
+  const st = c.status === 'draft' ? 'szkic (jeszcze niewidoczny na stronie)' : 'opublikowana';
+  return `<div class="rc"><a href="https://pznowak.pl/pierscionki/${esc(slug)}" target="_blank" rel="noopener" title="Otwórz kartę na stronie">${imgTag(c.thumb, 'main')}</a>` +
+    `<div class="${alt ? 'alt' : ''}"><div class="nm">${esc(c.name)}</div><small>${esc([c.stone, c.metal].filter(Boolean).join(' · '))} · ${st}</small>` +
+    (variant ? `<div><small>nowy kamień: <b>${esc(variant)}</b></small></div>` : '') + `<div class="vthumbs">${vt}</div></div></div>`;
+}
+function verdictText(r, name) {
+  const n = `<b>${esc(name || r.product)}</b>`, v = r.variant ? ` w kamieniu <b>${esc(r.variant)}</b>` : '';
+  switch (r.category) {
+    case 'nowy': return 'Wygląda na <b>nowy pierścionek</b>, którego nie ma jeszcze w katalogu.';
+    case 'dodatek': return `To zdjęcia lub film pierścionka, który <b>już masz</b>: ${n}.`;
+    case 'zamiast-wizualizacji': return `To <b>prawdziwe zdjęcie</b> pierścionka ${n}${v}. W katalogu ma on dziś tylko wizualizację tego kamienia.`;
+    case 'nowy-wariant': return `To pierścionek ${n}${v}: fason już masz, <b>nowy jest kamień</b>.`;
+    case 'material': return 'To <b>nie pierścionek do katalogu</b> (warsztat, proces, kamienie luzem albo ogłoszenie).';
+    default: return 'Model nie widzi tu nic do wykorzystania.';
+  }
+}
+function verdictHTML(g) {
+  const h = HINTS[g.key];
+  if (!h || !h.result || !D.catalogCards) return '';
+  const r = h.result, main = r.product && CARDS[r.product] ? r.product : null;
+  if (main && alreadyIn(g)) {
+    const v = r.variant ? ` (kamień: <b>${esc(r.variant)}</b>)` : '';
+    return `<div class="vd ok"><div class="say">✔ Zdjęcia z tego posta są <b>już w karcie ${esc(CARDS[main].name)}</b>${v}. Nic nie trzeba zaznaczać, eksport nie zrobi z nich drugiego szkicu. <span class="tg" data-act="toggleOpen">pokaż zdjęcia</span></div>` +
+      `<div class="cols"><div class="col">${cardBlock(main, '')}</div></div></div>`;
+  }
+  const shots = g.files.filter(f => f.kind === 'photo').slice(0, 5).map(f => `<img src="${thumbOf(f.file)}" alt="" loading="lazy" data-act="zoomfile" data-file="${esc(f.file)}">`).join('');
+  const others = (h.candidates || []).filter(s => s !== r.product && CARDS[s]).slice(0, 3);
+  const acts = [];
+  if (main && ['dodatek', 'zamiast-wizualizacji', 'nowy-wariant'].includes(r.category))
+    acts.push(`<button type="button" class="yes" data-act="hintDo" data-do="addto" data-slug="${esc(main)}" data-variant="${esc(r.variant || '')}" data-action="${r.category === 'zamiast-wizualizacji' ? 'zamiast-wizualizacji' : ''}">Tak, dodaj do: ${esc(CARDS[main].name)}${r.variant ? ' (' + esc(r.variant) + ')' : ''}</button>`);
+  if (r.category === 'nowy') acts.push(`<button type="button" class="yes" data-act="hintDo" data-do="catalog">Tak, to nowy pierścionek</button>`);
+  if (r.category === 'material') acts.push(`<button type="button" class="yes" data-act="hintDo" data-do="material">Tak, to materiał</button>`);
+  if (r.category === 'pomin') acts.push(`<button type="button" class="yes" data-act="hintDo" data-do="reject">Tak, pomiń</button>`);
+  if (r.category !== 'nowy') acts.push(`<button type="button" data-act="hintDo" data-do="catalog">Nie, to nowy pierścionek</button>`);
+  if (r.category !== 'material') acts.push(`<button type="button" data-act="hintDo" data-do="material">To materiał</button>`);
+  if (r.category !== 'pomin') acts.push(`<button type="button" data-act="hintDo" data-do="reject">Pomiń</button>`);
+  const alt = others.length ? `<div class="col"><h4>Inne możliwe karty (jeśli to jednak nie ta)</h4>${others.map(s => cardBlock(s, '', true) + `<button type="button" data-act="hintDo" data-do="addto" data-slug="${esc(s)}" data-variant="">To ta karta: ${esc(CARDS[s].name)}</button>`).join('')}</div>` : '';
+  return `<div class="vd"><div class="say">${verdictText(r, h.productName)} <span class="why">(model jest pewny na ${esc(r.confidence)} %)</span></div>` +
+    `<div class="cols"><div class="col"><h4>Z posta</h4><div class="strip">${shots || '<i>bez zdjęć (sam film)</i>'}</div></div>` +
+    (main ? `<div class="col"><h4>${r.category === 'nowy' ? 'Najbardziej podobna w katalogu' : 'W katalogu'}</h4>${cardBlock(main, r.category === 'nowy-wariant' || r.category === 'zamiast-wizualizacji' ? r.variant : '')}</div>` : '') + alt +
+    `</div><div class="why">${esc(r.reason)}</div><div class="act">${acts.join('')}</div><div class="picked">${pickedText(g)}</div></div>`;
+}
+function pickedText(g) {
+  const e = entry(g);
+  if (!e || !e.decision) return '';
+  const lab = { catalog: 'nowa karta', addto: 'dodaj do: ' + (e.target || '') + (e.variant ? ' (' + e.variant + ')' : ''), material: 'materiały', reject: 'pominięte' }[e.decision];
+  return lab ? '✔ Zapisane: ' + lab : '';
+}
+function hintDo(g, el) {
+  const e = ensure(g), d = el.dataset.do;
+  e.decision = d;
+  delete e.target; delete e.variant; delete e.product; delete e.action; delete e.newRing;
+  // „nowy pierścionek” wprost: eksport nie przekieruje go do istniejącej karty z podpowiedzi (export_selection.py, newRing)
+  if (d === 'catalog') e.newRing = true;
+  if (d === 'addto') {
+    const c = CARDS[el.dataset.slug];
+    if (c) { e.target = c.name; e.product = el.dataset.slug; }
+    if (el.dataset.variant) e.variant = el.dataset.variant;
+    // prawdziwe zdjęcie zamiast wizualizacji wariantu (bez tego import czekałby na prawdziwy wariant)
+    if (el.dataset.action) e.action = el.dataset.action;
+  }
+  fixCover(g);
+  fillFields();
+  changed(g);
+  const out = g.el && g.el.querySelector('.vd .picked');
+  if (out) out.textContent = pickedText(g);
+}
+// Post bez zdjęć (sam film) to prawie zawsze dodatek do istniejącej karty, nie nowy pierścionek.
+function modeWarn(g) {
+  const photos = g.files.filter(f => f.kind === 'photo').length, videos = g.files.filter(f => f.kind === 'video').length;
+  const h = (D.hints || {})[g.key], r = h && h.result;
+  const guess = r && r.product ? ` Model podpowiada kartę <b>${esc(h.productName || r.product)}</b>.` : '';
+  return !photos && videos ? `<div class="warnbox">Ta karta to sam film (${videos}), bez zdjęć. Wybierz <b>dodaj do karty…</b> i wskaż istniejący pierścionek. Jako <b>nową kartę</b> nie zostanie utworzona.${guess}</div>` : '';
+}
+function propsHTML(g, list) {
+  return (list || []).map(p => {
+    const o = CARD[p.other];
+    const src = p.source === 'model' ? '' : `<br><span class="why">${esc(p.source || '')}${p.reason ? ': ' + esc(p.reason) : ''}</span>`;
+    return `<div class="prop" data-other="${esc(p.other)}"><span class="bd">propozycja: ten sam pierścionek co ${esc(cardLabel(p.other))}</span>` +
+      `${thumbImg(o)}<span><b>${esc(cardTitle(o))}</b> <a class="go" data-act="jump" data-to="${esc(o.gid)}">przejdź</a>${src}</span>` +
+      `<button type="button" data-act="propMerge" data-src="${esc(g.key)}" data-dst="${esc(p.other)}">połącz, zostaje ${esc(cardLabel(p.other))}</button>` +
+      `<button type="button" data-act="propMerge" data-src="${esc(p.other)}" data-dst="${esc(g.key)}">połącz, zostaje ${esc(cardLabel(g.key))}</button>` +
+      `<button type="button" data-act="notSame" data-other="${esc(p.other)}">to nie ten</button>${visionHTML(p.model)}</div>`;
+  }).join('');
+}
+function membersHTML(g) {
+  if (!g.members.length) return '';
+  return `<div class="mrow">Dołączone karty (ich zdjęcia i filmy są niżej, decyzję podejmuje ta karta): ` +
+    g.members.map(m => `<span>${thumbImg(m)} <b>${esc(cardLabel(m.key))}</b> ${esc(m.it.title)} <button type="button" data-act="unmerge" data-key="${esc(m.key)}">rozłącz</button></span>`).join(' ') + `</div>`;
+}
+function dupsHTML(g) {
+  const list = SIM && SIM.dups[g.key];
+  if (!list) return '';
+  return `<div class="dups">` + list.map(d => {
+    const og = GKEY[d.other];
+    const thumbs = d.pairs.slice(0, 2).map(p => `<span class="pr"><img src="${thumbOf(p.a)}" alt="" data-act="zoomfile" data-file="${esc(p.a)}"> ≈ <img src="${thumbOf(p.b)}" alt="" data-act="zoomfile" data-file="${esc(p.b)}"> <small>d=${p.d}</small></span>`).join('');
+    const same = g.type === 'card' && og && og.type === 'card'
+      ? `<button type="button" data-act="sameas" data-other="${esc(d.other)}" aria-pressed="false">to ten sam pierścionek co ${esc(groupName(d.other))}</button><span class="state"></span>` : '';
+    return `<div class="dup" data-other="${esc(d.other)}"><span class="bd">${d.level === 'close' ? 'możliwy dubel' : 'podobne zdjęcia'}: ${esc(groupName(d.other))}</span>` +
+      `<a class="go" data-act="jump" data-to="${esc(og ? og.gid : '')}">przejdź</a>${thumbs}${same}${visionHTML(visionFor(g.key, d.other))}</div>`;
+  }).join('') + `</div>`;
+}
+function itemHTML(g, n, label) {
+  const it = g.it;
+  const num = label ? esc(label) + '. ' : '';
+  let head, extra = '';
+  if (isMerged(g)) {
+    const r = CARD[g.root];
+    return `<section class="item merged" id="i-${esc(g.gid)}" data-g="${esc(g.gid)}"><div class="head"><h3>${num}${esc(it.title)}</h3>` +
+      `<span>połączona z <b>kartą ${esc(LBL[r.key])}</b> «${esc(cardTitle(r))}» · <a class="go" data-act="jump" data-to="${esc(r.gid)}">przejdź</a> ` +
+      `<button type="button" data-act="unmerge" data-key="${esc(g.key)}">rozłącz</button></span></div>` +
+      `<div class="bulk">Decyzję, okładkę i wybór zdjęć tej karty ustala teraz ${esc(cardLabel(r.key))}.</div>${posts(it)}</section>`;
+  }
+  if (g.type === 'card') {
+    head = `<h3>${num}${esc(it.title)}</h3><span><button type="button" class="mergebtn" data-act="collapse" title="Zwija zdjęcia i pola tej karty (decyzja zostaje, karta nadal jest na liście „dodaj do karty…”)">zwiń</button> <button type="button" class="mergebtn" data-act="pickOpen">połącz z kartą…</button> ${seg('dec', CARD_DEC, 'data-act="decide"')}</span>`;
+    extra = `${verdictHTML(g) || hintHTML(g)}<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza (nowa karta: imię z mitologii, nie tytuł posta)" aria-label="Nazwa robocza" value="">` +
+      `<input class="target" data-f="target" type="text" list="catalogProducts" placeholder="Do której istniejącej karty (nazwa z katalogu)" aria-label="Istniejąca karta docelowa" value="">` +
+      `<input class="target" data-f="variant" type="text" placeholder="Wariant kamienia (opcjonalnie, np. Turmalin): film/zdjęcia poczekają, aż wariant powstanie" aria-label="Wariant karty docelowej" value="">` +
+      `<textarea data-f="note" placeholder="Krótka notatka (np. „= karta 12”, żeby zaproponować połączenie)" aria-label="Notatka"></textarea></div>${modeWarn(g)}`;
+  } else if (g.type === 'existing') {
+    head = `<h3>${esc(it.title)}</h3><button type="button" class="cbtn" data-act="complete" aria-pressed="false" title="Nic z tych postów nie trafia do galerii; decyzje zdjęć zostają w pliku, ale eksport je pomija">kompletne – bez zmian</button>`;
+    extra = existingSummary(g) + `<div class="bulk">Wszystkie (${g.files.length}): ${seg('sm', g.opts, 'data-act="bulk"')}</div>`;
+  } else {
+    head = `<h3>#${it.idx} · ${esc(it.date || 'brak daty')}</h3>${seg('post', g.opts, 'data-act="media"')}`;
+    extra = `<div class="bulk">${esc(snippet(it.text)) || '<i>bez tekstu</i>'}</div>`;
+  }
+  const reset = g.type === 'card' && g.files.length ? `<div class="bulk"><button type="button" data-act="reset">wyczyść ręczne nadpisania zdjęć</button></div>` : '';
+  return `<section class="item" id="i-${esc(g.gid)}" data-g="${esc(g.gid)}"><div class="head">${head}</div>${cardTags(it)}${dupsHTML(g)}${extra}` +
+    `<div class="media">${g.files.map(f => figure(g, f)).join('')}</div>${reset}${posts(it)}</section>`;
+}
+function renderAll() {
+  rebuildMerge();
+  renderedSig = currentMergeSig();
+  let html = '';
+  for (const [sec, title, type] of SECTIONS) {
+    const gs = G.filter(g => g.sec === sec);
+    html += `<h2 id="s-${sec}" data-sec="${sec}">${esc(title)} <small>(${gs.length})</small></h2>`;
+    if (type === 'existing') html += `<p class="bulk">Zdjęcia z postów pierścionków, które już są w katalogu: część może uzupełnić ich galerie.</p>`;
+    html += gs.map((g, i) => itemHTML(g, i, type === 'card' ? (sec === 'maybe' ? 'D' : sec === 'fresh' ? 'N' : '') + (i + 1) : '')).join('');
+  }
+  $('#main').innerHTML = html;
+  for (const g of G) { g.el = document.getElementById('i-' + g.gid); if (g.el) g.el.dataset.sec = g.sec; }
+  fillFields();
+}
+function fillFields() {
+  for (const g of G) {
+    if (g.type !== 'card' || !g.el) continue;
+    const e = entry(g) || {};
+    const n = $('[data-f=name]', g.el), t = $('[data-f=note]', g.el), tg = $('[data-f=target]', g.el), vr = $('[data-f=variant]', g.el);
+    if (!n || !t) continue;
+    if (tg) tg.value = e.target ?? '';
+    if (vr) vr.value = e.variant ?? '';
+    n.value = e.name ?? g.it.title;
+    t.value = e.note ?? '';
+  }
+}
+
+// ---------- synchronizacja widoku ----------
+function press(root, sel, val) {
+  if (!root) return;
+  root.querySelectorAll(sel).forEach(b => b.setAttribute('aria-pressed', String((b.dataset.v ?? '') === val)));
+}
+function sync() {
+  if (currentMergeSig() !== renderedSig) {
+    const y = window.scrollY;
+    renderAll();
+    window.scrollTo(0, y);
+  }
+  const catF = new Set(), matF = new Set(), kind = {};
+  const prog = {};
+  const props = proposals();
+  for (const g of G) {
+    const el = g.el;
+    if (!el) continue;
+    const done = isDone(g);
+    const e = entry(g);
+    (prog[g.sec] ||= [0, 0])[1]++;
+    if (done) prog[g.sec][0]++;
+    el.classList.toggle('done', done);
+    el.classList.toggle('complete', isComplete(g));
+    el.classList.toggle('already', g.type === 'card' && alreadyIn(g) && !(e && e.decision));
+    const cb = $('.cbtn', el);
+    if (cb) { cb.setAttribute('aria-pressed', String(isComplete(g))); cb.textContent = isComplete(g) ? '✔ kompletne – bez zmian' : 'kompletne – bez zmian'; }
+    for (const dp of el.querySelectorAll('.dup')) {
+      // para już połączona: wiersz dubla niepotrzebny
+      dp.hidden = g.type === 'card' && !!CARD[dp.dataset.other] && rootOf(dp.dataset.other) === g.root;
+    }
+    const pe = $('.props', el);
+    if (pe) {
+      const html = propsHTML(g, props[g.key]);
+      if (pe.dataset.html !== html) { pe.innerHTML = html; pe.dataset.html = html; }
+    }
+    el.classList.toggle('touched', touched.has(g.gid));
+    el.dataset.dec = g.type === 'card' ? (e && e.decision || '') : g.type === 'skipped' ? (e && e.decision || '') : '';
+    if (g.type === 'card') press($('.head .seg', el), 'button', e && e.decision || '');
+    if (g.type === 'skipped') press($('.head .seg', el), 'button', e && e.decision || '');
+    for (const fig of el.querySelectorAll('figure.m')) {
+      const f = fig.dataset.file;
+      const d = eff(g, f);
+      fig.dataset.d = d || '?';
+      const ex = explicit(g, f);
+      const ov = $('.ov', fig);
+      ov.textContent = g.type === 'card' && ex ? '• ręcznie' : '';
+      const s = $('.seg', fig);
+      if (s) press(s, 'button', d || '');
+      const c = $('.cover', fig);
+      if (c) c.setAttribute('aria-pressed', String(!!(e && e.cover === f)));
+      if (isComplete(g)) continue;
+      if (d === 'catalog' || d === 'gallery') catF.add(f); else if (d === 'material') matF.add(f);
+    }
+  }
+  for (const g of G) for (const f of g.files) kind[f.file] = f.kind;
+  const cnt = set => { let p = 0, v = 0; set.forEach(f => kind[f] === 'video' ? v++ : p++); return `<b>${p}</b> zdj. + <b>${v}</b> filmów`; };
+  $('#counters').innerHTML = SECTIONS.map(([sec, , , short]) => `<span>${esc(short)}: przejrzane <b>${(prog[sec] || [0, 0])[0]}</b> / ${(prog[sec] || [0, 0])[1]}</span>`).join('') +
+    `<br><span>W katalogu (z galeriami): ${cnt(catF)}</span><span>W materiałach: ${cnt(matF)}</span>`;
+  footer();
+  updateStatus();
+  if (lb.g) lbRender();
+}
+function footer() {
+  const orph = [];
+  const known = {};
+  for (const g of G) known[g.gid] = g;
+  for (const [b, type] of [['cards', 'card'], ['existing', 'existing'], ['skipped', 'skipped']]) {
+    for (const k of Object.keys(S[b])) {
+      const g = known[type + ':' + k];
+      if (!g) { orph.push({ b, k, why: 'brak takiej karty w przeglądzie' }); continue; }
+      const e = S[b][k];
+      if (type === 'card' && e.sameAs && !CARD[e.sameAs]) orph.push({ b, k, why: 'połączona z kartą, której nie ma w przeglądzie: ' + e.sameAs });
+      const have = new Set([...g.own, ...g.files].map(f => f.file));
+      const lost = Object.keys(e.media || {}).filter(f => !have.has(f));
+      if (e.cover && !have.has(e.cover)) lost.push(e.cover + ' (okładka)');
+      if (lost.length) orph.push({ b, k, why: 'nie ma już plików: ' + lost.join(', ') });
+    }
+  }
+  const el = $('#foot');
+  if (!orph.length) { el.innerHTML = `Gotowe decyzje są w <code>data/facebook/selection.json</code>.`; return; }
+  el.innerHTML = `<div class="orph"><b>Osierocone decyzje (${orph.length})</b>: zostają w selection.json, ale nie pasują do obecnego przeglądu.<ul>` +
+    orph.map(o => {
+      let act = '';
+      if (o.b === 'cards') {
+        const pid = o.k.split('@')[1];
+        const cand = G.filter(g => g.type === 'card' && g.key.split('@')[1] === pid);
+        if (cand.length === 1 && !S.cards[cand[0].key]) act = ` <button type="button" data-act="adoptOrphan" data-from="${esc(o.k)}" data-to="${esc(cand[0].key)}">przenieś na „${esc(cand[0].it.title)}”</button>`;
+      }
+      return `<li><code>${esc(o.b)}/${esc(o.k)}</code>: ${esc(o.why)}${act}</li>`;
+    }).join('') + `</ul></div>`;
+}
+
+// ---------- podgląd (lightbox) ----------
+const lb = { g: null, i: 0, auto: true };
+const lbEl = $('#lb');
+function lbOpen(g, i) { lb.g = g; lb.i = i; lbEl.hidden = false; document.body.classList.add('lbopen'); lbRender(); }
+function lbClose() { lb.g = null; lbEl.hidden = true; $('.stage', lbEl).innerHTML = ''; delete $('.stage', lbEl).dataset.file; document.body.classList.remove('lbopen'); }
+function lbRender() {
+  if (!lb.g.files.length || isMerged(lb.g)) { lbClose(); return; }
+  lb.i = Math.min(lb.i, lb.g.files.length - 1);
+  const g = lb.g, f = g.files[lb.i], stage = $('.stage', lbEl);
+  const src = 'media/' + encodeURI(f.file);
+  if (stage.dataset.file !== f.file) {
+    stage.dataset.file = f.file;
+    stage.innerHTML = f.kind === 'photo' ? `<img src="${src}" alt="">` : `<video controls src="${src}"></video>`;
+    for (const d of [-1, 1]) { const n = g.files[lb.i + d]; if (n && n.kind === 'photo') new Image().src = 'media/' + encodeURI(n.file); }
+  }
+  const d = eff(g, f.file), e = entry(g) || {};
+  const opts = g.opts.map(([v, l], k) => `<button type="button" data-v="${v}" data-lbset="${v}" aria-pressed="${d === v}">${k + 1} ${esc(l)}</button>`).join('');
+  const cover = g.type === 'card' && f.kind === 'photo' ? ` <button type="button" data-lbcover aria-pressed="${e.cover === f.file}">c ★ okładka${e.cover === f.file ? ' (jest)' : ''}</button>` : '';
+  const title = g.type === 'skipped' ? `#${g.it.idx} ${g.it.date || ''}` : g.it.title;
+  lbEl.querySelector('.cap').innerHTML = `<div><b>${esc(title)}</b> · ${lb.i + 1}/${g.files.length} · ${d ? esc(LABEL[d]) : 'nieprzejrzane'}</div>` +
+    `<div class="seg">${opts}</div>${cover}` +
+    `<div class="hint">←/→ dalej · 0 wyczyść · Esc zamknij<label><input type="checkbox" id="lbAuto" ${lb.auto ? 'checked' : ''}> po decyzji przejdź dalej</label></div>`;
+}
+function lbMove(d) {
+  const n = lb.i + d;
+  if (n < 0 || n >= lb.g.files.length) return;
+  lb.i = n; lbRender();
+}
+function lbDecide(k) {
+  const o = lb.g.opts[k];
+  if (!o) return;
+  setMedia(lb.g, lb.g.files[lb.i].file, o[0]);
+  if (lb.auto) lbMove(1);
+}
+
+// ---------- „połącz z kartą…” ----------
+const pickEl = $('#pick');
+let pickFor = null;
+function pickOpen(g) {
+  pickFor = g;
+  $('#pickTitle').textContent = `Połącz kartę ${LBL[g.key]} «${cardTitle(g)}» z kartą…`;
+  $('#pickFilter').value = '';
+  pickRender();
+  pickEl.showModal();
+  $('#pickFilter').focus();
+}
+function pickRender() {
+  const q = $('#pickFilter').value.trim().toLowerCase();
+  const DEC = { catalog: 'nowa karta', addto: 'dodaj do karty', material: 'materiały', reject: 'odrzuć' };
+  const rows = Object.values(CARD).filter(c => c.root === c.key && c.key !== pickFor.root).filter(c => {
+    if (!q) return true;
+    const hay = [LBL[c.key], 'karta ' + LBL[c.key], c.it.title, cardTitle(c), (entry(c) || {}).note || '', ...c.it.posts.map(p => p.text || '')].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+  $('#pickList').innerHTML = rows.map(c => {
+    const e = entry(c) || {};
+    const extra = c.members.length ? ` · dołączone: ${c.members.map(m => LBL[m.key]).join(', ')}` : '';
+    return `<li><button type="button" class="pick-row" data-act="pick" data-key="${esc(c.key)}">${thumbImg(c)}<span class="t"><b>${esc(cardLabel(c.key))} · ${esc(cardTitle(c))}</b>` +
+      `<small>${c.files.filter(f => f.kind === 'photo').length} zdj. · ${c.files.filter(f => f.kind === 'video').length} filmów · decyzja: ${esc(DEC[e.decision] || '?')}${esc(extra)}</small></span></button></li>`;
+  }).join('') || '<li class="bulk">Brak kart pasujących do wyszukiwania.</li>';
+}
+function pickChoose(key) {
+  const other = CARD[key], g = pickFor;
+  pickEl.close();
+  if (!other || !g) return;
+  if (document.querySelector('input[name=pickDir]:checked').value === 'into') mergeInto(CARD[g.root], other);
+  else mergeInto(other, CARD[g.root]);
+}
+$('#pickFilter').addEventListener('input', pickRender);
+
+// ---------- zdarzenia ----------
+function itemOf(t) { const s = t.closest('.item'); return s ? GBY[s.dataset.g] : null; }
+document.addEventListener('click', async ev => {
+  const t = ev.target.closest('[data-act],[data-lb],[data-lbset],[data-lbcover]');
+  if (!t) return;
+  const vb = ev.target.closest('button[data-v]');
+  if (t.dataset.lb) { if (t.dataset.lb === 'close') lbClose(); else lbMove(t.dataset.lb === 'prev' ? -1 : 1); return; }
+  if (t.dataset.lbset !== undefined) { setMedia(lb.g, lb.g.files[lb.i].file, t.dataset.lbset); if (lb.auto) lbMove(1); return; }
+  if (t.hasAttribute('data-lbcover')) { setCover(lb.g, lb.g.files[lb.i].file); return; }
+  const act = t.dataset.act;
+  if (act === 'retry') { clearTimeout(retryTimer); if (!loaded) await load(true); else if (seq !== savedSeq) save(); else await load(false); return; }
+  if (act === 'reload') { conflict = false; await load(false); try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ } return; }
+  if (act === 'force') { serverRev = Number(t.dataset.rev) || 0; conflict = false; banner(''); save(); return; }
+  if (act === 'sendPending') {
+    let p = null; try { p = JSON.parse(localStorage.getItem(PENDING_KEY)); } catch (e) { /* brak */ }
+    if (p && p.state) { const rev = serverRev; S = normalize(p.state); S.rev = serverRev = rev; fillFields(); seq = 1; savedSeq = 0; }
+    lock(false); banner(''); sync(); save(); return;
+  }
+  if (act === 'dropPending') { try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ok */ } lock(false); banner(''); return; }
+  if (act === 'adoptOrphan') { S.cards[t.dataset.to] = S.cards[t.dataset.from]; delete S.cards[t.dataset.from]; fillFields(); changed(GBY['card:' + t.dataset.to]); return; }
+  if (act === 'collapse') { const it = t.closest('.item'); it.classList.toggle('col'); t.textContent = it.classList.contains('col') ? 'rozwiń' : 'zwiń'; return; }
+  if (act === 'toggleOpen') { const it = t.closest('.item'); it.classList.toggle('open'); t.textContent = it.classList.contains('open') ? 'zwiń zdjęcia' : 'pokaż zdjęcia'; return; }
+  if (act === 'jump') { const g2 = GBY[t.dataset.to]; if (g2 && g2.el) { g2.el.scrollIntoView({ block: 'start', behavior: 'smooth' }); g2.el.classList.remove('flash'); void g2.el.offsetWidth; g2.el.classList.add('flash'); } return; }
+  if (act === 'zoomfile') { const fl = t.dataset.file; window.open(fl.startsWith('frames/') ? fl : 'media/' + fl, '_blank', 'noopener'); return; }
+  if (act === 'propMerge') { mergeInto(CARD[t.dataset.src], CARD[t.dataset.dst]); return; }
+  if (act === 'unmerge') { const m = CARD[t.dataset.key]; if (m) unmerge(m); return; }
+  if (act === 'pickClose') { pickEl.close(); return; }
+  if (act === 'pick') { pickChoose(t.dataset.key); return; }
+  const g = itemOf(t);
+  if (!g) return;
+  const v = vb ? vb.dataset.v : undefined;
+  if (act === 'complete') { toggleComplete(g); return; }
+  if (act === 'sameas') { mergeInto(g, CARD[t.dataset.other]); return; }
+  if (act === 'notSame') { markNotSame(g, t.dataset.other); return; }
+  if (act === 'pickOpen') { pickOpen(g); return; }
+  if (act === 'hintDo') hintDo(g, t);
+  else if (act === 'decide') setDecision(g, v);
+  else if (act === 'bulk') bulk(g, v);
+  else if (act === 'reset') resetOverrides(g);
+  else if (act === 'cover') setCover(g, t.closest('figure').dataset.file);
+  else if (act === 'zoom') { const f = t.closest('figure').dataset.file; lbOpen(g, g.files.findIndex(x => x.file === f)); }
+  else if (act === 'media') {
+    const fig = t.closest('figure');
+    setMedia(g, fig ? fig.dataset.file : null, v);
+  }
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if (!t.dataset || !t.dataset.f) return;
+  const g = itemOf(t);
+  const e = ensure(g);
+  const val = t.value;
+  if (t.dataset.f === 'name') { if (!val.trim() || val.trim() === g.it.title) delete e.name; else e.name = val; }
+  else if (t.dataset.f === 'variant') { if (!val.trim()) delete e.variant; else e.variant = val.trim(); }
+  else if (t.dataset.f === 'target') { delete e.product; delete e.action; if (!val.trim()) delete e.target; else e.target = val.trim(); }
+  else if (!val.trim()) delete e.note; else e.note = val;
+  changed(g);
+});
+document.addEventListener('change', ev => {
+  if (ev.target.id === 'lbAuto') lb.auto = ev.target.checked;
+});
+document.addEventListener('keydown', ev => {
+  const tag = (ev.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || ev.metaKey || ev.ctrlKey || ev.altKey || pickEl.open) return;
+  if (lb.g) {
+    const k = ev.key;
+    if (k === 'Escape') lbClose();
+    else if (k === 'ArrowLeft') lbMove(-1);
+    else if (k === 'ArrowRight') lbMove(1);
+    else if (k >= '1' && k <= '9') lbDecide(Number(k) - 1);
+    else if (k === '0' || k === 'Backspace') setMedia(lb.g, lb.g.files[lb.i].file, '');
+    else if (k === 'c' && lb.g.type === 'card' && lb.g.files[lb.i].kind === 'photo') setCover(lb.g, lb.g.files[lb.i].file);
+    else return;
+    ev.preventDefault();
+    return;
+  }
+  if (ev.key === 'n') { nextOpen(); ev.preventDefault(); }
+});
+function nextOpen() {
+  const open = G.filter(g => g.el && !g.el.classList.contains('done') && g.el.offsetParent !== null);
+  if (!open.length) { setStatus('Wszystko przejrzane'); return; }
+  const hh = $('header').offsetHeight + 24;
+  const g = open.find(x => x.el.getBoundingClientRect().top > hh) || open[0];
+  g.el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  g.el.classList.remove('flash'); void g.el.offsetWidth; g.el.classList.add('flash');
+}
+$('#nextBtn').addEventListener('click', nextOpen);
+const onlyOpen = $('#onlyOpen');
+onlyOpen.addEventListener('change', () => {
+  touched.clear();
+  document.body.classList.toggle('only-open', onlyOpen.checked);
+  sync();
+  try { localStorage.setItem('fbreview:onlyOpen', onlyOpen.checked ? '1' : ''); } catch (e) { /* ok */ }
+});
+// Pobierz nowe posty: serwer przeglądu ściąga kopię z MyDevil, dopisuje posty i przebudowuje stronę (refresh_posts.py).
+$('#refreshBtn').addEventListener('click', async () => {
+  if (!loaded || refreshing) return;
+  clearTimeout(saveTimer);
+  for (let i = 0; i < 5 && seq !== savedSeq && !conflict; i++) { await save(); if (seq !== savedSeq) await new Promise(r => setTimeout(r, 400)); }
+  if (conflict || seq !== savedSeq) { alert('Najpierw trzeba zapisać decyzje (zobacz czerwony baner).'); return; }
+  refreshing = true;
+  const btn = $('#refreshBtn');
+  btn.disabled = true; btn.textContent = 'Pobieram…';
+  setStatus('pobieranie nowych postów (może potrwać kilka minut)…');
+  try {
+    const r = await api('POST', '/api/refresh', undefined, 45 * 60 * 1000);
+    const d = r.data || {};
+    const info = (d.lines || []).join('\n');
+    if (d.rebuilt) {
+      alert(`Nowe posty: ${d.added}. Strona się teraz odświeży.\n\n${info}`);
+      location.reload();
+      return;
+    }
+    if (!r.ok || !d.ok) throw new Error(info || (d.error || 'HTTP ' + r.status));
+    alert(d.added ? info : 'Brak nowych postów.\n\n' + info);
+    updateStatus();
+  } catch (e) {
+    alert('Pobieranie nie wyszło:\n' + (e.name === 'AbortError' ? 'brak odpowiedzi serwera' : e.message));
+    updateStatus();
+  } finally { refreshing = false; btn.disabled = false; btn.textContent = 'Pobierz nowe posty'; }
+});
+$('#exportBtn').addEventListener('click', async () => {
+  if (!loaded) return;
+  clearTimeout(saveTimer);
+  for (let i = 0; i < 5 && seq !== savedSeq && !conflict; i++) { await save(); if (seq !== savedSeq) await new Promise(r => setTimeout(r, 400)); }
+  if (conflict || seq !== savedSeq) { alert('Najpierw trzeba zapisać decyzje (zobacz czerwony baner).'); return; }
+  try {
+    const r = await api('POST', '/api/export');
+    if (!r.ok || !r.data || !r.data.ok) throw new Error((r.data && r.data.error) || 'HTTP ' + r.status);
+    alert(r.data.summary);
+  } catch (e) { alert('Eksport nie powiódł się: ' + e.message); }
+});
+
+// Tylko nowe posty: gdy jest sekcja „Nowe od DD.MM”, starsze (już rozstrzygnięte) sekcje można schować.
+const onlyFresh = $('#onlyFresh');
+const hasFresh = SECTIONS.some(([sec]) => sec === 'fresh');
+if (hasFresh) {
+  $('#onlyFreshL').hidden = false;
+  $('#freshLbl').textContent = SECTIONS.find(([sec]) => sec === 'fresh')[1];
+  let pref = null;
+  try { pref = localStorage.getItem('fbreview:onlyFresh'); } catch (e) { /* ok */ }
+  onlyFresh.checked = pref !== '0';
+  document.body.classList.toggle('only-fresh', onlyFresh.checked);
+}
+onlyFresh.addEventListener('change', () => {
+  document.body.classList.toggle('only-fresh', onlyFresh.checked);
+  try { localStorage.setItem('fbreview:onlyFresh', onlyFresh.checked ? '1' : '0'); } catch (e) { /* ok */ }
+});
+
+// ---------- start ----------
+renderAll();
+try { if (localStorage.getItem('fbreview:onlyOpen')) { onlyOpen.checked = true; document.body.classList.add('only-open'); } } catch (e) { /* ok */ }
+lock(true);
+sync();
+(async function boot() {
+  const ok = await load(true);
+  if (!ok) {
+    const t = setInterval(async () => { if (await load(true)) clearInterval(t); }, 3000);
+  }
+})();
+})();
+</script>
+</body>
+</html>
