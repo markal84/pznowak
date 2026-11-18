@@ -226,9 +226,23 @@ if snap_path.exists():
 # pokazał je obok zdjęć posta zamiast samej nazwy. Tylko to, co potrzebne, żeby review-data.json nie puchło.
 page_data["catalogCards"] = {}
 if snap_path.exists():
+    snap_products = json.loads(snap_path.read_text(encoding="utf-8")).get("products", [])
+    # „Już w karcie”: liczone tu ze świeżego katalogu (zdjęcia karty, wariantów i facebookKey wskazują post), a nie tylko
+    # z przeliczenia podpowiedzi, które mogło powstać przed dodaniem wariantu. Dopisuje do fromPost, niczego nie zabiera.
+    post_ids = {g["key"]: {p["post_id"] for p in g.get("posts", [])} for sec in ("new", "maybe", "fresh") for g in page_data.get(sec, [])}
+
+    def from_post(x, key):
+        if x.get("facebookKey") == key:
+            return True
+        imgs = list(x.get("media") or []) + [m for v in x.get("variants") or [] for m in [v.get("image")] + list(v.get("moreImages") or [])]
+        return any(m and not m.get("video") and any(pid in (m.get("source") or "") for pid in post_ids.get(key, ())) for m in imgs)
+    for key, h in page_data.get("hints", {}).items():
+        have = set(h.get("fromPost") or [])
+        have |= {x["slug"] for x in snap_products if from_post(x, key)}
+        h["fromPost"] = sorted(have)
     wanted = {s for h in page_data.get("hints", {}).values()
               for s in [((h.get("result") or {}).get("product"))] + list(h.get("candidates") or []) if s}
-    for x in json.loads(snap_path.read_text(encoding="utf-8")).get("products", []):
+    for x in snap_products:
         if x.get("slug") not in wanted:
             continue
         media = x.get("media") or []
