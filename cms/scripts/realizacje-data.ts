@@ -109,6 +109,10 @@ export const SEED_WORKS: SeedWork[] = [
       { file: '4-eternity_02_stos.webp', alt: 'Stos obrączek eternity z pierścionkiem zaręczynowym na górze' },
       { file: '4-eternity_03_w-palcach.webp', alt: 'Cienka obrączka eternity z drobnymi diamentami, trzymana w palcach' },
     ],
+    // Film z posta z 18.01.2026 (122171849834616875 „Dopełnienie kompletu”, 15 s). Bez `poster`: okładką filmu jest zdjęcie komplet.
+    videos: [
+      { file: '122171849834616875_1898070267585236.mp4', caption: 'Gotowy komplet: obrączki eternity z pierścionkiem zaręczynowym' },
+    ],
   },
   {
     slug: 'pierscionek-z-morganitem',
