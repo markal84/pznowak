@@ -3,7 +3,7 @@
 `raport-dzienny.py` to zwykły skrypt (bez modelu), który raz dziennie wysyła jeden mail z wynikami sprawdzeń:
 
 1. `https://pznowak.pl/` i `/admin` zwracają 200,
-2. wiek ostatniej pełnej kopii (limit 26 h) i kopii bazy co 6 h (limit 7 h), wolne miejsce na dysku (próg 5 GB),
+2. wiek ostatniej pełnej kopii (limit 26 h) i kopii bazy (limit 13 h: cron robi ją o 8:15, 14:15 i 20:15), wolne miejsce na dysku (próg 5 GB),
 3. skrypt postów FB na MyDevil: ostatnie udane uruchomienie, błędy z `posty.log` z ostatniej doby, nowe posty z 24 h
    (odczyt przez rsync kluczem `pznowak_backup_pull`, który wpuszcza tylko rsync do odczytu; jeśli rsync zawiedzie, skrypt bierze dane z lustra ostatniej
    kopii i dopisuje ostrzeżenie, bez logu),

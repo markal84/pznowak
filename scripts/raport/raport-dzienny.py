@@ -26,7 +26,8 @@ BACKUP_ROOT = Path(os.environ.get("PZNOWAK_BACKUP_ROOT", HOME / "backups/pznowak
 MYDEVIL = os.environ.get("PZNOWAK_MYDEVIL", "pznowak@s92.mydevil.net")
 SSH_KEY = os.environ.get("PZNOWAK_SSH_KEY", str(HOME / ".ssh/pznowak_backup_pull"))
 SITE = "https://pznowak.pl"
-FULL_MAX_H, DB_MAX_H, DISK_MIN_GB = 26, 7, 5
+# kopia bazy robi się o 8:15, 14:15 i 20:15 (cron na Hetznerze), więc nocna przerwa to 12 h
+FULL_MAX_H, DB_MAX_H, DISK_MIN_GB = 26, 13, 5
 EXPECTED_CONTAINERS = [c for c in os.environ.get("PZNOWAK_KONTENERY", "").split(",") if c]
 
 OK, WARN, ERR = "OK", "UWAGA", "BŁĄD"
@@ -73,9 +74,9 @@ def check_backups():
     dumps = sorted((BACKUP_ROOT / "baza-co-6h").glob("live-*.dump")) if (BACKUP_ROOT / "baza-co-6h").exists() else []
     if dumps:
         h = age_h(dt.datetime.fromtimestamp(dumps[-1].stat().st_mtime, dt.timezone.utc))
-        add(OK if h < DB_MAX_H else ERR, "Kopie", f"kopia bazy co 6 h: {h:.1f} h temu ({dumps[-1].name}), limit {DB_MAX_H} h")
+        add(OK if h < DB_MAX_H else ERR, "Kopie", f"kopia bazy: {h:.1f} h temu ({dumps[-1].name}), limit {DB_MAX_H} h")
     else:
-        add(ERR, "Kopie", "brak kopii bazy co 6 h")
+        add(ERR, "Kopie", "brak kopii bazy (baza-co-6h)")
     free = shutil.disk_usage(HOME).free / 1e9
     add(OK if free >= DISK_MIN_GB else WARN, "Dysk", f"wolne {free:.1f} GB (próg {DISK_MIN_GB} GB)")
 

@@ -54,6 +54,9 @@ if [ "$MODE" = db ]; then
   exit 0
 fi
 
+# skrypt i blob_sync.py muszą leżeć w tym samym katalogu (np. oba w ~/bin); bez tego pełna kopia pada po cichu każdej nocy
+[ -r "$HERE/blob_sync.py" ] || { log "BŁĄD: brak $HERE/blob_sync.py (skopiuj go obok skryptu kopii)"; exit 1; }
+
 SNAP="$ROOT/migawki/$STAMP"
 mkdir -p "$SNAP"
 log "Start pełnej kopii $STAMP"
