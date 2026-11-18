@@ -222,6 +222,22 @@ if snap_path.exists():
     page_data["catalogProducts"] = sorted(
         ({"slug": x["slug"], "name": x["name"]} for x in json.loads(snap_path.read_text(encoding="utf-8")).get("products", []) if not x.get("archived")),
         key=lambda x: x["name"].lower())
+# Karty katalogu, o których mówią podpowiedzi (cel + kandydaci): zdjęcie, kamień, status i warianty, żeby przegląd
+# pokazał je obok zdjęć posta zamiast samej nazwy. Tylko to, co potrzebne, żeby review-data.json nie puchło.
+page_data["catalogCards"] = {}
+if snap_path.exists():
+    wanted = {s for h in page_data.get("hints", {}).values()
+              for s in [((h.get("result") or {}).get("product"))] + list(h.get("candidates") or []) if s}
+    for x in json.loads(snap_path.read_text(encoding="utf-8")).get("products", []):
+        if x.get("slug") not in wanted:
+            continue
+        media = x.get("media") or []
+        page_data["catalogCards"][x["slug"]] = {
+            "name": x.get("name"), "status": x.get("status"), "stone": x.get("stone") or "", "metal": x.get("metal") or "",
+            "thumb": (media[0] or {}).get("url") if media else None,
+            "variants": [{"stone": v.get("stone"), "vis": bool(v.get("isVisualization")), "thumb": (v.get("image") or {}).get("url")}
+                         for v in (x.get("variants") or [])][:8],
+        }
 manual_media.annotate_manual(page_data, MANUAL)
 for w in manual_media.annotate_ai(page_data, manual_media.load_ai(root)):
     print("UWAGA:", w)

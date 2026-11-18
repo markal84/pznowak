@@ -120,6 +120,22 @@ figure.m .badges{position:absolute;left:4px;bottom:4px;z-index:3;display:flex;fl
 .vm .vr{color:var(--muted)}
 .vm .vx{color:var(--bad);font-weight:600}
 .hintm{border:1px dashed var(--line);border-radius:8px;padding:4px 8px;margin:4px 0;font-size:13px}
+.vd{border:2px solid var(--mat);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:15px}
+.vd .say{font-size:16px;margin-bottom:8px}.vd .why{color:var(--muted);font-size:13px}
+.vd .cols{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-start}
+.vd .col h4{margin:0 0 4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.vd .strip{display:flex;gap:6px;flex-wrap:wrap}
+.vd .strip img{height:120px;width:auto;max-width:160px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.vd .rc{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+.vd .rc img.main{height:120px;width:120px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.vd .rc .alt img.main{height:72px;width:72px}
+.vd .rc .nm{font-weight:600}.vd .rc small{color:var(--muted)}
+.vd .vthumbs{display:flex;gap:4px;margin-top:4px}.vd .vthumbs img{height:44px;width:44px;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
+.vd .vthumbs .vis{opacity:.55;outline:1px dashed var(--muted)}
+.vd .act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.vd .act button{padding:8px 14px;font-weight:600;border-radius:8px}
+.vd .act button.yes{background:var(--ok);color:#fff;border-color:var(--ok)}
+.vd .picked{margin-top:8px;font-weight:600;color:var(--ok)}
 .hintm b{margin-right:6px}.hintm .vr{color:var(--muted)}
 .dup .vm{flex-basis:auto}
 .mrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;margin:6px 0;color:var(--muted)}
@@ -674,6 +690,71 @@ function hintHTML(g) {
   const already = alreadyIn(g) ? ' · <b>✔ już w katalogu, nic nie trzeba zaznaczać</b><span class="tg" data-act="toggleOpen">pokaż zdjęcia</span>' : '';
   return `<div class="hintm">Podpowiedź modelu: <b>${esc(H_LABEL[r.category] || r.category)}</b>${target} · ${esc(r.confidence)} %${already}<br><span class="vr">${esc(r.reason)}</span></div>`;
 }
+// Czytelny werdykt: zdjęcia posta obok miniatur kart z katalogu, zdanie po ludzku i przyciski jednym kliknięciem.
+const CARDS = D.catalogCards || {};
+const imgTag = (u, cls) => u ? `<img class="${cls || ''}" src="${esc(u)}" alt="" loading="lazy">` : `<span class="ph0"></span>`;
+function cardBlock(slug, variant, alt) {
+  const c = CARDS[slug];
+  if (!c) return '';
+  const vt = (c.variants || []).map(v => `<span title="${esc(v.stone + (v.vis ? ' (wizualizacja)' : ''))}">${v.thumb ? `<img class="${v.vis ? 'vis' : ''}" src="${esc(v.thumb)}" alt="${esc(v.stone)}" loading="lazy">` : ''}</span>`).join('');
+  const st = c.status === 'draft' ? 'szkic (jeszcze niewidoczny na stronie)' : 'opublikowana';
+  return `<div class="rc"><a href="https://pznowak.pl/pierscionki/${esc(slug)}" target="_blank" rel="noopener" title="Otwórz kartę na stronie">${imgTag(c.thumb, 'main')}</a>` +
+    `<div class="${alt ? 'alt' : ''}"><div class="nm">${esc(c.name)}</div><small>${esc([c.stone, c.metal].filter(Boolean).join(' · '))} · ${st}</small>` +
+    (variant ? `<div><small>nowy kamień: <b>${esc(variant)}</b></small></div>` : '') + `<div class="vthumbs">${vt}</div></div></div>`;
+}
+function verdictText(r, name) {
+  const n = `<b>${esc(name || r.product)}</b>`, v = r.variant ? ` w kamieniu <b>${esc(r.variant)}</b>` : '';
+  switch (r.category) {
+    case 'nowy': return 'Wygląda na <b>nowy pierścionek</b>, którego nie ma jeszcze w katalogu.';
+    case 'dodatek': return `To zdjęcia lub film pierścionka, który <b>już masz</b>: ${n}.`;
+    case 'zamiast-wizualizacji': return `To <b>prawdziwe zdjęcie</b> pierścionka ${n}${v}. W katalogu ma on dziś tylko wizualizację tego kamienia.`;
+    case 'nowy-wariant': return `To pierścionek ${n}${v}: fason już masz, <b>nowy jest kamień</b>.`;
+    case 'material': return 'To <b>nie pierścionek do katalogu</b> (warsztat, proces, kamienie luzem albo ogłoszenie).';
+    default: return 'Model nie widzi tu nic do wykorzystania.';
+  }
+}
+function verdictHTML(g) {
+  const h = HINTS[g.key];
+  if (!h || !h.result || !D.catalogCards) return '';
+  const r = h.result, main = r.product && CARDS[r.product] ? r.product : null;
+  const shots = g.files.filter(f => f.kind === 'photo').slice(0, 5).map(f => `<img src="${thumbOf(f.file)}" alt="" loading="lazy" data-act="zoomfile" data-file="${esc(f.file)}">`).join('');
+  const others = (h.candidates || []).filter(s => s !== r.product && CARDS[s]).slice(0, 3);
+  const acts = [];
+  if (main && ['dodatek', 'zamiast-wizualizacji', 'nowy-wariant'].includes(r.category))
+    acts.push(`<button type="button" class="yes" data-act="hintDo" data-do="addto" data-slug="${esc(main)}" data-variant="${esc(r.variant || '')}">Tak, dodaj do: ${esc(CARDS[main].name)}${r.variant ? ' (' + esc(r.variant) + ')' : ''}</button>`);
+  if (r.category === 'nowy') acts.push(`<button type="button" class="yes" data-act="hintDo" data-do="catalog">Tak, to nowy pierścionek</button>`);
+  if (r.category === 'material') acts.push(`<button type="button" class="yes" data-act="hintDo" data-do="material">Tak, to materiał</button>`);
+  if (r.category === 'pomin') acts.push(`<button type="button" class="yes" data-act="hintDo" data-do="reject">Tak, pomiń</button>`);
+  if (r.category !== 'nowy') acts.push(`<button type="button" data-act="hintDo" data-do="catalog">Nie, to nowy pierścionek</button>`);
+  if (r.category !== 'material') acts.push(`<button type="button" data-act="hintDo" data-do="material">To materiał</button>`);
+  if (r.category !== 'pomin') acts.push(`<button type="button" data-act="hintDo" data-do="reject">Pomiń</button>`);
+  const alt = others.length ? `<div class="col"><h4>Inne możliwe karty (jeśli to jednak nie ta)</h4>${others.map(s => cardBlock(s, '', true) + `<button type="button" data-act="hintDo" data-do="addto" data-slug="${esc(s)}" data-variant="">To ta karta: ${esc(CARDS[s].name)}</button>`).join('')}</div>` : '';
+  return `<div class="vd"><div class="say">${verdictText(r, h.productName)} <span class="why">(model jest pewny na ${esc(r.confidence)} %)</span></div>` +
+    `<div class="cols"><div class="col"><h4>Z posta</h4><div class="strip">${shots || '<i>bez zdjęć (sam film)</i>'}</div></div>` +
+    (main ? `<div class="col"><h4>${r.category === 'nowy' ? 'Najbardziej podobna w katalogu' : 'W katalogu'}</h4>${cardBlock(main, r.category === 'nowy-wariant' || r.category === 'zamiast-wizualizacji' ? r.variant : '')}</div>` : '') + alt +
+    `</div><div class="why">${esc(r.reason)}</div><div class="act">${acts.join('')}</div><div class="picked">${pickedText(g)}</div></div>`;
+}
+function pickedText(g) {
+  const e = entry(g);
+  if (!e || !e.decision) return '';
+  const lab = { catalog: 'nowa karta', addto: 'dodaj do: ' + (e.target || '') + (e.variant ? ' (' + e.variant + ')' : ''), material: 'materiały', reject: 'pominięte' }[e.decision];
+  return lab ? '✔ Zapisane: ' + lab : '';
+}
+function hintDo(g, el) {
+  const e = ensure(g), d = el.dataset.do;
+  e.decision = d;
+  delete e.target; delete e.variant;
+  if (d === 'addto') {
+    const c = CARDS[el.dataset.slug];
+    if (c) e.target = c.name;
+    if (el.dataset.variant) e.variant = el.dataset.variant;
+  }
+  fixCover(g);
+  fillFields();
+  changed(g);
+  const out = g.el && g.el.querySelector('.vd .picked');
+  if (out) out.textContent = pickedText(g);
+}
 // Post bez zdjęć (sam film) to prawie zawsze dodatek do istniejącej karty, nie nowy pierścionek.
 function modeWarn(g) {
   const photos = g.files.filter(f => f.kind === 'photo').length, videos = g.files.filter(f => f.kind === 'video').length;
@@ -722,7 +803,7 @@ function itemHTML(g, n, label) {
   }
   if (g.type === 'card') {
     head = `<h3>${num}${esc(it.title)}</h3><span><button type="button" class="mergebtn" data-act="collapse" title="Zwija zdjęcia i pola tej karty (decyzja zostaje, karta nadal jest na liście „dodaj do karty…”)">zwiń</button> <button type="button" class="mergebtn" data-act="pickOpen">połącz z kartą…</button> ${seg('dec', CARD_DEC, 'data-act="decide"')}</span>`;
-    extra = `${hintHTML(g)}<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza (nowa karta: imię z mitologii, nie tytuł posta)" aria-label="Nazwa robocza" value="">` +
+    extra = `${verdictHTML(g) || hintHTML(g)}<div class="props"></div>${membersHTML(g)}<div class="fields"><input data-f="name" type="text" placeholder="Nazwa robocza (nowa karta: imię z mitologii, nie tytuł posta)" aria-label="Nazwa robocza" value="">` +
       `<input class="target" data-f="target" type="text" list="catalogProducts" placeholder="Do której istniejącej karty (nazwa z katalogu)" aria-label="Istniejąca karta docelowa" value="">` +
       `<input class="target" data-f="variant" type="text" placeholder="Wariant kamienia (opcjonalnie, np. Turmalin): film/zdjęcia poczekają, aż wariant powstanie" aria-label="Wariant karty docelowej" value="">` +
       `<textarea data-f="note" placeholder="Krótka notatka (np. „= karta 12”, żeby zaproponować połączenie)" aria-label="Notatka"></textarea></div>${modeWarn(g)}`;
@@ -961,7 +1042,8 @@ document.addEventListener('click', async ev => {
   if (act === 'sameas') { mergeInto(g, CARD[t.dataset.other]); return; }
   if (act === 'notSame') { markNotSame(g, t.dataset.other); return; }
   if (act === 'pickOpen') { pickOpen(g); return; }
-  if (act === 'decide') setDecision(g, v);
+  if (act === 'hintDo') hintDo(g, t);
+  else if (act === 'decide') setDecision(g, v);
   else if (act === 'bulk') bulk(g, v);
   else if (act === 'reset') resetOverrides(g);
   else if (act === 'cover') setCover(g, t.closest('figure').dataset.file);

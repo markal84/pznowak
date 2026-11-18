@@ -67,6 +67,8 @@ do `posts.json` i `media/` i przebudowuje `review.html` (`refresh_posts.py`). W 
 `--bez-pobierania` pomija pobieranie przy starcie (np. bez sieci). Bez zainstalowanej kopii na Macu (README
 `scripts/posty-meta`, „Kopia na Maca”) dopisuje tylko to, co już jest w `~/PZ Nowak posty`.
 
+Przy każdej karcie „Nowe od…” z podpowiedzią przegląd pokazuje **czytelny werdykt**: zdjęcia posta obok miniatur sugerowanej karty z katalogu (nazwa, kamień, status, warianty, link do strony), zdanie po ludzku i przyciski „Tak, dodaj do: …” / „Nie, to nowy pierścionek” / „To materiał” / „Pomiń”. Przycisk ustawia tę samą decyzję, co pola niżej (decyzja, karta docelowa, wariant), więc eksport działa bez zmian. Dane kart bierze z `katalog.json` (zrzut przy pobieraniu nowych postów).
+
 Po dopisaniu nowych postów to samo polecenie robi **podpowiedzi modelu**: czyta katalog z Payload (`cms`: `npm run
 katalog:snapshot`, tylko odczyt, żywa baza strony, ze szkicami) i każe Terrze (`classify_posts.py`, przez Codex) ocenić
 każdą kartę „Nowe od…”: nowy pierścionek, zdjęcia do istniejącej karty, prawdziwe zdjęcie zamiast wizualizacji wariantu,
