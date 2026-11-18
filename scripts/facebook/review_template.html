@@ -135,6 +135,7 @@ figure.m .badges{position:absolute;left:4px;bottom:4px;z-index:3;display:flex;fl
 .vd .act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .vd .act button{padding:8px 14px;font-weight:600;border-radius:8px}
 .vd .act button.yes{background:var(--ok);color:#fff;border-color:var(--ok)}
+.vd.ok{border-color:var(--ok)}.vd .tg{cursor:pointer;text-decoration:underline;font-size:13px;margin-left:6px}
 .vd .picked{margin-top:8px;font-weight:600;color:var(--ok)}
 .hintm b{margin-right:6px}.hintm .vr{color:var(--muted)}
 .dup .vm{flex-basis:auto}
@@ -717,6 +718,11 @@ function verdictHTML(g) {
   const h = HINTS[g.key];
   if (!h || !h.result || !D.catalogCards) return '';
   const r = h.result, main = r.product && CARDS[r.product] ? r.product : null;
+  if (main && alreadyIn(g)) {
+    const v = r.variant ? ` (kamień: <b>${esc(r.variant)}</b>)` : '';
+    return `<div class="vd ok"><div class="say">✔ Zdjęcia z tego posta są <b>już w karcie ${esc(CARDS[main].name)}</b>${v}. Nic nie trzeba zaznaczać, eksport nie zrobi z nich drugiego szkicu. <span class="tg" data-act="toggleOpen">pokaż zdjęcia</span></div>` +
+      `<div class="cols"><div class="col">${cardBlock(main, '')}</div></div></div>`;
+  }
   const shots = g.files.filter(f => f.kind === 'photo').slice(0, 5).map(f => `<img src="${thumbOf(f.file)}" alt="" loading="lazy" data-act="zoomfile" data-file="${esc(f.file)}">`).join('');
   const others = (h.candidates || []).filter(s => s !== r.product && CARDS[s]).slice(0, 3);
   const acts = [];
