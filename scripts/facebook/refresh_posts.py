@@ -8,7 +8,7 @@ Kroki:
   1. Kopia z serwera: ~/.pznowak-posty-kopia/kopia.sh --teraz (ta sama kopia co co 14 dni; instalacja w
      scripts/posty-meta/README.md, sekcja „Kopia na Maca”). --bez-serwera pomija ten krok (np. bez sieci).
   2. import_posty_meta.py: posty, których nie ma w posts.json, z katalogu kopii (CEL z ustawień kopii).
-  3. build_review.py, tylko gdy coś doszło albo nie ma review.html.
+  3. build_review.py, gdy coś doszło, nie ma review.html albo szablon strony jest nowszy (po git pull).
   4. Podpowiedzi modelu dla kart „Nowe od…”: zrzut katalogu z Payload (cms: npm run katalog:snapshot, tylko odczyt),
      classify_posts.py --run (Terra; karty już ocenione biorą wynik z cache) i ponowne build_review.py.
      --bez-podpowiedzi pomija ten krok. Gdy coś się nie uda, przegląd i tak jest gotowy, tylko bez podpowiedzi.
@@ -89,6 +89,15 @@ def hints(root, say):
     return True
 
 
+def stale_pages(root):
+    """Brak stron przeglądu albo szablon nowszy niż strona (np. po git pull z nowym przyciskiem): trzeba przebudować."""
+    for template, page in (("review_template.html", "review.html"), ("szczegoly_template.html", "szczegoly.html")):
+        out = Path(root) / page
+        if not out.exists() or (HERE / template).stat().st_mtime > out.stat().st_mtime:
+            return True
+    return False
+
+
 def refresh(root, from_server=True, log=print, with_hints=True):
     """Zwraca {"ok", "added", "rebuilt", "lines"}. Równoległe wywołanie dostaje ok=False i „już trwa”."""
     root = Path(root)
@@ -114,7 +123,7 @@ def refresh(root, from_server=True, log=print, with_hints=True):
             say(ln)
         rebuilt = False
         need_hints = with_hints and (r["added"] or not (root / "classify" / "results.json").exists())
-        if r["added"] or not (root / "review.html").exists():
+        if r["added"] or stale_pages(root):
             say("Przebudowuję przegląd…")
             if not build(root, say):
                 return {"ok": False, "added": r["added"], "rebuilt": False, "lines": lines}
