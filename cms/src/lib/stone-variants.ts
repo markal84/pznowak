@@ -279,6 +279,32 @@ export function originalFilmCaption(originalStone: string | null | undefined): s
   return `Na filmie kamień: ${stone.charAt(0).toLocaleLowerCase('pl')}${stone.slice(1)}`
 }
 
+/**
+ * Kamień na filmie karty, gdy to film jednego z wariantów (ten sam plik w polu „Film” wariantu), np. Aion: wersja główna
+ * z niebieskimi diamentami bez własnego filmu, w galerii ładny film „Białych diamentów”. `null` = film oryginału.
+ */
+export function cardFilmStone(
+  cardVideo: string | null | undefined,
+  variants: readonly { stone: string; video?: string | null }[],
+): string | null {
+  if (!cardVideo) return null
+  return variants.find((v) => variantVideo(v) === cardVideo)?.stone ?? null
+}
+
+/**
+ * Podpis filmu karty w galerii. Film oryginału: tylko przy wybranym innym kamieniu („Na filmie kamień: <oryginał>”).
+ * Film wariantu w karcie (`filmStone`): przy oryginale i przy innych kamieniach („Na filmie kamień: <wariant>”), ale nie
+ * przy samym tym wariancie, bo to jego prawdziwy film.
+ */
+export function cardFilmCaption(
+  selectedStone: string | null | undefined,
+  originalStone: string | null | undefined,
+  filmStone: string | null | undefined,
+): string | undefined {
+  if (filmStone) return selectedStone === filmStone ? undefined : originalFilmCaption(filmStone)
+  return selectedStone ? originalFilmCaption(originalStone) : undefined
+}
+
 /** Adres formularza z karty: nazwa projektu i (gdy wybrany wariant) kamień. */
 export function inquiryHref(projectName: string, stone?: string | null): string {
   const params = new URLSearchParams({ temat: 'kolekcja', projekt: projectName })
