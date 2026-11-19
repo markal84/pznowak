@@ -82,6 +82,10 @@ export type OpisSzkicu = {
   carats?: string
   /** Co Marcin ma sprawdzić (np. „szlif radiant odczytany ze zdjęć”). Idzie do podglądu, nie do karty. */
   uwagi?: string[]
+  /** „model”: pozycja napisana przez model (`--model`, zapamiętana w data/facebook/opisy-model/), nie przez człowieka. */
+  zrodlo?: 'model'
+  /** Parametr wpisany, ale do obejrzenia (np. metal odczytany ze zdjęć). */
+  doSprawdzenia?: Partial<Record<ParamField, string>>
 }
 
 const SPEC_KEYS = [
@@ -95,6 +99,8 @@ const SPEC_KEYS = [
   'metal',
   'carats',
   'uwagi',
+  'zrodlo',
+  'doSprawdzenia',
 ]
 
 export function loadOpisy(source: string = OPISY_SZKICE_PATH): OpisSzkicu[] {
@@ -128,6 +134,8 @@ export function loadOpisy(source: string = OPISY_SZKICE_PATH): OpisSzkicu[] {
     ) {
       throw new Error(`${where}: „uwagi” ma być listą tekstów`)
     }
+    if (item.zrodlo !== undefined && item.zrodlo !== 'model')
+      throw new Error(`${where}: „zrodlo” może być tylko „model”`)
     return item as OpisSzkicu
   })
 }
@@ -250,6 +258,9 @@ export function findSpec(card: DraftCard, specs: OpisSzkicu[]): OpisSzkicu | und
   )
 }
 
+/** Znacznik w uwagach planu: karta czeka na tekst (z pliku opisów albo od modelu). */
+export const BRAK_TEKSTU = 'brak tekstu'
+
 export type Change = { field: Field; value: string; source: string; check?: string }
 export type DraftPlan = {
   id: number
@@ -314,6 +325,7 @@ export function planDraft(card: DraftCard, ctx: PlanContext): DraftPlan {
 
   const spec = findSpec(card, ctx.specs)
   if (spec?.uwagi?.length) plan.toCheck.push(...spec.uwagi)
+  const specSource = spec?.zrodlo === 'model' ? 'model (zdjęcia i post)' : 'plik opisów'
 
   if (nameFromImport(card)) {
     const name = pickName(card, spec, ctx, plan.toCheck)
@@ -342,7 +354,7 @@ export function planDraft(card: DraftCard, ctx: PlanContext): DraftPlan {
     const value = spec?.[field]?.trim()
     if (!value) {
       plan.toCheck.push(
-        `${FIELD_LABELS[field]}: brak tekstu w opisy-szkice.json – zostaje puste (npm run opisz:szkice -- --zadanie)`,
+        `${FIELD_LABELS[field]}: ${BRAK_TEKSTU} – zostaje puste (npm run opisz:szkice -- --model)`,
       )
       continue
     }
@@ -350,11 +362,11 @@ export function planDraft(card: DraftCard, ctx: PlanContext): DraftPlan {
     const issues = textIssues.filter((issue) => issue.problem.startsWith(label))
     if (issues.length) {
       plan.toCheck.push(
-        `${FIELD_LABELS[field]}: tekst z pliku nie spełnia schematu (${issues.map((i) => i.problem).join('; ')}) – nie wpisuję`,
+        `${FIELD_LABELS[field]}: tekst (${specSource}) nie spełnia schematu (${issues.map((i) => i.problem).join('; ')}) – nie wpisuję`,
       )
       continue
     }
-    plan.changes.push({ field, value, source: 'plik opisów' })
+    plan.changes.push({ field, value, source: specSource })
   }
 
   const fromPosts = paramsFromPosts(card)
@@ -362,7 +374,8 @@ export function planDraft(card: DraftCard, ctx: PlanContext): DraftPlan {
     if (!isBlank(card[field])) continue
     const fromSpec = spec?.[field]?.trim()
     if (fromSpec) {
-      plan.changes.push({ field, value: fromSpec, source: 'plik opisów' })
+      const check = spec?.doSprawdzenia?.[field]
+      plan.changes.push({ field, value: fromSpec, source: specSource, ...(check ? { check } : {}) })
     } else if (fromPosts[field]) {
       plan.changes.push({
         field,

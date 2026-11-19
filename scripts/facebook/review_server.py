@@ -10,6 +10,10 @@ Tylko stdlib. Nasłuchuje wyłącznie na 127.0.0.1.
                         409 gdy rev nie zgadza się z plikiem (zmiana z innej karty)
   GET  /api/plan        co eksport zrobi z każdą kartą przy obecnych decyzjach (export_selection.compute, bez zapisu)
   POST /api/export      uruchamia export_selection.py
+  GET  /api/apply       stan „Zastosuj eksport” (zastosuj_eksport.py): czy eksport czeka, kroki, czego brakuje
+  POST /api/apply       „Zastosuj eksport”: import szkiców, zdjęcia, opisy modelu – w tle, bez terminala
+  POST /api/automat-key {"key": "..."} – sprawdza klucz konta Automat na stronie i zapisuje go w
+                        ~/.config/pznowak-cms/automat.key (chmod 600)
   POST /api/refresh     pobiera nowe posty z serwera i przebudowuje przegląd (refresh_posts.py)
 
 Przy starcie najpierw pobiera nowe posty z serwera (refresh_posts.py); --bez-pobierania to pomija.
@@ -33,6 +37,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import export_selection  # noqa: E402
 import refresh_posts  # noqa: E402
+import zastosuj_eksport  # noqa: E402
 
 MAX_BODY = 5 * 1024 * 1024
 BUCKETS = ("cards", "existing", "skipped")
@@ -165,6 +170,9 @@ class Handler(SimpleHTTPRequestHandler):
                     return
             self.send_json(200, {"rev": sel.get("rev", 0), "outcomes": outcomes, "summary": out["summary"], "warnings": out["warnings"]})
             return
+        if path == "/api/apply":
+            self.send_json(200, zastosuj_eksport.status(self.root))
+            return
         if path == "/":
             self.send_response(302)
             self.send_header("Location", "/review.html")
@@ -217,6 +225,22 @@ class Handler(SimpleHTTPRequestHandler):
         if self.path.split("?")[0] == "/api/refresh":
             res = refresh_posts.refresh(self.root, log=lambda m: print(f"[pobieranie] {m}", flush=True))
             self.send_json(409 if res.get("busy") else 200, res)
+            return
+        if self.path.split("?")[0] == "/api/apply":
+            code, res = zastosuj_eksport.start(self.root, log=lambda m: print(m, flush=True))
+            self.send_json(code, res)
+            return
+        if self.path.split("?")[0] == "/api/automat-key":
+            try:
+                key = self.read_json_body().get("key", "")
+            except (ValueError, AttributeError) as e:
+                self.send_json(400, {"ok": False, "error": f"błędne dane: {e}"})
+                return
+            ok, msg = zastosuj_eksport.save_key(key if isinstance(key, str) else "")
+            self.send_json(200 if ok else 400, {"ok": ok, "message": msg})
+            return
+        if zastosuj_eksport.LOCK.locked():
+            self.send_json(409, {"ok": False, "error": "Trwa „Zastosuj eksport” – poczekaj, aż się skończy."})
             return
         if self.path.split("?")[0] != "/api/export":
             self.send_json(404, {"error": "nie ma"})

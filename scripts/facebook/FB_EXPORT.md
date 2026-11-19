@@ -135,24 +135,56 @@ python3 -I scripts/facebook/build_review.py data/facebook
 
 Folder `data/facebook/` jest poza gitem.
 
-## D. Po imporcie: opisz nowe szkice
+## D. „Zastosuj eksport”: szkice, zdjęcia i opisy jednym kliknięciem
 
-Import (`cd cms && npm run import:fb -- --apply`) zakłada karty bez opisu. Zaraz po nim, z `cms/`:
+Na tablicy: **Przygotuj eksport** → okno „Plik eksportu gotowy” → **Zastosuj eksport**. Kliknięcie to świadome
+potwierdzenie zapisu (zastępuje wpisywanie słowa PRODUKCJA). Dalej wszystko dzieje się samo, w tle, bez terminala
+(`scripts/facebook/zastosuj_eksport.py`, z `cms/`):
 
-```
-npm run opisz:szkice                  # podgląd: karta, pole, wartość, źródło, „do sprawdzenia”
-npm run opisz:szkice -- --zadanie     # + data/facebook/opisy-szkice-zadanie.md (posty i zdjęcia szkiców bez opisu)
-npm run opisz:szkice -- --apply       # zapis
-```
+1. nowe pierścionki jako **szkice** – `npm run import:fb -- --apply`
+2. zdjęcia do galerii kart – `npm run import:fb -- --apply --gallery` (pomijane, gdy eksport ich nie ma)
+3. zdjęcia do istniejących kart jako **wersje robocze** – `npm run fb:do-istniejacych -- --apply`
+4. imię, krótki opis, opis, kamień, metal i masa – `npm run opisz:szkice -- --model --apply`
+5. odświeżenie `katalog.json` dla tablicy – `npm run katalog:snapshot` (błąd tu nie psuje przebiegu)
 
-- Wpisuje tylko do pustych pól szkiców (albo z tekstem, który wstawił import: „Do nazwania”, tytuł posta).
-  Ręczne poprawki z panelu zostają; drugi przebieg nic nie zmienia. Nic nie publikuje.
-- Imię: `cms/seed/opisy/opisy-szkice.json` → `nazwy-kanon.json` → pierwsze wolne z `nazwy-pula.json` (bez kolizji
-  z kartami i wycofanymi adresami). Krótki opis i opis tylko z `opisy-szkice.json` (schemat AC, sprawdzany przed
-  zapisem). Kamień, metal, masa: z pliku, a bez niego z treści posta (oznaczone „do sprawdzenia”).
-- Teksty pisze Claude: daj mu `opisy-szkice-zadanie.md`, niech obejrzy zdjęcia i dopisze pozycje do `opisy-szkice.json`.
-- Zapis idzie przez REST kontem „Automat” (klucz API = tylko szkice). Klucz poza repo: `~/.config/pznowak-cms/automat.key`
-  (`chmod 600`) albo zmienna `PZNOWAK_AUTOMAT_KEY`.
+Na końcu okno „Szkice gotowe do obejrzenia”: każda karta z linkiem do panelu, co wpisano i co sprawdzić. **Publikujesz
+zawsze Ty, w panelu.** Okno można zamknąć w trakcie; przycisk u góry pokazuje „Eksport w toku…”, a wynik wyskoczy sam.
+Po błędzie łańcuch staje i pokazuje końcówkę wyjścia; „Spróbuj jeszcze raz” jest bezpieczne (import pomija karty, które
+już są, galerie nie dublują zdjęć, opisy wpisują tylko puste pola). Pełne wyjście: `data/facebook/zastosuj-<czas>.log`,
+stan: `data/facebook/zastosuj-stan.json`. Bez tablicy to samo robi `python3 scripts/facebook/zastosuj_eksport.py`
+(`--na-sucho`: każdy krok bez zapisu).
+
+**Klucz konta Automat** (zapis opisów przez REST, klucz = tylko szkice): gdy go brakuje, okno ma pole „Wklej klucz”.
+Klucz bierzesz z panelu (Użytkownicy → Automat → Klucz API); tablica sprawdza go na stronie i zapisuje w
+`~/.config/pznowak-cms/automat.key` (`chmod 600`), poza repo. Działa też zmienna `PZNOWAK_AUTOMAT_KEY`.
+
+### Opisy pisze model (`opisz:szkice --model`)
+
+- Szkic bez tekstu (puste pola albo tekst wstawiony przez import) idzie do lokalnego Claude Code w trybie bez okna:
+  `claude -p --model claude-opus-5-5 --effort medium`, logowanie z Maca (bez klucza Anthropic w repo). Model dostaje do
+  6 zdjęć karty (przy samym filmie dwie klatki przez ffmpeg), posty, odczyt parametrów z posta i 4 przykłady z
+  `seed/opisy/opisy-ac.json`. **Nie ma żadnych narzędzi** (`--tools ""`, bez MCP, bez plików, bez sieci) i odpowiada
+  w schemacie JSON (`--json-schema`).
+- **Zapora** (`cms/scripts/opisz-model-logic.ts`): lead i opis przechodzą linter AC (8–16 i 40–90 słów, akapity, zdanie
+  o pracowni i o zamówieniu, bez pierwszej osoby, pytań, wykrzykników, „kolejny” itd.). Liczba w tekście (masa „ct”,
+  próba „585”, „14k”) musi być w poście albo tytule. Kamień tylko z posta: ze zdjęć wyłącznie jako uwaga, bo topaz
+  i szafir wyglądają na zdjęciu podobnie (Thalia); gdy post nie nazywa kamienia, opis nie może nazwać minerału, tylko
+  kolor. Masa tylko z posta. Metal z posta albo ze zdjęć (wtedy „do sprawdzenia”), wyłącznie z listy katalogu. Tekst
+  niezgodny wraca do modelu raz z listą błędów; po drugiej porażce nie jest wpisywany. Niepewne pole zostaje puste
+  i trafia na listę „do sprawdzenia”.
+- **Imię** nie jest zmyślane przez model: kanon (`nazwy-kanon.json`) albo pierwsze wolne z puli mitologii
+  (`nazwy-pula.json`), bez kolizji z kartami i wycofanymi adresami.
+- **Limity**: jedno wywołanie najwyżej 1,5 USD (`--max-budget-usd`), cały przebieg 6 USD, 10 kart, 6 min na wywołanie.
+  Zmienne: `PZNOWAK_OPISY_LIMIT_WYWOLANIA_USD`, `PZNOWAK_OPISY_LIMIT_USD`, `PZNOWAK_OPISY_MAX_KART`,
+  `PZNOWAK_OPISY_LIMIT_MINUT`, model i wysiłek: `PZNOWAK_OPISY_MODEL`, `PZNOWAK_OPISY_EFFORT`, plik `claude`:
+  `PZNOWAK_CLAUDE_BIN`. Przy logowaniu abonamentem kwota jest szacunkiem z cennika, ale limit i tak działa.
+- **Pamięć**: odpowiedź leży w `data/facebook/opisy-model/<id>.json`; te same posty i zdjęcia nie kosztują drugi raz.
+  Pozycja w `cms/seed/opisy/opisy-szkice.json` (pisana przez człowieka) zawsze wygrywa z modelem.
+- Wpisuje tylko do pustych pól szkiców, tuż przed zapisem czyta kartę jeszcze raz (Twoja poprawka z panelu zostaje),
+  nic nie publikuje. Podsumowanie dla tablicy: `data/facebook/opisz-szkice-ostatni.json`.
+
+Ręcznie, z `cms/`: `npm run opisz:szkice` (podgląd), `-- --model` (podgląd z tekstami modelu), `-- --model --apply`
+(zapis), `-- --zadanie` (plik z postami i zdjęciami do pisania ręcznie, jak dawniej).
 
 ## Gdy coś nie działa
 

@@ -1,7 +1,8 @@
 // Zdjęcia z przeglądu FB do ISTNIEJĄCYCH kart (catalog-selection.json → toExisting), tylko jako wersja robocza.
 //
 //   npm run fb:do-istniejacych                 na sucho: co się zmieni, bez zapisu
-//   npm run fb:do-istniejacych -- --apply      zapis (wymaga wpisania słowa PRODUKCJA w terminalu)
+//   npm run fb:do-istniejacych -- --apply      zapis (wymaga wpisania słowa PRODUKCJA w terminalu albo kliknięcia
+//                                              „Zastosuj eksport” na tablicy przeglądu)
 //
 // Obsługuje:
 //   zamiast-wizualizacji  wariant kamienia, który ma dziś wizualizację, dostaje prawdziwe zdjęcia z posta
@@ -25,7 +26,7 @@ import { promisify } from 'node:util'
 
 import sharp from 'sharp'
 
-import { isLiveDatabase, loadLiveEnv } from './live-db'
+import { confirmedOnBoard, isLiveDatabase, loadLiveEnv } from './live-db'
 
 const run = promisify(execFile)
 const args = process.argv.slice(2)
@@ -71,6 +72,11 @@ const norm = (s: string) => s.trim().toLowerCase().normalize('NFC')
 const stripViz = (alt: string) => alt.replace(/\s*\(wizualizacja\)\s*$/i, '').trim()
 
 async function confirm() {
+  // Tablica przeglądu (przycisk „Zastosuj eksport”) to świadome potwierdzenie Marcina zamiast wpisywania słowa.
+  if (confirmedOnBoard()) {
+    console.log('Zapis potwierdzony na tablicy przeglądu (przycisk „Zastosuj eksport”).')
+    return
+  }
   const rl = createInterface({ input: process.stdin, output: process.stdout })
   const answer = await rl.question('Zapis do ŻYWEJ bazy (tylko wersje robocze). Wpisz PRODUKCJA, aby kontynuować: ')
   rl.close()
@@ -242,12 +248,17 @@ for (const item of items) {
     const ids: number[] = []
     for (const f of item.photos) ids.push(await upload(f, `${product.name} – zdjęcie z pracowni`, log))
     if (addVideo) ids.push(await upload(videoFile as string, `${product.name} – film`, log))
-    if (!ids.length) continue
+    // Ponowny przebieg tego samego eksportu (np. drugi klik „Zastosuj eksport”) nie dubluje zdjęć w galerii.
+    const newIds = [...new Set(ids)].filter((id) => !ids0.includes(id))
+    if (!newIds.length) {
+      if (ids.length) console.log('  = te zdjęcia są już w galerii karty – nic nie dopisuję')
+      continue
+    }
     log.products.push({ action: item.action, before: { media }, id: product.id, slug: product.slug })
     await payload.update({
       collection: 'products',
       context,
-      data: { media: [...media, ...ids.map((asset) => ({ asset, isPrimary: false }))] },
+      data: { media: [...media, ...newIds.map((asset) => ({ asset, isPrimary: false }))] },
       draft: true,
       id: product.id,
       overrideAccess: true,

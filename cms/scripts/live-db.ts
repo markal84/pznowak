@@ -31,3 +31,9 @@ export async function loadLiveEnv(envRoot: string): Promise<string> {
   }
   throw new Error(`Żaden backend/.env*.local nie wskazuje żywej bazy (endpoint ${LIVE_ENDPOINT})`)
 }
+
+/**
+ * Zapis potwierdzony kliknięciem „Zastosuj eksport” na tablicy przeglądu (scripts/facebook/review_server.py ustawia
+ * PZNOWAK_ZAPIS_Z_TABLICY=1 tylko dla procesów tego łańcucha). Zastępuje wpisywanie słowa PRODUKCJA w terminalu.
+ */
+export const confirmedOnBoard = () => process.env.PZNOWAK_ZAPIS_Z_TABLICY === '1'

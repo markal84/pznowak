@@ -198,6 +198,21 @@ dialog h3{font-size:14px;color:var(--muted);margin:6px 0 8px;font-weight:600}
 #msg pre{white-space:pre-wrap;background:var(--soft);border-radius:10px;padding:10px;font-size:13px;max-height:40vh;overflow:auto}
 #msg ul{margin:0 0 10px;padding-left:20px}
 #msg .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px}
+#msg ol.steps{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
+#msg ol.steps li{display:flex;gap:10px;align-items:baseline}
+#msg ol.steps .ic{width:1.4em;text-align:center;flex:none;font-weight:700}
+#msg ol.steps .running .ic{color:var(--gold)}
+#msg ol.steps .done .ic{color:#2e8b57}
+#msg ol.steps .error .ic{color:#c0392b}
+#msg ol.steps .skipped,#msg ol.steps .waiting{color:var(--muted)}
+#msg ol.steps small{color:var(--muted)}
+#msg .cards{display:flex;flex-direction:column;gap:10px;margin:0 0 10px}
+#msg .cards section{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+#msg .cards h4{margin:0 0 4px;font-size:15px}
+#msg .cards ul{margin:4px 0 0}
+#msg .keyrow{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+#msg .keyrow input{flex:1 1 260px;font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
+#applyBtn[hidden]{display:none}
 kbd{font:12px ui-monospace,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--card)}
 </style>
 </head>
@@ -207,6 +222,7 @@ kbd{font:12px ui-monospace,monospace;border:1px solid var(--line);border-bottom-
   <span id="status" role="status">…</span>
   <button id="refreshBtn" class="needsync" title="Ściąga nowe posty z serwera i dopisuje je do tablicy (decyzje zostają)">Pobierz nowe posty</button>
   <button id="exportBtn" class="needsync" title="Zapisuje plik catalog-selection.json do importu szkiców">Przygotuj eksport</button>
+  <button id="applyBtn" class="primary" hidden title="Wgrywa eksport jako szkice i każe modelowi napisać imiona, opisy i parametry">Zastosuj eksport</button>
   <a class="det" href="szczegoly.html" title="Wszystkie sekcje i decyzje pojedynczych zdjęć">Widok szczegółowy</a>
 </div></header>
 <div id="banner"></div>
@@ -934,11 +950,115 @@ async function doExport() {
   try {
     const r = await api('POST', '/api/export');
     if (!r.ok || !r.data || !r.data.ok) throw new Error((r.data && r.data.error) || 'HTTP ' + r.status);
-    message('Plik eksportu gotowy', `<p>${esc(r.data.summary)}</p><p><b>Następny krok</b> robisz w terminalu (zapisuje do bazy strony, zawsze jako szkic lub wersja robocza):</p>` +
-      `<pre>cd cms\nnpm run fb:do-istniejacych            # na sucho: pokaże, co się zmieni\nnpm run fb:do-istniejacych -- --apply # zapis (poprosi o słowo PRODUKCJA)</pre>` +
-      `<p class="muted">Nowe karty: import z <code>catalog-selection.json</code> (scripts/import-fb-catalog.ts). Na stronie nic się nie zmieni, dopóki nie opublikujesz w panelu.</p>`,
-      ['<button type="button" class="primary" data-act="dlgClose">OK</button>']);
+    await refreshApply();
+    applyAsk(`<p>${esc(r.data.summary)}</p>`);
   } catch (e) { message('Eksport się nie udał', `<pre>${esc(e.message)}</pre>`, ['<button type="button" data-act="dlgClose">Zamknij</button>']); }
+}
+
+// ---------- „Zastosuj eksport”: import szkiców, zdjęcia i opisy modelu, w tle (zastosuj_eksport.py) ----------
+let APPLY = null, applyTimer = 0;
+const STEP_IC = { waiting: '○', running: '✱', done: '✓', skipped: '–', error: '✕' };
+async function refreshApply() {
+  try { const r = await api('GET', '/api/apply'); if (r.ok && r.data) APPLY = r.data; } catch (e) { /* serwer wyłączony – zajmie się tym zwykłe sprawdzanie */ }
+  const b = $('#applyBtn');
+  if (!APPLY) { b.hidden = true; return APPLY; }
+  const running = APPLY.state === 'running';
+  b.hidden = !(APPLY.pending || running || APPLY.state === 'error');
+  b.textContent = running ? 'Eksport w toku…' : APPLY.state === 'error' ? 'Zastosuj eksport (ponów)' : 'Zastosuj eksport';
+  return APPLY;
+}
+function stepsHtml(st) {
+  return `<ol class="steps">${(st.steps || []).map(x => `<li class="${esc(x.status)}"><span class="ic">${STEP_IC[x.status] || '○'}</span><span>${esc(x.label)}` +
+    `${x.status === 'skipped' ? ` <small>(${esc(x.note || 'pominięte')})</small>` : ''}${x.seconds != null ? ` <small>${x.seconds < 90 ? x.seconds + ' s' : Math.round(x.seconds / 60) + ' min'}</small>` : ''}</span></li>`).join('')}</ol>`;
+}
+function keyForm() {
+  return `<p>Wklej klucz API konta <b>Automat</b> (panel → Użytkownicy → Automat → „Klucz API”). Sprawdzę go na stronie i zapiszę tylko na tym Macu: <code>${esc((APPLY && APPLY.keyFile) || '~/.config/pznowak-cms/automat.key')}</code>.</p>` +
+    `<div class="keyrow"><input id="automatKey" type="password" autocomplete="off" spellcheck="false" placeholder="klucz API konta Automat"><button type="button" data-act="saveKey">Zapisz klucz</button></div><p id="keyMsg" class="muted"></p>`;
+}
+async function applyAsk(intro) {
+  const st = await refreshApply();
+  if (!st) { message('Brak połączenia', '<p>Serwer tablicy nie odpowiada.</p>'); return; }
+  if (st.state === 'running') { applyProgress(); return; }
+  if (!st.pending && st.state !== 'error') {
+    message('Eksport już zastosowany', `${intro || ''}<p>Ten plik eksportu jest już w szkicach. Nowe decyzje? Kliknij najpierw „Przygotuj eksport”.</p>`, ['<button type="button" class="primary" data-act="dlgClose">OK</button>']);
+    return;
+  }
+  const missing = st.missing || [];
+  const needKey = missing.some(m => m.includes('klucza konta Automat'));
+  const other = missing.filter(m => !m.includes('klucza konta Automat'));
+  const plan = `<p><b>Co się stanie po kliknięciu</b> (wszystko samo, bez terminala; na stronie nic się nie zmieni, dopóki nie opublikujesz w panelu):</p>` +
+    `<ul><li>nowe pierścionki trafią do panelu jako <b>szkice</b>, a zdjęcia do istniejących kart jako <b>wersje robocze</b>,</li>` +
+    `<li>model obejrzy zdjęcia i posty, nada imię z kanonu albo puli i napisze krótki opis, opis, kamień, metal i masę – tylko w pustych polach,</li>` +
+    `<li>czego nie da się pewnie odczytać, zostanie puste i pokażę to na liście „do sprawdzenia”.</li></ul>` +
+    `<p class="muted">Zwykle kilka minut; okno możesz zamknąć, praca idzie dalej.</p>`;
+  message(st.state === 'error' ? 'Zastosować eksport jeszcze raz?' : 'Plik eksportu gotowy',
+    `${intro || ''}${st.state === 'error' ? `<p>Poprzedni przebieg stanął: ${esc(st.error || '')}. Ponowienie jest bezpieczne – nic się nie zdubluje.</p>` : ''}` +
+    (other.length ? `<p><b>Zanim ruszę:</b></p><ul>${other.map(m => `<li>${esc(m)}</li>`).join('')}</ul>` : '') +
+    (needKey ? keyForm() : '') + plan,
+    ['<button type="button" data-act="dlgClose">Później</button>', `<button type="button" class="primary" data-act="doApply"${missing.length ? ' disabled' : ''}>Zastosuj eksport</button>`]);
+}
+async function saveKey() {
+  const input = $('#automatKey'), out = $('#keyMsg');
+  if (!input || !input.value.trim()) return;
+  out.textContent = 'Sprawdzam klucz na stronie…';
+  try {
+    const r = await api('POST', '/api/automat-key', { key: input.value.trim() }, 30000);
+    input.value = '';
+    if (!r.ok || !r.data || !r.data.ok) { out.textContent = (r.data && (r.data.message || r.data.error)) || 'HTTP ' + r.status; return; }
+    applyAsk(`<p>✓ ${esc(r.data.message)}.</p>`);
+  } catch (e) { out.textContent = 'Serwer tablicy nie odpowiada.'; }
+}
+async function doApply() {
+  try {
+    const r = await api('POST', '/api/apply', undefined, 15000);
+    if (r.status === 400 && r.data && r.data.missing) { applyAsk(); return; }
+    if (!r.ok && r.status !== 409) throw new Error((r.data && r.data.error) || 'HTTP ' + r.status);
+  } catch (e) { message('Nie wystartowało', `<pre>${esc(e.message)}</pre>`, ['<button type="button" data-act="dlgClose">Zamknij</button>']); return; }
+  $('#msg').dataset.view = 'apply';
+  applyProgress();
+}
+function cardsHtml(op, site) {
+  if (!op || !op.cards) return '';
+  const cards = op.cards.filter(c => !c.skip && (c.written || c.toCheck.length || c.fields.length || c.failed));
+  if (!cards.length) return '<p>Szkice nie wymagały uzupełnień.</p>';
+  return `<div class="cards">${cards.map(c => {
+    const m = c.model && ['błąd', 'pominięte'].includes(c.model.status) ? [`model: ${c.model.note}`] : [];
+    const checks = [...m, ...c.fields.filter(f => f.check).map(f => `${f.field}: ${f.check}`), ...c.toCheck];
+    const filled = c.fields.map(f => f.field).filter(f => f !== 'adres');
+    return `<section><h4><a href="${esc(site)}/admin/collections/products/${c.id}" target="_blank" rel="noopener">${esc(c.name || '(bez imienia)')}</a> <small class="muted">#${c.id}</small></h4>` +
+      `<div>${c.failed ? '<b>zapis nie przeszedł</b> – szczegóły w logu' : c.written ? `wpisane: ${esc(filled.join(', '))}` : filled.length ? `do wpisania: ${esc(filled.join(', '))}` : 'bez zmian'}</div>` +
+      (checks.length ? `<ul>${checks.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '') + `</section>`;
+  }).join('')}</div>`;
+}
+async function applyProgress() {
+  clearTimeout(applyTimer);
+  const dl = $('#msg');
+  const st = await refreshApply();
+  if (!st) return;
+  const site = st.site || 'https://pznowak.pl';
+  if (st.state === 'running') {
+    // view: 'apply' = okno postępu otwarte, 'closed' = Marcin je zamknął (nie otwieram go sam, pokażę tylko wynik).
+    if (dl.dataset.view === 'apply')
+      message('Stosuję eksport…', stepsHtml(st) + '<p class="muted">Możesz zamknąć to okno – praca idzie dalej, a przycisk u góry pokaże postęp. Wynik pokażę sama.</p>', ['<button type="button" data-act="dlgClose">Zamknij okno</button>']);
+    applyTimer = setTimeout(applyProgress, 2500);
+    return;
+  }
+  applyTimer = 0;
+  if (dl.open && dl.dataset.view !== 'apply') return;  // inne okno (np. post) – wynik zostaje pod przyciskiem
+  dl.dataset.view = 'result';
+  if (st.state === 'error') {
+    const bad = (st.steps || []).find(x => x.status === 'error');
+    message('Eksport stanął', stepsHtml(st) + `<p>${esc(st.error || '')}</p>` + (bad && bad.tail ? `<pre>${esc(bad.tail)}</pre>` : '') +
+      `<p class="muted">Pełny zapis: <code>${esc(st.log || '')}</code>. Ponowienie jest bezpieczne.</p>`,
+      ['<button type="button" data-act="dlgClose">Zamknij</button>', '<button type="button" class="primary" data-act="doApply">Spróbuj jeszcze raz</button>']);
+    return;
+  }
+  if (st.state === 'done') {
+    const op = st.opisy;
+    const cost = op && op.modelCostUsd ? ` Model w tym przebiegu: ${op.modelCostUsd.toFixed(2).replace('.', ',')} USD.` : '';
+    message('Szkice gotowe do obejrzenia', stepsHtml(st) + `<p>Wszystko zapisane jako szkice i wersje robocze.${esc(cost)} Teraz Twoja kolej: obejrzyj w panelu i opublikuj.</p>` + cardsHtml(op, site),
+      [`<button type="button" data-act="openPanel" data-url="${esc(site)}/admin/collections/products">Otwórz panel</button>`, '<button type="button" class="primary" data-act="dlgClose">OK</button>']);
+  }
 }
 async function doRefresh() {
   if (!loaded || refreshing) return;
@@ -985,6 +1105,9 @@ document.addEventListener('click', async ev => {
     case 'startQueue': { const first = todoList()[0]; if (first) openPost(first.key, true); return; }
     case 'dlgClose': if (dlg) dlg.close(); return;
     case 'doExport': doExport(); return;
+    case 'doApply': doApply(); return;
+    case 'saveKey': saveKey(); return;
+    case 'openPanel': window.open(t.dataset.url, '_blank', 'noopener'); return;
   }
   if (!g) return;
   switch (act) {
@@ -1064,6 +1187,13 @@ window.addEventListener('popstate', () => {
   else if (F.key) closePost(true);
 });
 $('#exportBtn').addEventListener('click', exportAsk);
+$('#applyBtn').addEventListener('click', () => {
+  if (APPLY && APPLY.state === 'running') { $('#msg').dataset.view = 'apply'; applyProgress(); } else applyAsk();
+});
+$('#msg').addEventListener('close', () => { const dl = $('#msg'); if (dl.dataset.view === 'apply') dl.dataset.view = 'closed'; else dl.dataset.view = ''; });
+// Przebieg trwa (np. po odświeżeniu strony): śledzę go po cichu, wynik pokażę po końcu.
+refreshApply().then(st => { if (st && st.state === 'running') { $('#msg').dataset.view = 'closed'; applyProgress(); } });
+setInterval(() => { if (!applyTimer) refreshApply().then(st => { if (st && st.state === 'running' && !applyTimer) { $('#msg').dataset.view = 'closed'; applyProgress(); } }); }, 10000);
 $('#refreshBtn').addEventListener('click', doRefresh);
 
 // ---------- start ----------

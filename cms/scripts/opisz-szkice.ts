@@ -6,9 +6,12 @@
  *
  *   npm run opisz:szkice                      na sucho: podgląd (karta, pole, wartość, źródło, „do sprawdzenia”)
  *   npm run opisz:szkice -- --apply           zapis do szkiców przez REST, kontem „Automat” (klucz API = tylko szkice)
+ *   npm run opisz:szkice -- --model           teksty szkiców bez opisu pisze model (claude -p, Opus, bez narzędzi)
+ *                                             ze zdjęć i posta; zapora schematu AC, limity kosztu i czasu
+ *                                             (scripts/opisz-model.ts); wynik w data/facebook/opisy-model/
+ *   npm run opisz:szkice -- --model --apply   to samo i zapis (tak robi przycisk „Zastosuj eksport” na tablicy)
  *   npm run opisz:szkice -- --zadanie         jak na sucho + plik data/facebook/opisy-szkice-zadanie.md z postami
- *                                             i zdjęciami szkiców bez opisu; z niego Claude pisze teksty do
- *                                             seed/opisy/opisy-szkice.json, potem znów --apply
+ *                                             i zdjęciami szkiców bez opisu (ręczna droga przez plik opisów)
  *
  * Opcje: --tylko=61,62 (tylko te karty), --opisy <plik> (domyślnie seed/opisy/opisy-szkice.json),
  * --url <adres strony> (domyślnie PZNOWAK_CMS_URL albo https://pznowak.pl),
@@ -31,6 +34,13 @@ import {
   RENAMED_RING_SLUGS,
 } from '../src/lib/legacy-redirects'
 import {
+  defaultModelOptions,
+  describeWithModel,
+  loadModelSpecs,
+  type ModelReport,
+} from './opisz-model'
+import {
+  BRAK_TEKSTU,
   FIELD_LABELS,
   OPISY_SZKICE_PATH,
   cardTitle,
@@ -57,6 +67,7 @@ const option = (name: string) => {
 }
 const apply = args.includes('--apply')
 const brief = args.includes('--zadanie')
+const useModel = args.includes('--model')
 const fromFile = option('--z-pliku')
 const only = new Set(
   (option('--tylko') ?? '')
@@ -71,6 +82,7 @@ const site = (option('--url') ?? process.env.PZNOWAK_CMS_URL ?? 'https://pznowak
 )
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const outDir = path.join(repoRoot, 'data/facebook')
+const modelDir = path.join(outDir, 'opisy-model')
 
 if (apply && fromFile) throw new Error('--z-pliku działa tylko na sucho (bez --apply)')
 
@@ -147,8 +159,7 @@ async function loadCards(): Promise<{ all: DraftCard[]; drafts: DraftCard[]; not
   }
   if (fromFile) {
     const raw = JSON.parse(await readFile(path.resolve(fromFile), 'utf8')) as
-      | DraftCard[]
-      | ListResponse
+      DraftCard[] | ListResponse
     const fileCards = Array.isArray(raw) ? raw : raw.docs
     const ids = new Set(fileCards.map((card) => card.id))
     return {
@@ -267,13 +278,55 @@ async function writeBrief(items: Array<{ plan: DraftPlan; card: DraftCard }>) {
   console.log(`\nZadanie zapisane: ${file}`)
 }
 
-const specs = loadOpisy(opisyPath)
+// Pozycje z pliku opisów (człowiek) mają pierwszeństwo przed zapamiętanymi odpowiedziami modelu.
+let specs = [...loadOpisy(opisyPath), ...(await loadModelSpecs(modelDir))]
 const { all, drafts: allDrafts, note } = await loadCards()
 const drafts = allDrafts.filter((card) => !only.size || only.has(card.id))
-const ctx = { specs, kanon: loadKanon(), pula: loadPula(), ...takenFrom(all, reservedSlugs) }
+const kanon = loadKanon()
+const pula = loadPula()
 // Imiona i adresy opisywanych szkiców (jeszcze z importu) nie blokują same siebie; prawdziwe imiona są w takenFrom.
-const plans = planDrafts(drafts, ctx)
+// planDrafts rezerwuje imiona w kontekście, więc każdy plan dostaje świeży kontekst.
+const planAll = () => planDrafts(drafts, { specs, kanon, pula, ...takenFrom(all, reservedSlugs) })
+let plans = planAll()
 const byId = new Map(drafts.map((card) => [card.id, card]))
+
+let modelReport: ModelReport[] = []
+let modelCost = 0
+if (useModel) {
+  const needText = plans.filter(
+    (plan) => !plan.skip && plan.toCheck.some((n) => n.includes(BRAK_TEKSTU)),
+  )
+  if (needText.length) {
+    console.log(`Model pisze teksty: ${needText.length} szkic(e) bez opisu`)
+    const items = []
+    for (const plan of needText) {
+      const card = fromFile
+        ? (byId.get(plan.id) as DraftCard)
+        : await api<DraftCard>(`products/${plan.id}?draft=true&depth=1`)
+      const name = plan.changes.find((change) => change.field === 'name')?.value ?? card.name ?? ''
+      items.push({ card, name })
+    }
+    const result = await describeWithModel(items, defaultModelOptions(modelDir, site))
+    modelReport = result.report
+    modelCost = result.costUsd
+    for (const entry of modelReport)
+      console.log(
+        `  model #${entry.id}: ${entry.status} – ${entry.note}${entry.costUsd ? ` (${entry.costUsd.toFixed(2)} USD)` : ''}`,
+      )
+    console.log(`  koszt modelu w tym przebiegu: ${modelCost.toFixed(2)} USD`)
+    const fresh = new Set(result.specs.map((spec) => spec.id))
+    specs = [
+      ...loadOpisy(opisyPath),
+      ...result.specs,
+      ...(await loadModelSpecs(modelDir)).filter((spec) => !fresh.has(spec.id)),
+    ]
+    plans = planAll()
+  } else {
+    console.log(
+      'Model: wszystkie szkice mają już tekst (w karcie, w pliku opisów albo z poprzedniego przebiegu).',
+    )
+  }
+}
 
 console.log(
   `Opisz nowe szkice · ${note} · tryb: ${apply ? 'ZAPIS (tylko puste pola, tylko szkice)' : 'na sucho'}`,
@@ -291,7 +344,7 @@ console.log(
 )
 
 if (brief) {
-  const needText = plans.filter((plan) => plan.toCheck.some((n) => n.includes('brak tekstu')))
+  const needText = plans.filter((plan) => plan.toCheck.some((n) => n.includes(BRAK_TEKSTU)))
   const detailed: Array<{ plan: DraftPlan; card: DraftCard }> = []
   for (const plan of needText) {
     let card = byId.get(plan.id) as DraftCard
@@ -302,7 +355,39 @@ if (brief) {
   else console.log('\nZadanie: wszystkie szkice mają już tekst w pliku opisów albo w karcie.')
 }
 
+/** Podsumowanie dla tablicy przeglądu (okno „Zastosuj eksport”): co wpisano i co Marcin ma obejrzeć. */
+async function writeSummary(written: number[], failed: number[]) {
+  const summary = {
+    at: new Date().toISOString(),
+    site,
+    apply,
+    modelCostUsd: Number(modelCost.toFixed(4)),
+    model: modelReport,
+    cards: plans.map((plan) => ({
+      id: plan.id,
+      label: plan.label,
+      name: plan.changes.find((c) => c.field === 'name')?.value ?? byId.get(plan.id)?.name ?? '',
+      skip: plan.skip ?? null,
+      fields: plan.changes.map((c) => ({
+        field: FIELD_LABELS[c.field],
+        source: c.source,
+        check: c.check ?? null,
+      })),
+      toCheck: plan.toCheck,
+      model: modelReport.find((entry) => entry.id === plan.id) ?? null,
+      written: written.includes(plan.id),
+      failed: failed.includes(plan.id),
+    })),
+  }
+  await mkdir(outDir, { recursive: true })
+  await writeFile(
+    path.join(outDir, 'opisz-szkice-ostatni.json'),
+    `${JSON.stringify(summary, null, 1)}\n`,
+  )
+}
+
 if (!apply) {
+  await writeSummary([], [])
   console.log('\nNa sucho: nic nie zapisano. Zapis: npm run opisz:szkice -- --apply')
   process.exit(0)
 }
@@ -314,6 +399,7 @@ type RunEntry = {
   dropped: string[]
 }
 const run: RunEntry[] = []
+const failed: number[] = []
 let errors = 0
 for (const plan of toWrite) {
   try {
@@ -352,6 +438,7 @@ for (const plan of toWrite) {
     )
   } catch (error) {
     errors += 1
+    failed.push(plan.id)
     console.log(
       `! #${plan.id}: zapis nie przeszedł: ${error instanceof Error ? error.message : error}`,
     )
@@ -366,5 +453,9 @@ if (run.length) {
   await writeFile(logPath, `${JSON.stringify({ site, run }, null, 1)}\n`)
   console.log(`Przebieg zapisany (stare i nowe wartości): ${logPath}`)
 }
+await writeSummary(
+  run.map((entry) => entry.id),
+  failed,
+)
 console.log('Publikacja zostaje po Twojej stronie: obejrzyj szkice w panelu i opublikuj ręcznie.')
 process.exit(errors ? 1 : 0)
