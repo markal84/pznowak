@@ -44,6 +44,7 @@ w ai-flags.json nie ma "allow": true (jawna decyzja Marcina); w materials dostaj
 Posty ręczne (manual-<id>, media spoza FB) mają url null i pole source.
 """
 import json
+import unicodedata
 import re
 import sys
 from datetime import datetime, timezone
@@ -121,7 +122,31 @@ def compute(data, sel, canon=None):
     # Karty, których post już jest w katalogu (facebookKey albo źródło zdjęcia; build_review.py, ze świeżego katalog.json).
     IN_CATALOG = data.get("inCatalog") or {}
     NAMES = {x["slug"]: x["name"] for x in data.get("catalogProducts", [])}
+    # Pliki z FB, które już są w kartach (build_review.py, ze świeżego katalog.json) i szkice zrobione wcześniej z posta.
+    FILES = data.get("catalogFiles") or {}
+    DRAFTS = data.get("draftsFromPost") or {}
     warnings, outcomes = [], {}
+
+    def settle(o, slug, variant, photos, videos, action):
+        """Co z planu już jest w karcie: wszystko → „already” (kolumna „Już w katalogu”), sam film do wariantu, którego
+        nie ma (albo ma tylko wizualizację) → „waiting”. Plik nadal idzie do eksportu: import i tak go nie zdubluje."""
+        cf = FILES.get(slug)
+        if not cf:
+            return o
+        have = set(cf.get("files") or [])
+        v = (cf.get("variants") or {}).get(unicodedata.normalize("NFC", variant.strip().lower())) if variant else None
+        has_video = bool(v and v.get("video")) if variant else bool(cf.get("video"))
+        left_photos = [p for p in photos if p not in have]
+        left_videos = [x for x in videos if x not in have and not has_video]
+        name = o.get("productName") or NAMES.get(slug, slug)
+        if not left_photos and not left_videos:
+            return {"kind": "already", "product": slug, "productName": name, "settled": True}
+        if variant and action == "dodatek" and (v is None or v.get("vis")) and not left_photos:
+            return {"kind": "waiting", "product": slug, "productName": name, "variant": variant, "videos": len(left_videos),
+                    "reason": "variant-missing" if v is None else "variant-visualization"}
+        if variant and v is None and left_photos:
+            o = {**o, "createsVariant": True}
+        return o
 
     def warn(key, msg):
         warnings.append(msg)
@@ -280,8 +305,9 @@ def compute(data, sel, canon=None):
                         item["note"] = (item["note"] + "\n" if item["note"] else "") + f"[{m['title']}] {me['note']}"
             if item.get("action"):
                 to_existing.append(item)
-                outcomes[k] = {"kind": "toExisting", "action": item["action"], "product": item["product"], "productName": item["productName"],
-                               "variant": item["variant"], "photos": len(photos), "videos": len(videos), "fromHint": True}
+                outcomes[k] = settle({"kind": "toExisting", "action": item["action"], "product": item["product"], "productName": item["productName"],
+                                      "variant": item["variant"], "photos": len(photos), "videos": len(videos), "fromHint": True},
+                                     item["product"], item["variant"], photos, videos, item["action"])
             else:
                 catalog.append(item)
                 outcomes[k] = {"kind": "new", "photos": len(photos), "videos": len(videos), "name": item["name"]}
@@ -313,15 +339,31 @@ def compute(data, sel, canon=None):
                         to_existing.append({"key": k, "name": label, "titleOpus": label, "note": e.get("note", ""), "cover": None, "photos": [f"media/{p}" for p in photos],
                                             "videos": [f"media/{v}" for v in videos], "posts": posts, "action": action, "product": slug, "productName": target,
                                             "variant": variant, "confidence": None, "reason": reason})
-                        outcomes[k] = {"kind": "toExisting", "action": action, "product": slug, "productName": target, "variant": variant,
-                                       "photos": len(photos), "videos": len(videos)}
+                        outcomes[k] = settle({"kind": "toExisting", "action": action, "product": slug, "productName": target, "variant": variant,
+                                              "photos": len(photos), "videos": len(videos)}, slug, variant, photos, videos, action)
                 else:
                     additions.append({"key": k, "ring": target, "photos": [f"media/{p}" for p in photos], "videos": [f"media/{v}" for v in videos], "posts": posts})
-                    outcomes[k] = {"kind": "gallery", "ring": target, "product": slug_for(e), "photos": len(photos), "videos": len(videos)}
+                    outcomes[k] = settle({"kind": "gallery", "ring": target, "product": slug_for(e), "photos": len(photos), "videos": len(videos)},
+                                         slug_for(e), "", photos, videos, "dodatek")
             else:
                 outcomes[k] = {"kind": "problem", "reason": "no-files"}
         elif cat:
             warn(k, f"„{label}”: {len(cat)} plik(ów) „w katalogu”, ale karta ma decyzję „{dec or '?'}”, pominięto")
+
+    # Szkic zrobiony wcześniej z posta, który teraz idzie gdzie indziej (np. „nowa karta” zmieniona na wariant Hesperii):
+    # import go nie usuwa (usuwanie zostaje u Marcina), opisy go pomijają, tablica pokazuje go do usunięcia.
+    orphans = []
+    for k, o in outcomes.items():
+        if o.get("kind") in ("new", "merged", "undecided"):
+            continue
+        for d in DRAFTS.get(k, []):
+            if d.get("slug") == o.get("product"):
+                continue
+            where = o.get("productName") or o.get("ring") or {"material": "materiałów", "reject": "pominiętych"}.get(o["kind"], "innej karty")
+            o.setdefault("orphanDrafts", []).append(d)
+            orphans.append({**d, "key": k, "post": CARDS[k]["title"], "now": where})
+            warn(k, f"„{CARDS[k]['title']}”: szkic „{d.get('name') or d.get('slug')}” (#{d.get('id')}) powstał wcześniej z tego posta, "
+                    f"a teraz post idzie do: {where} – ten szkic jest zbędny, usuń go w panelu")
 
     for g in data["existing"]:
         e = existing.get(g["key"]) or {}
@@ -378,6 +420,7 @@ def compute(data, sel, canon=None):
         "alreadyInCatalog": already,
         "galleryAdditions": additions,
         "materials": materials,
+        "orphanDrafts": orphans,
         "warnings": warnings,
     }
     return out, outcomes

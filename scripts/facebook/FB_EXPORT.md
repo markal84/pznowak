@@ -141,11 +141,25 @@ Na tablicy: **Przygotuj eksport** → okno „Plik eksportu gotowy” → **Zast
 potwierdzenie zapisu (zastępuje wpisywanie słowa PRODUKCJA). Dalej wszystko dzieje się samo, w tle, bez terminala
 (`scripts/facebook/zastosuj_eksport.py`, z `cms/`):
 
+0. **eksport z aktualnych decyzji** – `export_selection.py` (decyzja zapisana po „Przygotuj eksport” też wchodzi;
+   przycisk wraca, gdy decyzje zmieniły się po ostatnim przebiegu)
 1. nowe pierścionki jako **szkice** – `npm run import:fb -- --apply`
 2. zdjęcia do galerii kart – `npm run import:fb -- --apply --gallery` (pomijane, gdy eksport ich nie ma)
-3. zdjęcia do istniejących kart jako **wersje robocze** – `npm run fb:do-istniejacych -- --apply`
+3. zdjęcia do istniejących kart jako **wersje robocze** – `npm run fb:do-istniejacych -- --apply`. „Dodaj do karty +
+   wariant”, którego karta jeszcze nie ma: z prawdziwymi zdjęciami wariant **powstaje** (kolor kółka z nazwy kamienia,
+   `guessSwatch` w `cms/src/lib/stone-variants.ts`, do sprawdzenia w panelu); sam film czeka na zdjęcia
 4. imię, krótki opis, opis, kamień, metal i masa – `npm run opisz:szkice -- --model --apply`
-5. odświeżenie `katalog.json` dla tablicy – `npm run katalog:snapshot` (błąd tu nie psuje przebiegu)
+5. odświeżenie `katalog.json` dla tablicy – `npm run katalog:snapshot`
+6. przebudowa tablicy – `build_review.py`: kolumny liczone ze świeżego katalogu (5 i 6: błąd nie psuje przebiegu).
+   Post, którego zdjęcia już są w karcie, przechodzi do „Już w katalogu” (⏸ = film czeka na zdjęcia wariantu), a po
+   zamknięciu okna wyniku tablica wczytuje się na nowo.
+
+**Zbędne szkice**: gdy post zrobił kiedyś szkic nowej karty, a potem dostał decyzję „dodaj do karty…” (albo materiał,
+pominięcie), eksport wypisuje ten szkic w `catalog-selection.json → orphanDrafts`. Opisy go pomijają, a tablica pokazuje
+go w oknie wyniku i przy poście jako „do usunięcia w panelu”. Sam skrypt niczego nie usuwa.
+
+**Zdjęcia spoza FB do posta** (np. od Kamili do wariantu): `data/facebook/manual/<data>_<źródło>/manual.json` z `post_id`
+posta (format w `manual_media.py`); decyzja „dodaj do karty” obejmuje je sama, wystarczy „Zastosuj eksport”.
 
 Na końcu okno „Szkice gotowe do obejrzenia”: każda karta z linkiem do panelu, co wpisano i co sprawdzić. **Publikujesz
 zawsze Ty, w panelu.** Okno można zamknąć w trakcie; przycisk u góry pokazuje „Eksport w toku…”, a wynik wyskoczy sam.

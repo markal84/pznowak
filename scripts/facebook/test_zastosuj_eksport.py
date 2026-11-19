@@ -20,6 +20,16 @@ case "$*" in *"$FAIL_ON"*) [ -n "$FAIL_ON" ] && { echo "! zapis nie przeszedł";
 echo "ok"
 """
 
+# Atrapa skryptów python łańcucha (export_selection.py, build_review.py): zapisuje wywołanie, niczego nie liczy.
+FAKE_PY = """import os, sys
+from pathlib import Path
+with open(os.environ["CALLS"], "a") as f:
+    f.write("py " + Path(sys.argv[0]).name + " | " + os.environ.get("PZNOWAK_ZAPIS_Z_TABLICY", "") + "\\n")
+if os.environ.get("FAIL_ON") and os.environ["FAIL_ON"] in Path(sys.argv[0]).name:
+    print("! nie wyszło"); sys.exit(1)
+print("ok")
+"""
+
 
 class Chain(unittest.TestCase):
     def setUp(self):
@@ -31,12 +41,17 @@ class Chain(unittest.TestCase):
         npm = t / "bin" / "npm"
         npm.write_text(FAKE_NPM)
         npm.chmod(npm.stat().st_mode | stat.S_IEXEC)
+        for name in ("export_selection.py", "build_review.py"):
+            (t / "bin" / name).write_text(FAKE_PY)
+        self.here = mock.patch.object(z, "HERE", t / "bin")
+        self.here.start()
         self.calls = t / "calls.log"
         self.env = mock.patch.dict(os.environ, {"PATH": f"{t / 'bin'}:{os.environ['PATH']}", "CALLS": str(self.calls), "FAIL_ON": ""})
         self.env.start()
         self.export({"catalogRings": 2, "galleryAdditions": 0, "toExisting": 1})
 
     def tearDown(self):
+        self.here.stop()
         self.env.stop()
         self.tmp.cleanup()
 
@@ -52,16 +67,18 @@ class Chain(unittest.TestCase):
         self.assertTrue(res["ok"])
         calls = self.lines()
         self.assertEqual([c.split(" | ")[0] for c in calls], [
+            "py export_selection.py",
             "run --silent import:fb -- --apply",
             "run --silent fb:do-istniejacych -- --apply",
             "run --silent opisz:szkice -- --model --apply",
             "run --silent katalog:snapshot",
+            "py build_review.py",
         ])
         self.assertTrue(all(c.endswith("| 1") for c in calls), "każdy krok dostaje PZNOWAK_ZAPIS_Z_TABLICY=1")
         st = z.status(self.root)
         self.assertEqual(st["state"], "done")
         self.assertFalse(st["pending"], "ten sam eksport nie czeka drugi raz")
-        self.assertEqual([s["status"] for s in st["steps"]], ["done", "skipped", "done", "done", "done"])
+        self.assertEqual([s["status"] for s in st["steps"]], ["done", "done", "skipped", "done", "done", "done", "done"])
         self.export({"catalogRings": 3})
         self.assertTrue(z.status(self.root)["pending"], "nowy eksport znowu czeka")
 
@@ -72,8 +89,8 @@ class Chain(unittest.TestCase):
         st = z.status(self.root)
         self.assertEqual(st["state"], "error")
         self.assertTrue(st["pending"])
-        self.assertEqual([s["status"] for s in st["steps"]][:4], ["done", "skipped", "error", "waiting"])
-        self.assertIn("zapis nie przeszedł", st["steps"][2]["tail"])
+        self.assertEqual([s["status"] for s in st["steps"]][:5], ["done", "done", "skipped", "error", "waiting"])
+        self.assertIn("zapis nie przeszedł", st["steps"][3]["tail"])
         self.assertFalse(any("opisz:szkice" in c for c in self.lines()), "po błędzie model nie rusza")
         os.environ["FAIL_ON"] = ""
         self.assertTrue(z.run_chain(self.root, log=lambda m: None)["ok"])
@@ -82,7 +99,22 @@ class Chain(unittest.TestCase):
     def test_blad_katalogu_nie_psuje_przebiegu(self):
         os.environ["FAIL_ON"] = "katalog:snapshot"
         self.assertTrue(z.run_chain(self.root, log=lambda m: None)["ok"])
-        self.assertEqual(z.status(self.root)["steps"][-1]["status"], "error")
+        steps = z.status(self.root)["steps"]
+        self.assertEqual([s["status"] for s in steps[-2:]], ["error", "done"], "tablica i tak się przebudowuje")
+
+    def test_blad_eksportu_zatrzymuje_lancuch(self):
+        os.environ["FAIL_ON"] = "export_selection"
+        self.assertFalse(z.run_chain(self.root, log=lambda m: None)["ok"])
+        self.assertEqual(self.lines(), ["py export_selection.py | 1"], "bez świeżego eksportu nic nie jest zapisywane")
+
+    def test_decyzje_po_eksporcie_znowu_czekaja(self):
+        # Marcin zmienił decyzję po „Przygotuj eksport” (rev 361 > 360): przycisk ma wrócić, a łańcuch zaczyna od eksportu.
+        (self.root / "catalog-selection.json").write_text(json.dumps({"summary": {}, "selectionRev": 360}))
+        (self.root / "selection.json").write_text(json.dumps({"rev": 360}))
+        self.assertTrue(z.run_chain(self.root, log=lambda m: None)["ok"])
+        self.assertFalse(z.status(self.root)["pending"])
+        (self.root / "selection.json").write_text(json.dumps({"rev": 361}))
+        self.assertTrue(z.status(self.root)["pending"])
 
     def test_na_sucho_bez_apply_i_bez_oznaczenia(self):
         self.assertTrue(z.run_chain(self.root, dry=True, log=lambda m: None)["ok"])

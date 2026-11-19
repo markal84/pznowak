@@ -89,6 +89,7 @@ main{max-width:1320px;margin:0 auto;padding:16px 16px 80px}
 .chip.out{background:var(--grey-soft);color:var(--grey)}
 .chip.todo{background:var(--soft);color:var(--muted);font-weight:500}
 .chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.wait{background:var(--soft);color:var(--muted)}
 
 /* ---------- przegląd jednego posta ---------- */
 #focus{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column}
@@ -373,13 +374,19 @@ function outcome(g) {
   if (o.kind === 'undecided' && alreadySlug(g)) o = { kind: 'already', product: alreadySlug(g), productName: ringName(alreadySlug(g)) };
   return o;
 }
-const COLUMN = { undecided: 'todo', problem: 'todo', new: 'ready', toExisting: 'ready', gallery: 'ready', already: 'done', material: 'out', reject: 'out' };
+// waiting: sam film do wariantu, którego karta jeszcze nie ma – eksport nie ma nic więcej do zrobienia, czeka na zdjęcia.
+const COLUMN = { undecided: 'todo', problem: 'todo', new: 'ready', toExisting: 'ready', gallery: 'ready', already: 'done', waiting: 'done', material: 'out', reject: 'out' };
 const media = (o) => [o.photos ? nPhotos(o.photos) : '', o.videos ? nVideos(o.videos) : ''].filter(Boolean).join(' i ') || 'nic';
 // „1 zdjęcie dojdzie”, „2 zdjęcia dojdą”, „5 zdjęć dojdzie”, „2 zdjęcia i film dojdą”
 const many = o => (o.photos && o.videos) || plural((o.photos || 0) + (o.videos || 0), 1, 2, 3) === 2;
 const goes = o => `${media(o)} ${many(o) ? 'dojdą' : 'dojdzie'}`;
 const waits = o => `${media(o)} ${many(o) ? 'poczekają' : 'poczeka'}`;
 function outcomeText(g, o) {
+  const drafts = (o.orphanDrafts || []).map(d => `<a href="${esc((APPLY && APPLY.site) || 'https://pznowak.pl')}/admin/collections/products/${esc(d.id)}" target="_blank" rel="noopener">„${esc(d.name || d.slug)}” (#${esc(d.id)})</a>`);
+  const orphan = drafts.length ? ` <b>Uwaga:</b> szkic ${drafts.join(', ')} powstał wcześniej z tego posta i jest już zbędny – usuń go w panelu.` : '';
+  return outcomeBase(g, o) + orphan;
+}
+function outcomeBase(g, o) {
   const pn = `<b>${esc(o.productName || ringName(o.product) || o.ring || '')}</b>`;
   switch (o.kind) {
     case 'undecided': return 'Jeszcze bez decyzji.';
@@ -389,12 +396,16 @@ function outcomeText(g, o) {
       if (o.action === 'nowy-wariant') return `Model uznał to za nowy kamień w fasonie ${pn}. Import tego sam nie zrobi: wybierz „Nowy pierścionek” albo wariant karty.`;
       if (o.variant) {
         const v = matchVariant(o.product, o.variant);
-        if (!v) return `Karta ${pn} nie ma jeszcze wariantu <b>${esc(o.variant)}</b>. ${cap(waits(o))}, aż dodasz ten wariant w panelu.`;
+        if (!v && (o.createsVariant || o.photos)) return `W karcie ${pn} powstanie wariant <b>${esc(o.variant)}</b> z: ${media(o)} (wersja robocza, kolor kółka do sprawdzenia w panelu).`;
+        if (!v) return `Karta ${pn} nie ma jeszcze wariantu <b>${esc(o.variant)}</b>. ${cap(waits(o))} na zdjęcia tego kamienia.`;
         if (v.vis) return `Wariant <b>${esc(o.variant)}</b> karty ${pn} ma dziś tylko wizualizację, więc dodanie poczeka. Wybierz „zastąp wizualizację”, jeśli to ten kamień.`;
         return `${cap(goes(o))} do wariantu <b>${esc(o.variant)}</b> karty ${pn}.`;
       }
       return `${cap(goes(o))} do karty ${pn}.`;
     case 'gallery': return `${cap(goes(o))} do galerii karty ${pn}.`;
+    case 'waiting': return o.reason === 'variant-visualization'
+      ? `Wariant <b>${esc(o.variant)}</b> karty ${pn} ma dziś tylko wizualizację; ${nVideos(o.videos || 1)} poczeka na prawdziwe zdjęcia albo wybierz „zastąp wizualizację”.`
+      : `Sam film czeka na zdjęcia kamienia <b>${esc(o.variant)}</b>. Gdy dojdą (np. od Kamili), wariant w karcie ${pn} powstanie przy kolejnym eksporcie.`;
     case 'already': return `Zdjęcia z tego posta <b>już są w karcie</b> ${pn}${o.videos ? ` (dojdzie jeszcze ${nVideos(o.videos)})` : ''}. Nic nie trzeba robić.`;
     case 'material': return 'Zostaje w <b>materiałach</b> (warsztat, proces). Nie trafi do katalogu.';
     case 'reject': return '<b>Pominięty</b>. Nic się z nim nie stanie.';
@@ -415,6 +426,7 @@ function chip(g, o) {
     case 'toExisting': return `<span class="chip to">→ ${pn}${o.variant ? ' · ' + esc(o.variant) : ''}</span>`;
     case 'gallery': return `<span class="chip to">→ ${pn}</span>`;
     case 'already': return `<span class="chip done">✓ ${pn}</span>`;
+    case 'waiting': return `<span class="chip wait">⏸ ${pn}${o.variant ? ' · ' + esc(o.variant) : ''}</span>`;
     case 'material': return `<span class="chip out">Materiał</span>`;
     case 'reject': return `<span class="chip out">Pominięty</span>`;
     case 'problem': return `<span class="chip bad">⚠ do poprawy</span>`;
@@ -645,7 +657,7 @@ function tileHTML(g) {
 const COLS = [
   ['todo', 'Do decyzji', 'Co jest na zdjęciach? Zdecyduj raz, resztę zrobi eksport.'],
   ['ready', 'Gotowe do katalogu', 'Po eksporcie trafią do szkiców. Strona się nie zmieni, dopóki nie opublikujesz.'],
-  ['done', 'Już w katalogu', 'Te zdjęcia są już w kartach. Nic do zrobienia.'],
+  ['done', 'Już w katalogu', 'Te zdjęcia są już w kartach (⏸ = film czeka na zdjęcia wariantu). Nic do zrobienia.'],
   ['out', 'Poza katalogiem', 'Materiały z warsztatu i pominięte posty.'],
 ];
 function renderBoard() {
@@ -956,7 +968,7 @@ async function doExport() {
 }
 
 // ---------- „Zastosuj eksport”: import szkiców, zdjęcia i opisy modelu, w tle (zastosuj_eksport.py) ----------
-let APPLY = null, applyTimer = 0;
+let APPLY = null, applyTimer = 0, applySeenRunning = false, reloadOnClose = false;
 const STEP_IC = { waiting: '○', running: '✱', done: '✓', skipped: '–', error: '✕' };
 async function refreshApply() {
   try { const r = await api('GET', '/api/apply'); if (r.ok && r.data) APPLY = r.data; } catch (e) { /* serwer wyłączony – zajmie się tym zwykłe sprawdzanie */ }
@@ -1030,6 +1042,11 @@ function cardsHtml(op, site) {
       (checks.length ? `<ul>${checks.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '') + `</section>`;
   }).join('')}</div>`;
 }
+function orphansHtml(list, site) {
+  if (!list || !list.length) return '';
+  return `<p><b>Do usunięcia w panelu</b> (szkice zrobione wcześniej z postów, które teraz idą do innych kart; opisów nie dostały):</p><ul>` +
+    list.map(d => `<li><a href="${esc(site)}/admin/collections/products/${esc(d.id)}" target="_blank" rel="noopener">„${esc(d.name || d.slug)}” #${esc(d.id)}</a> – post „${esc(d.post)}” idzie teraz do: ${esc(d.now)}</li>`).join('') + '</ul>';
+}
 async function applyProgress() {
   clearTimeout(applyTimer);
   const dl = $('#msg');
@@ -1037,6 +1054,7 @@ async function applyProgress() {
   if (!st) return;
   const site = st.site || 'https://pznowak.pl';
   if (st.state === 'running') {
+    applySeenRunning = true;
     // view: 'apply' = okno postępu otwarte, 'closed' = Marcin je zamknął (nie otwieram go sam, pokażę tylko wynik).
     if (dl.dataset.view === 'apply')
       message('Stosuję eksport…', stepsHtml(st) + '<p class="muted">Możesz zamknąć to okno – praca idzie dalej, a przycisk u góry pokaże postęp. Wynik pokażę sama.</p>', ['<button type="button" data-act="dlgClose">Zamknij okno</button>']);
@@ -1054,9 +1072,12 @@ async function applyProgress() {
     return;
   }
   if (st.state === 'done') {
+    // Po przebiegu katalog i tablica są przebudowane (krok „Odświeżenie tablicy”): zamknięcie okna wczytuje je na nowo.
+    if (applySeenRunning) reloadOnClose = true;
     const op = st.opisy;
     const cost = op && op.modelCostUsd ? ` Model w tym przebiegu: ${op.modelCostUsd.toFixed(2).replace('.', ',')} USD.` : '';
-    message('Szkice gotowe do obejrzenia', stepsHtml(st) + `<p>Wszystko zapisane jako szkice i wersje robocze.${esc(cost)} Teraz Twoja kolej: obejrzyj w panelu i opublikuj.</p>` + cardsHtml(op, site),
+    message('Szkice gotowe do obejrzenia', stepsHtml(st) + `<p>Wszystko zapisane jako szkice i wersje robocze.${esc(cost)} Teraz Twoja kolej: obejrzyj w panelu i opublikuj.</p>` + cardsHtml(op, site) + orphansHtml(st.orphanDrafts, site) +
+      (reloadOnClose ? '<p class="muted">Po zamknięciu tego okna tablica wczyta się na nowo (świeży katalog).</p>' : ''),
       [`<button type="button" data-act="openPanel" data-url="${esc(site)}/admin/collections/products">Otwórz panel</button>`, '<button type="button" class="primary" data-act="dlgClose">OK</button>']);
   }
 }
@@ -1190,7 +1211,11 @@ $('#exportBtn').addEventListener('click', exportAsk);
 $('#applyBtn').addEventListener('click', () => {
   if (APPLY && APPLY.state === 'running') { $('#msg').dataset.view = 'apply'; applyProgress(); } else applyAsk();
 });
-$('#msg').addEventListener('close', () => { const dl = $('#msg'); if (dl.dataset.view === 'apply') dl.dataset.view = 'closed'; else dl.dataset.view = ''; });
+$('#msg').addEventListener('close', () => {
+  const dl = $('#msg');
+  if (dl.dataset.view === 'result' && reloadOnClose) { location.reload(); return; }
+  if (dl.dataset.view === 'apply') dl.dataset.view = 'closed'; else dl.dataset.view = '';
+});
 // Przebieg trwa (np. po odświeżeniu strony): śledzę go po cichu, wynik pokażę po końcu.
 refreshApply().then(st => { if (st && st.state === 'running') { $('#msg').dataset.view = 'closed'; applyProgress(); } });
 setInterval(() => { if (!applyTimer) refreshApply().then(st => { if (st && st.state === 'running' && !applyTimer) { $('#msg').dataset.view = 'closed'; applyProgress(); } }); }, 10000);
