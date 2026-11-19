@@ -1,0 +1,31 @@
+[
+  {
+    "klucz": "moissanit-1-ct-brzoskwiniowo-zloty@122200020668616875",
+    "id": 61,
+    "name": "Xanthe",
+    "lead": "Prosty fason w żółtym złocie: prostokątny kamień w czterech łapkach na smukłej szynie.",
+    "description": "Pierścionek z żółtego złota w prostym fasonie z jednym kamieniem. Prostokątny kamień w szlifie radiant trzymają cztery łapki, a cienka, smukła szyna zostawia całą uwagę kamieniowi.\n\nKamień oprawiamy ręcznie w naszej pracowni. Na zdjęciach i filmie w centrum jest moissanit o masie 1 ct w ciepłym, brzoskwiniowo-złotym odcieniu. Moissanit ma twardość 9,25 w skali Mohsa, więc dobrze znosi codzienne noszenie.\n\nTen sam fason wykonaliśmy też z większym kamieniem, 2 ct, w pierścionku Aethra. Model wykonamy w wybranym rozmiarze, także z innym kamieniem.",
+    "stone": "Moissanit",
+    "metal": "Żółte",
+    "carats": "1 ct",
+    "uwagi": [
+      "szlif „radiant” odczytany ze zdjęć – rzuć okiem",
+      "próba złota nieznana (585?) – dopisz w opisie, jeśli ją znasz",
+      "„Moissanit” nie wchodzi do filtra kolorów na liście – zobacz kartę w katalogu"
+    ]
+  },
+  {
+    "klucz": "moissanit-2-ct-szampanski@manual-moissanit-2ct",
+    "id": 62,
+    "name": "Aethra",
+    "lead": "Duży prostokątny kamień w czterech łapkach na cienkiej szynie z żółtego złota.",
+    "description": "Pierścionek z żółtego złota w prostym fasonie z jednym kamieniem. Duży, prostokątny kamień w szlifie radiant trzymają cztery łapki, a dzięki cienkiej szynie kamień wygląda, jakby unosił się nad palcem.\n\nKamień oprawiamy ręcznie w naszej pracowni. Na zdjęciach i filmie w centrum jest moissanit o masie 2 ct w szampańskim odcieniu. Moissanit ma twardość 9,25 w skali Mohsa, więc dobrze znosi codzienne noszenie.\n\nTen sam fason wykonaliśmy też z mniejszym kamieniem, 1 ct, w pierścionku Xanthe. Model wykonamy w wybranym rozmiarze, także z innym kamieniem.",
+    "stone": "Moissanit",
+    "metal": "Żółte",
+    "carats": "2 ct",
+    "uwagi": [
+      "szlif „radiant” odczytany ze zdjęć – rzuć okiem",
+      "próba złota nieznana (585?) – dopisz w opisie, jeśli ją znasz"
+    ]
+  }
+]

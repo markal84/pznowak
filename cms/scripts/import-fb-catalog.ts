@@ -5,7 +5,8 @@
 //   npm run import:fb -- --apply                   nowe pierścionki (szkice) + wgranie plików
 //   npm run import:fb -- --apply --gallery         tylko uzupełnienia galerii (wersja robocza produktu)
 //   npm run import:fb -- --rollback <plik przebiegu> [--apply]   cofnięcie przebiegu
-// Każde --apply (także cofnięcie) wymaga wpisania słowa PRODUKCJA w terminalu.
+// Każde --apply (także cofnięcie) wymaga wpisania słowa PRODUKCJA w terminalu albo kliknięcia „Zastosuj eksport” na
+// tablicy przeglądu (serwer tablicy ustawia wtedy PZNOWAK_ZAPIS_Z_TABLICY=1; cofnięcia tablica nie robi).
 //
 // Opcje: --input <catalog-selection.json> (domyślnie data/facebook/), --data <katalog z media/> (domyślnie
 // data/facebook), --env-root <katalog z cms/.env* i backend/.env*> (domyślnie korzeń repozytorium).
@@ -28,7 +29,7 @@ import {
   type PlannedFile,
 } from '../src/lib/fb-import'
 import type { Product } from '../src/payload-types'
-import { isLiveDatabase, loadLiveEnv } from './live-db'
+import { confirmedOnBoard, isLiveDatabase, loadLiveEnv } from './live-db'
 
 const run = promisify(execFile)
 const args = process.argv.slice(2)
@@ -79,6 +80,11 @@ type RunLog = {
 // odwrotne (scripts/backup/README.md). Zapis do żywej bazy zawsze wymaga wpisania PRODUKCJA, niezależnie od --env.
 async function confirmProduction() {
   if (!apply) return
+  // Tablica przeglądu (przycisk „Zastosuj eksport”) to świadome potwierdzenie Marcina zamiast wpisywania słowa.
+  if (confirmedOnBoard()) {
+    console.log('Zapis potwierdzony na tablicy przeglądu (przycisk „Zastosuj eksport”).')
+    return
+  }
   const rl = createInterface({ input: process.stdin, output: process.stdout })
   const answer = await rl.question(
     'Zapis do ŻYWEJ bazy strony (szkice i wersje robocze). Wpisz PRODUKCJA, aby kontynuować: ',
@@ -454,6 +460,9 @@ try {
       } finally {
         await writeFile(logPath, JSON.stringify(log, null, 1))
         console.log(`Przebieg zapisany: ${logPath}`)
+      }
+      if (log.createdProducts.length) {
+        console.log('Dalej: imię, opisy i parametry nowych szkiców – npm run opisz:szkice (podgląd), potem -- --apply')
       }
     } else {
       console.log('Na sucho: nic nie zapisano w CMS ani w Blob.')

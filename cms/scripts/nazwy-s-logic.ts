@@ -28,7 +28,8 @@ export const NAME_SPECS: NameSpec[] = [
 ]
 
 /** Moissanity (karty 33 i 34 z zadania L) nie mają jeszcze kart na stagingu; dostają imiona przy imporcie (`scripts/facebook/nazwy-kanon.json`). */
-export const MOISSANITE_NAMES = { '2 ct': 'Aethra', '1 ct': 'Hesperia' } as const
+// 1 ct: Xanthe (19.11), bo imię Hesperia ma już karta z andaluzytem.
+export const MOISSANITE_NAMES = { '2 ct': 'Aethra', '1 ct': 'Xanthe' } as const
 
 /** Dotychczasowa nazwa opisowa jako pierwsze zdanie opisu: bez słowa „klienta”, z kropką na końcu. */
 export function descriptiveSentence(oldName: string): string {

@@ -15,6 +15,7 @@
     "import:catalog": "node --env-file=.env.local --import=tsx/esm scripts/import-legacy-catalog.ts --apply",
     "import:catalog:check": "node --env-file=.env.local --import=tsx/esm scripts/import-legacy-catalog.ts",
     "import:fb": "node --no-deprecation --import=tsx/esm scripts/import-fb-catalog.ts",
+    "opisz:szkice": "node --no-deprecation --import=tsx/esm scripts/opisz-szkice.ts",
     "katalog:snapshot": "node --no-deprecation --import=tsx/esm scripts/katalog-snapshot.ts",
     "fb:do-istniejacych": "node --no-deprecation --import=tsx/esm scripts/fb-do-istniejacych.ts",
     "migrate:videos": "node --env-file=.env.local --import=tsx/esm scripts/migrate-legacy-videos.ts --apply",
