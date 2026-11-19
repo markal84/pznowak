@@ -114,6 +114,17 @@ class Key(unittest.TestCase):
                 self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
                 self.assertEqual(z.read_key(), "b" * 36)
 
+    def test_odpowiedz_me(self):
+        # dobry klucz Redaktora: Payload odmawia odczytu konta (users: read isAdmin) – to znaczy, że klucz działa
+        self.assertTrue(z.interpret_me(403, '{"errors":[{"message":"You are not allowed to perform this action."}]}')[0])
+        self.assertTrue(z.interpret_me(200, '{"user":{"name":"Automat"}}')[0])
+        ok, msg = z.interpret_me(200, '{"user":null,"message":"Konto"}')
+        self.assertFalse(ok)
+        self.assertIn("nie rozpoznała", msg)
+        ok, msg = z.interpret_me(403, "error code: 1010")
+        self.assertFalse(ok)
+        self.assertIn("1010", msg)
+
     def test_brak_klucza_w_preflight(self):
         with tempfile.TemporaryDirectory() as t, mock.patch.object(z, "KEY_FILE", Path(t) / "brak.key"), \
                 mock.patch.dict(os.environ, {"PZNOWAK_AUTOMAT_KEY": ""}):

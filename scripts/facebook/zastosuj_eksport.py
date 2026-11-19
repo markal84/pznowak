@@ -70,20 +70,43 @@ def read_key():
         return ""
 
 
+def interpret_me(status, body):
+    """Odpowiedź GET /api/users/me z kluczem → (ok, komunikat). Osobno, żeby dało się to sprawdzić testem.
+
+    Konto Automat ma rolę Redaktor, a kolekcja users ma `read: isAdmin`, więc Payload odpowiada na /me z DOBRYM kluczem
+    HTTP 403 z błędem w JSON-ie (sprawdzenie dostępu przy odczycie konta). Zły klucz daje 200 i `"user": null`.
+    403 bez JSON-a Payloadu (np. strona Cloudflare „error code: 1010”) to blokada po drodze, nie odpowiedź o kluczu.
+    """
+    try:
+        data = json.loads(body or "{}")
+    except ValueError:
+        data = None
+    if status == 200 and isinstance(data, dict):
+        user = data.get("user")
+        if not user:
+            return False, "strona nie rozpoznała tego klucza"
+        return True, f"klucz działa (konto {user.get('name') or user.get('email') or user.get('id')})"
+    if status == 403 and isinstance(data, dict) and data.get("errors"):
+        return True, "klucz działa (konto bez uprawnień administratora, tak ma być)"
+    snippet = " ".join((body or "").split())[:80]
+    return False, f"strona odpowiedziała HTTP {status}{f' ({snippet})' if snippet else ''}"
+
+
 def check_key(key, timeout=20):
     """Czy klucz konta Automat działa (GET /api/users/me). Zwraca (ok, komunikat po ludzku)."""
     req = urllib.request.Request(f"{SITE}/api/users/me", headers={
         "Authorization": f"users API-Key {key}", "Accept": "application/json", "User-Agent": "pznowak-tablica/1"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            user = (json.loads(r.read().decode("utf-8")) or {}).get("user")
+            return interpret_me(r.status, r.read().decode("utf-8", "replace"))
     except urllib.error.HTTPError as e:
-        return False, f"strona odpowiedziała HTTP {e.code}"
+        try:
+            body = e.read().decode("utf-8", "replace")
+        except OSError:
+            body = ""
+        return interpret_me(e.code, body)
     except (urllib.error.URLError, TimeoutError, OSError) as e:
         return False, f"brak połączenia ze stroną ({e})"
-    if not user:
-        return False, "strona nie rozpoznała tego klucza"
-    return True, f"klucz działa (konto {user.get('name') or user.get('email') or user.get('id')})"
 
 
 def save_key(key):
