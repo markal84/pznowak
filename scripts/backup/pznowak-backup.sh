@@ -1,7 +1,7 @@
 #!/bin/bash
 # Kopie zapasowe pznowak.pl na Hetznerze (model pull: ten serwer sam ściąga dane).
 #   pznowak-backup            pełna kopia: baza + zdjęcia Blob + dane z MyDevil (raz na dobę)
-#   pznowak-backup --db-only  tylko baza (co 6 godzin)
+#   pznowak-backup --db-only  tylko baza (cron: 8:15, 14:15 i 20:15 czasu serwera; katalog nazywa się baza-co-6h z dawnych planów)
 # Pełne kopie to migawki w ~/backups/pznowak-full/migawki/<czas>/ (pliki dowiązane twardo do luster w _lustro/,
 # więc 10 migawek zajmuje niewiele więcej niż jedna). Zostaje 10 ostatnich udanych.
 set -u
@@ -49,7 +49,7 @@ if [ "$MODE" = db ]; then
   if dump_db "$CONF/live.env" DATABASE_URL_LIVE "$ROOT/baza-co-6h/live-$STAMP.dump"; then
     sha256sum "$ROOT/baza-co-6h/live-$STAMP.dump" > "$ROOT/baza-co-6h/live-$STAMP.dump.sha256"
     prune "$ROOT/baza-co-6h" "$KEEP_DB" 'live-*.dump'; prune "$ROOT/baza-co-6h" "$KEEP_DB" 'live-*.dump.sha256'
-    log "Baza (co 6 h) OK: live-$STAMP.dump"
+    log "Baza OK: live-$STAMP.dump"
   else rm -f "$ROOT/baza-co-6h/live-$STAMP.dump"*; log "BŁĄD: dump bazy"; exit 1; fi
   exit 0
 fi

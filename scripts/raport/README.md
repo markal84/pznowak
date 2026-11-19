@@ -36,6 +36,6 @@ python3 ~/pznowak-raport/raport-dzienny.py
 ( crontab -l 2>/dev/null | grep -v '# pznowak-raport'; echo '0 6 * * * /usr/bin/python3 $HOME/pznowak-raport/raport-dzienny.py >> $HOME/pznowak-raport/raport.log 2>&1 # pznowak-raport' ) | crontab -
 ```
 
-Sam skrypt na Hetznera kopiujesz z Maca (`scp`, patrz instrukcja w PR); repo na serwerze nie jest potrzebne.
+Sam skrypt na Hetznera kopiujesz z Maca (`scp`, patrz `scripts/backup/README.md`); repo na serwerze nie jest potrzebne. Po każdej zmianie tego pliku w repo trzeba go skopiować ponownie, bo sam się nie aktualizuje.
 
 Cron liczy czas serwera (zwykle UTC): `0 6` to 7:00 zimą i 8:00 latem w Polsce.
