@@ -8,7 +8,9 @@
 //   zamiast-wizualizacji  wariant kamienia, który ma dziś wizualizację, dostaje prawdziwe zdjęcia z posta
 //                         (image = pierwsze zdjęcie, moreImages = kolejne, isVisualization = false, alt bez „(wizualizacja)”).
 //                         Poprzednia wizualizacja zostaje w bibliotece mediów (do cofnięcia ręcznie albo --rollback).
-//   dodatek               zdjęcia dopisane na koniec galerii karty (media).
+//   dodatek               zdjęcia dopisane na koniec galerii karty (media); z wariantem: do wariantu. Gdy karta nie ma
+//                         jeszcze tego wariantu, a są prawdziwe zdjęcia (np. od Kamili), wariant powstaje (kolor kółka
+//                         z nazwy kamienia, do sprawdzenia w panelu); sam film czeka na zdjęcia.
 //   nowy-wariant          pomijany z komunikatem (decyzja: inny kamień w tym fasonie = nowa karta).
 // Opublikowana karta dostaje NOWĄ WERSJĘ ROBOCZĄ (draft: true): strona się nie zmienia, dopóki Marcin nie opublikuje
 // zmian w panelu. Szkic zostaje szkicem.
@@ -26,6 +28,7 @@ import { promisify } from 'node:util'
 
 import sharp from 'sharp'
 
+import { guessSwatch } from '../src/lib/stone-variants'
 import { confirmedOnBoard, isLiveDatabase, loadLiveEnv } from './live-db'
 
 const run = promisify(execFile)
@@ -104,8 +107,17 @@ async function prepareVideo(fullPath: string): Promise<{ data: Buffer; mimetype:
 }
 
 async function upload(file: string, alt: string, log: RunLog): Promise<number> {
-  const source = `fb:${file.replace(/^media\//, '')}`
-  const known = await payload.find({ collection: 'media', depth: 0, limit: 1, overrideAccess: true, where: { legacySourceUrl: { equals: source } } })
+  const base = file.replace(/^media\//, '')
+  const source = `fb:${base}`
+  // Import nowych kart zapisuje źródło jako „fb:<post>/<plik>”: ten sam plik wgrany tamtą drogą nie wraca drugi raz.
+  const viaImport = `fb:${base.split('_')[0]}/${base}`
+  const known = await payload.find({
+    collection: 'media',
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    where: { or: [{ legacySourceUrl: { equals: source } }, { legacySourceUrl: { equals: viaImport } }] },
+  })
   if (known.docs[0]) {
     console.log(`  = ${file} już jest w mediach (#${known.docs[0].id})`)
     return known.docs[0].id
@@ -190,9 +202,28 @@ for (const item of items) {
   if (item.action === 'zamiast-wizualizacji' || (item.action === 'dodatek' && item.variant)) {
     const variants = product.stoneVariants ?? []
     const i = variants.findIndex((v) => norm(v.stone ?? '') === norm(item.variant))
+    const swatch = guessSwatch(item.variant)
+    if (item.action === 'dodatek' && i < 0 && item.photos.length && swatch) {
+      // Prawdziwe zdjęcia wariantu, którego karta jeszcze nie ma (np. Hesperia → Turmalin od Kamili): wariant powstaje.
+      const alt = `${product.name} – ${item.variant}`
+      console.log(`+ ${where} [${state}]: nowy wariant „${item.variant}” (kółko: ${swatch}) z ${item.photos.length} zdj.${videoFile ? ' + film' : ''}`)
+      for (const f of item.photos) console.log(`    · ${f}`)
+      if (!apply) continue
+      const ids: number[] = []
+      for (const f of item.photos) ids.push(await upload(f, alt, log))
+      const entry: Record<string, unknown> = { alt, image: ids[0], isVisualization: false, moreImages: ids.slice(1), stone: item.variant, swatch }
+      if (videoFile) entry.video = await upload(videoFile, `${alt} – film`, log)
+      log.products.push({ action: 'nowy-wariant-ze-zdjec', before: { stoneVariants: variants }, id: product.id, slug: product.slug })
+      await payload.update({ collection: 'products', context, data: { stoneVariants: [...variants, entry] }, draft: true, id: product.id, overrideAccess: true })
+      console.log(`  ✓ zapisane jako wersja robocza (kolor kółka i nazwę kamienia sprawdź w panelu)`)
+      continue
+    }
     if (item.action === 'dodatek' && (i < 0 || variants[i].isVisualization)) {
       // Decyzja zostaje w selection.json: kolejne uruchomienie (po dodaniu wariantu z prawdziwym zdjęciem) dopnie film i zdjęcia.
-      const why = i < 0 ? 'wariantu jeszcze nie ma' : 'wariant ma na razie tylko wizualizację'
+      const why =
+        i >= 0 ? 'wariant ma na razie tylko wizualizację'
+        : item.photos.length ? `wariantu jeszcze nie ma, a z nazwy „${item.variant}” nie umiem dobrać koloru kółka (dodaj wariant w panelu)`
+        : 'wariantu jeszcze nie ma; sam film czeka na zdjęcia tego kamienia'
       console.log(`⏸ ${where}: wariant „${item.variant}” – ${why}; czeka (${item.photos.length} zdj., ${item.videos?.length ?? 0} film)`)
       waiting.push(`${item.productName} → ${item.variant}: ${why}`)
       continue

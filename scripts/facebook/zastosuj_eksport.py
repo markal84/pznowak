@@ -2,12 +2,14 @@
 """„Zastosuj eksport”: cały łańcuch po „Przygotuj eksport”, uruchamiany z tablicy przeglądu (review_server.py).
 
 Kliknięcie przycisku na tablicy jest świadomym potwierdzeniem Marcina zamiast wpisywania słowa PRODUKCJA. Kroki
-(w cms/, każdy jako osobny proces npm, z PZNOWAK_ZAPIS_Z_TABLICY=1, bez terminala):
+(npm w cms/, każdy jako osobny proces, z PZNOWAK_ZAPIS_Z_TABLICY=1, bez terminala):
+  0. eksport z aktualnych decyzji         export_selection.py (decyzje zapisane po „Przygotuj eksport” też wchodzą)
   1. nowe pierścionki jako szkice         npm run import:fb -- --apply
   2. zdjęcia do galerii kart              npm run import:fb -- --apply --gallery
-  3. zdjęcia do istniejących kart         npm run fb:do-istniejacych -- --apply
-  4. imię, opisy i parametry (model)      npm run opisz:szkice -- --model --apply
-  5. odświeżenie katalogu tablicy         npm run katalog:snapshot (błąd tu nie psuje przebiegu)
+  3. zdjęcia do istniejących kart         npm run fb:do-istniejacych -- --apply (brakujący wariant ze zdjęciami powstaje)
+  4. imię, opisy i parametry (model)      npm run opisz:szkice -- --model --apply (bez szkiców zbędnych po zmianie decyzji)
+  5. odświeżenie katalogu tablicy         npm run katalog:snapshot
+  6. przebudowa tablicy                   build_review.py: kolumny liczone ze świeżego katalogu (5 i 6: błąd nie psuje przebiegu)
 Wszystko trafia do szkiców albo wersji roboczych; publikuje zawsze Marcin w panelu. Krok, który nie ma czego robić
 (np. brak zdjęć do istniejących kart), jest pomijany. Po błędzie łańcuch staje, a ponowne kliknięcie jest bezpieczne:
 import pomija karty, które już są, galerie nie dublują zdjęć, opisy wpisują tylko puste pola.
@@ -35,13 +37,16 @@ SITE = os.environ.get("PZNOWAK_CMS_URL", "https://pznowak.pl").rstrip("/")
 KEY_FILE = Path(os.environ.get("PZNOWAK_AUTOMAT_KEY_FILE") or Path.home() / ".config" / "pznowak-cms" / "automat.key")
 STATE_NAME = "zastosuj-stan.json"
 
-# (id, etykieta, polecenie npm, limit czasu w s, czy błąd zatrzymuje łańcuch, pole summary – krok pomijany, gdy 0)
+# (id, etykieta, polecenie npm albo ["py", skrypt, …], limit czasu w s, czy błąd zatrzymuje łańcuch, pole summary – krok
+# pomijany, gdy 0). „{root}” w poleceniu python to katalog danych (data/facebook).
 STEPS = [
+    ("eksport", "Eksport z aktualnych decyzji", ["py", "export_selection.py", "{root}"], 5 * 60, True, None),
     ("nowe", "Nowe pierścionki jako szkice", ["import:fb", "--", "--apply"], 30 * 60, True, "catalogRings"),
     ("galeria", "Zdjęcia do galerii kart", ["import:fb", "--", "--apply", "--gallery"], 30 * 60, True, "galleryAdditions"),
     ("istniejace", "Zdjęcia do istniejących kart", ["fb:do-istniejacych", "--", "--apply"], 30 * 60, True, "toExisting"),
     ("opisy", "Imię, opisy i parametry (model)", ["opisz:szkice", "--", "--model", "--apply"], 90 * 60, True, None),
     ("katalog", "Odświeżenie katalogu na tablicy", ["katalog:snapshot"], 10 * 60, False, None),
+    ("tablica", "Przebudowa tablicy (kolumny ze świeżego katalogu)", ["py", "build_review.py", "{root}"], 30 * 60, False, None),
 ]
 
 LOCK = threading.Lock()
@@ -149,11 +154,25 @@ def write_state(root, state):
     os.replace(tmp, p)
 
 
+def selection_rev(root):
+    try:
+        return json.loads((Path(root) / "selection.json").read_text(encoding="utf-8")).get("rev", 0)
+    except (OSError, ValueError):
+        return None
+
+
+def export_rev(root):
+    try:
+        return json.loads((Path(root) / "catalog-selection.json").read_text(encoding="utf-8")).get("selectionRev")
+    except (OSError, ValueError):
+        return None
+
+
 def preflight(root):
     """Czego brakuje, zanim łańcuch ruszy. Lista komunikatów po ludzku (pusta = można)."""
     problems = []
-    if not (Path(root) / "catalog-selection.json").exists():
-        problems.append("Najpierw „Przygotuj eksport” – nie ma jeszcze pliku eksportu.")
+    if not (Path(root) / "review-data.json").exists():
+        problems.append("Brak danych tablicy (review-data.json) – kliknij najpierw „Pobierz nowe posty”.")
     if not (CMS / "node_modules").is_dir():
         problems.append("W cms/ brakuje zainstalowanych pakietów (node_modules) – to jednorazowa instalacja, daj znać Klaudii.")
     if not shutil.which("npm"):
@@ -173,7 +192,10 @@ def status(root):
         st["error"] = "przebieg przerwany (serwer tablicy został wyłączony w trakcie) – kliknij jeszcze raz"
     applied = st.get("appliedExport")
     st["exportHash"] = h
-    st["pending"] = bool(h) and h != applied and st.get("state") != "running"
+    # Czeka nowy plik eksportu albo decyzje zmienione po ostatnim eksporcie (łańcuch i tak zaczyna od eksportu).
+    rev, erev = selection_rev(root), export_rev(root)
+    newer = rev is not None and rev != (st.get("appliedRev") if st.get("appliedRev") is not None else erev)
+    st["pending"] = ((bool(h) and h != applied) or newer) and st.get("state") != "running"
     st["missing"] = preflight(root) if st["pending"] or st.get("state") == "error" else []
     st["keyFile"] = str(KEY_FILE)
     st["site"] = SITE
@@ -205,7 +227,7 @@ def run_chain(root, dry=False, log=print):
         log_path = root / f"zastosuj-{stamp}.log"
         prev = load_state(root)
         steps = [{"id": s[0], "label": s[1], "status": "waiting"} for s in STEPS]
-        st = {"state": "running", "startedAt": now(), "export": h, "appliedExport": prev.get("appliedExport"),
+        st = {"state": "running", "startedAt": now(), "export": h, "appliedExport": prev.get("appliedExport"), "appliedRev": prev.get("appliedRev"),
               "log": str(log_path), "steps": steps, "dry": dry}
         write_state(root, st)
         env = {**os.environ, "PZNOWAK_ZAPIS_Z_TABLICY": "1", "FORCE_COLOR": "0", "NO_COLOR": "1"}
@@ -214,20 +236,27 @@ def run_chain(root, dry=False, log=print):
             env["PZNOWAK_CLAUDE_BIN"] = claude
         with open(log_path, "w", encoding="utf-8") as logf:
             for (sid, label, cmd, timeout, fatal, need), step in zip(STEPS, steps):
+                if sid != "eksport":
+                    summary = _summary(root)
                 if need and not summary.get(need):
                     step.update(status="skipped", note="nic do zrobienia w tym eksporcie")
                     write_state(root, st)
                     continue
                 if dry:
                     cmd = [c for c in cmd if c != "--apply"]
+                if cmd[0] == "py":
+                    argv = [sys.executable, "-I", str(HERE / cmd[1]), *[c.replace("{root}", str(root)) for c in cmd[2:]]]
+                    shown, cwd = " ".join(cmd[1:]).replace("{root}", root.name), REPO
+                else:
+                    argv, shown, cwd = ["npm", "run", "--silent", *cmd], "npm run " + " ".join(cmd), CMS
                 step.update(status="running", startedAt=now())
                 write_state(root, st)
-                log(f"[zastosuj] {label}: npm run {' '.join(cmd)}")
-                logf.write(f"\n===== {label} · npm run {' '.join(cmd)} · {now()} =====\n")
+                log(f"[zastosuj] {label}: {shown}")
+                logf.write(f"\n===== {label} · {shown} · {now()} =====\n")
                 logf.flush()
                 t0 = time.monotonic()
                 try:
-                    r = subprocess.run(["npm", "run", "--silent", *cmd], cwd=CMS, env=env, stdin=subprocess.DEVNULL,
+                    r = subprocess.run(argv, cwd=cwd, env=env, stdin=subprocess.DEVNULL,
                                        capture_output=True, text=True, timeout=timeout)
                     out, code = (r.stdout or "") + (r.stderr or ""), r.returncode
                 except subprocess.TimeoutExpired as e:
@@ -235,7 +264,7 @@ def run_chain(root, dry=False, log=print):
                     out += f"\n! przekroczony limit czasu ({timeout // 60} min)"
                     code = -1
                 except OSError as e:
-                    out, code = f"! nie uruchomiłam npm: {e}", -1
+                    out, code = f"! nie uruchomiłam {argv[0]}: {e}", -1
                 logf.write(out)
                 logf.flush()
                 step.update(status="done" if code == 0 else "error", seconds=round(time.monotonic() - t0),
@@ -249,9 +278,14 @@ def run_chain(root, dry=False, log=print):
             st["opisy"] = json.loads((root / "opisz-szkice-ostatni.json").read_text(encoding="utf-8"))
         except (OSError, ValueError):
             st["opisy"] = None
+        try:
+            st["orphanDrafts"] = json.loads((root / "catalog-selection.json").read_text(encoding="utf-8")).get("orphanDrafts") or []
+        except (OSError, ValueError):
+            st["orphanDrafts"] = []
         st.update(state="done", finishedAt=now())
         if not dry:
-            st["appliedExport"] = h
+            st["appliedExport"] = export_hash(root)
+            st["appliedRev"] = export_rev(root)
         write_state(root, st)
         return {"ok": True}
     except Exception as e:  # noqa: BLE001 – stan ma pokazać każdy błąd, a nie zostać „w toku”

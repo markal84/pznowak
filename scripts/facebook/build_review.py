@@ -51,6 +51,31 @@ def slug(title):
     return re.sub(r"[^a-z0-9]+", "-", t).strip("-")
 
 
+def fb_name(source):
+    """„fb:<post>/<plik>” albo „fb:<plik>” (legacySourceUrl zdjęcia z FB) → nazwa pliku w media/; inne źródła → None."""
+    source = source or ""
+    if not source.startswith("fb:"):
+        return None
+    return source[3:].rsplit("/", 1)[-1] or None
+
+
+def catalog_files(x):
+    """Karta z katalog.json → {"files": [...], "video": bool, "variants": {kamień małymi: {...}}} (pliki z FB w karcie)."""
+    def names(items):
+        return sorted({n for n in (fb_name((m or {}).get("source")) for m in items) if n})
+
+    variants = {}
+    for v in x.get("variants") or []:
+        stone = (v.get("stone") or "").strip()
+        if stone:
+            variants[unicodedata.normalize("NFC", stone.lower())] = {
+                "stone": stone, "vis": bool(v.get("isVisualization")), "video": bool(v.get("hasVideo")),
+                "files": names([v.get("image"), *(v.get("moreImages") or [])])}
+    media = x.get("media") or []
+    return {"files": sorted(set(names(media)) | {f for v in variants.values() for f in v["files"]}),
+            "video": any(m.get("video") for m in media), "variants": variants}
+
+
 def video_height(path):
     """Krótszy bok filmu w pikselach (720 = HD) albo None, gdy ffprobe nie zna pliku. Zły plik nie wywraca budowania."""
     try:
@@ -237,7 +262,7 @@ class Review:
         if hints_path.exists():
             hints = json.loads(hints_path.read_text(encoding="utf-8")).get("cards", {})
             pd["hints"] = {k: v for k, v in hints.items() if k in card_keys and v.get("result")}
-        pd["catalogProducts"], pd["catalogCards"], pd["inCatalog"] = [], {}, {}
+        pd["catalogProducts"], pd["catalogCards"], pd["inCatalog"], pd["draftsFromPost"], pd["catalogFiles"] = [], {}, {}, {}, {}
         snap_path = self.root / "katalog.json"
         if not snap_path.exists():
             return
@@ -257,6 +282,16 @@ class Review:
             have = sorted(x["slug"] for x in products if from_post(x, key))
             if have:
                 pd["inCatalog"][key] = have
+        # Szkice zrobione wcześniej z posta (facebookKey), np. gdy post był „nową kartą”, a później dostał decyzję
+        # „dodaj do karty…”: eksport ostrzega, a opisy (opisz:szkice) ich nie ruszają.
+        pd["draftsFromPost"] = {}
+        for x in products:
+            if x.get("facebookKey") in post_ids and x.get("status") == "draft":
+                pd["draftsFromPost"].setdefault(x["facebookKey"], []).append(
+                    {"id": x.get("id"), "slug": x["slug"], "name": x.get("name") or ""})
+        # Pliki z FB, które już są w kartach (źródło „fb:…”, nazwa pliku z media/), osobno dla wariantów: eksport po
+        # „Zastosuj eksport” wie, co już zrobione, i przenosi post do „Już w katalogu” zamiast trzymać go w „Gotowe”.
+        pd["catalogFiles"] = {x["slug"]: catalog_files(x) for x in products}
         for key, h in pd.get("hints", {}).items():
             h["fromPost"] = sorted(set(h.get("fromPost") or []) | set(pd["inCatalog"].get(key, [])))
 

@@ -281,7 +281,18 @@ async function writeBrief(items: Array<{ plan: DraftPlan; card: DraftCard }>) {
 // Pozycje z pliku opisów (człowiek) mają pierwszeństwo przed zapamiętanymi odpowiedziami modelu.
 let specs = [...loadOpisy(opisyPath), ...(await loadModelSpecs(modelDir))]
 const { all, drafts: allDrafts, note } = await loadCards()
-const drafts = allDrafts.filter((card) => !only.size || only.has(card.id))
+// Szkice zbędne po zmianie decyzji w przeglądzie (np. post był „nową kartą”, a teraz jest wariantem Hesperii):
+// export_selection.py wypisuje je w catalog-selection.json → orphanDrafts. Nie dostają imienia ani opisów; usuwa Marcin.
+type Orphan = { id: number; name?: string; now?: string; post?: string; slug?: string }
+const orphans: Orphan[] = await readFile(path.join(outDir, 'catalog-selection.json'), 'utf8')
+  .then((text) => (JSON.parse(text) as { orphanDrafts?: Orphan[] }).orphanDrafts ?? [])
+  .catch(() => [])
+const orphanIds = new Map(orphans.map((o) => [o.id, o]))
+for (const o of orphans) {
+  if (allDrafts.some((card) => card.id === o.id))
+    console.log(`= pomijam #${o.id} „${o.name || o.slug}”: post „${o.post}” idzie teraz do: ${o.now} – ten szkic usuń w panelu`)
+}
+const drafts = allDrafts.filter((card) => (!only.size || only.has(card.id)) && !orphanIds.has(card.id))
 const kanon = loadKanon()
 const pula = loadPula()
 // Imiona i adresy opisywanych szkiców (jeszcze z importu) nie blokują same siebie; prawdziwe imiona są w takenFrom.

@@ -41,6 +41,32 @@ export const SWATCHES: readonly { id: SwatchId; label: string; hex: string }[] =
 
 export const SWATCH_IDS = SWATCHES.map(({ id }) => id)
 
+/**
+ * Kolor kółka z nazwy kamienia, gdy wariant zakłada skrypt (fb:do-istniejacych: zdjęcia od Kamili do wariantu, którego
+ * karta jeszcze nie ma). Kolejność ma znaczenie: przymiotnik („różowy szafir”) wygrywa z kamieniem. Bez pewności: null,
+ * wtedy wariant czeka, a kolor wybiera Marcin w panelu.
+ */
+const SWATCH_WORDS: ReadonlyArray<readonly [RegExp, SwatchId]> = [
+  [/london/, 'londonblue'],
+  [/oliwk|oliwin|peryd/, 'oliwkowy'],
+  [/jasnoniebiesk|akwamaryn|błękit/, 'jasnoniebieski'],
+  [/granat(?!owy)|rodolit|almandyn/, 'czerwony'],
+  [/granatow/, 'granatowy'],
+  // „malin” tylko na początku słowa: „turMALINowy” to nie malinowy.
+  [/różow|rozow|morganit|(^|[^a-ząćęłńóśźż])malin|kunzyt/, 'rozowy'],
+  [/fiolet|ametyst|tanzanit/, 'fioletowy'],
+  [/czerwon|rubin/, 'czerwony'],
+  [/żółt|zolt|cytryn|szampań/, 'zolty'],
+  [/zielon|szmaragd|turmalin|tsawor|chromdiops/, 'zielony'],
+  [/niebiesk|szafir|topaz/, 'niebieski'],
+  [/biał|bial|diament|brylant|moissanit|cyrkon/, 'bialy'],
+]
+
+export function guessSwatch(stone: string | null | undefined): SwatchId | null {
+  const s = (stone ?? '').toLowerCase().normalize('NFC')
+  return SWATCH_WORDS.find(([re]) => re.test(s))?.[1] ?? null
+}
+
 export function swatchHex(id: string | null | undefined): string {
   return SWATCHES.find((swatch) => swatch.id === id)?.hex ?? '#C9C6BD'
 }

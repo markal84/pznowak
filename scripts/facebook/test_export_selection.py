@@ -116,5 +116,51 @@ class ComputeTest(unittest.TestCase):
         self.assertEqual(out["catalog"][0]["name"], "")
 
 
+class AfterApplyTest(unittest.TestCase):
+    """Po „Zastosuj eksport” kolumny liczą się ze świeżego katalogu (catalogFiles, draftsFromPost z build_review.py)."""
+
+    def d(self, files, drafts=None):
+        x = data([card("p1", ["a.jpg"], ["v.mp4"])])
+        x["catalogFiles"] = {"hesperia": files}
+        x["draftsFromPost"] = drafts or {}
+        return x
+
+    ADDTO = {"p1": {"decision": "addto", "target": "Hesperia", "product": "hesperia", "variant": "Turmalin"}}
+
+    def test_wariant_ze_zdjeciami_powstanie(self):
+        _, oc = run(self.d({"files": [], "video": True, "variants": {}}), self.ADDTO)
+        self.assertEqual(oc["p1"]["kind"], "toExisting")
+        self.assertTrue(oc["p1"]["createsVariant"])
+
+    def test_zrobione_przechodzi_do_juz_w_katalogu(self):
+        files = {"files": ["p1_a.jpg"], "video": True,
+                 "variants": {"turmalin": {"stone": "Turmalin", "vis": False, "video": True, "files": ["p1_a.jpg"]}}}
+        out, oc = run(self.d(files), self.ADDTO)
+        self.assertEqual(oc["p1"]["kind"], "already")
+        self.assertEqual(len(out["toExisting"]), 1, "plik eksportu nadal ma pozycję – import jej nie zdubluje")
+
+    def test_sam_film_bez_wariantu_czeka(self):
+        x = data([card("p1", [], ["v.mp4"])])
+        x["catalogFiles"] = {"hesperia": {"files": [], "video": True, "variants": {}}}
+        _, oc = run(x, self.ADDTO)
+        self.assertEqual(oc["p1"]["kind"], "waiting")
+        self.assertEqual(oc["p1"]["reason"], "variant-missing")
+
+    def test_zbedny_szkic_z_posta(self):
+        drafts = {"p1": [{"id": 60, "slug": "alcyone", "name": "Alcyone"}]}
+        out, oc = run(self.d({"files": [], "video": False, "variants": {}}, drafts), self.ADDTO)
+        self.assertEqual(oc["p1"]["orphanDrafts"][0]["id"], 60)
+        self.assertEqual(out["orphanDrafts"][0]["now"], "Hesperia")
+        self.assertTrue(any("Alcyone" in w for w in out["warnings"]))
+
+    def test_szkic_tej_samej_karty_nie_jest_zbedny(self):
+        drafts = {"p1": [{"id": 60, "slug": "alcyone", "name": "Alcyone"}]}
+        x = data([card("p1", ["a.jpg"])], in_catalog={"p1": ["alcyone"]})
+        x["draftsFromPost"] = drafts
+        out, oc = run(x, {"p1": {"decision": "catalog"}})
+        self.assertEqual(oc["p1"]["kind"], "already")
+        self.assertEqual(out["orphanDrafts"], [])
+
+
 if __name__ == "__main__":
     unittest.main()
