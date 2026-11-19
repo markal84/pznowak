@@ -455,6 +455,9 @@ try {
         await writeFile(logPath, JSON.stringify(log, null, 1))
         console.log(`Przebieg zapisany: ${logPath}`)
       }
+      if (log.createdProducts.length) {
+        console.log('Dalej: imię, opisy i parametry nowych szkiców – npm run opisz:szkice (podgląd), potem -- --apply')
+      }
     } else {
       console.log('Na sucho: nic nie zapisano w CMS ani w Blob.')
     }

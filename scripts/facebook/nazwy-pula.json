@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "comment": "Wolne imiona z mitologii greckiej dla nowych szkiców bez imienia (cms: npm run opisz:szkice). Przydział po kolei: pierwsze imię, którego nie ma żadna karta (opublikowana, szkic, archiwum), wycofany adres z przekierowań ani reguła z nazwy-kanon.json. Imię z puli zawsze idzie do potwierdzenia przez Marcina. Dopisuj na końcu; nie wpisuj imion postaci kojarzonych źle (Medea, Nemesis, Niobe, Pandora).",
+  "names": [
+    "Alcyone", "Sterope", "Calliope", "Clio", "Erato", "Polyhymnia", "Euphrosyne", "Pasithea",
+    "Hebe", "Theia", "Themis", "Tethys", "Persephone", "Penelope", "Hermione", "Danae",
+    "Leda", "Europa", "Arethusa", "Callirhoe", "Clymene", "Eudora", "Nephele", "Metis",
+    "Antheia", "Amalthea", "Halia", "Lampetia", "Nausicaa", "Oreithyia", "Philyra", "Semele",
+    "Tyche", "Hemera", "Astraea", "Io", "Rhode", "Melia", "Eunomia", "Peitho", "Psamathe", "Ismene"
+  ]
+}

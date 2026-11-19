@@ -135,6 +135,25 @@ python3 -I scripts/facebook/build_review.py data/facebook
 
 Folder `data/facebook/` jest poza gitem.
 
+## D. Po imporcie: opisz nowe szkice
+
+Import (`cd cms && npm run import:fb -- --apply`) zakłada karty bez opisu. Zaraz po nim, z `cms/`:
+
+```
+npm run opisz:szkice                  # podgląd: karta, pole, wartość, źródło, „do sprawdzenia”
+npm run opisz:szkice -- --zadanie     # + data/facebook/opisy-szkice-zadanie.md (posty i zdjęcia szkiców bez opisu)
+npm run opisz:szkice -- --apply       # zapis
+```
+
+- Wpisuje tylko do pustych pól szkiców (albo z tekstem, który wstawił import: „Do nazwania”, tytuł posta).
+  Ręczne poprawki z panelu zostają; drugi przebieg nic nie zmienia. Nic nie publikuje.
+- Imię: `cms/seed/opisy/opisy-szkice.json` → `nazwy-kanon.json` → pierwsze wolne z `nazwy-pula.json` (bez kolizji
+  z kartami i wycofanymi adresami). Krótki opis i opis tylko z `opisy-szkice.json` (schemat AC, sprawdzany przed
+  zapisem). Kamień, metal, masa: z pliku, a bez niego z treści posta (oznaczone „do sprawdzenia”).
+- Teksty pisze Claude: daj mu `opisy-szkice-zadanie.md`, niech obejrzy zdjęcia i dopisze pozycje do `opisy-szkice.json`.
+- Zapis idzie przez REST kontem „Automat” (klucz API = tylko szkice). Klucz poza repo: `~/.config/pznowak-cms/automat.key`
+  (`chmod 600`) albo zmienna `PZNOWAK_AUTOMAT_KEY`.
+
 ## Gdy coś nie działa
 
 - „Otwórz oś czasu fanpage'a…” – skrypt wklejono na złej stronie; wejdź na adres z punktu 1.
