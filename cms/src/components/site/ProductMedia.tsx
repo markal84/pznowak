@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRef, useState, type ReactNode, type TouchEvent } from 'react'
 import type { Slide } from 'yet-another-react-lightbox'
 
-import { galleryVideo, originalFilmCaption, variantImageAlt, variantImages } from '@/lib/stone-variants'
+import { cardFilmCaption, galleryVideo, variantImageAlt, variantImages } from '@/lib/stone-variants'
 
 import { useSelectedStoneVariant } from './StoneVariants'
 import Tag from './Tag'
@@ -23,6 +23,8 @@ type ProductMediaProps = {
   video: string
   /** Kamień oryginału z karty (np. „Diament niebieski”) – do podpisu filmu przy wybranym innym kamieniu. */
   originalStone?: string
+  /** Kamień na filmie karty, gdy film pochodzi z wariantu (`cardFilmStone`); wtedy podpis jest też przy oryginale. */
+  filmStone?: string | null
   /** Pod galerią, np. „Zamów z innym kamieniem” (kółka podmieniają zdjęcia galerii). */
   children?: ReactNode
 }
@@ -44,7 +46,7 @@ function ArrowIcon({ dir }: { dir: 'left' | 'right' }) {
   )
 }
 
-export default function ProductMedia({ name, altBase, images, video, originalStone, children }: ProductMediaProps) {
+export default function ProductMedia({ name, altBase, images, video, originalStone, filmStone, children }: ProductMediaProps) {
   // Opis zdjęcia karty: co jest na zdjęciu i które to ujęcie, bez zgadywania kadru („widok z boku”).
   const photoAlt = (item: { label: string }, i: number) => (altBase ? `${altBase}, zdjęcie ${i + 1}` : `${name}: ${item.label.toLowerCase()}`)
   const variant = useSelectedStoneVariant()
@@ -70,8 +72,9 @@ export default function ProductMedia({ name, altBase, images, video, originalSto
       }))
   // Film: wariant z własnym filmem (AB) gra swój; inaczej gra film oryginału. Wtedy przy wybranym innym kamieniu
   // podpis „Na filmie kamień: …” w odtwarzaczu i w nazwie miniatury. Własny film wariantu jest prawdziwy – bez podpisu.
+  // Film karty wzięty z wariantu (filmStone) ma podpis także przy oryginale.
   const clip = galleryVideo(variant, variantSrcs, video, images)
-  const filmCaption = variant && clip && clip.src === video ? originalFilmCaption(originalStone) : undefined
+  const filmCaption = clip && clip.src === video ? cardFilmCaption(variant?.stone, originalStone, filmStone) : undefined
   if (clip) {
     items.push({
       kind: 'video',

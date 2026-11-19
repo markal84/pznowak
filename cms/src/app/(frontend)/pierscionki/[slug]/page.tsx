@@ -26,7 +26,7 @@ import {
   VariantStoneFact,
 } from '@/components/site/StoneVariants'
 import { formatPrice } from '@/lib/price'
-import { findVariant, originalSwatch } from '@/lib/stone-variants'
+import { cardFilmStone, findVariant, originalSwatch } from '@/lib/stone-variants'
 
 export const dynamic = 'force-dynamic'
 
@@ -219,6 +219,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           altBase={`Pierścionek ${product.name}${stonePhrase ? ` ${stonePhrase}` : ''}`}
           images={product.images}
           name={product.name}
+          filmStone={cardFilmStone(product.video, product.stoneVariants)}
           originalStone={stone}
           video={product.video}
         >
