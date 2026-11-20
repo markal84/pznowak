@@ -150,7 +150,7 @@ export interface Product {
    */
   uniqueNote?: string | null;
   /**
-   * Cena pierścionka z kamieniem ze zdjęć, w pełnych złotych (np. 2949). Na stronie: „od 2949 zł” na przywieszce na liście i pod nazwą na karcie. Puste = „Na zapytanie” na przywieszce (lista i karta). Cena jest też podawana Google (dane strukturalne „Product”); karta bez ceny nie ma ich wcale, a po zapisaniu ceny wracają same.
+   * Cena pierścionka z kamieniem ze zdjęć, w pełnych złotych (np. 2949). Na stronie: „od 2949 zł” na przywieszce na liście i pod nazwą na karcie. Puste = „Na zapytanie” na przywieszce (lista i karta).
    */
   price?: number | null;
   metal?: string | null;
@@ -253,9 +253,6 @@ export interface Product {
    * Mniejsza liczba = wcześniej. Przy takiej samej liczbie decyduje kolejność w katalogu.
    */
   homeOrder?: number | null;
-  /**
-   * Mniejsza liczba = wcześniej. Wpisz numer karty, przed którą ten pierścionek ma stanąć; po zapisie cała lista dostaje numery po kolei, bez powtórzeń i luk.
-   */
   sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -273,6 +270,8 @@ export interface Media {
    * Pole techniczne używane podczas importu starego katalogu.
    */
   legacySourceUrl?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -667,6 +666,8 @@ export interface ProductsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   legacySourceUrl?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
