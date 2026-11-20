@@ -25,7 +25,7 @@ export default async function StudioPage() {
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Pracownia', path: '/pracownia' }])} />
       <section className="wrap" style={{ paddingTop: 72, paddingBottom: 80, display: 'flex', flexDirection: 'column', gap: 28 }}>
-        <h1 className="h1" style={{ maxWidth: '13em', fontSize: 'clamp(46px, 6vw, 92px)', lineHeight: 0.98 }}>
+        <h1 className="h1" style={{ maxWidth: '18em' }}>
           {texts.title}
         </h1>
         <p className="lead" style={{ maxWidth: '36em' }}>

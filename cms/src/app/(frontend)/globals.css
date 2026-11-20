@@ -144,9 +144,11 @@ summary::-webkit-details-marker {
 .h1 {
   font-family: var(--serif);
   font-weight: 300;
-  font-size: clamp(46px, 5.8vw, 84px);
-  line-height: 1;
-  letter-spacing: -0.025em;
+  /* Nagłówek podstrony: do 64 px (wcześniej 84 px), w skali poradników i stron prawnych; telefon prawie bez zmian. */
+  font-size: clamp(42px, 4.4vw, 64px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 .h1-hero {
   font-size: clamp(48px, 6.4vw, 92px);
@@ -5159,6 +5161,8 @@ fieldset.plain legend {
   .page-head.catalog-head {
     padding-top: 64px;
     padding-bottom: 40px;
+    /* Dłuższy tytuł („Pierścionki zaręczynowe z pracowni”) dostaje szerszą kolumnę, cena zostaje po prawej. */
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
   }
 }
 @media (max-width: 720px) {
