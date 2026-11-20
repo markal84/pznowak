@@ -20,13 +20,15 @@ type GuideLayoutProps = {
   /** Obraz do danych strukturalnych (ścieżka albo adres); domyślnie obraz serwisu. */
   image?: string
   children: ReactNode
+  /** Wszystkie opublikowane poradniki, do kafelków „Czytaj dalej”. */
+  allGuides: readonly Guide[]
 }
 
 /**
  * Wspólny układ poradnika: okruszki, tytuł, wstęp, spis treści (na komputerze przyklejony z boku), treść, wezwanie
  * do rozmowy i pozostałe poradniki. Dane strukturalne: Article, BreadcrumbList i, gdy są pytania, FAQPage.
  */
-export default function GuideLayout({ guide, lead, sections, faq, image, children }: GuideLayoutProps) {
+export default function GuideLayout({ guide, lead, sections, faq, image, children, allGuides }: GuideLayoutProps) {
   const path = guidePath(guide.slug)
   const faqData = faq ? faqJsonLd(faq) : null
   return (
@@ -130,7 +132,7 @@ export default function GuideLayout({ guide, lead, sections, faq, image, childre
 
       <section className="wrap sec-tight stack" style={{ gap: 36 }}>
         <SectionIntro eyebrow="Poradniki" size="md" title="Czytaj dalej" />
-        <GuideCards exclude={guide.slug} />
+        <GuideCards exclude={guide.slug} guides={allGuides} />
       </section>
     </>
   )

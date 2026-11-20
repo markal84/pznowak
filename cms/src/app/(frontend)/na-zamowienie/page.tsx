@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
-import Faq, { faqPlainItems, type FaqItem } from '@/components/site/Faq'
+import Faq, { faqPlainItems } from '@/components/site/Faq'
 import GuideCards from '@/components/site/GuideCards'
 import JsonLd from '@/components/site/JsonLd'
 import { faqJsonLd } from '@/lib/structured-data'
@@ -14,20 +14,18 @@ import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import { toCatalogRing } from '@/lib/catalog'
 import { formatPrice, lowestPrice } from '@/lib/price'
-import { showPlaceholders } from '@/lib/placeholders'
-import DoUzupelnienia from '@/components/site/DoUzupelnienia'
+import { getPageTexts } from '@/lib/page-texts'
+import { getGuides } from '@/lib/guides'
+import { pageFaqItems } from '@/lib/page-faq'
 import { FAMILY, RING_CREATOR_ENABLED } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = pageMetadata({
-  title: 'Pierścionek zaręczynowy na zamówienie',
-  description: 'Rozmowa, szkic i wycena przed rozpoczęciem pracy. Kamienie oprawiamy ręcznie w Busku-Zdroju.',
-  path: '/na-zamowienie',
-})
 
-/** Treść potwierdzona przez Kamę 13.11.2026: klient może przyjść z własnym pomysłem, ostatecznie złotnik ocenia, co da się wykonać. */
-const HERO_LEAD =
-  'Zaczynamy od rozmowy o osobie, która będzie go nosić. Wybieramy model i kamień spośród fasonów dostępnych w pracowni albo tworzymy nowy projekt według Twojego pomysłu, szkicu lub zdjęcia. O ostatecznej wersji decydujemy razem, a złotnik mówi wprost, co da się wykonać. Pracę przy stole zaczynamy dopiero wtedy, gdy projekt i cena są dla Ciebie jasne.'
+// Nagłówek, wstęp, zdanie przy cenie, pytania i opis dla Google: panel → Teksty stron → Na zamówienie.
+export async function generateMetadata(): Promise<Metadata> {
+  const { order: texts } = await getPageTexts()
+  return pageMetadata({ title: texts.metaTitle, description: texts.metaDescription, path: '/na-zamowienie' })
+}
 
 const STEPS = [
   { n: '1', title: 'Rozmowa', text: 'W pracowni albo przez telefon. Opowiadasz o osobie, okazji i stylu. Mówisz, jaki masz budżet i na kiedy potrzebujesz pierścionka.', result: 'Wspólny kierunek i wstępne widełki cenowe', ill: '1-rozmowa' },
@@ -36,79 +34,26 @@ const STEPS = [
   { n: '4', title: 'Odbiór i opieka', text: 'Przymierzasz w pracowni, a my poprawiamy drobiazgi. Jeśli mieszkasz daleko, wysyłamy pierścionek kurierem. Później zapraszamy na czyszczenie i przegląd oprawy.', result: 'Pierścionek z certyfikatem kamieni naturalnych i opiekę pracowni na kolejne lata', ill: '6-odbior' },
 ]
 
-/**
- * Zamówienie spoza Buska, jedna ścieżka (Marcin 14.11.2026): telefon → rozmiar u jubilera w okolicy albo w pracowni →
- * przymiarka i odbiór w Busku albo wysyłka gotowej biżuterii kurierem. Bez rozmów wideo (PR #81) i bez wysyłki miarek.
- * Michał 14.11: zaliczka 30% (BLIK lub przelew), certyfikat dla każdego pierścionka z kamieniami naturalnymi, wysyłka
- * zwykłym kurierem (bez specjalnej usługi dla biżuterii, więc nie piszemy o ubezpieczeniu). Zwroty czekają na decyzję:
- * na podglądzie znacznik „[…]”, produkcja nie pokazuje pytania (`preview: true`).
- */
-type OrderFaqItem = FaqItem & { preview?: boolean }
-
-const faq = (): FaqItem[] =>
-  (
-    [
-      {
-        q: 'Czy mogę zobaczyć pierścionek przed wykonaniem?',
-        a: 'Tak. Pokazujemy szkic albo zdjęcia podobnego wzoru. Zmieniamy go, dopóki proporcje nie będą takie, jak chcesz.',
-      },
-      {
-        q: 'Czy mogę przyjść z własnym pomysłem?',
-        a: 'Tak. Przynieś albo wyślij nam szkic, zdjęcie lub opis tego, co Ci się podoba. Złotnik oceni, co da się wykonać w złocie i z wybranym kamieniem, a jeśli jakiś element nie byłby trwały, zaproponuje bezpieczniejsze rozwiązanie.',
-      },
-      {
-        q: 'Mieszkam daleko od Buska. Jak zamówić?',
-        a: 'Zadzwoń albo napisz. Rozmawiamy przez telefon, a kamienie i projekty pokazujemy na zdjęciach i filmach. Rozmiar zmierzy każdy jubiler w Twojej okolicy, możesz też zmierzyć go u nas w pracowni. Gotowy pierścionek przymierzasz i odbierasz w Busku-Zdroju albo wysyłamy go kurierem.',
-      },
-      {
-        q: 'Jak wygląda zaliczka i płatność?',
-        a: 'Gdy zaakceptujesz projekt i wycenę, wpłacasz zaliczkę w wysokości 30% ceny, BLIK-iem albo przelewem. Wtedy zaczynamy pracę przy stole. Pozostałą kwotę rozliczamy przy odbiorze w pracowni albo przed wysyłką kurierem. Wszystkie kwoty znasz, zanim cokolwiek wpłacisz.',
-      },
-      {
-        q: 'Jak wysyłacie biżuterię?',
-        a: 'Kurierem, na adres, który podasz. Michał sam pakuje każdy pierścionek i pilnuje, żeby przesyłka dotarła do Ciebie szybko i bezpiecznie. Jeśli wolisz odebrać pierścionek osobiście, zapraszamy do pracowni w Busku-Zdroju: przymierzysz go na miejscu, a jeśli trzeba, poprawimy drobiazgi.',
-      },
-      {
-        q: 'Czy mogę zwrócić pierścionek?',
-        a: (
-          <>
-            Pierścionek wykonany na zamówienie, według projektu i rozmiaru ustalonego z Tobą, nie podlega zwrotowi bez podania
-            przyczyny. Wady wykonania możesz reklamować zgodnie z przepisami.{' '}
-            <DoUzupelnienia>
-              [ROZMIAR PO ODBIORZE: czy i na jakich warunkach poprawiamy rozmiar; czy pierścionek z kolekcji w standardowym rozmiarze można zwrócić]
-            </DoUzupelnienia>
-          </>
-        ),
-        preview: true,
-      },
-      {
-        q: 'Czy pierścionek ma certyfikat?',
-        a: 'Tak. Każdy pierścionek z kamieniami naturalnymi dostajesz z certyfikatem, który potwierdza, że kamień jest naturalny. Certyfikat dołączamy do pierścionka przy odbiorze w pracowni albo w przesyłce. Warto go zachować: przyda się przy ubezpieczeniu biżuterii, przy wymianie lub naprawie oprawy i wtedy, gdy pierścionek przejdzie kiedyś na kolejne pokolenie.',
-      },
-    ] as OrderFaqItem[]
-  )
-    .filter((item) => !item.preview || showPlaceholders())
-    .map(({ q, a, text }) => ({ q, a, text }))
-
 export default async function OnOrderPage() {
   const products = await getProducts()
   const count = products.length
   // Przywieszka „od …”: zawsze najniższa cena pierścionka z katalogu (ta sama co w nagłówku katalogu), liczona przy każdym wejściu.
   const lowest = lowestPrice(products.map(toCatalogRing))
   const michal = FAMILY[3]
-  const faqItems = faq()
+  const [{ order: texts }, guides] = await Promise.all([getPageTexts(), getGuides()])
+  const faqItems = pageFaqItems(texts.faq)
   return (
     <>
       <JsonLd data={faqJsonLd(faqPlainItems(faqItems))} />
       <section className="wrap hero" style={{ paddingBottom: 96, gap: '48px 80px' }}>
         <div className="hero-copy" style={{ flex: '1 1 460px', gap: 28 }}>
-          <h1 className="h1">Pierścionek na zamówienie</h1>
+          <h1 className="h1">{texts.title}</h1>
           <p className="lead" style={{ maxWidth: '32em' }}>
-            {HERO_LEAD}
+            {texts.intro}
           </p>
           <PriceOffer
             label="Pierścionek na zamówienie"
-            note={lowest !== null ? 'Cena zależy od kamieni i złota.' : undefined}
+            note={lowest !== null ? texts.priceNote : undefined}
             price={lowest !== null ? formatPrice(lowest) : undefined}
           >
             <Link className="btn" href="/kontakt?temat=nowy">Umów rozmowę o projekcie</Link>
@@ -228,7 +173,7 @@ export default async function OnOrderPage() {
             intro="Trzy decyzje, które warto przemyśleć przed pierwszą rozmową."
             title="Poradniki przed zamówieniem"
           />
-          <GuideCards />
+          <GuideCards guides={guides} />
         </div>
       </section>
     </>

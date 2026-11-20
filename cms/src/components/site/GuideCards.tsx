@@ -1,16 +1,17 @@
 import Link from 'next/link'
-import { GUIDES, guidePath, type Guide } from '@/lib/guides'
+import { guidePath, type Guide } from '@/lib/guides'
 
 /**
  * Kafelki poradników: lista na /poradniki, sekcja na stronie głównej i „Czytaj dalej” pod poradnikiem.
  * `exclude` pomija bieżący poradnik; `heading` ustawia poziom nagłówka kafelka pod nagłówek sekcji.
+ * Listę (`getGuides()`, opublikowane poradniki z panelu) pobiera strona, żeby komponent został synchroniczny.
  */
 export default function GuideCards({
-  guides = GUIDES,
+  guides,
   exclude,
   heading: Heading = 'h3',
 }: {
-  guides?: readonly Guide[]
+  guides: readonly Guide[]
   exclude?: string
   heading?: 'h2' | 'h3'
 }) {

@@ -6,6 +6,8 @@ type PublicationDocument = {
   slug?: null | string
 }
 
+export type PublicationKind = 'product' | 'gallery' | 'work' | 'guide' | 'site-content'
+
 export function publicationAffectsFrontend(
   doc: PublicationDocument,
   previousDoc?: null | PublicationDocument,
@@ -20,7 +22,7 @@ function revalidateProductSlugs(...slugs: (null | string | undefined)[]) {
 }
 
 export function revalidateFrontend(
-  kind: 'product' | 'gallery' | 'work' | 'site-content',
+  kind: PublicationKind,
   doc?: PublicationDocument,
   previousDoc?: null | PublicationDocument,
 ): void {
@@ -46,6 +48,16 @@ export function revalidateFrontend(
     revalidatePath('/realizacje')
     return
   }
+  if (kind === 'guide') {
+    // Poradniki: lista, strona poradnika, kafelki (strona główna, „Na zamówienie”, „Czytaj dalej”) i mapa strony.
+    revalidateTag('guides', { expire: 0 })
+    revalidatePath('/poradniki', 'layout')
+    revalidatePath('/')
+    revalidatePath('/na-zamowienie')
+    revalidatePath('/sitemap.xml')
+    return
+  }
+  // Teksty stron i pasek z komunikatem (src/globals/SiteContent.ts): pasek jest w układzie całej strony.
   revalidateTag('site-content', { expire: 0 })
   revalidatePath('/', 'layout')
   revalidatePath('/')
@@ -54,7 +66,7 @@ export function revalidateFrontend(
 }
 
 export function revalidateAfterChange(
-  kind: 'product' | 'gallery' | 'work' | 'site-content',
+  kind: PublicationKind,
   doc: PublicationDocument,
   previousDoc: null | PublicationDocument | undefined,
   req: PayloadRequest,
@@ -66,7 +78,7 @@ export function revalidateAfterChange(
 }
 
 export function revalidateAfterDelete(
-  kind: 'product' | 'gallery' | 'work',
+  kind: Exclude<PublicationKind, 'site-content'>,
   doc: PublicationDocument,
   req: PayloadRequest,
 ): void {

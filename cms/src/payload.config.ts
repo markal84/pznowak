@@ -15,6 +15,7 @@ import { Products } from './collections/Products'
 import { GalleryItems } from './collections/GalleryItems'
 import { Works } from './collections/Works'
 import { Submissions } from './collections/Submissions'
+import { Guides } from './collections/Guides'
 import { SiteContent } from './globals/SiteContent'
 import { emailAdapterFromEnv } from './lib/email'
 import { mediaStorageKind, r2FileUrl, r2SettingsFromEnv } from './lib/media-storage'
@@ -84,7 +85,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Products, Media, GalleryItems, Works, Submissions, Users],
+  collections: [Products, Media, GalleryItems, Works, Guides, Submissions, Users],
   globals: [SiteContent],
   editor: lexicalEditor(),
   // Powiadomienia o zgłoszeniach: SMTP skrzynki pracowni ze zmiennych `SMTP_*` (src/lib/email.ts); bez nich „console”.

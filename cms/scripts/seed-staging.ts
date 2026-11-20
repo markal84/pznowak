@@ -169,9 +169,9 @@ try {
 
     await payload.updateGlobal({
       slug: 'site-content',
+      // Widoczny znak bazy testowej: pasek z komunikatem nad menu (Teksty stron → Pasek z komunikatem).
       data: {
-        homeHeading: 'Kontrolowane środowisko staging',
-        homeLead: 'Dane testowe — nie publikować jako produkcja.',
+        announcement: { text: 'Kontrolowane środowisko staging. Dane testowe, nie publikować jako produkcja.' },
         _status: 'published',
       },
       draft: false,

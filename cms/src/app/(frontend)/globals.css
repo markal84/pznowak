@@ -5338,3 +5338,32 @@ fieldset.plain legend {
     font-size: 14px;
   }
 }
+
+/* ---------- pasek z komunikatem (panel: Teksty stron → Pasek z komunikatem) ---------- */
+.announce {
+  background: var(--velvet);
+  color: var(--on-velvet);
+}
+.announce-in {
+  max-width: var(--wrap-max);
+  margin: 0 auto;
+  padding: 9px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px 16px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  text-align: center;
+}
+.announce-link {
+  color: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.announce-link:hover {
+  text-decoration-color: var(--gold);
+}

@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     'gallery-items': GalleryItem;
     works: Work;
+    guides: Guide;
     submissions: Submission;
     users: User;
     'payload-kv': PayloadKv;
@@ -84,6 +85,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     'gallery-items': GalleryItemsSelect<false> | GalleryItemsSelect<true>;
     works: WorksSelect<false> | WorksSelect<true>;
+    guides: GuidesSelect<false> | GuidesSelect<true>;
     submissions: SubmissionsSelect<false> | SubmissionsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -150,7 +152,7 @@ export interface Product {
    */
   uniqueNote?: string | null;
   /**
-   * Cena pierścionka z kamieniem ze zdjęć, w pełnych złotych (np. 2949). Na stronie: „od 2949 zł” na przywieszce na liście i pod nazwą na karcie. Puste = „Na zapytanie” na przywieszce (lista i karta).
+   * Cena pierścionka z kamieniem ze zdjęć, w pełnych złotych (np. 2949). Na stronie: „od 2949 zł” na przywieszce na liście i pod nazwą na karcie. Puste = „Na zapytanie” na przywieszce (lista i karta). Cena jest też podawana Google (dane strukturalne „Product”); karta bez ceny nie ma ich wcale, a po zapisaniu ceny wracają same.
    */
   price?: number | null;
   metal?: string | null;
@@ -253,6 +255,9 @@ export interface Product {
    * Mniejsza liczba = wcześniej. Przy takiej samej liczbie decyduje kolejność w katalogu.
    */
   homeOrder?: number | null;
+  /**
+   * Mniejsza liczba = wcześniej. Wpisz numer karty, przed którą ten pierścionek ma stanąć; po zapisie cała lista dostaje numery po kolei, bez powtórzeń i luk.
+   */
   sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -392,6 +397,188 @@ export interface Work {
   createdAt: string;
   deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Poradniki w menu „Poradniki”. Kolejność na liście i w kafelkach według pola „Kolejność”.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guides".
+ */
+export interface Guide {
+  id: number;
+  /**
+   * Także tytuł strony w Google, chyba że w zakładce SEO jest inny.
+   */
+  title: string;
+  /**
+   * Jedno, dwa zdania z odpowiedzią na pytanie z tytułu.
+   */
+  lead: string;
+  /**
+   * Każda sekcja to nagłówek H2 i pozycja w spisie treści. Sekcję „Częste pytania” strona dodaje sama na końcu z zakładki „Pytania”.
+   */
+  layout?: (GuideSectionBlock | GuideStoneBlock | GuidePriceExamplesBlock)[] | null;
+  faq?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Część adresu po /poradniki/, np. „jak-sprawdzic-rozmiar-pierscionka”. Nie zmieniaj w opublikowanym poradniku: stary adres przestanie działać.
+   */
+  slug: string;
+  /**
+   * Na kafelku, w ścieżce nad tytułem i w danych BreadcrumbList.
+   */
+  short: string;
+  /**
+   * Do ok. 155 znaków.
+   */
+  description: string;
+  /**
+   * Puste = tytuł poradnika. Strona sama dopisuje nazwę pracowni.
+   */
+  metaTitle?: string | null;
+  /**
+   * Jedno słowo, np. „Rozmiar”, „Kamienie”, „Cena”.
+   */
+  topic: string;
+  /**
+   * RRRR-MM-DD
+   */
+  published: string;
+  /**
+   * RRRR-MM-DD. Zmieniaj tylko przy merytorycznej zmianie treści (mapa strony, Google).
+   */
+  updated: string;
+  minutes: number;
+  /**
+   * Mniejsza liczba = wyżej na liście poradników i w kafelkach.
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideSectionBlock".
+ */
+export interface GuideSectionBlock {
+  heading: string;
+  /**
+   * Np. „krotko” daje adres …#krotko. Nie zmieniaj w opublikowanym poradniku: mogą tu prowadzić linki.
+   */
+  anchor: string;
+  /**
+   * Puste = nagłówek sekcji.
+   */
+  tocLabel?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'section';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideStoneBlock".
+ */
+export interface GuideStoneBlock {
+  name: string;
+  /**
+   * Karty pierścionków linkują do kamieni po tej kotwicy (src/lib/guide-links.ts), więc nie zmieniaj jej w opublikowanym poradniku.
+   */
+  anchor: string;
+  /**
+   * Np. „9” albo „7,5–8”.
+   */
+  mohs: string;
+  colors: string;
+  daily: 'Bardzo dobry' | 'Dobry' | 'Dobry w ochronnej oprawie';
+  text: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Początek nazwy kamienia głównego z karty, małymi literami; kilka po przecinku, np. „ametyst, cytryn”. Strona pokazuje do 3 takich pierścionków.
+   */
+  catalogStones: string;
+  /**
+   * Gdy mało kart ma ten kamień jako główny (np. oliwin).
+   */
+  includeVariants?: boolean | null;
+  catalogFilter: 'niebieskie' | 'zielone' | 'rozowe' | 'fioletowe' | 'zolte' | 'bezbarwne';
+  /**
+   * Np. „pierścionki z niebieskimi kamieniami”.
+   */
+  catalogLinkLabel: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stone';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuidePriceExamplesBlock".
+ */
+export interface GuidePriceExamplesBlock {
+  heading: string;
+  /**
+   * Np. „przyklady”.
+   */
+  anchor: string;
+  /**
+   * Puste = nagłówek sekcji.
+   */
+  tocLabel?: string | null;
+  intro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Pierścionki (najtańszy, najdroższy i dwa ze środka) strona dobiera sama z kart z ceną. Bez żadnej ceny cała sekcja znika, także ze spisu treści.
+   */
+  linkLabel: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'priceExamples';
 }
 /**
  * Zgłoszenia z kreatora i formularza kontaktowego. Każde zapisuje się jako szkic; do klienta nic nie wychodzi automatycznie. Wizualizację uruchamia pomocnik dopiero po zatwierdzeniu, w granicach dziennego limitu.
@@ -544,6 +731,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'works';
         value: number | Work;
+      } | null)
+    | ({
+        relationTo: 'guides';
+        value: number | Guide;
       } | null)
     | ({
         relationTo: 'submissions';
@@ -736,6 +927,83 @@ export interface WorksSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guides_select".
+ */
+export interface GuidesSelect<T extends boolean = true> {
+  title?: T;
+  lead?: T;
+  layout?:
+    | T
+    | {
+        section?: T | GuideSectionBlockSelect<T>;
+        stone?: T | GuideStoneBlockSelect<T>;
+        priceExamples?: T | GuidePriceExamplesBlockSelect<T>;
+      };
+  faq?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  slug?: T;
+  short?: T;
+  description?: T;
+  metaTitle?: T;
+  topic?: T;
+  published?: T;
+  updated?: T;
+  minutes?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideSectionBlock_select".
+ */
+export interface GuideSectionBlockSelect<T extends boolean = true> {
+  heading?: T;
+  anchor?: T;
+  tocLabel?: T;
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideStoneBlock_select".
+ */
+export interface GuideStoneBlockSelect<T extends boolean = true> {
+  name?: T;
+  anchor?: T;
+  mohs?: T;
+  colors?: T;
+  daily?: T;
+  text?: T;
+  catalogStones?: T;
+  includeVariants?: T;
+  catalogFilter?: T;
+  catalogLinkLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuidePriceExamplesBlock_select".
+ */
+export interface GuidePriceExamplesBlockSelect<T extends boolean = true> {
+  heading?: T;
+  anchor?: T;
+  tocLabel?: T;
+  intro?: T;
+  linkLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "submissions_select".
  */
 export interface SubmissionsSelect<T extends boolean = true> {
@@ -845,27 +1113,172 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * Najważniejsze teksty i dane kontaktowe wspólne dla strony.
+ * Nagłówki, wstępy, pytania i opisy dla Google wybranych stron oraz pasek z komunikatem.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-content".
  */
 export interface SiteContent {
   id: number;
-  /**
-   * Otocz fragment gwiazdkami, aby był kursywą.
-   */
-  homeHeading?: string | null;
-  homeLead?: string | null;
-  /**
-   * Otocz fragment gwiazdkami, aby był kursywą.
-   */
-  aboutHeading?: string | null;
-  aboutText?: string | null;
-  phone?: string | null;
-  email?: string | null;
-  address?: string | null;
-  openingHours?: string | null;
+  home?: {
+    /**
+     * Fragment w *gwiazdkach* to druga linia kursywą. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    title?: string | null;
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    intro?: string | null;
+  };
+  catalog?: {
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    title?: string | null;
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    intro?: string | null;
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    priceNote?: string | null;
+    /**
+     * Strona sama dopisuje nazwę pracowni. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    metaTitle?: string | null;
+    /**
+     * Do ok. 155 znaków. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    metaDescription?: string | null;
+  };
+  order?: {
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    title?: string | null;
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    intro?: string | null;
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    priceNote?: string | null;
+    /**
+     * Sekcja „Pytania o pracę na zamówienie”. Te same zdania trafiają do danych FAQPage dla Google. Pusta lista = dotychczasowe pytania.
+     */
+    faq?:
+      | {
+          question: string;
+          answer: string;
+          /**
+           * Np. pytanie, które czeka na decyzję Michała.
+           */
+          previewOnly?: boolean | null;
+          /**
+           * Znacznik w nawiasach kwadratowych dopisany po odpowiedzi na podglądzie.
+           */
+          previewNote?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Strona sama dopisuje nazwę pracowni. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    metaTitle?: string | null;
+    /**
+     * Do ok. 155 znaków. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    metaDescription?: string | null;
+  };
+  bands?: {
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    title?: string | null;
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    intro?: string | null;
+    /**
+     * Np. „od 3500 zł za parę”. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    price?: string | null;
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    priceNote?: string | null;
+    /**
+     * Sekcja „Pytania o obrączki”. Te same zdania trafiają do danych FAQPage dla Google. Pusta lista = dotychczasowe pytania.
+     */
+    faq?:
+      | {
+          question: string;
+          answer: string;
+          /**
+           * Np. pytanie, które czeka na decyzję Michała.
+           */
+          previewOnly?: boolean | null;
+          /**
+           * Znacznik w nawiasach kwadratowych dopisany po odpowiedzi na podglądzie.
+           */
+          previewNote?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Strona sama dopisuje nazwę pracowni. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    metaTitle?: string | null;
+    /**
+     * Do ok. 155 znaków. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    metaDescription?: string | null;
+  };
+  guides?: {
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    title?: string | null;
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    intro?: string | null;
+    /**
+     * Strona sama dopisuje nazwę pracowni. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    metaTitle?: string | null;
+    /**
+     * Do ok. 155 znaków. Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    metaDescription?: string | null;
+  };
+  about?: {
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    title?: string | null;
+    /**
+     * Puste pole = dotychczasowy tekst strony (src/content/page-texts.ts).
+     */
+    intro?: string | null;
+  };
+  announcement?: {
+    text?: string | null;
+    /**
+     * Np. /na-zamowienie albo /kontakt?temat=nowy.
+     */
+    linkUrl?: string | null;
+    /**
+     * Np. „Umów rozmowę”. Puste = „Szczegóły”.
+     */
+    linkLabel?: string | null;
+    /**
+     * RRRR-MM-DD, np. 2026-12-10. Po tym dniu pasek znika sam. Puste = do odwołania.
+     */
+    until?: string | null;
+  };
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -875,14 +1288,80 @@ export interface SiteContent {
  * via the `definition` "site-content_select".
  */
 export interface SiteContentSelect<T extends boolean = true> {
-  homeHeading?: T;
-  homeLead?: T;
-  aboutHeading?: T;
-  aboutText?: T;
-  phone?: T;
-  email?: T;
-  address?: T;
-  openingHours?: T;
+  home?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+      };
+  catalog?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+        priceNote?: T;
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  order?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+        priceNote?: T;
+        faq?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              previewOnly?: T;
+              previewNote?: T;
+              id?: T;
+            };
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  bands?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+        price?: T;
+        priceNote?: T;
+        faq?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              previewOnly?: T;
+              previewNote?: T;
+              id?: T;
+            };
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  guides?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+        metaTitle?: T;
+        metaDescription?: T;
+      };
+  about?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+      };
+  announcement?:
+    | T
+    | {
+        text?: T;
+        linkUrl?: T;
+        linkLabel?: T;
+        until?: T;
+      };
   _status?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -897,6 +1376,151 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideRingSizeCalculatorBlock".
+ */
+export interface GuideRingSizeCalculatorBlock {
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ringSizeCalculator';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideRingSizeTableBlock".
+ */
+export interface GuideRingSizeTableBlock {
+  /**
+   * Niewidoczny na stronie; czytają go czytniki ekranu i Google.
+   */
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ringSizeTable';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideRingSizeFigureBlock".
+ */
+export interface GuideRingSizeFigureBlock {
+  figcaption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ringSizeFigure';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideStoneComparisonBlock".
+ */
+export interface GuideStoneComparisonBlock {
+  /**
+   * Wiersze tabeli powstają same z bloków „Kamień” tego poradnika, od najtwardszego. Ten opis jest niewidoczny na stronie (czytniki ekranu i Google).
+   */
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stoneComparison';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideTableBlock".
+ */
+export interface GuideTableBlock {
+  /**
+   * Niewidoczny na stronie; czytają go czytniki ekranu i Google.
+   */
+  caption?: string | null;
+  columns?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Pierwsza komórka wiersza to jego nagłówek (pierwsza kolumna), pozostałe to kolejne kolumny.
+   */
+  rows?:
+    | {
+        label: string;
+        cells?:
+          | {
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'dataTable';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideNoteBlock".
+ */
+export interface GuideNoteBlock {
+  text: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'note';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GuideIfPricesBlock".
+ */
+export interface GuideIfPricesBlock {
+  /**
+   * {cena} zamienia się w najniższą cenę z kolekcji, np. „od 1 900 zł”.
+   */
+  withPrices?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  withoutPrices?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ifPrices';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

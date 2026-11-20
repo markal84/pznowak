@@ -109,7 +109,7 @@ const pages = async () => ({
   '/na-zamowienie': html(await OnOrderPage()),
   '/naprawy': html(await RepairsPage()),
   '/realizacje': html(await WorksPage({ searchParams: Promise.resolve({}) })),
-  '/pracownia': html(createElement(StudioPage)),
+  '/pracownia': html(await StudioPage()),
   '/regulamin': html(createElement(RegulaminPage)),
   '/polityka-prywatnosci': html(createElement(PolitykaPage)),
   '/kontakt': html(await ContactPage({ searchParams: Promise.resolve({}) })),

@@ -6,7 +6,6 @@ import {
   sampleProducts,
   serializePublicGalleryItem,
   serializePublicProduct,
-  serializePublicSiteContent,
 } from '../../../lib/public-products'
 
 export const dynamic = 'force-dynamic'
@@ -55,23 +54,16 @@ export async function GET(request: Request) {
       .map(serializePublicProduct)
       .filter(({ imagePath }) => imagePath.length > 0)
     const products = returnAll ? availableProducts : sampleProducts(availableProducts, limit)
-    const [galleryResult, siteContent] = returnAll
-      ? await Promise.all([
-          payload.find({
-            collection: 'gallery-items',
-            depth: 1,
-            limit: 100,
-            overrideAccess: false,
-            sort: 'position',
-            where: { _status: { equals: 'published' } },
-          }),
-          payload.findGlobal({
-            slug: 'site-content',
-            draft: false,
-            overrideAccess: false,
-          }),
-        ])
-      : [null, null]
+    const galleryResult = returnAll
+      ? await payload.find({
+          collection: 'gallery-items',
+          depth: 1,
+          limit: 100,
+          overrideAccess: false,
+          sort: 'position',
+          where: { _status: { equals: 'published' } },
+        })
+      : null
     const gallery =
       galleryResult?.docs
         .map(serializePublicGalleryItem)
@@ -80,12 +72,7 @@ export async function GET(request: Request) {
     return Response.json(
       {
         products,
-        ...(returnAll
-          ? {
-              gallery,
-              siteContent: siteContent ? serializePublicSiteContent(siteContent) : null,
-            }
-          : {}),
+        ...(returnAll ? { gallery } : {}),
         meta: {
           available: availableProducts.length,
           count: products.length,

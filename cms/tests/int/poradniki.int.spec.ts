@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { mainStoneOf, priceExamples, ringsWithMainStone } from '../../src/lib/catalog'
 import { mainStoneGuideAnchor } from '../../src/lib/guide-links'
-import { GUIDES, findGuide, guideDateLabel, guidePath } from '../../src/lib/guides'
+import { GUIDE_SEED } from '../../src/content/guides-seed'
+import { guideDateLabel, guidePath } from '../../src/lib/guides'
 import { productStonePhrase } from '../../src/lib/product-seo'
 import { formatNumberPl, ringSize, ringSizeTable } from '../../src/lib/ring-size'
 import { articleJsonLd, faqJsonLd, itemListJsonLd, productJsonLd, websiteJsonLd } from '../../src/lib/structured-data'
@@ -52,17 +53,16 @@ describe('rozmiary pierścionków', () => {
   })
 })
 
-describe('spis poradników', () => {
+describe('treść startowa poradników', () => {
   it('ma unikalne adresy, opisy mieszczące się w wyniku wyszukiwania i poprawne daty', () => {
-    expect(new Set(GUIDES.map((g) => g.slug)).size).toBe(GUIDES.length)
-    for (const guide of GUIDES) {
+    expect(new Set(GUIDE_SEED.map((g) => g.slug)).size).toBe(GUIDE_SEED.length)
+    for (const guide of GUIDE_SEED) {
       expect(guide.slug).toMatch(/^[a-z0-9-]+$/)
       expect(guide.description.length).toBeLessThanOrEqual(160)
       expect(guide.published).toMatch(/^\d{4}-\d{2}-\d{2}$/)
       expect(guide.updated >= guide.published).toBe(true)
     }
-    expect(guidePath(findGuide('jak-sprawdzic-rozmiar-pierscionka').slug)).toBe('/poradniki/jak-sprawdzic-rozmiar-pierscionka')
-    expect(() => findGuide('nie-ma')).toThrow()
+    expect(guidePath('jak-sprawdzic-rozmiar-pierscionka')).toBe('/poradniki/jak-sprawdzic-rozmiar-pierscionka')
     expect(guideDateLabel('2026-11-05')).toBe('5 listopada 2026')
   })
 })

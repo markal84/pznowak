@@ -3,32 +3,31 @@ import Link from 'next/link'
 import GuideCards from '@/components/site/GuideCards'
 import JsonLd from '@/components/site/JsonLd'
 import SectionIntro from '@/components/site/SectionIntro'
-import { GUIDES, GUIDES_PATH, guidePath } from '@/lib/guides'
+import { GUIDES_PATH, getGuides, guidePath } from '@/lib/guides'
+import { getPageTexts } from '@/lib/page-texts'
 import { pageMetadata } from '@/lib/seo'
 import { SITE } from '@/lib/site'
 import { breadcrumbJsonLd, itemListJsonLd } from '@/lib/structured-data'
 
-export const metadata: Metadata = pageMetadata({
-  title: 'Poradniki: rozmiar, kamienie i cena pierścionka',
-  description:
-    'Poradniki pracowni złotniczej z Buska-Zdroju: jak sprawdzić rozmiar pierścionka, jaki kamień wybrać i z czego składa się cena pierścionka na zamówienie.',
-  path: GUIDES_PATH,
-})
+// Lista i teksty z panelu (Poradniki oraz Teksty stron → Poradniki).
+export const dynamic = 'force-dynamic'
 
-export default function GuidesPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const { guides: texts } = await getPageTexts()
+  return pageMetadata({ title: texts.metaTitle, description: texts.metaDescription, path: GUIDES_PATH })
+}
+
+export default async function GuidesPage() {
+  const [guides, { guides: texts }] = await Promise.all([getGuides(), getPageTexts()])
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Poradniki', path: GUIDES_PATH }])} />
-      <JsonLd data={itemListJsonLd(GUIDES.map((g) => ({ name: g.title, path: guidePath(g.slug) })))} />
+      <JsonLd data={itemListJsonLd(guides.map((g) => ({ name: g.title, path: guidePath(g.slug) })))} />
       <section className="wrap" style={{ paddingTop: 64, paddingBottom: 48 }}>
-        <SectionIntro
-          as="h1"
-          intro="Odpowiedzi na pytania, które słyszymy w pracowni najczęściej. Bez żargonu, z liczbami i przykładami, tak żeby dało się podjąć decyzję jeszcze przed pierwszą rozmową."
-          title="Poradniki pracowni"
-        />
+        <SectionIntro as="h1" intro={texts.intro} title={texts.title} />
       </section>
       <section className="wrap" style={{ paddingBottom: 104 }}>
-        <GuideCards heading="h2" />
+        <GuideCards guides={guides} heading="h2" />
       </section>
       <section className="band">
         <div className="wrap sec-tight" style={{ display: 'flex', flexWrap: 'wrap', gap: '24px 64px', alignItems: 'center', justifyContent: 'space-between' }}>

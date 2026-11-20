@@ -1,4 +1,4 @@
-import type { GalleryItem, Media, Product, SiteContent } from '../payload-types'
+import type { GalleryItem, Media, Product } from '../payload-types'
 import { normalizePrice } from './price'
 import { serializeStoneVariants, type StoneVariant } from './stone-variants'
 
@@ -62,18 +62,6 @@ export type PublicGalleryItem = {
   image: string
 }
 
-export type PublicSiteContent = Pick<
-  SiteContent,
-  | 'aboutHeading'
-  | 'aboutText'
-  | 'address'
-  | 'email'
-  | 'homeHeading'
-  | 'homeLead'
-  | 'openingHours'
-  | 'phone'
->
-
 export function parseProductsLimit(value: string | null | undefined): number {
   const parsed = Number.parseInt(value ?? String(DEFAULT_PRODUCTS_LIMIT), 10)
 
@@ -93,19 +81,6 @@ export function serializePublicGalleryItem(item: GalleryItem): PublicGalleryItem
     id: item.wordpressId ?? item.id,
     name: item.name,
     image: populatedMedia(item.image)?.url ?? '',
-  }
-}
-
-export function serializePublicSiteContent(content: SiteContent): PublicSiteContent {
-  return {
-    aboutHeading: content.aboutHeading ?? null,
-    aboutText: content.aboutText ?? null,
-    address: content.address ?? null,
-    email: content.email ?? null,
-    homeHeading: content.homeHeading ?? null,
-    homeLead: content.homeLead ?? null,
-    openingHours: content.openingHours ?? null,
-    phone: content.phone ?? null,
   }
 }
 

@@ -10,23 +10,16 @@ import PriceOffer from '@/components/site/PriceOffer'
 import SectionIntro from '@/components/site/SectionIntro'
 import Photo from '@/components/site/Photo'
 import { BAND_CONFIGURATOR_ENABLED } from '@/lib/site'
+import { getPageTexts } from '@/lib/page-texts'
+import { pageFaqItems } from '@/lib/page-faq'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = pageMetadata({
-  title: 'Obrączki ślubne – Busko-Zdrój',
-  description: 'Klasyczne obrączki ślubne, płaskie i półokrągłe, z żółtego, białego i różowego złota. Przymiarka i grawer w pracowni.',
-  path: '/obraczki',
-})
 
-const faq = (): FaqItem[] => [
-  {
-    q: 'Kiedy przyjść na przymiarkę?',
-    a: 'Najlepiej razem i z zapasem przed ślubem. Palce zmieniają się w ciągu dnia, dlatego mierzymy kilkoma obręczami.',
-  },
-  { q: 'Czy możemy użyć złota z rodzinnej biżuterii?', a: 'Najczęściej tak. Najpierw sprawdzimy próbę i ilość złota, potem powiemy, ile trzeba dołożyć.' },
-  { q: 'Co można wygrawerować?', a: 'Datę, imiona albo krótki napis po wewnętrznej stronie. Ile znaków się zmieści, zależy od szerokości obrączki.' },
-  { q: 'Czy obrączki mogą być różne?', a: 'Tak. Często są tego samego wzoru, ale w innej szerokości, albo jedna ma kamień, a druga nie.' },
-]
+// Nagłówek, wstęp, cena, pytania i opis dla Google: panel → Teksty stron → Obrączki.
+export async function generateMetadata(): Promise<Metadata> {
+  const { bands: texts } = await getPageTexts()
+  return pageMetadata({ title: texts.metaTitle, description: texts.metaDescription, path: '/obraczki' })
+}
 
 const WORKSHOP_PHOTOS = [
   {
@@ -43,20 +36,14 @@ const WORKSHOP_PHOTOS = [
   },
 ] as const
 
-export default function BandsPage() {
+export default async function BandsPage() {
+  const { bands: texts } = await getPageTexts()
+  const faqItems: FaqItem[] = pageFaqItems(texts.faq)
   return (
     <>
       <section className="wrap stack page-head">
-        <SectionIntro
-          as="h1"
-          intro="Z naszych wzorów albo zaprojektowane dla Was dwojga. Mierzymy oboje, dobieramy szerokość i wykończenie, a w środku grawerujemy to, co ważne."
-          title="Obrączki ślubne"
-        />
-        <PriceOffer
-          label="Para obrączek"
-          note="Cena zależy od szerokości i wagi. Obrączki wykonujemy ze złota próby 585."
-          price="od 3500 zł za parę"
-        >
+        <SectionIntro as="h1" intro={texts.intro} title={texts.title} />
+        <PriceOffer label="Para obrączek" note={texts.priceNote} price={texts.price}>
           <Link className="btn" href="/kontakt?temat=obraczki">
             Umów przymiarkę
           </Link>
@@ -106,8 +93,8 @@ export default function BandsPage() {
         <div className="wrap sec faq-split">
           <SectionIntro eyebrow="Pytania i odpowiedzi" title="Pytania o obrączki" />
           <div style={{ minWidth: 0 }}>
-            <JsonLd data={faqJsonLd(faqPlainItems(faq()))} />
-            <Faq items={faq()} />
+            <JsonLd data={faqJsonLd(faqPlainItems(faqItems))} />
+            <Faq items={faqItems} />
             <div className="row gap-14-28" style={{ marginTop: 40 }}>
               <Link className="btn" href="/kontakt?temat=obraczki">
                 Umów przymiarkę
