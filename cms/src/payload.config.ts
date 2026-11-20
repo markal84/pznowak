@@ -81,7 +81,14 @@ export default buildConfig({
   },
   admin: {
     user: Users.slug,
+    // Mapa komponentów zawsze z obiema obsługami wysyłki (Vercel Blob i R2), niezależnie od MEDIA_STORAGE,
+    // i bez samoczynnego zapisu przy `npm run dev`: plik zmienia tylko `npm run generate:importmap`.
+    dependencies: {
+      vercelBlobUploadHandler: { path: '@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler', type: 'component' },
+      r2UploadHandler: { path: '@payloadcms/storage-s3/client#S3ClientUploadHandler', type: 'component' },
+    },
     importMap: {
+      autoGenerate: false,
       baseDir: path.resolve(dirname),
     },
   },
@@ -92,6 +99,9 @@ export default buildConfig({
   email: emailAdapterFromEnv(),
   secret: environment.payloadSecret,
   typescript: {
+    // Bez samoczynnego zapisu przy `npm run dev`: lokalnie zdjęcia idą bez R2 i z typów znikały pola R2 (prefix),
+    // co blokowało `git pull`. Typy odświeża `npm run generate:types` (zawsze z ustawieniami R2, jak produkcja).
+    autoGenerate: false,
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   db: postgresAdapter({
