@@ -13,7 +13,9 @@ export const DEFAULT_OG_IMAGE = {
   alt: 'Pierścionek Pelagia z szafirem i diamentami, ręcznie wykonany w pracowni złotniczej w Busku-Zdroju',
 } as const
 
-export const SITE_TITLE_SUFFIX = ` — ${SITE.name}`
+const TITLE_BRAND = 'PZ Nowak'
+
+export const SITE_TITLE_SUFFIX = ` — ${TITLE_BRAND}`
 
 /**
  * Adres serwisu bez końcowego skośnika. `SITE_URL` przesłania domyślny; niepoprawna wartość jest pomijana, żeby
@@ -39,7 +41,7 @@ export function absoluteUrl(pathOrUrl: string, base: string = siteUrl()): string
 }
 
 type PageMetadataInput = {
-  /** Tytuł bez dopisku „— Michał Nowak” (dopisuje go szablon w layout.tsx). */
+  /** Tytuł bez dopisku „— PZ Nowak” (dopisuje go szablon w layout.tsx). */
   title: string
   description: string
   /** Ścieżka strony w serwisie, np. `/pierscionki`; z niej powstaje adres kanoniczny. */
