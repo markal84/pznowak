@@ -41,6 +41,15 @@ Obie rzeczy mają wersje robocze jak karty pierścionków: **Zapisz szkic** nic 
 **Opublikuj**. Konto z kluczem API (rola Redaktor) może tylko tworzyć i zmieniać szkice (`src/lib/api-key-draft-only.ts`),
 nie publikuje i nie przywraca wersji. Różnice między szkicem a opublikowaną wersją widać w zakładce *Wersje*.
 
+**Kto co robi (ustalenie Marcina z 20.11.2026):**
+
+- **Nowe poradniki** zakłada konto worker (Automat) przez API, zawsze jako szkic: tytuł, wstęp, sekcje z kotwicami,
+  pytania, linki wewnętrzne i pola z zakładki *Kafelek i SEO*.
+- **Poprawki, edycję, zatwierdzenie i publikację** robi Marcin w panelu. Worker nie zmienia istniejących poradników
+  ani tekstów stron; proponuje zmiany w wątku, a Marcin wprowadza je sam.
+- Pierwszy poradnik założony tą drogą: „Na której ręce nosi się pierścionek zaręczynowy”
+  (`/poradniki/na-ktorej-rece-nosi-sie-pierscionek-zareczynowy`, szkic z 20.11.2026).
+
 ## Co zostaje w kodzie
 
 Wygląd i układ stron, kalkulator rozmiaru, tabela rozmiarów (liczona z `src/lib/ring-size.ts`), rysunek, wybór
