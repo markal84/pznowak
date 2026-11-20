@@ -5,10 +5,8 @@ import { getPayload } from 'payload'
 import { serializePublicWork, type PublicWork } from './works'
 import {
   serializePublicGalleryItem,
-  serializePublicSiteContent,
   serializeSiteProduct,
   type PublicGalleryItem,
-  type PublicSiteContent,
   type SiteProduct,
 } from './public-products'
 
@@ -71,18 +69,4 @@ export const getWorks = unstable_cache(
   },
   ['published-works'],
   { tags: ['works'], revalidate: 3600 },
-)
-
-export const getSiteContent = unstable_cache(
-  async (): Promise<PublicSiteContent> => {
-    const payload = await getPayload({ config })
-    const content = await payload.findGlobal({
-      slug: 'site-content',
-      draft: false,
-      overrideAccess: false,
-    })
-    return serializePublicSiteContent(content)
-  },
-  ['published-site-content'],
-  { tags: ['site-content'], revalidate: 3600 },
 )

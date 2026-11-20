@@ -25,20 +25,6 @@ const expectedGalleryCount = 11
 const catalogPath = fileURLToPath(new URL('../../data/legacy/collection.json', import.meta.url))
 const publicPath = fileURLToPath(new URL('../../data/legacy', import.meta.url))
 
-const siteContent = {
-  homeHeading: 'Niepowtarzalny. Jak Twoja historia.',
-  homeLead:
-    'Pierścionki i biżuteria tworzone na indywidualne zamówienie. Od pierwszego pomysłu po detal, który zostanie z Tobą na lata.',
-  aboutHeading: 'Biżuteria zaczyna się od człowieka.',
-  aboutText:
-    'Jesteśmy rodzinną pracownią z Buska-Zdroju. Łączymy klasyczne rzemiosło z nowoczesnymi technikami projektowania i produkcji.',
-  phone: '+48 501 321 347',
-  email: 'kontakt@pznowak.pl',
-  address: 'Kilińskiego 12, 28-100 Busko-Zdrój',
-  openingHours: 'Poniedziałek–piątek: 8:00–16:00\nSobota: 10:00–16:00',
-  _status: 'published' as const,
-}
-
 function isBlobUrl(value: null | string | undefined): value is string {
   return Boolean(value?.startsWith('https://') && value.includes('.blob.vercel-storage.com/'))
 }
@@ -97,7 +83,9 @@ if (process.env.NEON_BRANCH !== 'production') {
 const payload = await getPayload({ config: await config })
 
 try {
-  const [mediaResult, productsResult, galleryResult, currentSiteContent] = await Promise.all([
+  // Teksty stron (global „site-content”) nie są już częścią tego skryptu: od 20.11.2026 ich źródłem jest panel
+  // (Strona → Teksty stron), a wartości domyślne są w src/content/page-texts.ts.
+  const [mediaResult, productsResult, galleryResult] = await Promise.all([
     payload.find({
       collection: 'media',
       depth: 0,
@@ -106,7 +94,6 @@ try {
     }),
     payload.find({ collection: 'products', depth: 0, limit: 500, overrideAccess: true }),
     payload.find({ collection: 'gallery-items', depth: 0, limit: 100, overrideAccess: true }),
-    payload.findGlobal({ slug: 'site-content', draft: true, overrideAccess: true }),
   ])
 
   const mediaBySource = new Map<string, Media>()
@@ -128,8 +115,7 @@ try {
   console.log(
     `Content check: ${invalidMedia.length} invalid media URLs, ` +
       `${missingGalleryMedia.length} gallery uploads, ` +
-      `${existingGalleryByWordPressId.size}/${expectedGalleryCount} gallery rows, ` +
-      `site content ${currentSiteContent.homeHeading ? 'configured' : 'empty'}.`,
+      `${existingGalleryByWordPressId.size}/${expectedGalleryCount} gallery rows.`,
   )
 
   if (!applyChanges) {
@@ -212,14 +198,7 @@ try {
       }
     }
 
-    await payload.updateGlobal({
-      slug: 'site-content',
-      data: siteContent,
-      draft: false,
-      overrideAccess: true,
-    })
-
-    const [publishedGallery, remainingInvalidMedia, updatedSiteContent] = await Promise.all([
+    const [publishedGallery, remainingInvalidMedia] = await Promise.all([
       payload.find({
         collection: 'gallery-items',
         depth: 1,
@@ -232,24 +211,18 @@ try {
         limit: 500,
         overrideAccess: true,
       }),
-      payload.findGlobal({ slug: 'site-content', draft: false, overrideAccess: true }),
     ])
     const invalidAfter = (remainingInvalidMedia.docs as Media[]).filter(({ url }) => !isBlobUrl(url))
 
-    if (
-      publishedGallery.totalDocs !== expectedGalleryCount ||
-      invalidAfter.length !== 0 ||
-      updatedSiteContent.homeHeading !== siteContent.homeHeading
-    ) {
+    if (publishedGallery.totalDocs !== expectedGalleryCount || invalidAfter.length !== 0) {
       throw new Error(
-        `Content verification failed: gallery=${publishedGallery.totalDocs}, ` +
-          `invalidMedia=${invalidAfter.length}, siteContent=${Boolean(updatedSiteContent.homeHeading)}`,
+        `Content verification failed: gallery=${publishedGallery.totalDocs}, invalidMedia=${invalidAfter.length}`,
       )
     }
 
     console.log(
       `Content bootstrap complete: ${replacementIds.size} media repaired, ` +
-        `${publishedGallery.totalDocs} gallery items published and site content configured.`,
+        `${publishedGallery.totalDocs} gallery items published.`,
     )
   }
 } finally {

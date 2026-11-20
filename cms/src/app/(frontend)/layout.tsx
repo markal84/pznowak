@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import AnnouncementBar from '@/components/site/AnnouncementBar'
 import Analytics from '@/components/site/Analytics'
 import CookieBanner from '@/components/site/CookieBanner'
 import HydrationFlag from '@/components/site/HydrationFlag'
@@ -10,6 +11,10 @@ import { fontClassName } from '@/lib/fonts'
 import { isIndexable } from '@/lib/indexing'
 import { siteUrl } from '@/lib/seo'
 import { COOKIE_BANNER_ENABLED } from '@/lib/site'
+
+// Strony zapisywane przy budowaniu (np. regulamin) odświeżają się co godzinę, żeby pasek z komunikatem znikał
+// po dacie końca także tam. Strony z `force-dynamic` i tak renderują się przy każdym wejściu.
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   // Adres bazowy dla względnych adresów kanonicznych i obrazów Open Graph (SITE_URL, domyślnie https://pznowak.pl).
@@ -33,6 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <a className="skip-link" href="#main">
           Przejdź do treści
         </a>
+        <AnnouncementBar />
         <SiteHeader />
         <main id="main">{children}</main>
         <SiteFooter />

@@ -2,7 +2,7 @@ import { mainStoneOf } from './catalog'
 
 /**
  * Kotwica sekcji w poradniku o kamieniach dla kamienia głównego z karty („Szafir i diamenty” → `szafir`).
- * Identyfikatory muszą zgadzać się z `STONES` w `poradniki/kamienie-do-pierscionka-zareczynowego/page.tsx`;
+ * Identyfikatory muszą zgadzać się z kotwicami bloków „Kamień” poradnika o kamieniach (panel: Strona → Poradniki);
  * `null`, gdy poradnik nie opisuje tego kamienia (link prowadzi wtedy na początek poradnika).
  */
 const ANCHORS: [RegExp, string][] = [

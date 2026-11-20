@@ -10,6 +10,7 @@ import SectionIntro from '@/components/site/SectionIntro'
 import StudioFilm from '@/components/site/StudioFilm'
 import JsonLd from '@/components/site/JsonLd'
 import { BUSINESS_NAME, breadcrumbJsonLd } from '@/lib/structured-data'
+import { getPageTexts } from '@/lib/page-texts'
 
 export const metadata: Metadata = pageMetadata({
   title: 'Pracownia i historia rodziny Nowaków od 1920',
@@ -17,17 +18,18 @@ export const metadata: Metadata = pageMetadata({
   path: '/pracownia',
 })
 
-export default function StudioPage() {
+export default async function StudioPage() {
+  // Nagłówek i wstęp: panel → Teksty stron → Pracownia.
+  const { about: texts } = await getPageTexts()
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Pracownia', path: '/pracownia' }])} />
       <section className="wrap" style={{ paddingTop: 72, paddingBottom: 80, display: 'flex', flexDirection: 'column', gap: 28 }}>
         <h1 className="h1" style={{ maxWidth: '13em', fontSize: 'clamp(46px, 6vw, 92px)', lineHeight: 0.98 }}>
-          Od kuźni w Szańcu do stołu złotniczego w Busku
+          {texts.title}
         </h1>
         <p className="lead" style={{ maxWidth: '36em' }}>
-          Jesteśmy rodzinną pracownią z Buska-Zdroju. Rzemiosło przechodzi u nas z ojca na syna od {SITE.since} roku.
-          Łączymy klasyczny warsztat z nowoczesnym projektowaniem i każdą rzecz robimy dla konkretnej osoby.
+          {texts.intro}
         </p>
       </section>
 

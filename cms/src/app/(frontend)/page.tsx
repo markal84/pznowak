@@ -6,9 +6,11 @@ import { toCatalogRing } from '@/lib/catalog'
 import { HERO_VITRINE, heroRing as pickHero, pickHomeRings } from '@/lib/home'
 import { showPlaceholders } from '@/lib/placeholders'
 import { pageMetadata } from '@/lib/seo'
-import { guidePath } from '@/lib/guides'
+import { getGuides, guidePath } from '@/lib/guides'
 import { CUSTOM_ORDER_LINK, FAMILY, HERO_TRUST, RING_CREATOR_ENABLED, SITE, openingHoursText } from '@/lib/site'
 import { faqJsonLd, jewelryStoreJsonLd, websiteJsonLd } from '@/lib/structured-data'
+import { getPageTexts } from '@/lib/page-texts'
+import { keepShortWords, starredHeading } from '@/lib/typography'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import Faq, { faqPlainItems, type FaqItem } from '@/components/site/Faq'
 import GuideCards from '@/components/site/GuideCards'
@@ -67,7 +69,12 @@ const faq = (): FaqItem[] => [
 ]
 
 export default async function HomePage() {
-  const [products, reviews] = await Promise.all([getProducts(), getGoogleReviews()])
+  const [products, reviews, { home: texts }, guides] = await Promise.all([
+    getProducts(),
+    getGoogleReviews(),
+    getPageTexts(),
+    getGuides(),
+  ])
   const count = products.length
   const hero = pickHero(products)
   const heroRing = hero ? toCatalogRing(hero) : null
@@ -140,15 +147,11 @@ export default async function HomePage() {
       <section className={`hero-home${vitrine.length > 0 ? '' : ' hero-home-solo'}`}>
         <div className="hero-copy">
           <div className="hero-main">
-            <h1 className="h1-hero">
-              <span className="hl">Rzemiosło, które docenisz.</span>{' '}
-              <em className="hl">Biżuteria, którą pokochasz.</em>
-            </h1>
+            {/* Nagłówek i wstęp: panel → Teksty stron → Strona główna (fragment w gwiazdkach = druga linia kursywą). */}
+            <h1 className="h1-hero">{starredHeading(texts.title, { plain: 'hl', emphasis: 'hl' })}</h1>
             <span aria-hidden="true" className="hero-rule" />
-            <p className="lead">
-              {/* Twarde spacje po „i” i „w”: jednoliterowe słowa nie zostają na końcu linii. */}
-              Projektujemy i{'\u00a0'}wykonujemy biżuterię na zamówienie w{'\u00a0'}rodzinnej pracowni w{'\u00a0'}Busku-Zdroju.
-            </p>
+            {/* Twarde spacje po jednoliterowych słowach: nie zostają na końcu linii. */}
+            <p className="lead">{keepShortWords(texts.intro)}</p>
             {/* Główne wezwanie: przeglądanie pierścionków; rozmowa o projekcie jako drugi krok. */}
             <div className="hero-cta">
               <Link className="btn btn-browse" href="/pierscionki">
@@ -294,7 +297,7 @@ export default async function HomePage() {
           intro="Rozmiar, kamień i cena: trzy rzeczy, o które pytacie najczęściej, opisane tak, żeby dało się zdecydować przed pierwszą rozmową."
           title="Zanim wybierzesz pierścionek"
         />
-        <GuideCards />
+        <GuideCards guides={guides} />
       </section>
 
       <section className="surface-paper home-faq">

@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { byEnv } from '@/lib/placeholders'
 import { formatPrice, lowestPrice } from '@/lib/price'
 import CatalogBrowser from '@/components/site/CatalogBrowser'
+import { getPageTexts } from '@/lib/page-texts'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,9 +26,10 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   })
   const path = catalogCanonicalPath(params, (await getProducts()).length)
   const page = Number(new URLSearchParams(path.split('?')[1] ?? '').get('strona') ?? 1)
+  const { catalog: texts } = await getPageTexts()
   return pageMetadata({
-    title: `Pierścionki zaręczynowe z kamieniami szlachetnymi – Busko-Zdrój${page > 1 ? ` (strona ${page})` : ''}`,
-    description: 'Pierścionki z szafirem, rubinem, szmaragdem i diamentem z naszej pracowni. Zmienimy kamień, kolor złota lub rozmiar.',
+    title: `${texts.metaTitle}${page > 1 ? ` (strona ${page})` : ''}`,
+    description: texts.metaDescription,
     path,
   })
 }
@@ -43,22 +45,17 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
   const shown = paginate(sortRings(filterRings(rings, params.stone, params.gold), params.sort), params.page).items
   // Najniższa cena z kart z ceną; bez żadnej ceny zostaje dotychczasowy znacznik (podgląd) albo sam brak przywieszki (produkcja).
   const lowest = lowestPrice(rings)
+  const { catalog: texts } = await getPageTexts()
   return (
     <>
       <JsonLd data={itemListJsonLd(shown.map((r) => ({ name: `Pierścionek ${r.name}`, path: productPath(r.slug) })))} />
       <section className="wrap stack catalog-head page-head">
-        <SectionIntro
-          as="h1"
-          intro="Każdy projekt wykonamy w Twoim rozmiarze. Kamień i kolor złota możemy zmienić."
-          title="Pierścionki z pracowni"
-        />
+        <SectionIntro as="h1" intro={texts.intro} title={texts.title} />
         <div className="catalog-offer">
           <PriceOffer
             label="Pierścionek z kolekcji"
             note={
-              lowest !== null
-                ? 'Ostateczna cena zależy od wybranego kamienia i złota.'
-                : byEnv('Ostateczna cena zależy od wybranego kamienia i złota.', undefined)
+              lowest !== null ? texts.priceNote : byEnv(texts.priceNote, undefined)
             }
             price={lowest !== null ? formatPrice(lowest) : byEnv('od [X] zł', undefined)}
             size="sm"

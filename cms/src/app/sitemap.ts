@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 import { getProducts } from '@/lib/collection'
-import { GUIDES, GUIDES_PATH, guidePath } from '@/lib/guides'
+import { GUIDES_PATH, getGuides, guidePath } from '@/lib/guides'
 import { productPath } from '@/lib/product-seo'
 import { absoluteUrl } from '@/lib/seo'
 
@@ -28,10 +28,10 @@ const PAGES = [
  * `X-Robots-Tag` blokują indeksowanie.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const products = await getProducts()
+  const [products, guides] = await Promise.all([getProducts(), getGuides()])
   return [
     ...PAGES.map((path) => ({ url: absoluteUrl(path) })),
-    ...GUIDES.map((guide) => ({ url: absoluteUrl(guidePath(guide.slug)), lastModified: guide.updated })),
+    ...guides.map((guide) => ({ url: absoluteUrl(guidePath(guide.slug)), lastModified: guide.updated })),
     ...products.map((product) => ({
       url: absoluteUrl(productPath(product.slug)),
       lastModified: product.updatedAt,

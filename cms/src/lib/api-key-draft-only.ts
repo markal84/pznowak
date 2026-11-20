@@ -1,4 +1,10 @@
-import type { CollectionBeforeOperationHook, CollectionBeforeChangeHook, PayloadRequest } from 'payload'
+import type {
+  CollectionBeforeChangeHook,
+  CollectionBeforeOperationHook,
+  GlobalBeforeChangeHook,
+  GlobalBeforeOperationHook,
+  PayloadRequest,
+} from 'payload'
 
 /**
  * Konto „Automat” (rola Redaktor, klucz API) może tylko przygotowywać szkice.
@@ -35,6 +41,29 @@ export const apiKeyDraftOnlyBeforeOperation: CollectionBeforeOperationHook = ({
 
 /** Druga zapora: nawet jeśli w danych jest `_status: 'published'`, klucz API zapisze szkic. */
 export const apiKeyDraftOnlyBeforeChange: CollectionBeforeChangeHook = ({ data, req }) => {
+  if (!isApiKeyRequest(req)) return data
+  return { ...data, _status: 'draft' }
+}
+
+/**
+ * To samo dla globali (np. „Teksty stron”): klucz API zapisuje tylko szkic. `_status` zmieniamy już przed operacją,
+ * bo Payload na tej podstawie decyduje, czy zapis trafia do opublikowanej wersji, czy tylko do historii wersji.
+ */
+export const apiKeyDraftOnlyGlobalBeforeOperation: GlobalBeforeOperationHook = ({ args, operation, req }) => {
+  if (!isApiKeyRequest(req)) return args
+
+  if (operation === 'restoreVersion') {
+    throw new Error('Konto z kluczem API nie może przywracać wersji. Zrób to ręcznie w panelu.')
+  }
+
+  if (operation === 'update') {
+    return { ...args, data: { ...(args?.data ?? {}), _status: 'draft' }, draft: true }
+  }
+
+  return args
+}
+
+export const apiKeyDraftOnlyGlobalBeforeChange: GlobalBeforeChangeHook = ({ data, req }) => {
   if (!isApiKeyRequest(req)) return data
   return { ...data, _status: 'draft' }
 }
