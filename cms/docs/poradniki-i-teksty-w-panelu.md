@@ -57,10 +57,15 @@ nie psuje strony, ale poprawki z panelu działają dopiero po migracji i przenie
 
 ## Wdrożenie (jednorazowo, 20.11.2026)
 
-1. Migracja na żywej bazie (z katalogu `cms`):
+Najpierw kod, potem baza: nowy kod na bazie przed migracją pokazuje treść z kodu (sprawdzone), a stary kod
+nie zobaczy nigdy bazy po migracji.
+
+1. Scalenie PR i od razu wdrożenie na MyDevil: `sh ~/pznowak-cms-prod/cms/scripts/mydevil/deploy.sh pznowak.pl`
+   (nocny auto-deploy nie wdraża commitów z migracjami). Strony wyglądają jak dotąd; panel Poradniki i Teksty
+   stron działa dopiero po kroku 2.
+2. Migracja na żywej bazie, lokalnie na aktualnym `main`, z katalogu `cms`:
    `node --env-file=.env --env-file=.env.local --env-file=../backend/.env.production.local node_modules/payload/bin.js migrate`
    (samo `npx payload migrate` trafia do innej bazy).
-2. Przeniesienie treści: `npm run tresci:przenies` (sprawdzenie), potem `npm run tresci:przenies -- --apply`.
-3. Scalenie PR i wdrożenie na MyDevil (`cms/scripts/mydevil/deploy.sh`).
+3. Przeniesienie treści: `npm run tresci:przenies` (sprawdzenie), potem `npm run tresci:przenies -- --apply`.
 4. Kontrola: panel → Strona → Poradniki (3 opublikowane) i Teksty stron; strony `/poradniki/…`, `/na-zamowienie`,
    `/obraczki`, `/pierscionki` wyglądają jak przed zmianą.
