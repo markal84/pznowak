@@ -6,6 +6,7 @@
  *   npm run staging:ten-model -- --apply --nadpisz=43,42
  *                                          nadpisuje też tekst wpisany ręcznie w panelu
  *
+ * Przed dopisaniem kolejnych kart: seed/opisy/ten-model.md (najpierw obejrzeć wszystkie zdjęcia i filmy karty).
  * Zapisuje tylko do pustego pola. Gdy zapora (długość, liczby, podobieństwo) zgłosi problem, nic nie zapisuje.
  * Idempotentne. Działa tylko na żywej bazie (NEON_BRANCH=production, zob. db-guard.ts).
  */
