@@ -40,7 +40,7 @@ describe('metadane strony', () => {
     expect(meta.description).toBe('Opis.')
     expect(meta.alternates?.canonical).toBe('/obraczki')
     expect(meta.openGraph).toMatchObject({
-      title: 'Obrączki — Michał Nowak',
+      title: 'Obrączki — PZ Nowak',
       description: 'Opis.',
       url: '/obraczki',
       locale: 'pl_PL',
@@ -48,7 +48,7 @@ describe('metadane strony', () => {
     expect(meta.openGraph?.images).toEqual([
       { url: DEFAULT_OG_IMAGE.url, width: 1200, height: 630, alt: DEFAULT_OG_IMAGE.alt },
     ])
-    expect(meta.twitter).toMatchObject({ card: 'summary_large_image', title: 'Obrączki — Michał Nowak' })
+    expect(meta.twitter).toMatchObject({ card: 'summary_large_image', title: 'Obrączki — PZ Nowak' })
   })
 
   it('zdjęcie pierścionka zastępuje domyślny obraz', () => {

@@ -9,7 +9,7 @@ import SiteHeader from '@/components/site/SiteHeader'
 import SiteFooter from '@/components/site/SiteFooter'
 import { fontClassName } from '@/lib/fonts'
 import { isIndexable } from '@/lib/indexing'
-import { siteUrl } from '@/lib/seo'
+import { SITE_TITLE_SUFFIX, siteUrl } from '@/lib/seo'
 import { COOKIE_BANNER_ENABLED } from '@/lib/site'
 
 // Strony zapisywane przy budowaniu (np. regulamin) odświeżają się co godzinę, żeby pasek z komunikatem znikał
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
     default: 'Michał Nowak — pracownia złotnicza w Busku-Zdroju',
-    template: '%s — Michał Nowak',
+    template: `%s${SITE_TITLE_SUFFIX}`,
   },
   description:
     'Rodzinna pracownia złotnicza w Busku-Zdroju. Pierścionki zaręczynowe i obrączki na zamówienie, naprawy i przeróbki biżuterii.',
