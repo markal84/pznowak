@@ -217,6 +217,7 @@ const product: SiteProduct = {
   featuredOnHome: false,
   homeOrder: 0,
   price: null,
+  uniqueNote: '',
   stoneVariants: [
     ...galleryVariants,
     // Kształt sprzed Y (wpis z Data Cache zapisany starszym wdrożeniem): bez `images`.

@@ -1393,8 +1393,11 @@ summary::-webkit-details-marker {
   .product-cta {
     order: 9;
   }
-  .product-changes {
+  .product-note {
     order: 10;
+  }
+  .product-changes {
+    order: 11;
   }
 }
 @media (max-width: 720px) {
@@ -4827,7 +4830,8 @@ fieldset.plain legend {
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;
 }
-.product-changes .small a {
+.product-changes .small a,
+.product-note a {
   color: var(--velvet);
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;

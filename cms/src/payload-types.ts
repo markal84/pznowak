@@ -146,6 +146,10 @@ export interface Product {
   lead?: string | null;
   description?: string | null;
   /**
+   * 80–120 słów, których nie ma na żadnej innej karcie: co widać na zdjęciach i filmie tej karty, czym różni się od podobnego pierścionka (nazwę innej karty strona sama zamieni w link), co Michał napisał w poście. Bez zdań ze wspólnego opisu i bez wymyślonych liczb. Na stronie: akapit „O pierścionku <nazwa>” pod opisem. Puste = akapitu nie ma.
+   */
+  uniqueNote?: string | null;
+  /**
    * Cena pierścionka z kamieniem ze zdjęć, w pełnych złotych (np. 2949). Na stronie: „od 2949 zł” na przywieszce na liście i pod nazwą na karcie. Puste = „Na zapytanie” na przywieszce (lista i karta).
    */
   price?: number | null;
@@ -601,6 +605,7 @@ export interface ProductsSelect<T extends boolean = true> {
   slug?: T;
   lead?: T;
   description?: T;
+  uniqueNote?: T;
   price?: T;
   metal?: T;
   stone?: T;
