@@ -5159,6 +5159,14 @@ fieldset.plain legend {
   .page-head.catalog-head {
     padding-top: 64px;
     padding-bottom: 40px;
+    /* Dłuższy tytuł („Pierścionki zaręczynowe z pracowni”) dostaje szerszą kolumnę, cena zostaje po prawej. */
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  }
+  /* Tytuł listy jest dłuższy niż inne H1, więc skala jest o stopień mniejsza i łamie się równo (2 linie zamiast 3). */
+  .catalog-head .h1 {
+    font-size: clamp(40px, 4.3vw, 64px);
+    line-height: 1.04;
+    text-wrap: balance;
   }
 }
 @media (max-width: 720px) {
