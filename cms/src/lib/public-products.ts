@@ -43,12 +43,18 @@ export type ProductPriceFields = {
   price: number | null
 }
 
+/** „Ten model”: tekst tylko dla tej karty (pod opisem). Tylko dla stron serwisu; publiczny kontrakt API bez zmian. */
+export type ProductUniqueNoteFields = {
+  uniqueNote: string
+}
+
 /** „Zamów z innym kamieniem” (zlecenie V). Tylko dla stron serwisu; publiczny kontrakt API (`PublicProduct`) bez zmian. */
 export type ProductVariantFields = {
   stoneVariants: StoneVariant[]
 }
 
-export type SiteProduct = PublicProduct & ProductSeoFields & ProductHomeFields & ProductVariantFields & ProductPriceFields
+export type SiteProduct = PublicProduct & ProductSeoFields & ProductHomeFields & ProductVariantFields & ProductPriceFields &
+  ProductUniqueNoteFields
 
 export type PublicGalleryItem = {
   id: number
@@ -149,6 +155,7 @@ export function serializeSiteProduct(product: Product): SiteProduct {
     homeOrder: product.homeOrder ?? 0,
     stoneVariants: serializeStoneVariants(product.stoneVariants),
     price: normalizePrice(product.price),
+    uniqueNote: product.uniqueNote?.trim() ?? '',
   }
 }
 

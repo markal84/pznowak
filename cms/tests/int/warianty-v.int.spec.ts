@@ -225,6 +225,7 @@ const product = (name: string, extra: Partial<SiteProduct> = {}): SiteProduct =>
   homeOrder: 0,
   stoneVariants: [],
   price: null,
+  uniqueNote: '',
   ...extra,
 })
 

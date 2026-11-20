@@ -27,6 +27,7 @@ import {
 } from '@/components/site/StoneVariants'
 import { formatPrice } from '@/lib/price'
 import { cardFilmStone, findVariant, originalSwatch } from '@/lib/stone-variants'
+import { uniqueNoteSegments } from '@/lib/unique-note'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +64,8 @@ export default async function ProductPage({ params, searchParams }: Params & { s
   const metal = goldColorLabel(product.metal)
   const description = descriptionParagraphs(product.description)
   const similar = similarTo(product, products, 4).map(toCatalogRing)
+  // „Ten model”: tekst tylko dla tej karty; nazwy innych kart (np. bliźniaczej) stają się linkami.
+  const uniqueNote = uniqueNoteSegments(product.uniqueNote, products, product.slug)
   // Nadtytuł nad nazwą: „Pierścionek z ametystem” (ta sama odmiana co w tytule strony), a gdy kamienia nie da się odmienić, samo „Pierścionek”.
   const stonePhrase = productStonePhrase(product.stone)
   const eyebrow = stonePhrase ? `Pierścionek ${stonePhrase}` : 'Pierścionek'
@@ -194,6 +197,25 @@ export default async function ProductPage({ params, searchParams }: Params & { s
                   {paragraph}
                 </p>
               ))}
+            </div>
+          ) : null}
+
+          {uniqueNote.length ? (
+            <div className="stack product-note" style={{ gap: 10 }}>
+              <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 26, lineHeight: 1.15 }}>
+                O pierścionku {product.name}
+              </h2>
+              <p className="text" style={{ fontSize: 16 }}>
+                {uniqueNote.map((segment, index) =>
+                  segment.slug ? (
+                    <Link href={productPath(segment.slug)} key={index}>
+                      {segment.text}
+                    </Link>
+                  ) : (
+                    segment.text
+                  ),
+                )}
+              </p>
             </div>
           ) : null}
 

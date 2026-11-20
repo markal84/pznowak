@@ -83,6 +83,15 @@ export const Products: CollectionConfig = {
               label: 'Pełny opis',
             },
             {
+              name: 'uniqueNote',
+              type: 'textarea',
+              label: 'Ten model (tekst tylko dla tej karty)',
+              admin: {
+                description:
+                  '80–120 słów, których nie ma na żadnej innej karcie: co widać na zdjęciach i filmie tej karty, czym różni się od podobnego pierścionka (nazwę innej karty strona sama zamieni w link), co Michał napisał w poście. Bez zdań ze wspólnego opisu i bez wymyślonych liczb. Na stronie: akapit „O pierścionku <nazwa>” pod opisem. Puste = akapitu nie ma.',
+              },
+            },
+            {
               name: 'price',
               type: 'number',
               label: 'Cena (zł)',
