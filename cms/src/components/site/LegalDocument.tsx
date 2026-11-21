@@ -1,10 +1,29 @@
 import { Fragment, type ReactNode } from 'react'
 import { type LegalItem, parseLegal } from '@/lib/legal-markdown'
 
+const EMAIL = /([\w.+-]+@[\w-]+(?:\.[\w-]+)+)/
+
+/**
+ * Adresy e-mail jako osobne linki `mailto:`. Cloudflare (Email Obfuscation) podmienia w HTML adres na swój
+ * element, a jego skrypt odtwarza go jako osobny węzeł tekstowy. Gdy adres siedział w środku zwykłego tekstu
+ * („E-mail: kontakt@…”), drzewo w przeglądarce rozjeżdżało się z tym z serwera i React rzucał błąd hydratacji #418.
+ */
+function withEmails(text: string, key: string): ReactNode {
+  return text.split(EMAIL).map((part, i) =>
+    i % 2 === 1 ? (
+      <a className="legal-link" href={`mailto:${part}`} key={`${key}-${i}`}>
+        {part}
+      </a>
+    ) : part ? (
+      <Fragment key={`${key}-${i}`}>{part}</Fragment>
+    ) : null,
+  )
+}
+
 /** Pogrubienia `**…**` w tekście dokumentu. */
 function inline(text: string): ReactNode {
   return text.split(/\*\*(.+?)\*\*/).map((part, i) =>
-    i % 2 === 1 ? <strong key={i}>{part}</strong> : <Fragment key={i}>{part}</Fragment>,
+    i % 2 === 1 ? <strong key={i}>{withEmails(part, String(i))}</strong> : withEmails(part, String(i)),
   )
 }
 

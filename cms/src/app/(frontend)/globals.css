@@ -4336,6 +4336,11 @@ fieldset.plain legend {
   color: var(--graphite);
   font-weight: 600;
 }
+.legal-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 
 /* ---------- drobne pomocnicze ---------- */
