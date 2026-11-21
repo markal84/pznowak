@@ -16,6 +16,7 @@ import { SITE } from '@/lib/site'
  * Fakty potwierdzone wcześniej: zaliczka 30% BLIK-iem lub przelewem, reszta przy odbiorze albo przed wysyłką
  * (Michał 14.11), certyfikat kamieni naturalnych, zwykły kurier w całej Polsce, wykonanie zwykle 4–6 tygodni,
  * bez dodatkowego ubezpieczenia przesyłki (Marcin 21.11). Wszystko inne jest pytaniem albo propozycją.
+ * Runda 2 (Marcin 21.11): zielone ramki z propozycjami i danymi z internetu, żółte pytania otwarte; link w menu tylko na podglądzie.
  */
 
 export const dynamic = 'force-dynamic'
@@ -26,15 +27,20 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-type NoteKind = 'pytanie' | 'prosba' | 'propozycja'
+type NoteKind = 'pytanie' | 'prosba' | 'propozycja' | 'info'
 
 const NOTE_LABEL: Record<NoteKind, string> = {
   pytanie: 'Pytanie do Michała',
   prosba: 'Prośba do Michała',
-  propozycja: 'Propozycja',
+  propozycja: 'Propozycja do wyboru',
+  info: 'Co znaleźliśmy',
 }
 
-/** Żółta ramka dla Michała: widać ją tylko na podglądzie (cała strona i tak jest tylko na podglądzie). */
+/**
+ * Ramka dla Michała (cała strona jest tylko na podglądzie). Żółte: pytania i prośby, zadane otwarcie, bez
+ * podpowiadania odpowiedzi (Marcin 21.11: „nie sugeruj Michałowi niczego wprost”). Zielone: nasze propozycje
+ * i informacje z internetu, osobno, żeby Michał najpierw odpowiedział po swojemu.
+ */
 function DlaMichala({ kind, n, children }: { kind: NoteKind; n?: number; children: ReactNode }) {
   return (
     <aside className={`dla-michala dla-michala-${kind}`}>
@@ -47,11 +53,19 @@ function DlaMichala({ kind, n, children }: { kind: NoteKind; n?: number; childre
   )
 }
 
+function Zrodlo({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a href={href} rel="noreferrer" target="_blank">
+      {children}
+    </a>
+  )
+}
+
 const QUICK_FACTS: { label: string; value: ReactNode }[] = [
   { label: 'Zaliczka', value: '30% ceny, gdy projekt i cena są ustalone' },
   { label: 'Płatność', value: 'BLIK albo przelew' },
   { label: 'Wykonanie', value: 'zwykle 4–6 tygodni' },
-  { label: 'Odbiór', value: 'w pracowni w Busku albo kurierem' },
+  { label: 'Odbiór', value: 'w pracowni w Busku albo wysyłką' },
   { label: 'W komplecie', value: 'certyfikat kamieni naturalnych' },
 ]
 
@@ -91,12 +105,16 @@ export default function JakKupicPage() {
 
   return (
     <>
-      <div className="wrap" style={{ paddingTop: 24 }}>
+      <div className="wrap stack" style={{ paddingTop: 24, gap: 12 }}>
         <DlaMichala kind="prosba">
           <p>
-            Michał, to wersja robocza nowej strony. Widzi ją tylko podgląd, klienci jej nie widzą. W żółtych ramkach są
-            pytania i prośby: wystarczy odpowiedzieć Marcinowi krótko, nawet jednym słowem przy numerze pytania, a my
-            przepiszemy tekst. Tekst poza ramkami to to, co już wiemy od Ciebie.
+            Michał, to wersja robocza nowej strony. Widzi ją tylko podgląd, klienci jej nie widzą. Zwykły tekst to to,
+            co już wiemy od Ciebie. W żółtych ramkach są pytania: odpowiedz Marcinowi po swojemu, krótko, przy numerze
+            pytania. My przepiszemy to na tekst strony.
+          </p>
+          <p>
+            Zielone ramki to nasze pomysły i to, co znaleźliśmy w internecie. Możesz je przyjąć, zmienić albo odrzucić.
+            Najlepiej przeczytaj je dopiero po odpowiedzi na żółte pytania, żeby odpowiedzieć tak, jak jest naprawdę.
           </p>
         </DlaMichala>
       </div>
@@ -141,10 +159,10 @@ export default function JakKupicPage() {
             ))}
           </ol>
           <DlaMichala kind="pytanie" n={1}>
-            <p>
-              Czy pierścionki z kolekcji (te z kart na stronie) bywają gotowe od ręki, czy zawsze robisz je po
-              zamówieniu? Jeśli bywają gotowe: czy wtedy klient płaci całość od razu, bez zaliczki, i ile trwa wysyłka?
-            </p>
+            <ul>
+              <li>Czy coś w tych pięciu krokach wygląda u Ciebie inaczej?</li>
+              <li>Jak wygląda zakup pierścionka z kolekcji ze strony: robisz go od nowa czy czasem jest gotowy?</li>
+            </ul>
           </DlaMichala>
         </div>
       </section>
@@ -168,11 +186,17 @@ export default function JakKupicPage() {
         </ul>
         <DlaMichala kind="pytanie" n={2}>
           <ul>
-            <li>W pracowni można zapłacić gotówką i kartą?</li>
-            <li>Dopłatę przed wysyłką: przelewem czy BLIK-iem? Wysyłasz dopiero po zaksięgowaniu?</li>
-            <li>Raty albo płatność za pobraniem: tak czy nie? (Nie musimy ich mieć, chodzi o to, żeby napisać wprost.)</li>
-            <li>Paragon, a na życzenie faktura?</li>
+            <li>Jak można zapłacić w pracowni?</li>
+            <li>Jak klient płaci resztę, gdy pierścionek idzie wysyłką, i kiedy wtedy nadajesz paczkę?</li>
+            <li>Jaki dokument zakupu dostaje klient?</li>
           </ul>
+        </DlaMichala>
+        <DlaMichala kind="propozycja">
+          <p>
+            Na stronach sklepów klienci szukają też tego, czego nie ma (np. raty, płatność przy odbiorze od kuriera).
+            Jeśli czegoś nie oferujesz, warto to napisać wprost jednym zdaniem. Wtedy nikt nie dzwoni tylko po to, żeby o
+            to zapytać.
+          </p>
         </DlaMichala>
       </section>
 
@@ -180,15 +204,12 @@ export default function JakKupicPage() {
         <div className="wrap sec stack jk-section" style={{ gap: 28 }}>
           <SectionIntro
             eyebrow="Wysyłka"
-            intro="Gotowy pierścionek wysyłamy kurierem w całej Polsce. Pakuje go Michał, ten sam, który go zrobił."
-            title="Kurierem do Twoich drzwi"
+            intro="Gotowy pierścionek wysyłamy w całej Polsce. Pakuje go Michał, ten sam, który go zrobił."
+            title="Wysyłka do Twoich drzwi"
           />
           <ul className="jk-list">
             <li>
-              <strong>Kurier na adres, który podasz.</strong>
-            </li>
-            <li>
-              <strong>Przesyłka jest ubezpieczona</strong> w ramach standardowej ochrony firmy kurierskiej.
+              <strong>Wysyłka na adres, który podasz.</strong>
             </li>
             <li>
               <strong>Wolisz odebrać osobiście?</strong> Zapraszamy do pracowni, przymierzysz pierścionek na miejscu.
@@ -196,25 +217,70 @@ export default function JakKupicPage() {
           </ul>
           <DlaMichala kind="pytanie" n={3}>
             <ul>
-              <li>Jaki kurier (InPost, DPD, DHL, Pocztex)? Paczkomat też?</li>
-              <li>Koszt wysyłki: wliczony w cenę pierścionka czy osobno, ile?</li>
-              <li>Do jakiej kwoty kurier standardowo ubezpiecza Twoje paczki? Wpiszemy dokładnie tyle, nic więcej.</li>
-              <li>Ile dni mija od dopłaty do nadania? Wysyłasz klientowi numer przesyłki?</li>
-              <li>Wysyłka za granicę: tak czy nie?</li>
+              <li>Jaką firmą i jaką usługą wysyłasz dziś pierścionki?</li>
+              <li>Ile kosztuje wysyłka i kto ją płaci?</li>
+              <li>Co się dzieje, gdy paczka zaginie albo przyjdzie uszkodzona? Jak masz to zabezpieczone?</li>
+              <li>Ile dni mija od dopłaty do nadania i co klient dostaje, gdy paczka wyjdzie?</li>
+              <li>Czy wysyłasz za granicę?</li>
             </ul>
+          </DlaMichala>
+          <DlaMichala kind="info">
+            <p>
+              <strong>Ubezpieczenie u przewoźników: ważne przy biżuterii.</strong> Sprawdziliśmy regulaminy i cenniki
+              (stan na 21.11.2026). Wiele firm kurierskich nie przyjmuje biżuterii jako zwykłej paczki, a wtedy
+              standardowe ubezpieczenie może nie zadziałać.
+            </p>
+            <ul>
+              <li>
+                <strong>InPost (kurier i Paczkomat):</strong> „wyroby jubilerskie” są na liście rzeczy, których nie wolno
+                wysyłać (pkt 6.4 regulaminu). Bez dodatkowej ochrony InPost odpowiada do 200 zł. Dodatkową ochronę można
+                wykupić do 5 000, 10 000 albo 20 000 zł, ale nie obejmuje rzeczy niedozwolonych.{' '}
+                <Zrodlo href="https://inpost.pl/sites/default/files/docs/regulaminy/regulamin-swiadczenia-uslug-pocztowych-i-przewozowych-przez-inpost-sp-z-oo-obowiazujacy-od-29052025.pdf">
+                  Regulamin InPost (PDF)
+                </Zrodlo>
+              </li>
+              <li>
+                <strong>DPD:</strong> w cenie ochrona do 1 000 zł. Według poradnika Poczty Polskiej DPD wyklucza z
+                transportu biżuterię, kamienie i metale szlachetne. Strony DPD z listą wykluczeń nie udało nam się
+                odczytać, więc to warto sprawdzić.{' '}
+                <Zrodlo href="https://www.dpd.com/pl/pl/2025/07/09/czego-nie-wolno-wysylac-towary-wykluczone-z-transportu/">
+                  DPD: towary wykluczone
+                </Zrodlo>
+              </li>
+              <li>
+                <strong>DHL Express:</strong> „wyroby jubilerskie, zegarki” są na liście przesyłek z ograniczeniami.{' '}
+                <Zrodlo href="https://dhlexpress.pl/baza-wiedzy/co-moge-wyslac/">DHL: co mogę wysłać</Zrodlo>
+              </li>
+              <li>
+                <strong>Poczta Polska, paczka z zadeklarowaną wartością:</strong> przyjmuje kosztowności, wartość do 70
+                000 zł, dopłata 1 zł za każde 50 zł wartości. Przykład: pierścionek za 3 000 zł to 60 zł dopłaty, plus
+                cena samej paczki. Osobno można ubezpieczyć zawartość do 50 000 zł za 1,50 zł.{' '}
+                <Zrodlo href="https://www.poczta-polska.pl/dla-ciebie/oferta/uslugi-kurierskie-i-paczkowe/paczka-pocztowa-kraj/">
+                  Poczta Polska: paczka pocztowa
+                </Zrodlo>
+              </li>
+            </ul>
+            <p className="small">
+              Ceny są orientacyjne i mogą się zmienić. Umowa firmowa z przewoźnikiem może mieć inne warunki niż
+              regulamin, więc najpewniej zapytać swojego przewoźnika: „czy mogę u was wysłać pierścionek z diamentem za X
+              zł i czy jest wtedy ubezpieczony?”.
+            </p>
           </DlaMichala>
           <DlaMichala kind="propozycja">
             <p>
-              <strong>Koperta bezpieczna z numerem.</strong> To plastikowa koperta, której nie da się otworzyć bez śladu,
-              a każda ma swój unikalny numer. Przed nadaniem piszemy klientowi: „Twój pierścionek jest w kopercie nr
-              …”. Klient od razu widzi, czy paczki nikt po drodze nie otwierał. Koperty kupuje się w paczkach, są tanie,
-              a dla kogoś, kto wydaje kilka tysięcy na pierścionek, to duży spokój.
+              <strong>Koperta bezpieczna z numerem.</strong> Plastikowa koperta, której nie da się otworzyć bez śladu, a
+              każda ma swój numer. Przed nadaniem piszemy klientowi: „Twój pierścionek jest w kopercie nr …”. Klient od
+              razu widzi, czy nikt po drodze nie otwierał paczki. Przykład:{' '}
+              <Zrodlo href="https://www.mandras.pl/koperty-bezpieczne-c-217_13.html">koperty bezpieczne w Mandras</Zrodlo>.
             </p>
             <p>
-              <strong>I druga, darmowa rzecz:</strong> zdjęcie gotowej paczki wysłane klientowi przed nadaniem, z
-              numerem koperty. U dużych sklepów tego nie ma, a u nas pokazuje, że po drugiej stronie jest człowiek.
+              <strong>Jeśli już korzystasz z takich kopert, ten punkt jest załatwiony.</strong> Napisz tylko, a dopiszemy
+              go na stronie.
             </p>
-            <p>Michał, robimy jedno, drugie, oba? Jeśli tak, dopiszemy to na stronie jako stały element wysyłki.</p>
+            <p>
+              <strong>Druga rzecz, bez kosztów:</strong> zdjęcie gotowej paczki wysłane klientowi przed nadaniem, z
+              numerem koperty.
+            </p>
           </DlaMichala>
         </div>
       </section>
@@ -240,25 +306,41 @@ export default function JakKupicPage() {
         </div>
         <DlaMichala kind="prosba">
           <p>
-            Przy najbliższej wysyłce zrób proszę telefonem te cztery zdjęcia (szare pola wyżej). Wystarczą zwykłe, w
-            świetle dziennym. To najmocniejsza część tej strony: klient widzi prawdziwą paczkę z prawdziwej pracowni, a
-            nie zdjęcie z katalogu.
+            Przy najbliższej wysyłce zrób proszę telefonem zdjęcia tego, jak naprawdę pakujesz pierścionek (szare pola
+            wyżej to tylko miejsca na nie). Wystarczą zwykłe, w świetle dziennym.
           </p>
         </DlaMichala>
         <div className="jk-boxes">
           <figure className="stack" style={{ gap: 10 }}>
-            <Photo alt="Pierścionek z diamentem w białym pudełku z ciemnoczerwonym wieczkiem" ratio="45" sizes="(max-width: 960px) 100vw, 30vw" src="/zdjecia/zakup/pudelko-dione.webp" />
-            <figcaption className="fig-cap">Ze zdjęć karty Dione</figcaption>
+            <Photo alt="Pierścionek z diamentem w białym pudełku z ciemnoczerwonym wieczkiem" ratio="32" sizes="(max-width: 960px) 50vw, 30vw" src="/zdjecia/zakup/pudelko-biale.webp" />
+            <figcaption className="fig-cap">Białe pudełko z czerwonym wieczkiem</figcaption>
           </figure>
           <figure className="stack" style={{ gap: 10 }}>
-            <Photo alt="Pierścionek z diamentem w czerwonym pudełku" ratio="32" sizes="(max-width: 960px) 100vw, 40vw" src="/zdjecia/zakup/pudelko-hestia.webp" />
-            <figcaption className="fig-cap">Ze zdjęć karty Hestia</figcaption>
+            <Photo alt="Pierścionek z diamentem w czerwonym pudełku" ratio="32" sizes="(max-width: 960px) 50vw, 30vw" src="/zdjecia/zakup/pudelko-hestia.webp" />
+            <figcaption className="fig-cap">Czerwone pudełko (karta Hestia)</figcaption>
           </figure>
+          <figure className="stack" style={{ gap: 10 }}>
+            <Photo alt="Pierścionek z diamentem leżący na certyfikacie GIA" ratio="32" sizes="(max-width: 960px) 50vw, 30vw" src="/zdjecia/zakup/certyfikat-gia.webp" />
+            <figcaption className="fig-cap">Pierścionek na certyfikacie GIA (realizacja)</figcaption>
+          </figure>
+          <DlaMichala kind="info">
+            <p>
+              Te trzy zdjęcia znaleźliśmy w Waszych postach na Facebooku i w materiałach strony. Mogą być nieaktualne:
+              pudełka mogły się zmienić, a na zdjęciu certyfikatu napisy są nieczytelne. Zdjęcia certyfikatu
+              gemmologicznego, który dostaje każdy klient, nie znaleźliśmy wcale.
+            </p>
+          </DlaMichala>
           <DlaMichala kind="pytanie" n={4}>
             <ul>
-              <li>Czy któreś z tych pudełek to Wasze standardowe? Jeśli tak, które?</li>
-              <li>Co jeszcze jest w paczce: torebka, karta z pielęgnacją, liścik?</li>
+              <li>W czym dziś wydajesz pierścionek: jakie pudełko, co jeszcze jest w środku paczki?</li>
+              <li>Czy któreś z tych zdjęć pokazuje to, co klient dostaje teraz?</li>
             </ul>
+          </DlaMichala>
+          <DlaMichala kind="prosba">
+            <p>
+              Zdjęcie aktualnego pudełka i certyfikatu (dane klienta można zasłonić kartką). Certyfikat najlepiej z
+              góry, w świetle dziennym, tak żeby dało się przeczytać nagłówki.
+            </p>
           </DlaMichala>
         </div>
       </section>
@@ -268,8 +350,7 @@ export default function JakKupicPage() {
           <div className="stack jk-section" style={{ gap: 22 }}>
             <SectionIntro eyebrow="Odbiór w pracowni" title="Przymierz na miejscu" />
             <p className="text">
-              Gotowy pierścionek możesz odebrać w pracowni przy {SITE.street} w Busku-Zdroju. Przymierzysz go przy nas, a
-              jeśli coś trzeba dopasować, poprawimy drobiazgi od ręki.
+              Gotowy pierścionek możesz odebrać w pracowni przy {SITE.street} w Busku-Zdroju i przymierzyć go przy nas.
             </p>
             <dl className="hours" style={{ fontSize: 15.5 }}>
               {SITE.hours.map((h) => (
@@ -280,59 +361,98 @@ export default function JakKupicPage() {
               ))}
             </dl>
             <DlaMichala kind="pytanie" n={5}>
-              <p>Odbiór w godzinach otwarcia bez umawiania, czy lepiej wcześniej zadzwonić?</p>
+              <p>Jak wygląda odbiór w pracowni? Co klient powinien wiedzieć, zanim przyjedzie?</p>
             </DlaMichala>
           </div>
           <div className="stack jk-section" style={{ gap: 22 }}>
             <SectionIntro eyebrow="Rozmiar" title="Gdy rozmiar się nie zgadza" />
             <p className="text">
-              Rozmiar mierzymy przed rozpoczęciem pracy, więc pierścionek powinien pasować od razu. Jeśli nie znasz
-              rozmiaru, zajrzyj do <Link href={guidePath('jak-sprawdzic-rozmiar-pierscionka')}>poradnika o mierzeniu rozmiaru</Link>.
+              Rozmiar ustalamy przed rozpoczęciem pracy. Jeśli go nie znasz, zajrzyj do{' '}
+              <Link href={guidePath('jak-sprawdzic-rozmiar-pierscionka')}>poradnika o mierzeniu rozmiaru</Link>.
             </p>
             <DlaMichala kind="pytanie" n={6}>
               <ul>
-                <li>Gdy rozmiar po odbiorze nie pasuje: pierwsza korekta bezpłatna?</li>
-                <li>W jakim czasie od odbioru i czy przy wysyłce klient odsyła kurierem na Wasz koszt?</li>
-                <li>Których pierścionków nie da się zmniejszyć lub powiększyć (np. kamienie dookoła obrączki)?</li>
+                <li>Co się dzieje, gdy po odbiorze rozmiar nie pasuje? Jak to wygląda przy wysyłce?</li>
+                <li>Czy są modele, w których rozmiaru nie da się zmienić?</li>
               </ul>
             </DlaMichala>
           </div>
         </div>
       </section>
 
-      <section className="wrap sec jk-two">
-        <div className="stack jk-section" style={{ gap: 22 }}>
-          <SectionIntro eyebrow="Zwroty i reklamacje" title="Gdy coś jest nie tak" />
-          <p className="text">
-            Pierścionek wykonany na zamówienie, według projektu i rozmiaru ustalonego z Tobą, nie podlega zwrotowi bez
-            podania przyczyny. Wady wykonania możesz reklamować zgodnie z przepisami: zadzwoń albo napisz, obejrzymy
-            pierścionek i powiemy, co dalej.
+      <section className="wrap sec stack jk-section" style={{ gap: 28 }}>
+        <SectionIntro eyebrow="Zwroty i reklamacje" title="Gdy coś jest nie tak" />
+        <p className="text" style={{ maxWidth: '42em' }}>
+          Zadzwoń albo napisz. Obejrzymy pierścionek i powiemy, co dalej.
+        </p>
+        <DlaMichala kind="pytanie" n={7}>
+          <ul>
+            <li>Jak dziś postępujesz, gdy klient chce oddać pierścionek kupiony na odległość?</li>
+            <li>A gdy zgłasza wadę?</li>
+            <li>Czy macie regulamin sprzedaży albo księgową, która zajmuje się takimi sprawami?</li>
+          </ul>
+        </DlaMichala>
+        <DlaMichala kind="info">
+          <p>
+            <strong>Co mówią przepisy o sprzedaży na odległość.</strong> To nie jest porada prawna, tylko to, co
+            znaleźliśmy w ustawie o prawach konsumenta. Zanim cokolwiek z tego trafi na stronę, trzeba to potwierdzić,
+            najlepiej z Waszą księgową albo prawnikiem.
           </p>
-          <DlaMichala kind="pytanie" n={7}>
-            <ul>
-              <li>Zostawiamy tak dla pierścionków na zamówienie?</li>
-              <li>
-                Gotowy pierścionek z kolekcji w standardowym rozmiarze, kupiony na odległość: 14 dni na zwrot (tak każe
-                prawo przy sprzedaży na odległość)? Kto płaci za odesłanie?
-              </li>
-            </ul>
-            <p className="small">Tę część warto, żeby ktoś jeszcze przejrzał prawnie, zanim trafi na stronę.</p>
-          </DlaMichala>
-        </div>
-        <div className="stack jk-section" style={{ gap: 22 }}>
+          <ul>
+            <li>
+              Sprzedaż na odległość to taka, w której klient nie był w pracowni (telefon, e-mail, Messenger). Wtedy ma
+              14 dni od otrzymania paczki na odstąpienie od umowy bez podania przyczyny (art. 27).
+            </li>
+            <li>
+              Wyjątek: rzecz „nieprefabrykowana, wyprodukowana według specyfikacji konsumenta lub służąca zaspokojeniu
+              jego zindywidualizowanych potrzeb” (art. 38 ust. 1 pkt 3). Pierścionek robiony pod projekt i kamień
+              klienta prawdopodobnie się w tym mieści. Model z kolekcji wybrany tylko w innym rozmiarze to sprawa sporna.
+              Gotowy pierścionek z kolekcji zwykle podlega zwrotowi.{' '}
+              <Zrodlo href="https://sip.lex.pl/akty-prawne/dzu-dziennik-ustaw/prawa-konsumenta-18105223/art-38">
+                Art. 38 (LEX)
+              </Zrodlo>
+              ,{' '}
+              <Zrodlo href="https://fundacja.togatus.pl/zwrot-towarow-na-indywidualne-zamowienie/">
+                omówienie wyjątku
+              </Zrodlo>
+            </li>
+            <li>
+              Przy zwrocie sprzedawca oddaje pieniądze w ciągu 14 dni, razem z kosztem najtańszej wysyłki do klienta
+              (art. 32). Może poczekać z wypłatą, aż pierścionek do niego wróci. Koszt odesłania ponosi klient, jeśli
+              wcześniej został o tym poinformowany (art. 34).
+            </li>
+            <li>
+              Jeśli klient nie dostanie przed zakupem informacji o prawie do odstąpienia, ma na to nie 14 dni, tylko do
+              12 miesięcy (art. 29).
+            </li>
+            <li>
+              Reklamacja wad (niezgodność z umową) przysługuje przez 2 lata, także przy pierścionkach robionych na
+              zamówienie.
+            </li>
+          </ul>
+        </DlaMichala>
+      </section>
+
+      <section className="surface-paper">
+        <div className="wrap sec stack jk-section" style={{ gap: 28 }}>
           <SectionIntro eyebrow="Po zakupie" title="Certyfikat i opieka" />
-          <p className="text">
-            Każdy pierścionek z kamieniami naturalnymi dostajesz z certyfikatem, który potwierdza, że kamień jest
-            naturalny. Zachowaj go: przyda się przy ubezpieczeniu biżuterii i przy przyszłych naprawach. Później
-            zapraszamy na czyszczenie i przegląd oprawy, żeby kamień trzymał się pewnie przez lata.
+          <p className="text" style={{ maxWidth: '42em' }}>
+            Do pierścionka dostajesz certyfikat z opisem kamieni. Zachowaj go: przyda się przy ubezpieczeniu biżuterii i
+            przy przyszłych naprawach.
           </p>
           <DlaMichala kind="pytanie" n={8}>
             <ul>
-              <li>Czyszczenie i przegląd oprawy dla Waszych pierścionków: bezpłatnie? Bez limitu czasu?</li>
-              <li>Gwarancja na wykonanie: jak długo?</li>
-              <li>Grawer w środku obrączki: w cenie czy dopłata (dziś na stronie napraw: 4 zł za znak)?</li>
-              <li>Kto wystawia certyfikat: pracownia czy laboratorium? Co na nim jest (kamień, masa, próba złota)?</li>
+              <li>Kto wystawia certyfikat i co na nim jest?</li>
+              <li>Jaką opiekę ma klient po zakupie: czyszczenie, przegląd, naprawy?</li>
+              <li>Jak wygląda gwarancja?</li>
+              <li>Jak jest z grawerem w pierścionku?</li>
             </ul>
+          </DlaMichala>
+          <DlaMichala kind="info">
+            <p>
+              W Waszym poście na Facebooku jest zdanie: „Każdy z naszych pierścionków posiada certyfikat z opisem kamieni
+              wydany przez gemmologa”. Jeśli to nadal aktualne, wpiszemy to tutaj Twoimi słowami.
+            </p>
           </DlaMichala>
         </div>
       </section>

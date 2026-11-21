@@ -10,12 +10,16 @@ function isCurrent(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + '/')
 }
 
-export default function SiteHeader() {
+/** Tylko podgląd Vercela: robocza strona „Jak kupić” dla Michała (produkcja: brak linku, strona daje 404). */
+const PREVIEW_NAV = [{ id: 'jak-kupic', label: 'Jak kupić', href: '/jak-kupic' }] as const
+
+export default function SiteHeader({ previewNav = false }: { previewNav?: boolean }) {
   const pathname = usePathname() ?? '/'
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
   const kontaktCurrent = pathname === '/kontakt'
   const kreatorCurrent = isCurrent(pathname, CREATOR_LINK.href)
+  const nav = previewNav ? [...NAV, ...PREVIEW_NAV] : NAV
 
   // has-creator: przy dwóch przyciskach w 1140–1319 px nie mieści się podpis przy logo (globals.css).
   return (
@@ -36,7 +40,7 @@ export default function SiteHeader() {
           </span>
         </Link>
         <nav aria-label="Menu główne" className="main-nav">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               aria-current={isCurrent(pathname, item.href) ? 'page' : undefined}
               className="navl"
@@ -79,7 +83,7 @@ export default function SiteHeader() {
         </button>
       </div>
       <nav aria-label="Menu mobilne" className="mobile-nav" hidden={!open} id="mobile-menu">
-        {NAV.map((item) => (
+        {nav.map((item) => (
           <Link
             aria-current={isCurrent(pathname, item.href) ? 'page' : undefined}
             className="m"

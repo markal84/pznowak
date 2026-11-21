@@ -9,6 +9,7 @@ import SiteHeader from '@/components/site/SiteHeader'
 import SiteFooter from '@/components/site/SiteFooter'
 import { fontClassName } from '@/lib/fonts'
 import { isIndexable } from '@/lib/indexing'
+import { showPlaceholders } from '@/lib/placeholders'
 import { SITE_TITLE_SUFFIX, siteUrl } from '@/lib/seo'
 import { COOKIE_BANNER_ENABLED } from '@/lib/site'
 
@@ -39,7 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Przejdź do treści
         </a>
         <AnnouncementBar />
-        <SiteHeader />
+        <SiteHeader previewNav={showPlaceholders()} />
         <main id="main">{children}</main>
         <SiteFooter />
         {COOKIE_BANNER_ENABLED && <CookieBanner />}
