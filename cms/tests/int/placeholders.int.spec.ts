@@ -190,7 +190,7 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/']).not.toContain('model 3D')
     expect(p['/realizacje']).not.toContain('Przed i po naprawie')
     // Zaufanie w hero: tylko to, co potwierdzone.
-    expect(p['/']).toContain('Gotową biżuterię wysyłamy kurierem w całej Polsce')
+    expect(p['/']).toContain('Zamawiasz z całej Polski: odbierasz w Busku albo wysyłamy kurierem')
     expect(p['/']).not.toContain('przez wideo')
   })
 })

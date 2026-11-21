@@ -254,8 +254,8 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           <SectionIntro eyebrow="Zamówienie" size="md" title="Jak zamówić projekt z kolekcji" />
           <ol className="steps" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '32px 48px' }}>
             <li className="step"><span className="n">1</span><h3>Napisz lub zadzwoń</h3><p>Podaj nazwę projektu i powiedz, co chcesz w nim zmienić.</p></li>
-            <li className="step"><span className="n">2</span><h3>Wybierz kamień i rozmiar</h3><p>W pracowni albo na zdjęciach i filmach pokażemy kamienie i ustalimy rozmiar. Potem dostajesz wycenę.</p></li>
-            <li className="step"><span className="n">3</span><h3>Odbierz pierścionek</h3><p>Wykonujemy go w pracowni i dajemy znać, kiedy będzie gotowy. Odbierasz go na miejscu albo wysyłamy kurierem.</p></li>
+            <li className="step"><span className="n">2</span><h3>Wybierz kamień i rozmiar</h3><p>Kamienie pokażemy Ci na zdjęciach i filmach albo w pracowni. Rozmiar zmierzy jubiler w Twojej okolicy, a jeśli to niespodzianka, podpowiemy, jak sprawdzić go po cichu. Potem dostajesz wycenę.</p></li>
+            <li className="step"><span className="n">3</span><h3>Odbierz pierścionek</h3><p>Wykonujemy go w pracowni i dajemy znać, kiedy będzie gotowy. Odbierasz go w Busku-Zdroju albo wysyłamy kurierem w całej Polsce.</p></li>
           </ol>
         </div>
       </section>

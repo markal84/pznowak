@@ -30,7 +30,10 @@ export const SITE = {
  * Dopisując fakt, ustaw `confirmed: true`.
  */
 export const HERO_TRUST: readonly { text: string; confirmed: boolean }[] = [
-  { text: 'Gotową biżuterię wysyłamy kurierem w całej Polsce', confirmed: true },
+  // Lista SEO 21.11.2026, Krok 1A: na wierzchu to, czym pracownia wygrywa z sieciówką (bez nazw marek).
+  { text: 'W każdym wzorze zmienisz kamień, kolor złota i detale albo zrobimy Twój własny projekt', confirmed: true },
+  { text: 'Rozmawiasz bezpośrednio ze złotnikiem, bez pośredników i marży sieci jubilerskich', confirmed: true },
+  { text: 'Zamawiasz z całej Polski: odbierasz w Busku albo wysyłamy kurierem', confirmed: true },
   { text: 'Pierścionek na zamówienie gotowy zwykle w 4–6 tygodni', confirmed: true },
 ]
 
