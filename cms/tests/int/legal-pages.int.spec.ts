@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
 import ConsentLabel from '@/components/site/ConsentLabel'
+import LegalDocument from '@/components/site/LegalDocument'
 import { POLITYKA_PRYWATNOSCI, REGULAMIN } from '@/content/legal'
 import { parseLegal, type LegalBlock } from '@/lib/legal-markdown'
 import { CONSENT_TEXT } from '@/lib/submissions/options'
@@ -29,6 +30,13 @@ describe('regulamin i polityka prywatności', () => {
     const lists = doc.blocks.flatMap((b) => (b.kind === 'ol' || b.kind === 'ul' ? [b] : []))
     const contact = lists.flatMap((l) => l.items).find((item) => item.text === 'Kontakt z Usługodawcą:')
     expect(contact?.children.map((c) => c.text)).toEqual(['E-mail: kontakt@pznowak.pl', 'Telefon: +48 501 321 347'])
+  })
+
+  it('adres e-mail to osobny link (Cloudflare podmienia adresy; w zwykłym tekście psuło to hydratację)', () => {
+    const html = renderToStaticMarkup(createElement(LegalDocument, { lines: REGULAMIN }))
+    expect(html).toContain('<li>E-mail: <a class="legal-link" href="mailto:kontakt@pznowak.pl">kontakt@pznowak.pl</a></li>')
+    expect(html).toContain('<strong><a class="legal-link" href="mailto:kontakt@pznowak.pl">kontakt@pznowak.pl</a></strong>')
+    expect(html).not.toMatch(/[^>":]kontakt@pznowak\.pl/)
   })
 
   it('treść dokumentów zawiera dane z pliku i datę obowiązywania', () => {
