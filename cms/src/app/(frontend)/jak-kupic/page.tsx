@@ -184,6 +184,40 @@ export default function JakKupicPage() {
             <strong>Pozostałe 70%</strong> płacisz przy odbiorze w pracowni albo przed wysyłką kurierem.
           </li>
         </ul>
+        <div className="stack" style={{ gap: 14 }}>
+          <h3 className="h3-serif">Dane do płatności</h3>
+          <dl className="jk-facts" style={{ maxWidth: 640 }}>
+            <div>
+              <dt>BLIK</dt>
+              <dd>
+                na telefon <a href={SITE.phoneHref}>{SITE.phone}</a>
+              </dd>
+            </div>
+            <div>
+              <dt>Przelew</dt>
+              <dd>[numer konta do uzupełnienia]</dd>
+            </div>
+            <div>
+              <dt>Odbiorca</dt>
+              <dd>[nazwa odbiorcy do uzupełnienia]</dd>
+            </div>
+            <div>
+              <dt>Tytuł</dt>
+              <dd>[do uzupełnienia]</dd>
+            </div>
+          </dl>
+        </div>
+        <DlaMichala kind="prosba">
+          <ul>
+            <li>Numer konta i nazwa odbiorcy dokładnie tak, jak są w banku.</li>
+            <li>Czy BLIK na numer {SITE.phone} działa (czy ten numer jest podpięty do przelewów na telefon)?</li>
+            <li>Co klient ma wpisać w tytule przelewu?</li>
+          </ul>
+          <p className="small">
+            Te dane muszą być na stronie podane jasno i wyraźnie, ale tylko takie, które sprawdzisz sam. Pomyłka w numerze
+            konta przy zaliczce to najgorsze, co może się tu stać.
+          </p>
+        </DlaMichala>
         <DlaMichala kind="pytanie" n={2}>
           <ul>
             <li>Jak można zapłacić w pracowni?</li>
@@ -250,6 +284,14 @@ export default function JakKupicPage() {
               <li>
                 <strong>DHL Express:</strong> „wyroby jubilerskie, zegarki” są na liście przesyłek z ograniczeniami.{' '}
                 <Zrodlo href="https://dhlexpress.pl/baza-wiedzy/co-moge-wyslac/">DHL: co mogę wysłać</Zrodlo>
+              </li>
+              <li>
+                <strong>UPS:</strong> biżuteria wyceniona powyżej 500 USD (ok. 2 000 zł) jest na liście rzeczy zabronionych;
+                paczka z biżuterią może mieć zadeklarowaną wartość najwyżej 500 USD. Większość pierścionków z pracowni
+                przekracza ten próg.{' '}
+                <Zrodlo href="https://www.ups.com/pl/pl/support/shipping-support/shipping-special-care-regulated-items/prohibited-items">
+                  UPS: przedmioty zabronione
+                </Zrodlo>
               </li>
               <li>
                 <strong>Poczta Polska, paczka z zadeklarowaną wartością:</strong> przyjmuje kosztowności, wartość do 70
