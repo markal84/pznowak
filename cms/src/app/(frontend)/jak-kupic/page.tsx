@@ -27,13 +27,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-type NoteKind = 'pytanie' | 'prosba' | 'propozycja' | 'info'
+type NoteKind = 'pytanie' | 'prosba' | 'propozycja' | 'info' | 'rozwiazane'
 
 const NOTE_LABEL: Record<NoteKind, string> = {
   pytanie: 'Pytanie do Michała',
   prosba: 'Prośba do Michała',
   propozycja: 'Propozycja do wyboru',
   info: 'Co znaleźliśmy',
+  rozwiazane: 'Rozwiązane',
 }
 
 /**
@@ -486,6 +487,29 @@ export default function JakKupicPage() {
             <li>A gdy zgłasza wadę?</li>
             <li>Czy macie regulamin sprzedaży albo księgową, która zajmuje się takimi sprawami?</li>
           </ul>
+        </DlaMichala>
+        <DlaMichala kind="rozwiazane">
+          <p>
+            <strong>Zwroty przy pierścionkach robionych na zamówienie: sprawa zamknięta (Kamila, 21.11).</strong> Nie
+            wprowadzamy zwrotów na takie wyroby. Podstawa prawna sprawdzona i poprawna: biżuteria wykonana według
+            indywidualnej specyfikacji klienta nie podlega prawu odstąpienia od umowy zawartej na odległość (art. 38
+            ust. 1 pkt 3 ustawy z 30 maja 2014 r. o prawach konsumenta). Wyłączenie dotyczy wyłącznie produktów
+            spełniających ustawowe warunki indywidualizacji, a prawo do reklamacji niezgodności towaru z umową zostaje.
+          </p>
+          <p>
+            Gotowy tekst do strony: „Informujemy, że biżuteria wykonywana według indywidualnej specyfikacji klienta, w
+            szczególności pierścionki projektowane na zamówienie, biżuteria personalizowana oraz wyroby wykonywane
+            według indywidualnie uzgodnionych parametrów, nie podlega ustawowemu prawu odstąpienia od umowy zawartej
+            na odległość lub poza lokalem przedsiębiorstwa, zgodnie z art. 38 ust. 1 pkt 3 ustawy z dnia 30 maja 2014
+            r. o prawach konsumenta. Powyższe wyłączenie dotyczy wyłącznie produktów spełniających ustawowe warunki
+            indywidualizacji. Postanowienie to nie ogranicza prawa klienta do złożenia reklamacji w przypadku
+            niezgodności towaru z umową.”
+          </p>
+          <p>
+            <strong>Jedno jeszcze otwarte:</strong> czy wysyłacie też gotowe sztuki ze stanu (nie robione pod klienta)?
+            Jeśli tak, przy takich pierścionkach nadal obowiązuje 14 dni na zwrot i trzeba to rozróżnić na stronie.
+            Pytanie 1 wyżej.
+          </p>
         </DlaMichala>
         <DlaMichala kind="info">
           <p>

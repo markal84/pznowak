@@ -5394,6 +5394,11 @@ fieldset.plain legend {
   border-color: #4f7a3a;
   color: #1f3416;
 }
+.dla-michala-rozwiazane {
+  background: #e3effb;
+  border: 2px solid #1f6fc2;
+  color: #0f2f52;
+}
 .dla-michala-label {
   font-size: 12px;
   font-weight: 600;
