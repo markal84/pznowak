@@ -10,7 +10,8 @@ import { breadcrumbJsonLd, productJsonLd } from '@/lib/structured-data'
 import { guidePath } from '@/lib/guides'
 import { mainStoneGuideAnchor } from '@/lib/guide-links'
 import { showPlaceholders } from '@/lib/placeholders'
-import { SHOW_GOLD_FINENESS, SITE } from '@/lib/site'
+import { finenessText, stoneCutText, stoneSizeText } from '@/lib/ring-params'
+import { SITE } from '@/lib/site'
 import CatalogCrumb from '@/components/site/CatalogCrumb'
 import DoUzupelnienia from '@/components/site/DoUzupelnienia'
 import JsonLd from '@/components/site/JsonLd'
@@ -81,17 +82,16 @@ export default async function ProductPage({ params, searchParams }: Params & { s
       </VariantStoneFact>,
     ])
   }
-  if (metal) {
-    facts.push([
-      'Złoto',
-      <>
-        {metal}
-        {SHOW_GOLD_FINENESS ? <DoUzupelnienia>, [próba do uzupełnienia]</DoUzupelnienia> : null}
-      </>,
-    ])
-  } else if (showPlaceholders()) facts.push(['Złoto', <DoUzupelnienia key="metal">[do uzupełnienia]</DoUzupelnienia>])
+  // Kolejność: najpierw kamień (kamień, szlif, wymiary, masa, czystość), potem złoto z próbą. Puste pole = brak wiersza.
+  const cut = stoneCutText(product.stoneCut)
+  const size = stoneSizeText(product.stoneSize)
+  const fineness = finenessText(product.goldFineness)
+  if (cut) facts.push(['Szlif kamienia', cut])
+  if (size) facts.push(['Wymiary kamienia', size])
   if (product.carats) facts.push(['Masa kamienia', product.carats])
   if (product.clarity) facts.push(['Czystość kamienia', product.clarity])
+  if (metal) facts.push(['Złoto', fineness ? `${metal}, ${fineness}` : metal])
+  else if (showPlaceholders()) facts.push(['Złoto', <DoUzupelnienia key="metal">[do uzupełnienia]</DoUzupelnienia>])
 
   // Product tylko wtedy, gdy przy pierwszym wyświetleniu karta pokazuje kwotę. Bez ceny („Na zapytanie”) Google zgłasza
   // brak offers/review/aggregateRating. Z `?kamien=<wariant>` (linki z poradnika, RingCard, stare adresy) przywieszka
@@ -105,7 +105,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
         description: product.seoDescription || productSeoDescription(product),
         images: product.images,
         stone,
-        metal: formatMetal(product.metal),
+        metal: formatMetal(product.metal) && fineness ? `${formatMetal(product.metal)}, ${fineness}` : formatMetal(product.metal),
         price: product.price,
       })
 

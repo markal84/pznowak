@@ -30,6 +30,7 @@
     "staging:harmonia": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.production.local --import=tsx/esm scripts/staging-polaczenie-harmonia.ts",
     "staging:thalassa": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.production.local --import=tsx/esm scripts/staging-polaczenie-thalassa.ts",
     "staging:ceny": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.production.local --import=tsx/esm scripts/staging-ceny.ts",
+    "staging:szlif": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.production.local --import=tsx/esm scripts/staging-szlif.ts",
     "staging:opisy": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.production.local --import=tsx/esm scripts/staging-opisy-u.ts",
     "staging:opisy-ac": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.production.local --import=tsx/esm scripts/staging-opisy-ac.ts",
     "staging:ten-model": "node --env-file=.env --env-file=.env.local --env-file=../backend/.env.production.local --import=tsx/esm scripts/staging-ten-model.ts",

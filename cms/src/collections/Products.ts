@@ -9,6 +9,7 @@ import {
 import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-publication'
 import { applyArchiveStatus, validateProductMedia } from '../lib/product-workflow'
 import { shiftOtherProducts } from '../lib/sort-order'
+import { GOLD_FINENESS_OPTIONS, STONE_CUT_OPTIONS } from '../lib/ring-params'
 import { SWATCHES } from '../lib/stone-variants'
 import {
   apiKeyDraftOnlyBeforeChange,
@@ -138,6 +139,42 @@ export const Products: CollectionConfig = {
                   type: 'text',
                   label: 'Czystość',
                   admin: { width: '50%' },
+                },
+              ],
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'goldFineness',
+                  type: 'select',
+                  label: 'Próba złota',
+                  defaultValue: '585',
+                  options: GOLD_FINENESS_OPTIONS.map(({ value, label }) => ({ value, label })),
+                  admin: {
+                    width: '33%',
+                    description: 'Michał pracuje w złocie próby 585. Na stronie: „Żółte, próba 585” w wierszu „Złoto”.',
+                  },
+                },
+                {
+                  name: 'stoneCut',
+                  type: 'select',
+                  label: 'Szlif kamienia głównego',
+                  options: STONE_CUT_OPTIONS.map(({ value, label }) => ({ value, label })),
+                  admin: {
+                    width: '33%',
+                    description: 'Puste = wiersza „Szlif” nie ma (np. pierścionki z samych drobnych diamentów).',
+                  },
+                },
+                {
+                  name: 'stoneSize',
+                  type: 'text',
+                  label: 'Wymiary kamienia głównego (mm)',
+                  admin: {
+                    width: '34%',
+                    placeholder: 'np. 6 × 4',
+                    description: 'Sama liczba albo „długość × szerokość”; „mm” strona dopisze sama. Puste = wiersza nie ma.',
+                  },
                 },
               ],
             },
