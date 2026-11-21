@@ -186,7 +186,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
                 <Link href={guidePath('jak-sprawdzic-rozmiar-pierscionka')}>Jak sprawdzić rozmiar</Link>
               </dd>
               <dt>Czas wykonania</dt>
-              <dd>Ustalamy przy zamówieniu</dd>
+              <dd>Zwykle 4–6 tygodni (dokładny termin ustalamy przy zamówieniu)</dd>
             </dl>
           </div>
 
@@ -222,7 +222,7 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           <div className="stack product-changes" style={{ gap: 14, borderTop: '1px solid var(--line)', paddingTop: 24 }}>
             <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 400, fontSize: 26, lineHeight: 1.15 }}>Co możesz zmienić</h2>
             <ul style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 15.5, lineHeight: 1.55, color: 'var(--graphite-2)' }}>
-              <li>Kamień główny, na przykład szafir zamiast tanzanitu</li>
+              <li>Kamień główny: inny gatunek albo kolor kamienia</li>
               <li>Kolor złota obrączki i oprawy</li>
               <li>Grubość obrączki i wysokość osadzenia kamienia</li>
               <li>Grawer po wewnętrznej stronie</li>
@@ -254,8 +254,8 @@ export default async function ProductPage({ params, searchParams }: Params & { s
           <SectionIntro eyebrow="Zamówienie" size="md" title="Jak zamówić projekt z kolekcji" />
           <ol className="steps" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '32px 48px' }}>
             <li className="step"><span className="n">1</span><h3>Napisz lub zadzwoń</h3><p>Podaj nazwę projektu i powiedz, co chcesz w nim zmienić.</p></li>
-            <li className="step"><span className="n">2</span><h3>Wybierz kamień i rozmiar</h3><p>W pracowni pokażemy kamienie i zmierzymy palec. Potem dostajesz wycenę.</p></li>
-            <li className="step"><span className="n">3</span><h3>Odbierz pierścionek</h3><p>Wykonujemy go w pracowni. Damy znać, kiedy będzie gotowy do przymiarki.</p></li>
+            <li className="step"><span className="n">2</span><h3>Wybierz kamień i rozmiar</h3><p>W pracowni albo na zdjęciach i filmach pokażemy kamienie i ustalimy rozmiar. Potem dostajesz wycenę.</p></li>
+            <li className="step"><span className="n">3</span><h3>Odbierz pierścionek</h3><p>Wykonujemy go w pracowni i dajemy znać, kiedy będzie gotowy. Odbierasz go na miejscu albo wysyłamy kurierem.</p></li>
           </ol>
         </div>
       </section>

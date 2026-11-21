@@ -170,7 +170,7 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/na-zamowienie']).not.toContain('Czy mogę zwrócić pierścionek?')
     expect(p['/']).toContain('Czy mogę zamówić, jeśli mieszkam daleko od Buska?')
     expect(p['/']).not.toContain('Przynieś pierścionek')
-    expect(p['/pierscionki/harmonia']).toContain('Ustalamy przy zamówieniu')
+    expect(p['/pierscionki/harmonia']).toContain('Zwykle 4–6 tygodni')
     // Opinie z Google: wpisane ręcznie w reviews.ts (listopad 2026), więc sekcja jest na produkcji.
     // Teksty realizacji „do potwierdzenia” na produkcji wyglądają zwyczajnie: bez ramki i bez znacznika czasu.
     expect(p['/realizacje']).toContain('Pierścionek zrobiliśmy ręcznie od podstaw.')

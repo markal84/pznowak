@@ -112,6 +112,12 @@ describe('formatStone', () => {
     expect(formatStone('Topaz London Blue, Diament')).toBe('Topaz London Blue, diamenty')
     expect(formatStone('  ')).toBe('')
   })
+
+  it('kamień główny zostaje w liczbie pojedynczej', () => {
+    expect(formatStone('Niebieski diament, Diament')).toBe('Niebieski diament, diamenty')
+    expect(formatStone('Biały diament')).toBe('Biały diament')
+    expect(formatStone('Diament niebieski, Diament')).toBe('Diament niebieski, diamenty')
+  })
 })
 
 describe('pluralRing', () => {
