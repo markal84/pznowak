@@ -116,6 +116,13 @@ export default function JakKupicPage() {
             Zielone ramki to nasze pomysły i to, co znaleźliśmy w internecie. Możesz je przyjąć, zmienić albo odrzucić.
             Najlepiej przeczytaj je dopiero po odpowiedzi na żółte pytania, żeby odpowiedzieć tak, jak jest naprawdę.
           </p>
+          <p>
+            <strong>
+              Najpierw odpisz na same pytania tekstowe 1–8 (to około 10 minut). Zdjęcia z pracowni (pudełko, certyfikat,
+              pakowanie) możesz dosłać osobno, przy najbliższej wysyłce.
+            </strong>{' '}
+            Czekanie na okazję do zdjęć nie musi wstrzymywać odpowiedzi.
+          </p>
         </DlaMichala>
       </div>
 
@@ -162,6 +169,18 @@ export default function JakKupicPage() {
             <ul>
               <li>Czy coś w tych pięciu krokach wygląda u Ciebie inaczej?</li>
               <li>Jak wygląda zakup pierścionka z kolekcji ze strony: robisz go od nowa czy czasem jest gotowy?</li>
+              <li>
+                Od kiedy liczą się 4–6 tygodni (od wpłaty zaliczki? od potwierdzenia rozmiaru?)? Czy bywają zamówienia
+                pilne? Czy przed świętami albo w sezonie ślubnym trwa to dłużej?
+              </li>
+              <li>
+                Czy przed dopłatą i wysyłką pokazujesz klientowi zdjęcie albo film gotowego pierścionka? Czy kamień
+                pokazany na początku czeka na klienta, aż się zdecyduje?
+              </li>
+              <li>
+                Czy przy obrączkach obowiązują te same zasady (zaliczka, termin, wysyłka)? Jak jest z własnym złotem albo
+                kamieniem klienta (tylko osobiście w Busku czy też wysyłkowo)?
+              </li>
             </ul>
           </DlaMichala>
         </div>
@@ -199,7 +218,7 @@ export default function JakKupicPage() {
             </div>
             <div>
               <dt>Odbiorca</dt>
-              <dd>[nazwa odbiorcy do uzupełnienia]</dd>
+              <dd>M.K. GOLD Michał Nowak</dd>
             </div>
             <div>
               <dt>Tytuł</dt>
@@ -209,7 +228,11 @@ export default function JakKupicPage() {
         </div>
         <DlaMichala kind="prosba">
           <ul>
-            <li>Numer konta i nazwa odbiorcy dokładnie tak, jak są w banku.</li>
+            <li>Numer konta.</li>
+            <li>
+              Odbiorcę wzięliśmy z regulaminu strony („M.K. GOLD Michał Nowak”). Czy ta nazwa jest dokładnie taka, jak w
+              banku?
+            </li>
             <li>Czy BLIK na numer {SITE.phone} działa (czy ten numer jest podpięty do przelewów na telefon)?</li>
             <li>Co klient ma wpisać w tytule przelewu?</li>
           </ul>
@@ -220,9 +243,14 @@ export default function JakKupicPage() {
         </DlaMichala>
         <DlaMichala kind="pytanie" n={2}>
           <ul>
-            <li>Jak można zapłacić w pracowni?</li>
+            <li>Jak można zapłacić w pracowni (gotówka, karta, BLIK?)?</li>
             <li>Jak klient płaci resztę, gdy pierścionek idzie wysyłką, i kiedy wtedy nadajesz paczkę?</li>
-            <li>Jaki dokument zakupu dostaje klient?</li>
+            <li>Jaki dokument zakupu dostaje klient (paragon, faktura imienna, faktura na firmę?)?</li>
+            <li>
+              Ile dni ważna jest wycena przed zaliczką? Czy po zaliczce cena jest już stała, mimo wahań ceny złota? Co się
+              dzieje z zaliczką, gdy klient rozmyśli się w trakcie prac (np. po zamówieniu kamienia) albo chce coś zmienić
+              w projekcie?
+            </li>
           </ul>
         </DlaMichala>
         <DlaMichala kind="propozycja">
@@ -255,7 +283,12 @@ export default function JakKupicPage() {
               <li>Ile kosztuje wysyłka i kto ją płaci?</li>
               <li>Co się dzieje, gdy paczka zaginie albo przyjdzie uszkodzona? Jak masz to zabezpieczone?</li>
               <li>Ile dni mija od dopłaty do nadania i co klient dostaje, gdy paczka wyjdzie?</li>
-              <li>Czy wysyłasz za granicę?</li>
+              <li>
+                Czy na paczce albo etykiecie widać, że to jubiler lub złotnik? Czy możesz nadać ją dyskretnie (ważne przy
+                niespodziance zaręczynowej)?
+              </li>
+              <li>Czy droższe pierścionki (np. powyżej 10 tys. zł) wysyłasz tak samo?</li>
+              <li>Czy wysyłasz za granicę (jeśli tak: tylko UE czy też np. UK/USA, i jak wtedy z płatnością?)?</li>
             </ul>
           </DlaMichala>
           <DlaMichala kind="info">
@@ -296,7 +329,14 @@ export default function JakKupicPage() {
               <li>
                 <strong>Poczta Polska, paczka z zadeklarowaną wartością:</strong> przyjmuje kosztowności, wartość do 70
                 000 zł, dopłata 1 zł za każde 50 zł wartości. Przykład: pierścionek za 3 000 zł to 60 zł dopłaty, plus
-                cena samej paczki. Osobno można ubezpieczyć zawartość do 50 000 zł za 1,50 zł.{' '}
+                cena samej paczki. Według regulaminu Poczty przedmiotów wartościowych nie wolno nadawać w zwykłej paczce
+                bez zadeklarowanej wartości, a samo ubezpieczenie za 1,50 zł jej nie zastępuje. Paczkę z zadeklarowaną
+                wartością zamyka się tak, żeby nie dało się jej otworzyć bez śladu: nalepką Poczty albo taśmą firmową z
+                oznaczeniem nadawcy.{' '}
+                <Zrodlo href="https://www.poczta-polska.pl/wp-content/uploads/2026/07/Regulamin-swiadczenia-uslug-powszechnych-tekst-jednolity.pdf">
+                  Regulamin usług powszechnych (PDF)
+                </Zrodlo>
+                ,{' '}
                 <Zrodlo href="https://www.poczta-polska.pl/dla-ciebie/oferta/uslugi-kurierskie-i-paczkowe/paczka-pocztowa-kraj/">
                   Poczta Polska: paczka pocztowa
                 </Zrodlo>
@@ -403,7 +443,10 @@ export default function JakKupicPage() {
               ))}
             </dl>
             <DlaMichala kind="pytanie" n={5}>
-              <p>Jak wygląda odbiór w pracowni? Co klient powinien wiedzieć, zanim przyjedzie?</p>
+              <p>
+                Jak wygląda odbiór w pracowni? (Czy trzeba się umówić na godzinę, czy wystarczy przyjść? Czy może odebrać
+                ktoś inny? Czy gotowy pierścionek może poczekać w pracowni, np. do daty zaręczyn?)
+              </p>
             </DlaMichala>
           </div>
           <div className="stack jk-section" style={{ gap: 22 }}>
@@ -415,7 +458,17 @@ export default function JakKupicPage() {
             <DlaMichala kind="pytanie" n={6}>
               <ul>
                 <li>Co się dzieje, gdy po odbiorze rozmiar nie pasuje? Jak to wygląda przy wysyłce?</li>
+                <li>
+                  Czy pierwsza korekta rozmiaru po zakupie jest bezpłatna, czy płatna (na stronie napraw jest „od 50 zł”)?
+                  W jakim czasie od odbioru?
+                </li>
+                <li>O ile rozmiarów da się zwykle zmienić i ile to trwa (na miejscu i wysyłkowo)?</li>
+                <li>
+                  Kto płaci za wysyłkę w obie strony przy korekcie na odległość i jak klient ma bezpiecznie odesłać
+                  pierścionek?
+                </li>
                 <li>Czy są modele, w których rozmiaru nie da się zmienić?</li>
+                <li>Co się dzieje z grawerem przy zmianie rozmiaru?</li>
               </ul>
             </DlaMichala>
           </div>
@@ -472,6 +525,12 @@ export default function JakKupicPage() {
               zamówienie.
             </li>
           </ul>
+          <p>
+            <strong>Propozycja:</strong> zamiast polegać tylko na stronie, możemy przygotować jeden gotowy szablon
+            wiadomości (mail albo SMS) wysyłanej klientowi przed zaliczką: co robimy, cena, termin, numer konta i tytuł
+            przelewu oraz dwa zdania o zwrotach i reklamacjach. Taka wiadomość zostaje u klienta na piśmie, więc spełnia
+            wymóg informacji „na trwałym nośniku”, a przy okazji załatwia tytuł przelewu.
+          </p>
         </DlaMichala>
       </section>
 
@@ -485,9 +544,21 @@ export default function JakKupicPage() {
           <DlaMichala kind="pytanie" n={8}>
             <ul>
               <li>Kto wystawia certyfikat i co na nim jest?</li>
+              <li>
+                Czy każdy pierścionek dostaje certyfikat gemmologa z pracowni, a kiedy zewnętrzny (np. GIA, HRD, IGI;
+                wyżej jest zdjęcie z GIA)?
+              </li>
+              <li>Czy mamy wspomnieć o polskiej cesze probierczej na wyrobach ze złota powyżej 1 g?</li>
               <li>Jaką opiekę ma klient po zakupie: czyszczenie, przegląd, naprawy?</li>
+              <li>
+                Czy dla pierścionków kupionych u Ciebie czyszczenie i przegląd oprawy są bezpłatne, czy według cennika ze
+                strony napraw (od 40 zł)?
+              </li>
               <li>Jak wygląda gwarancja?</li>
-              <li>Jak jest z grawerem w pierścionku?</li>
+              <li>
+                Jak jest z grawerem w pierścionku (w cenie czy dopłata? czy limit 24 znaków z formularza kontaktowego jest
+                w porządku? czy grawer wydłuża czas wykonania?)?
+              </li>
             </ul>
           </DlaMichala>
           <DlaMichala kind="info">
