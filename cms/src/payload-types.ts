@@ -159,6 +159,11 @@ export interface Product {
   stone?: string | null;
   carats?: string | null;
   clarity?: string | null;
+  goldFineness?: ('585' | '750') | null;
+  stoneCut?:
+    | ('okragly' | 'owalny' | 'szmaragdowy' | 'radiant' | 'poduszka' | 'kwadratowy' | 'kropla' | 'markiza' | 'serce' | 'kaboszon')
+    | null;
+  stoneSize?: string | null;
   /**
    * Pierwsze zdjęcie główne jest używane na liście produktów.
    */
@@ -802,6 +807,9 @@ export interface ProductsSelect<T extends boolean = true> {
   stone?: T;
   carats?: T;
   clarity?: T;
+  goldFineness?: T;
+  stoneCut?: T;
+  stoneSize?: T;
   media?:
     | T
     | {

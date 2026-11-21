@@ -1,0 +1,199 @@
+{
+  "_opis": "Szlif kamienia głównego odczytany ze zdjęć kart (Klaudia, 21.11.2026; zdjęcia główne i drugie z pznowak.pl). Wartości jak w STONE_CUT_OPTIONS (src/lib/ring-params.ts). Do potwierdzenia przez Michała przy okazji wymiarów.",
+  "szlif": [
+    {
+      "slug": "merope",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "electra",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "prometheus",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "maia",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "daphne",
+      "szlif": "szmaragdowy"
+    },
+    {
+      "slug": "urania",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "aria",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "adamas",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "amphitrite",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "chloris",
+      "szlif": "szmaragdowy"
+    },
+    {
+      "slug": "erythea",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "rhodope",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "ianthe",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "calypso",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "hesperia",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "selene",
+      "szlif": "kaboszon"
+    },
+    {
+      "slug": "euterpe",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "thalia",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "harmonia",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "hestia",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "athena",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "chryse",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "phoebe",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "helios",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "pelagia",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "iris",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "ione",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "gaia",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "asteria",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "delos",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "iole",
+      "szlif": "szmaragdowy"
+    },
+    {
+      "slug": "rhea",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "eos",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "cyane",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "dione",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "leucothea",
+      "szlif": "szmaragdowy"
+    },
+    {
+      "slug": "aglaia",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "thetis",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "ariadne",
+      "szlif": "owalny"
+    },
+    {
+      "slug": "callisto",
+      "szlif": "szmaragdowy"
+    },
+    {
+      "slug": "galatea",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "doris",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "psyche",
+      "szlif": "okragly"
+    },
+    {
+      "slug": "xanthe",
+      "szlif": "radiant"
+    },
+    {
+      "slug": "aethra",
+      "szlif": "radiant"
+    }
+  ],
+  "pominiete": [
+    {
+      "slug": "celaeno",
+      "powod": "same drobne diamenty w oprawie liścia, bez kamienia głównego"
+    },
+    {
+      "slug": "aion",
+      "powod": "obrączka z rzędem drobnych diamentów, bez kamienia głównego"
+    },
+    {
+      "slug": "terpsichore",
+      "powod": "wąż z pavé diamentów, bez kamienia głównego"
+    }
+  ]
+}

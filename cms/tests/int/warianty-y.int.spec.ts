@@ -218,6 +218,9 @@ const product: SiteProduct = {
   homeOrder: 0,
   price: null,
   uniqueNote: '',
+  goldFineness: '',
+  stoneCut: '',
+  stoneSize: '',
   stoneVariants: [
     ...galleryVariants,
     // Kształt sprzed Y (wpis z Data Cache zapisany starszym wdrożeniem): bez `images`.

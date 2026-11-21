@@ -53,8 +53,17 @@ export type ProductVariantFields = {
   stoneVariants: StoneVariant[]
 }
 
+/** Parametry z zakładki „Materiały” (próba, szlif, wymiary). Tylko dla stron serwisu; publiczny kontrakt API bez zmian. */
+export type ProductParamFields = {
+  /** „585”, „750” albo '' (brak). */
+  goldFineness: string
+  /** Wartość z listy szlifów (`STONE_CUT_OPTIONS`) albo ''. */
+  stoneCut: string
+  stoneSize: string
+}
+
 export type SiteProduct = PublicProduct & ProductSeoFields & ProductHomeFields & ProductVariantFields & ProductPriceFields &
-  ProductUniqueNoteFields
+  ProductUniqueNoteFields & ProductParamFields
 
 export type PublicGalleryItem = {
   id: number
@@ -131,6 +140,9 @@ export function serializeSiteProduct(product: Product): SiteProduct {
     stoneVariants: serializeStoneVariants(product.stoneVariants),
     price: normalizePrice(product.price),
     uniqueNote: product.uniqueNote?.trim() ?? '',
+    goldFineness: product.goldFineness ?? '',
+    stoneCut: product.stoneCut ?? '',
+    stoneSize: product.stoneSize?.trim() ?? '',
   }
 }
 

@@ -17,6 +17,7 @@ import * as migration_20261109_133130_kolczyki_filmy_realizacji from './20261109
 import * as migration_20261114_120000_skad_o_nas_wiesz from './20261114_120000_skad_o_nas_wiesz';
 import * as migration_20261120_100000_ten_model from './20261120_100000_ten_model';
 import * as migration_20261120_150000_poradniki_teksty_stron from './20261120_150000_poradniki_teksty_stron';
+import * as migration_20261121_090000_parametry_pierscionka from './20261121_090000_parametry_pierscionka';
 
 export const migrations = [
   {
@@ -113,5 +114,10 @@ export const migrations = [
     up: migration_20261120_150000_poradniki_teksty_stron.up,
     down: migration_20261120_150000_poradniki_teksty_stron.down,
     name: '20261120_150000_poradniki_teksty_stron',
+  },
+  {
+    up: migration_20261121_090000_parametry_pierscionka.up,
+    down: migration_20261121_090000_parametry_pierscionka.down,
+    name: '20261121_090000_parametry_pierscionka',
   },
 ];

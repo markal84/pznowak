@@ -226,6 +226,9 @@ const product = (name: string, extra: Partial<SiteProduct> = {}): SiteProduct =>
   stoneVariants: [],
   price: null,
   uniqueNote: '',
+  goldFineness: '',
+  stoneCut: '',
+  stoneSize: '',
   ...extra,
 })
 
