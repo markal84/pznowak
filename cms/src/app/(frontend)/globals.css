@@ -2333,7 +2333,9 @@ fieldset.plain legend {
 /* Podpis przy logo nie mieści się obok dwóch przycisków (z kreatorem); z jednym przyciskiem zostaje. */
 @media (min-width: 1140px) and (max-width: 1319px) {
   .has-creator .brand-rule,
-  .has-creator .brand-text {
+  .has-creator .brand-text,
+  .has-preview-nav .brand-rule,
+  .has-preview-nav .brand-text {
     display: none;
   }
 }

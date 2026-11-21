@@ -21,9 +21,13 @@ export default function SiteHeader({ previewNav = false }: { previewNav?: boolea
   const kreatorCurrent = isCurrent(pathname, CREATOR_LINK.href)
   const nav = previewNav ? [...NAV, ...PREVIEW_NAV] : NAV
 
+  // has-preview-nav (tylko podgląd): ósma pozycja menu, więc też bez podpisu przy logo.
   // has-creator: przy dwóch przyciskach w 1140–1319 px nie mieści się podpis przy logo (globals.css).
   return (
-    <header className={RING_CREATOR_ENABLED ? 'site-header has-creator' : 'site-header'} data-miejsce="nagłówek">
+    <header
+      className={['site-header', RING_CREATOR_ENABLED && 'has-creator', previewNav && 'has-preview-nav'].filter(Boolean).join(' ')}
+      data-miejsce="nagłówek"
+    >
       <div className="site-header-in">
         <Link
           // Etykieta zaczyna się od widocznego podpisu przy logo (WCAG 2.5.3, „Label in Name”).
