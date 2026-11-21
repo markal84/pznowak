@@ -23,7 +23,7 @@ export const PAGE_TEXT_DEFAULTS = {
     title: 'Pierścionki z pracowni',
     intro: 'Każdy projekt wykonamy w Twoim rozmiarze. Kamień i kolor złota możemy zmienić.',
     priceNote: 'Ostateczna cena zależy od wybranego kamienia i złota.',
-    metaTitle: 'Pierścionki zaręczynowe z kamieniami szlachetnymi – Busko-Zdrój',
+    metaTitle: 'Pierścionki zaręczynowe z kamieniami szlachetnymi',
     metaDescription:
       'Pierścionki z szafirem, rubinem, szmaragdem i diamentem z naszej pracowni. Zmienimy kamień, kolor złota lub rozmiar.',
   },
@@ -86,7 +86,7 @@ export const PAGE_TEXT_DEFAULTS = {
       'Z naszych wzorów albo zaprojektowane dla Was dwojga. Mierzymy oboje, dobieramy szerokość i wykończenie, a w środku grawerujemy to, co ważne.',
     price: 'od 3500 zł za parę',
     priceNote: 'Cena zależy od szerokości i wagi. Obrączki wykonujemy ze złota próby 585.',
-    metaTitle: 'Obrączki ślubne – Busko-Zdrój',
+    metaTitle: 'Obrączki ślubne ze złota na zamówienie',
     metaDescription:
       'Klasyczne obrączki ślubne, płaskie i półokrągłe, z żółtego, białego i różowego złota. Przymiarka i grawer w pracowni.',
     faq: [

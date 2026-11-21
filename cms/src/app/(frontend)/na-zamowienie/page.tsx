@@ -95,7 +95,7 @@ export default async function OnOrderPage() {
           eyebrow="Jak pracujemy"
           intro={
             <>
-              Przez cały czas rozmawiasz z osobą, która robi Twój pierścionek.
+              Przez cały czas rozmawiasz z osobą, która robi Twój pierścionek, bez pośredników i marży sieci jubilerskich.
                Od rozmowy do odbioru mija zwykle 4–6 tygodni.
             </>
           }
