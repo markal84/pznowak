@@ -87,12 +87,20 @@ const sentence = (value: string) => {
   return flat ? flat[0].toUpperCase() + flat.slice(1).toLowerCase() : flat
 }
 
-/** "Topaz London Blue, Diament" -> "Topaz london blue, diament" (zachowuje nazwy własne wg designu). */
+/**
+ * "Topaz London Blue, Diament" -> "Topaz London Blue, diamenty" (zachowuje nazwy własne wg designu). Liczbę mnogą
+ * dostają tylko diamenty dodatkowe; kamień główny zostaje w liczbie pojedynczej („Niebieski diament, Diament” ->
+ * „Niebieski diament, diamenty”, a nie „Niebieski diamenty”).
+ */
 export function formatStone(stone: string): string {
-  return sentence(stone)
-    .replace(/london blue/i, 'London Blue')
+  const flat = sentence(stone).replace(/london blue/i, 'London Blue')
+  const split = flat.search(/,| i /)
+  if (split < 0) return flat
+  const extra = flat
+    .slice(split)
     .replace(/\bdiament\b/g, 'diamenty')
     .replace(/\bdiamenty,\s*diamenty/g, 'diamenty')
+  return flat.slice(0, split) + extra
 }
 
 /** Opis złota w zdaniu („Żółte i białe złoto”), także w tytułach SEO; bez koloru zostaje samo „Złoto”. */
