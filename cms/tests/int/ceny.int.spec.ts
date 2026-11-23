@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { loadPrices, nameKey, planPrice, type PriceCard } from '../../scripts/ceny-logic'
+import path from 'node:path'
+
+import { loadPrices, nameKey, planPrice, PRICES_DIR, type PriceCard } from '../../scripts/ceny-logic'
 
 /** Ceny z OLX na staging: dane w `seed/ceny/ceny-olx.json`, logika planu w `scripts/ceny-logic.ts`. */
 
@@ -69,5 +71,38 @@ describe('plan zapisu ceny', () => {
 
   it('nazwy porównuje bez wielkości liter i spacji', () => {
     expect(nameKey('  Pelagia ')).toBe(nameKey('pelagia'))
+  })
+})
+
+describe('ceny-michal-2026-11-23.json (cennik od Michała)', () => {
+  const michal = loadPrices(path.join(PRICES_DIR, 'ceny-michal-2026-11-23.json'))
+
+  it('39 opublikowanych kart z ceną, bez szkiców NOWYCH', () => {
+    expect(michal.ceny).toHaveLength(39)
+    expect(michal.ceny.find((c) => c.name === 'Aglaia')).toBeUndefined()
+  })
+
+  it('dwie świadome zmiany istniejącej ceny', () => {
+    expect(michal.ceny.filter((c) => c.poprzednia).map((c) => [c.name, c.poprzednia, c.price])).toEqual([
+      ['Prometheus', 1590, 1600],
+      ['Aria', 2949, 2950],
+    ])
+  })
+})
+
+describe('zmiana ceny przez „poprzednia”', () => {
+  const cards: PriceCard[] = [{ id: 5, name: 'Aria', price: 2949 }]
+
+  it('karta ma podaną poprzednią cenę: zmienia', () => {
+    expect(planPrice(cards, { name: 'Aria', price: 2950, poprzednia: 2949 })).toEqual({
+      action: 'zmien',
+      id: 5,
+      price: 2950,
+      note: 'cena 2949 → 2950 zł',
+    })
+  })
+
+  it('karta ma inną cenę niż poprzednia: nie nadpisuje', () => {
+    expect(planPrice(cards, { name: 'Aria', price: 2950, poprzednia: 2900 }).action).toBe('pomin')
   })
 })

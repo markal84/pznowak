@@ -7,13 +7,15 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export type PriceSpec = { name: string; price: number; uwaga?: string }
+/** `poprzednia`: cena, którą karta ma mieć teraz, żeby wolno ją było zmienić (np. Michał 1590 → 1600). */
+export type PriceSpec = { name: string; price: number; uwaga?: string; poprzednia?: number }
 export type UnmatchedPrice = { olx: string; price: number; pytanie: string }
 export type PriceFile = { ceny: PriceSpec[]; bezKarty: UnmatchedPrice[] }
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 /** Ścieżka, nie `URL`: w testach (jsdom) globalny `URL` nie jest tym z Node. */
-export const PRICES_PATH = path.resolve(here, '../seed/ceny/ceny-olx.json')
+export const PRICES_DIR = path.resolve(here, '../seed/ceny')
+export const PRICES_PATH = path.resolve(PRICES_DIR, 'ceny-olx.json')
 
 const isPrice = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value > 0 && value < 1_000_000
@@ -29,10 +31,14 @@ export function loadPrices(source: string = PRICES_PATH): PriceFile {
     const key = nameKey(item.name)
     if (seen.has(key)) throw new Error(`ceny-olx.json: „${item.name}” występuje dwa razy`)
     seen.add(key)
+    if (item.poprzednia !== undefined && !isPrice(item.poprzednia)) {
+      throw new Error(`ceny-olx.json, ${item.name}: „poprzednia” musi być dodatnią liczbą całkowitą (zł)`)
+    }
     return {
       name: item.name,
       price: item.price,
       ...(typeof item.uwaga === 'string' ? { uwaga: item.uwaga } : {}),
+      ...(isPrice(item.poprzednia) ? { poprzednia: item.poprzednia } : {}),
     }
   })
   const bezKarty = Array.isArray(raw.bezKarty) ? (raw.bezKarty as UnmatchedPrice[]) : []
@@ -53,7 +59,8 @@ export type PricePlan =
 
 /**
  * Decyzja dla jednej ceny. Karta musi być dokładnie jedna (przy duplikatach nie zgadujemy). Ceny wpisanej wcześniej
- * inaczej (np. ręcznie w panelu) nie nadpisujemy. Drugie uruchomienie po `--apply` daje same „juz”.
+ * inaczej (np. ręcznie w panelu) nie nadpisujemy, chyba że plik podaje ją jako `poprzednia` (świadoma zmiana ceny).
+ * Drugie uruchomienie po `--apply` daje same „juz”.
  */
 export function planPrice(cards: readonly PriceCard[], spec: PriceSpec): PricePlan {
   const matches = cards.filter((card) => nameKey(card.name) === nameKey(spec.name))
@@ -64,6 +71,9 @@ export function planPrice(cards: readonly PriceCard[], spec: PriceSpec): PricePl
   const [card] = matches
   if (card.price === spec.price) return { action: 'juz', id: card.id, note: `cena ${spec.price} zł już jest` }
   if (typeof card.price === 'number' && card.price > 0) {
+    if (spec.poprzednia === card.price) {
+      return { action: 'zmien', id: card.id, price: spec.price, note: `cena ${card.price} → ${spec.price} zł` }
+    }
     return { action: 'pomin', note: `#${card.id} ma już inną cenę (${card.price} zł), nie nadpisuję ${spec.price} zł` }
   }
   return { action: 'zmien', id: card.id, price: spec.price, note: `cena ${spec.price} zł` }
