@@ -64,7 +64,7 @@ export const PAGE_TEXT_DEFAULTS = {
       {
         question: 'Jak wysyłacie biżuterię?',
         answer:
-          'Kurierem, na adres, który podasz. Michał sam pakuje każdy pierścionek i pilnuje, żeby przesyłka dotarła do Ciebie szybko i bezpiecznie. Jeśli wolisz odebrać pierścionek osobiście, zapraszamy do pracowni w Busku-Zdroju: przymierzysz go na miejscu, a jeśli trzeba, poprawimy drobiazgi.',
+          'Kurierem, na adres, który podasz, bezpłatnie. Michał sam pakuje każdy pierścionek i pilnuje, żeby przesyłka dotarła do Ciebie szybko i bezpiecznie. Jeśli wolisz odebrać pierścionek osobiście, zapraszamy do pracowni w Busku-Zdroju: przymierzysz go na miejscu, a jeśli trzeba, poprawimy drobiazgi.',
       },
       {
         question: 'Czy mogę zwrócić pierścionek?',

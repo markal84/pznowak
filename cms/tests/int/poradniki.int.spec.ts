@@ -131,8 +131,8 @@ describe('dane strukturalne poradników i kart', () => {
         },
       },
     })
-    // Bez znanej stawki wysyłki oferta nie ma shippingDetails (Google wymaga w nim stawki).
-    expect(priced?.offers).not.toHaveProperty('shippingDetails')
+    // Wysyłka darmowa (23.11.2026): stawka 0 zł w Polsce.
+    expect(priced).toMatchObject({ offers: { shippingDetails: { shippingRate: { value: 0, currency: 'PLN' } } } })
     expect(offerShippingDetails(null)).toBeNull()
     expect(offerShippingDetails(-1)).toBeNull()
     expect(offerShippingDetails(0)).toMatchObject({

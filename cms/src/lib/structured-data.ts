@@ -129,7 +129,7 @@ export function merchantReturnPolicy() {
  * Koszt wysyłki kurierem w zł, który płaci klient (0 = wysyłka w cenie). `null` = jeszcze nie znamy (pytanie do Michała
  * na stronie „Jak kupić”), wtedy oferta nie ma `shippingDetails`: Google wymaga w nim stawki, a zmyślonej nie podajemy.
  */
-export const SHIPPING_RATE_PLN: number | null = null
+export const SHIPPING_RATE_PLN: number | null = 0 // Marcin 23.11.2026: wysyłka darmowa
 
 /**
  * Wysyłka w ofercie (Search Console 23.11.2026: brak `shippingDetails`). Kurier w Polsce; czas: wykonanie zwykle
