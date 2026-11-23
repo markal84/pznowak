@@ -38,7 +38,8 @@ export const PAGE_TEXT_DEFAULTS = {
     /**
      * Zamówienie spoza Buska, jedna ścieżka (Marcin 14.11.2026): telefon → rozmiar u jubilera w okolicy albo w pracowni →
      * przymiarka i odbiór w Busku albo wysyłka kurierem. Michał 14.11: zaliczka 30% (BLIK lub przelew), certyfikat dla
-     * każdego pierścionka z kamieniami naturalnymi, zwykły kurier. Zwroty czekają na decyzję (tylko podgląd).
+     * każdego pierścionka z kamieniami naturalnymi, zwykły kurier. Zwroty: brak odstąpienia dla wyrobów na zamówienie, reklamacja zostaje (Kamila 21.11.2026);
+     * to samo mówią dane strukturalne oferty (`merchantReturnPolicy` w lib/structured-data.ts).
      */
     faq: [
       {
@@ -63,15 +64,12 @@ export const PAGE_TEXT_DEFAULTS = {
       {
         question: 'Jak wysyłacie biżuterię?',
         answer:
-          'Kurierem, na adres, który podasz. Michał sam pakuje każdy pierścionek i pilnuje, żeby przesyłka dotarła do Ciebie szybko i bezpiecznie. Jeśli wolisz odebrać pierścionek osobiście, zapraszamy do pracowni w Busku-Zdroju: przymierzysz go na miejscu, a jeśli trzeba, poprawimy drobiazgi.',
+          'Kurierem, na adres, który podasz, bezpłatnie. Michał sam pakuje każdy pierścionek i pilnuje, żeby przesyłka dotarła do Ciebie szybko i bezpiecznie. Jeśli wolisz odebrać pierścionek osobiście, zapraszamy do pracowni w Busku-Zdroju: przymierzysz go na miejscu, a jeśli trzeba, poprawimy drobiazgi.',
       },
       {
         question: 'Czy mogę zwrócić pierścionek?',
         answer:
-          'Pierścionek wykonany na zamówienie, według projektu i rozmiaru ustalonego z Tobą, nie podlega zwrotowi bez podania przyczyny. Wady wykonania możesz reklamować zgodnie z przepisami.',
-        previewNote:
-          '[ROZMIAR PO ODBIORZE: czy i na jakich warunkach poprawiamy rozmiar; czy pierścionek z kolekcji w standardowym rozmiarze można zwrócić]',
-        previewOnly: true,
+          'Nie. Każdy pierścionek wykonujemy na zamówienie, według projektu, kamienia i rozmiaru ustalonych z Tobą, dlatego nie przysługuje przy nim prawo odstąpienia od umowy zawartej na odległość (art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta). Nie ogranicza to Twojego prawa do reklamacji, jeśli pierścionek będzie niezgodny z umową.',
       },
       {
         question: 'Czy pierścionek ma certyfikat?',

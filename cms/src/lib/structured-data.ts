@@ -110,6 +110,45 @@ export function faqJsonLd(items: readonly { q: string; text?: string }[]) {
   return mainEntity.length ? { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity } : null
 }
 
+/**
+ * Zwroty w ofercie (Search Console 23.11.2026, „Informacje o sprzedawcy”: brak `hasMerchantReturnPolicy`). Pierścionki
+ * z katalogu powstają po zamówieniu, w rozmiarze i wersji ustalonej z klientem, więc nie ma prawa odstąpienia od umowy
+ * (art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta; decyzja Kamili 21.11.2026). Reklamacja zostaje, ale schema.org
+ * jej nie opisuje. Ta sama zasada stoi na /na-zamowienie w pytaniu „Czy mogę zwrócić pierścionek?”.
+ */
+export function merchantReturnPolicy() {
+  return {
+    '@type': 'MerchantReturnPolicy',
+    applicableCountry: 'PL',
+    returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+    merchantReturnLink: absoluteUrl('/na-zamowienie'),
+  }
+}
+
+/**
+ * Koszt wysyłki kurierem w zł, który płaci klient (0 = wysyłka w cenie). `null` = jeszcze nie znamy (pytanie do Michała
+ * na stronie „Jak kupić”), wtedy oferta nie ma `shippingDetails`: Google wymaga w nim stawki, a zmyślonej nie podajemy.
+ */
+export const SHIPPING_RATE_PLN: number | null = 0 // Marcin 23.11.2026: wysyłka darmowa
+
+/**
+ * Wysyłka w ofercie (Search Console 23.11.2026: brak `shippingDetails`). Kurier w Polsce; czas: wykonanie zwykle
+ * 4–6 tygodni (28–42 dni), potem 1–2 dni kurierem. Bez stawki zwraca `null`.
+ */
+export function offerShippingDetails(rate: number | null = SHIPPING_RATE_PLN) {
+  if (rate === null || !Number.isFinite(rate) || rate < 0) return null
+  return {
+    '@type': 'OfferShippingDetails',
+    shippingRate: { '@type': 'MonetaryAmount', value: rate, currency: 'PLN' },
+    shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'PL' },
+    deliveryTime: {
+      '@type': 'ShippingDeliveryTime',
+      handlingTime: { '@type': 'QuantitativeValue', minValue: 28, maxValue: 42, unitCode: 'DAY' },
+      transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' },
+    },
+  }
+}
+
 type ProductJsonLdInput = {
   name: string
   /** Ścieżka karty, np. `/pierscionki/aria`. */
@@ -136,6 +175,7 @@ export function productJsonLd({ name, path, description, images, stone, metal, p
   const price = normalizePrice(rawPrice)
   if (price === null) return null
   const url = absoluteUrl(path)
+  const shipping = offerShippingDetails()
   const offer = {
     offers: {
       '@type': 'Offer',
@@ -146,6 +186,8 @@ export function productJsonLd({ name, path, description, images, stone, metal, p
       availability: 'https://schema.org/BackOrder',
       itemCondition: 'https://schema.org/NewCondition',
       seller: { '@id': jewelryStoreId() },
+      hasMerchantReturnPolicy: merchantReturnPolicy(),
+      ...(shipping ? { shippingDetails: shipping } : {}),
     },
   }
   const additionalProperty = stone ? [{ '@type': 'PropertyValue', name: 'Kamień', value: stone }] : []

@@ -167,7 +167,9 @@ describe('produkcja: bez znaczników „do uzupełnienia”', () => {
     expect(p['/na-zamowienie']).toContain('zaliczkę w wysokości 30% ceny, BLIK-iem albo przelewem')
     expect(p['/na-zamowienie']).toContain('Jak wysyłacie biżuterię?')
     expect(p['/na-zamowienie']).toContain('Czy pierścionek ma certyfikat?')
-    expect(p['/na-zamowienie']).not.toContain('Czy mogę zwrócić pierścionek?')
+    // Zwroty (Kamila 21.11): na produkcji, bo ta sama zasada stoi w danych strukturalnych oferty.
+    expect(p['/na-zamowienie']).toContain('Czy mogę zwrócić pierścionek?')
+    expect(p['/na-zamowienie']).toContain('art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta')
     expect(p['/']).toContain('Czy mogę zamówić, jeśli mieszkam daleko od Buska?')
     expect(p['/']).not.toContain('Przynieś pierścionek')
     expect(p['/pierscionki/harmonia']).toContain('Zwykle 4–6 tygodni')
@@ -225,7 +227,6 @@ describe('podgląd i lokalnie: znaczniki widoczne', () => {
     expect(p['/na-zamowienie']).not.toContain('[ZALICZKA')
     expect(p['/na-zamowienie']).not.toContain('[UBEZPIECZENIE')
     expect(p['/na-zamowienie']).not.toContain('[CERTYFIKAT')
-    expect(p['/na-zamowienie']).toContain('[ROZMIAR PO ODBIORZE')
     expect(p['/naprawy']).toContain('do uzgodnienia')
     // Realizacje bez żółtej ramki i bez „[czas do uzupełnienia]” także na podglądzie (12.11).
     expect(p['/realizacje']).not.toContain('[czas do uzupełnienia]')
