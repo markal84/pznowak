@@ -6,7 +6,14 @@ import { GUIDE_SEED } from '../../src/content/guides-seed'
 import { guideDateLabel, guidePath } from '../../src/lib/guides'
 import { productStonePhrase } from '../../src/lib/product-seo'
 import { formatNumberPl, ringSize, ringSizeTable } from '../../src/lib/ring-size'
-import { articleJsonLd, faqJsonLd, itemListJsonLd, productJsonLd, websiteJsonLd } from '../../src/lib/structured-data'
+import {
+  articleJsonLd,
+  faqJsonLd,
+  itemListJsonLd,
+  offerShippingDetails,
+  productJsonLd,
+  websiteJsonLd,
+} from '../../src/lib/structured-data'
 
 describe('rozmiary pierścionków', () => {
   it('rozmiar polski to obwód wewnętrzny minus 40', () => {
@@ -114,6 +121,24 @@ describe('dane strukturalne poradników i kart', () => {
       image: ['https://pznowak.pl/a.jpg'],
       material: 'Żółte złoto',
       offers: { '@type': 'Offer', price: 2949, priceCurrency: 'PLN', url: 'https://pznowak.pl/pierscionki/aria' },
+    })
+    expect(priced).toMatchObject({
+      offers: {
+        hasMerchantReturnPolicy: {
+          '@type': 'MerchantReturnPolicy',
+          applicableCountry: 'PL',
+          returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+        },
+      },
+    })
+    // Bez znanej stawki wysyłki oferta nie ma shippingDetails (Google wymaga w nim stawki).
+    expect(priced?.offers).not.toHaveProperty('shippingDetails')
+    expect(offerShippingDetails(null)).toBeNull()
+    expect(offerShippingDetails(-1)).toBeNull()
+    expect(offerShippingDetails(0)).toMatchObject({
+      shippingRate: { value: 0, currency: 'PLN' },
+      shippingDestination: { addressCountry: 'PL' },
+      deliveryTime: { handlingTime: { minValue: 28, maxValue: 42 }, transitTime: { minValue: 1, maxValue: 2 } },
     })
     expect(productJsonLd({ ...base, price: null })).toBeNull()
     expect(productJsonLd({ ...base, price: 0 })).toBeNull()
