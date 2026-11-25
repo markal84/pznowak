@@ -29,6 +29,8 @@ export type ProductSeoFields = {
   updatedAt: string
   /** Data dodania karty w panelu (ISO); sortowanie „Najnowsze” na liście. */
   createdAt: string
+  /** Data pierwszej publikacji (ISO) albo '' (brak); plakietka „Nowość” przez 7 dni. */
+  publishedAt?: string
 }
 
 /** Wybór pierścionków na stronę główną (panel: pola w pasku bocznym). Tylko dla stron serwisu, nie dla publicznego API. */
@@ -135,6 +137,7 @@ export function serializeSiteProduct(product: Product): SiteProduct {
     seoImage: populatedMedia(product.meta?.image ?? 0)?.url ?? '',
     updatedAt: product.updatedAt,
     createdAt: product.createdAt,
+    publishedAt: product.publishedAt ?? '',
     featuredOnHome: product.featuredOnHome === true,
     homeOrder: product.homeOrder ?? 0,
     stoneVariants: serializeStoneVariants(product.stoneVariants),

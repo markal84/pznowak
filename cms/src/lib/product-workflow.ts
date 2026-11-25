@@ -12,9 +12,10 @@ export type ProductMediaEntry = {
   isPrimary?: boolean | null
 }
 
-type ProductWorkflowData = {
+export type ProductWorkflowData = {
   _status?: 'draft' | 'published'
   archived?: boolean | null
+  publishedAt?: string | null
 }
 
 async function resolveMimeType(
@@ -96,4 +97,21 @@ export function applyArchiveStatus<T extends ProductWorkflowData>(data: T): T {
   }
 
   return data
+}
+
+/**
+ * Data pierwszej publikacji (plakietka „Nowość” na liście przez 7 dni). Wpisuje się sama, gdy karta jest publikowana,
+ * a pole jest puste w zapisie i w poprzedniej wersji. Ręcznie wpisana albo wyczyszczona data zostaje, jak ją zapisano:
+ * wyczyszczenie przy kolejnej publikacji nie wraca (pole było już wypełnione w poprzedniej wersji).
+ */
+export function applyFirstPublishedAt<T extends ProductWorkflowData>(
+  data: T,
+  originalDoc?: ProductWorkflowData | null,
+  now: Date = new Date(),
+): T {
+  if (data._status !== 'published') return data
+  if (data.publishedAt || originalDoc?.publishedAt) return data
+  // Karta była już opublikowana (wcześniejszy zapis), a ktoś wyczyścił datę: nie wpisuj jej z powrotem.
+  if (originalDoc?._status === 'published') return data
+  return { ...data, publishedAt: now.toISOString() }
 }

@@ -143,6 +143,20 @@ export type CatalogRing = {
   price: number | null
   /** dzień dodania karty w panelu (`RRRR-MM-DD`, czas polski); pusty, gdy daty nie znamy */
   addedOn: string
+  /** plakietka „Nowość”: karta opublikowana w ostatnich 7 dniach */
+  isNew: boolean
+}
+
+/** Ile dni od publikacji karta ma plakietkę „Nowość”. */
+export const NEW_BADGE_DAYS = 7
+
+/** Czy karta jest „Nowością”: data publikacji nie starsza niż 7 dni (i nie z przyszłości o więcej niż dobę). */
+export function isNewRing(publishedAt: string | null | undefined, now: Date = new Date()): boolean {
+  const date = new Date(publishedAt ?? '')
+  if (!publishedAt || Number.isNaN(date.getTime())) return false
+  const age = now.getTime() - date.getTime()
+  const day = 24 * 60 * 60 * 1000
+  return age > -day && age < NEW_BADGE_DAYS * day
 }
 
 /** Dzień (czas polski) z daty ISO, np. `2026-11-12`; pusty przy braku albo błędnej dacie. */
@@ -154,7 +168,7 @@ export function addedDay(iso: string | null | undefined): string {
 }
 
 export function toCatalogRing(
-  product: Jewel & Partial<ProductPriceFields> & { createdAt?: string },
+  product: Jewel & Partial<ProductPriceFields> & { createdAt?: string; publishedAt?: string },
 ): CatalogRing {
   const stone = formatStone(product.stone)
   return {
@@ -170,6 +184,7 @@ export function toCatalogRing(
     alt: `Pierścionek ${product.name}${stone ? ': ' + stone.toLowerCase() : ''}`,
     price: product.price ?? null,
     addedOn: addedDay(product.createdAt),
+    isNew: isNewRing(product.publishedAt),
   }
 }
 

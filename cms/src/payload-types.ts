@@ -264,6 +264,10 @@ export interface Product {
    * Mniejsza liczba = wcześniej. Wpisz numer karty, przed którą ten pierścionek ma stanąć; po zapisie cała lista dostaje numery po kolei, bez powtórzeń i luk.
    */
   sortOrder?: number | null;
+  /**
+   * Wpisuje się samo przy pierwszej publikacji. Przez 7 dni od tej daty karta ma na liście plakietkę „Nowość”. Wpisz dzisiejszą datę, żeby wyróżnić kartę od nowa (np. po wymianie kamienia głównego); wyczyść, żeby plakietkę zdjąć.
+   */
+  publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -853,6 +857,7 @@ export interface ProductsSelect<T extends boolean = true> {
   featuredOnHome?: T;
   homeOrder?: T;
   sortOrder?: T;
+  publishedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

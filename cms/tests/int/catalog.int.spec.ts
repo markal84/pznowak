@@ -7,6 +7,7 @@ import {
   catalogHref,
   filterRings,
   addedDay,
+  isNewRing,
   CATALOG_SORTS,
   DEFAULT_CATALOG_SORT,
   VISIBLE_CATALOG_SORTS,
@@ -136,10 +137,10 @@ describe('pluralRing', () => {
 
 describe('filtrowanie katalogu', () => {
   const rings: CatalogRing[] = [
-    { id: 1, slug: 'a', name: 'A', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte', image: '', alt: '', price: null, addedOn: '' },
-    { id: 2, slug: 'b', name: 'B', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte-biale', image: '', alt: '', price: null, addedOn: '' },
-    { id: 3, slug: 'c', name: 'C', stone: '', metal: '', goldLabel: '', stoneGroup: 'zielone', goldGroup: 'zolte', image: '', alt: '', price: null, addedOn: '' },
-    { id: 4, slug: 'd', name: 'D', stone: '', metal: '', goldLabel: '', stoneGroup: null, goldGroup: null, image: '', alt: '', price: null, addedOn: '' },
+    { id: 1, slug: 'a', name: 'A', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte', image: '', alt: '', price: null, addedOn: '', isNew: false },
+    { id: 2, slug: 'b', name: 'B', stone: '', metal: '', goldLabel: '', stoneGroup: 'niebieskie', goldGroup: 'zolte-biale', image: '', alt: '', price: null, addedOn: '', isNew: false },
+    { id: 3, slug: 'c', name: 'C', stone: '', metal: '', goldLabel: '', stoneGroup: 'zielone', goldGroup: 'zolte', image: '', alt: '', price: null, addedOn: '', isNew: false },
+    { id: 4, slug: 'd', name: 'D', stone: '', metal: '', goldLabel: '', stoneGroup: null, goldGroup: null, image: '', alt: '', price: null, addedOn: '', isNew: false },
   ]
   it('bez filtrów zwraca wszystko, także produkty bez grup', () => {
     expect(filterRings(rings, 'all', 'all')).toHaveLength(4)
@@ -200,6 +201,7 @@ describe('sortowanie katalogu', () => {
     alt: '',
     price,
     addedOn,
+    isNew: false,
   })
   // Wejście w kolejności z panelu („Kolejność”).
   const rings = [
@@ -224,6 +226,17 @@ describe('sortowanie katalogu', () => {
   })
   it('najnowsze po dniu dodania; ten sam dzień w kolejności z panelu, bez daty na końcu', () => {
     expect(slugs(sortRings(rings, 'najnowsze'))).toEqual(['b', 'd', 'f', 'a', 'c', 'e'])
+  })
+  it('„Nowość” przez 7 dni od publikacji', () => {
+    const now = new Date('2026-11-25T20:00:00.000Z')
+    expect(isNewRing('2026-11-25T08:00:00.000Z', now)).toBe(true)
+    expect(isNewRing('2026-11-19T08:00:00.000Z', now)).toBe(true)
+    expect(isNewRing('2026-11-18T19:00:00.000Z', now)).toBe(false)
+    expect(isNewRing('2026-10-01T08:00:00.000Z', now)).toBe(false)
+    expect(isNewRing('2026-12-10T08:00:00.000Z', now)).toBe(false)
+    expect(isNewRing('', now)).toBe(false)
+    expect(isNewRing(null, now)).toBe(false)
+    expect(isNewRing('bzdura', now)).toBe(false)
   })
   it('dzień dodania liczony w czasie polskim', () => {
     expect(addedDay('2026-11-11T23:30:00.000Z')).toBe('2026-11-12')

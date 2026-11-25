@@ -7,7 +7,7 @@ import {
   isAuthenticatedOrPublished,
 } from '../access/permissions'
 import { revalidateAfterChange, revalidateAfterDelete } from '../lib/frontend-publication'
-import { applyArchiveStatus, validateProductMedia } from '../lib/product-workflow'
+import { applyArchiveStatus, applyFirstPublishedAt, validateProductMedia } from '../lib/product-workflow'
 import { shiftOtherProducts } from '../lib/sort-order'
 import { GOLD_FINENESS_OPTIONS, STONE_CUT_OPTIONS } from '../lib/ring-params'
 import { SWATCHES } from '../lib/stone-variants'
@@ -53,7 +53,11 @@ export const Products: CollectionConfig = {
     ],
     afterDelete: [({ doc, req }) => revalidateAfterDelete('product', doc, req)],
     beforeOperation: [apiKeyDraftOnlyBeforeOperation],
-    beforeChange: [apiKeyDraftOnlyBeforeChange, ({ data }) => applyArchiveStatus(data)],
+    beforeChange: [
+      apiKeyDraftOnlyBeforeChange,
+      ({ data }) => applyArchiveStatus(data),
+      ({ data, originalDoc }) => applyFirstPublishedAt(data, originalDoc),
+    ],
   },
   fields: [
     {
@@ -420,6 +424,17 @@ export const Products: CollectionConfig = {
       admin: {
         description:
           'Mniejsza liczba = wcześniej. Wpisz numer karty, przed którą ten pierścionek ma stanąć; po zapisie cała lista dostaje numery po kolei, bez powtórzeń i luk.',
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'publishedAt',
+      type: 'date',
+      label: 'Opublikowano (Nowość)',
+      admin: {
+        date: { pickerAppearance: 'dayOnly', displayFormat: 'd.MM.yyyy' },
+        description:
+          'Wpisuje się samo przy pierwszej publikacji. Przez 7 dni od tej daty karta ma na liście plakietkę „Nowość”. Wpisz dzisiejszą datę, żeby wyróżnić kartę od nowa (np. po wymianie kamienia głównego); wyczyść, żeby plakietkę zdjąć.',
         position: 'sidebar',
       },
     },
