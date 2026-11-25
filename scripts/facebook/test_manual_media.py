@@ -34,6 +34,15 @@ class ManualTest(unittest.TestCase):
             self.assertTrue((root / "media" / "manual-b-2_q.jpg").exists())
             self.assertTrue(mm.is_manual_post(mm.pseudo_post_id("b-2")))
 
+    def test_fresh_virtual_posts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_root(tmp, [{"id": "a-1", "title": "A", "files": ["p.jpg"]},
+                                   {"id": "b-2", "title": "B", "fresh": True, "files": ["q.jpg"]}])
+            cards = mm.load_manual(root)
+            self.assertEqual([c["id"] for c in mm.standalone_cards(cards, fresh=True)], ["b-2"])
+            self.assertEqual([c["id"] for c in mm.standalone_cards(cards, fresh=False)], ["a-1"])
+            self.assertEqual(len(mm.standalone_cards(cards)), 2)
+
     def test_rejects_bad_input(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(AssertionError):

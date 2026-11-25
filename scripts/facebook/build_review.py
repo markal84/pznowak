@@ -206,11 +206,24 @@ class Review:
         if self.fresh:
             pd["freshSince"] = ddmm(min(self.post_info(i)["date"] for i in self.fresh))
             pd["fresh"] = [with_key(r) for r in prop["fresh"]]
-        for card in manual_media.standalone_cards(self.manual):
+
+        def manual_card(card):
+            g = {"key": f"{slug(card['title'])}@{manual_media.pseudo_post_id(card['id'])}", "title": card["title"],
+                 "posts": [manual_media.pseudo_post(card)], "photos": [n for _, n in card["files"]], "videos": [],
+                 "manualCard": card["source"]}
+            if card["local"]:
+                g["localCard"] = True
+            return g
+
+        for card in manual_media.standalone_cards(self.manual, fresh=False):
             # Osobna karta ze źródła ręcznego: na końcu „Nowych pierścionków”, więc numery wcześniejszych kart się nie zmieniają.
-            pd["new"].append({"key": f"{slug(card['title'])}@{manual_media.pseudo_post_id(card['id'])}", "title": card["title"],
-                              "posts": [manual_media.pseudo_post(card)], "photos": [n for _, n in card["files"]], "videos": [],
-                              "manualCard": card["source"]})
+            pd["new"].append(manual_card(card))
+        virtual = manual_media.standalone_cards(self.manual, fresh=True)
+        if virtual:
+            # Wirtualne posty (zdjęcia z Maca, dodaj_lokalne.py): w „Nowe od…”, jak nowy post z FB.
+            pd.setdefault("fresh", []).extend(manual_card(c) for c in virtual)
+            if "freshSince" not in pd:
+                pd["freshSince"] = ddmm(min(c["date"] for c in virtual))
         for r in prop["existing"]:
             idxs = [p["idx"] for p in r["posts"]]
             photos, videos = self.files_of(idxs)
@@ -323,7 +336,7 @@ class Review:
         subprocess.run([sys.executable, str(HERE / "make_thumbs.py"), str(self.root)], check=False)
         write_pages(self.root, pd)
         print(len(prop["new"]), len(prop["maybe"]), len(prop["existing"]), len(prop["skipped"]),
-              *([f"nowe od {pd['freshSince']}: {len(self.fresh)}"] if self.fresh else []))
+              *([f"nowe od {pd['freshSince']}: {len(pd['fresh'])}"] if pd.get("fresh") else []))
         return pd
 
 
