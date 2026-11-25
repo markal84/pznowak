@@ -206,11 +206,24 @@ class Review:
         if self.fresh:
             pd["freshSince"] = ddmm(min(self.post_info(i)["date"] for i in self.fresh))
             pd["fresh"] = [with_key(r) for r in prop["fresh"]]
-        for card in manual_media.standalone_cards(self.manual):
+
+        def manual_card(card):
+            g = {"key": f"{slug(card['title'])}@{manual_media.pseudo_post_id(card['id'])}", "title": card["title"],
+                 "posts": [manual_media.pseudo_post(card)], "photos": [n for _, n in card["files"]], "videos": [],
+                 "manualCard": card["source"]}
+            if card["local"]:
+                g["localCard"] = True
+            return g
+
+        for card in manual_media.standalone_cards(self.manual, fresh=False):
             # Osobna karta ze źródła ręcznego: na końcu „Nowych pierścionków”, więc numery wcześniejszych kart się nie zmieniają.
-            pd["new"].append({"key": f"{slug(card['title'])}@{manual_media.pseudo_post_id(card['id'])}", "title": card["title"],
-                              "posts": [manual_media.pseudo_post(card)], "photos": [n for _, n in card["files"]], "videos": [],
-                              "manualCard": card["source"]})
+            pd["new"].append(manual_card(card))
+        virtual = manual_media.standalone_cards(self.manual, fresh=True)
+        if virtual:
+            # Wirtualne posty (zdjęcia z Maca, dodaj_lokalne.py): w „Nowe od…”, jak nowy post z FB.
+            pd.setdefault("fresh", []).extend(manual_card(c) for c in virtual)
+            if "freshSince" not in pd:
+                pd["freshSince"] = ddmm(min(c["date"] for c in virtual))
         for r in prop["existing"]:
             idxs = [p["idx"] for p in r["posts"]]
             photos, videos = self.files_of(idxs)
@@ -236,6 +249,38 @@ class Review:
             (self.root / "similarity-report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1))
         except (OSError, subprocess.CalledProcessError, KeyError) as e:
             print(f"UWAGA: bez plakietek podobieństwa ({e})")
+
+    def add_local_twins(self, pd):
+        """Zdjęcia z Maca (karty localCard), które są też w poście z FB (to samo zdjęcie, d <= SAME).
+
+        sameImage  {plik z FB: plik z Maca}: po połączeniu kart eksport i tablica biorą wersję z Maca (oryginał, lepsza
+                   jakość niż kopia z FB), a duplikat z FB pomijają.
+        localTwins {klucz karty z Maca: [klucze kart z FB z tymi samymi zdjęciami]}: podpowiedź „połącz” w panelu.
+        """
+        pd["sameImage"], pd["localTwins"] = {}, {}
+        try:
+            import similarity
+
+            hashes = json.loads((self.root / "hashes.json").read_text())["fb"]
+        except (OSError, ValueError, KeyError):
+            return
+        cards = [g for sec in ("new", "maybe", "fresh") for g in pd.get(sec, [])]
+        local = [g for g in cards if g.get("localCard")]
+        others = [g for g in cards if not g.get("manualCard")]
+        for lg in local:
+            mine = [(f, hashes[f]) for f in lg["photos"] if f in hashes and similarity._ok(hashes[f])]
+            for og in others:
+                hit = False
+                for f in og["photos"]:
+                    h = hashes.get(f)
+                    if not h or not similarity._ok(h):
+                        continue
+                    best = min(((similarity.dist(h, mh)[0], mf) for mf, mh in mine), default=None)
+                    if best and best[0] <= similarity.SAME:
+                        pd["sameImage"][f] = best[1]
+                        hit = True
+                if hit:
+                    pd["localTwins"].setdefault(lg["key"], []).append(og["key"])
 
     def add_proposals(self, pd, card_keys):
         """Propozycje połączeń kart (ręczne, z weryfikacji modelem). Tylko podpowiedź: decyzję zapisuje Marcin przyciskiem."""
@@ -312,6 +357,7 @@ class Review:
         (self.root / "rings-proposal.json").write_text(json.dumps(prop, ensure_ascii=False, indent=1))
         pd = self.page_data(prop)
         self.add_similarity(pd)
+        self.add_local_twins(pd)
         card_keys = {g["key"] for sec in ("new", "maybe", "fresh") for g in pd.get(sec, [])}
         self.add_proposals(pd, card_keys)
         self.add_catalog(pd, card_keys)
@@ -323,7 +369,7 @@ class Review:
         subprocess.run([sys.executable, str(HERE / "make_thumbs.py"), str(self.root)], check=False)
         write_pages(self.root, pd)
         print(len(prop["new"]), len(prop["maybe"]), len(prop["existing"]), len(prop["skipped"]),
-              *([f"nowe od {pd['freshSince']}: {len(self.fresh)}"] if self.fresh else []))
+              *([f"nowe od {pd['freshSince']}: {len(pd['fresh'])}"] if pd.get("fresh") else []))
         return pd
 
 

@@ -253,7 +253,13 @@ for (const item of items) {
     for (const f of item.photos) ids.push(await upload(f, alt, log))
     const patch: Record<string, unknown> = {}
     if (replace && ids.length) Object.assign(patch, { alt, image: ids[0], isVisualization: false, moreImages: ids.slice(1) })
-    else if (ids.length) patch.moreImages = [...more, ...ids]
+    else {
+      // upload() zwraca istniejące media dla pliku, który już był wgrany: kolejne przebiegi nie mogą dopisywać tych samych
+      // zdjęć jeszcze raz. Przy okazji znikają duble zostawione przez starsze przebiegi (Hesperia → Turmalin, 24–25.11).
+      const main = typeof v.image === 'object' && v.image ? v.image.id : v.image
+      const merged = [...new Set([...more, ...ids])].filter((id) => id !== main)
+      if (merged.length !== more.length || merged.some((id, j) => id !== more[j])) patch.moreImages = merged
+    }
     if (videoFile && !hasVideo) patch.video = await upload(videoFile, `${product.name} – ${item.variant} – film`, log)
     if (!Object.keys(patch).length) continue
     const next = variants.map((x, j) => (j === i ? { ...x, ...patch } : x))

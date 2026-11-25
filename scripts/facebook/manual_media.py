@@ -7,6 +7,9 @@ Media spoza FB (np. zdjęcia przysłane przez Kamilę na Messengerze) leżą w d
      {"id": "moissanit-2ct", "title": "Moissanit 2 ct szampański", "note": "…", "files": ["2ct/c.jpg"]}]}
   - bez "post_id": osobna karta w sekcji „Nowe pierścionki” (pseudo-post „manual-<id>”),
   - z "post_id": zdjęcia dołączają do karty tego posta (post z filmem z FB + zdjęcia od Kamili = jedna karta).
+  - "fresh": true (w pliku albo w karcie): osobna karta to „wirtualny post” w sekcji „Nowe od…”, czyli idzie tą samą
+    drogą co nowe posty z FB (podpowiedź modelu, „Ten sam co inny post”, eksport). Takie pliki pisze dodaj_lokalne.py
+    z folderu na Macu (np. ~/Downloads/nowe_pierscionki); "local": true daje plakietkę „z Maca”.
   Pliki (tylko .jpg) są kopiowane do media/ jako manual-<id>_<nazwa>; oryginały zostają nietknięte. Dalej karta jak każda inna
   (miniatury, podobieństwa, decyzje w selection.json), tylko z plakietką „spoza FB”.
 
@@ -57,6 +60,7 @@ def load_manual(root):
             cards.append({
                 "id": cid, "title": c.get("title", ""), "note": c.get("note", ""), "post_id": c.get("post_id"),
                 "source": spec.get("source", ""), "date": spec.get("date", ""), "files": files,
+                "fresh": bool(c.get("fresh", spec.get("fresh", False))), "local": bool(c.get("local", spec.get("local", False))),
             })
     return cards
 
@@ -89,8 +93,9 @@ def pseudo_post(card):
             "manual": True, "source": card["source"]}
 
 
-def standalone_cards(cards):
-    return [c for c in cards if not c["post_id"]]
+def standalone_cards(cards, fresh=None):
+    """Karty bez post_id; fresh=True/False zawęża do wirtualnych postów „Nowe od…” albo do starszych kart."""
+    return [c for c in cards if not c["post_id"] and (fresh is None or c["fresh"] == fresh)]
 
 
 def annotate_manual(page_data, cards, sections=("new", "maybe", "existing", "fresh")):
