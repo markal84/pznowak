@@ -20,9 +20,23 @@ type RingCardProps = {
   detailed?: boolean
   /** pierwszy rząd katalogu: zdjęcie bez leniwego ładowania (LCP na telefonie) */
   eager?: boolean
+  /** plakietka „Nowość” w rogu zdjęcia (karta opublikowana w ostatnich 7 dniach) */
+  isNew?: boolean
 }
 
-export default function RingCard({ slug, name, stone, image, alt, sizes, href: customHref, gold, price, detailed = false, eager = false }: RingCardProps) {
+/** Plakietka „Nowość”: aksamitna etykieta ze złotą gwiazdką w lewym górnym rogu zdjęcia. */
+function NewBadge() {
+  return (
+    <span className="new-badge">
+      <svg aria-hidden="true" className="new-badge-star" viewBox="0 0 12 12">
+        <path d="M6 0 7.1 4.9 12 6 7.1 7.1 6 12 4.9 7.1 0 6 4.9 4.9Z" />
+      </svg>
+      Nowość
+    </span>
+  )
+}
+
+export default function RingCard({ slug, name, stone, image, alt, sizes, href: customHref, gold, price, detailed = false, eager = false, isNew = false }: RingCardProps) {
   const href = customHref ?? `/pierscionki/${slug}`
   if (detailed) {
     const parts = priceParts(price)
@@ -40,6 +54,7 @@ export default function RingCard({ slug, name, stone, image, alt, sizes, href: c
         <Link className="card card-body" data-ring-slug={slug} href={href}>
           <span className="card-overlay">
             <Photo alt={alt} eager={eager} ratio="45" sizes={sizes} src={image} />
+            {isNew ? <NewBadge /> : null}
             <Tag className="tag-corner" name={name} price={priceText} />
           </span>
           <span className="card-meta">
@@ -54,6 +69,7 @@ export default function RingCard({ slug, name, stone, image, alt, sizes, href: c
     <li>
       <Link className="card card-overlay" href={href}>
         <Photo alt={alt} ratio="45" sizes={sizes} src={image} />
+        {isNew ? <NewBadge /> : null}
         <Tag className="tag-corner" name={name} sub={stone || undefined} />
       </Link>
     </li>

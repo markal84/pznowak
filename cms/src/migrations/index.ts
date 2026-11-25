@@ -18,6 +18,7 @@ import * as migration_20261114_120000_skad_o_nas_wiesz from './20261114_120000_s
 import * as migration_20261120_100000_ten_model from './20261120_100000_ten_model';
 import * as migration_20261120_150000_poradniki_teksty_stron from './20261120_150000_poradniki_teksty_stron';
 import * as migration_20261121_090000_parametry_pierscionka from './20261121_090000_parametry_pierscionka';
+import * as migration_20261125_210000_nowosc from './20261125_210000_nowosc';
 
 export const migrations = [
   {
@@ -119,5 +120,10 @@ export const migrations = [
     up: migration_20261121_090000_parametry_pierscionka.up,
     down: migration_20261121_090000_parametry_pierscionka.down,
     name: '20261121_090000_parametry_pierscionka',
+  },
+  {
+    up: migration_20261125_210000_nowosc.up,
+    down: migration_20261125_210000_nowosc.down,
+    name: '20261125_210000_nowosc',
   },
 ];

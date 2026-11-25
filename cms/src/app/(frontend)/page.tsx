@@ -193,6 +193,7 @@ export default async function HomePage() {
               <RingCard
                 alt={r.alt}
                 image={r.image}
+                isNew={r.isNew}
                 key={r.slug}
                 name={r.name}
                 sizes="(max-width: 720px) 50vw, (max-width: 1320px) 25vw, 300px"

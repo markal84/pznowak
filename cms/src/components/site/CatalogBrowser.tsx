@@ -139,6 +139,7 @@ export default function CatalogBrowser({ rings }: { rings: CatalogRing[] }) {
                   detailed
                   eager={index < EAGER_CARDS}
                   image={r.image}
+                  isNew={r.isNew}
                   key={r.slug}
                   gold={r.goldLabel}
                   name={r.name}
