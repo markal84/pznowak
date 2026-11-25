@@ -121,6 +121,7 @@ def compute(data, sel, canon=None):
     HINTS = data.get("hints") or {}
     # Karty, których post już jest w katalogu (facebookKey albo źródło zdjęcia; build_review.py, ze świeżego katalog.json).
     IN_CATALOG = data.get("inCatalog") or {}
+    SAME_IMAGE = data.get("sameImage") or {}  # {plik z FB: ten sam plik z Maca}
     NAMES = {x["slug"]: x["name"] for x in data.get("catalogProducts", [])}
     # Pliki z FB, które już są w kartach (build_review.py, ze świeżego katalog.json) i szkice zrobione wcześniej z posta.
     FILES = data.get("catalogFiles") or {}
@@ -223,6 +224,9 @@ def compute(data, sel, canon=None):
                 if f not in owner:
                     owner[f] = gg
                     files.append((f, kind))
+        # To samo zdjęcie z Maca i z posta FB w jednej grupie: zostaje oryginał z Maca (build_review: sameImage).
+        have = {f for f, _ in files}
+        files = [(f, kind) for f, kind in files if SAME_IMAGE.get(f) not in have]
         if not dec:
             if hint_already:
                 outcomes[k] = {"kind": "already", "product": h["product"], "productName": hint.get("productName") or NAMES.get(h["product"], h["product"])}

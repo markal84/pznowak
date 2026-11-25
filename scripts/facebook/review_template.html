@@ -306,6 +306,7 @@ function rootOf(k) {
   if (path.includes(cur)) cur = path.slice(path.indexOf(cur)).sort()[0];
   return cur;
 }
+const SAME_IMG = D.sameImage || {}, TWINS = D.localTwins || {};
 function rebuildMerge() {
   for (const g of G) { g.root = rootOf(g.key); g.members = []; }
   for (const g of G) if (g.root !== g.key) BY[g.root].members.push(g);
@@ -313,6 +314,8 @@ function rebuildMerge() {
     const seen = new Set(g.own.map(f => f.file));
     g.files = g.root !== g.key ? g.own
       : [...g.own, ...g.members.flatMap(m => m.own.filter(f => !seen.has(f.file) && seen.add(f.file)).map(f => ({ ...f, from: m.key })))];
+    // to samo zdjęcie z Maca i z posta FB: zostaje oryginał z Maca (sameImage z build_review.py, tak samo liczy eksport)
+    if (g.root === g.key) { const have = new Set(g.files.map(f => f.file)); g.files = g.files.filter(f => !have.has(SAME_IMG[f.file])); }
   }
 }
 const isMerged = g => g.root !== g.key;
@@ -838,7 +841,8 @@ function panelHTML(g) {
   const p = g.it.posts[0] || {};
   const text = g.it.posts.map(x => x.text).filter(Boolean).join('\n\n— — —\n\n');
   let body = `<h2>${esc(g.it.title)}</h2><div class="ptext">${esc(plDate(p.date))}${g.it.manualCard ? ` · zdjęcia spoza FB: ${esc(g.it.manualCard)}` : ''}${g.members.length ? ` · połączony z: ${nPosts(g.members.length)}` : ''}` +
-    (text ? `<details><summary>Treść posta</summary><p>${esc(text)}</p></details>` : '') + `</div>`;
+    (text ? `<details><summary>Treść posta</summary><p>${esc(text)}</p></details>` : '') + `</div>` +
+    ((TWINS[g.key] || []).filter(k => BY[k] && rootOf(k) !== g.root).map(k => `<div class="ptext">Te same zdjęcia są w poście z ${esc(plDate(BY[k].date))} „${esc(BY[k].it.title)}”. Jeśli to ten pierścionek, wybierz „Ten sam co inny post” i wskaż ten post (zostaną zdjęcia z Maca, w lepszej jakości).</div>`).join(''));
   const nt = nextTodo(g.key);
   const nextBtn = `<div class="next">${nt ? `<button type="button" class="primary" data-act="nextTodo">Następny do decyzji →</button>` : `<button type="button" class="primary" data-act="close">Wszystko przejrzane, wróć do tablicy</button>`}` +
     `${F.step === 'choose' && o.kind !== 'undecided' ? '<button type="button" data-act="cancelChoose">Zostaw jak było</button>' : ''}</div>`;

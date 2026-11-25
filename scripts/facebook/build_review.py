@@ -250,6 +250,38 @@ class Review:
         except (OSError, subprocess.CalledProcessError, KeyError) as e:
             print(f"UWAGA: bez plakietek podobieństwa ({e})")
 
+    def add_local_twins(self, pd):
+        """Zdjęcia z Maca (karty localCard), które są też w poście z FB (to samo zdjęcie, d <= SAME).
+
+        sameImage  {plik z FB: plik z Maca}: po połączeniu kart eksport i tablica biorą wersję z Maca (oryginał, lepsza
+                   jakość niż kopia z FB), a duplikat z FB pomijają.
+        localTwins {klucz karty z Maca: [klucze kart z FB z tymi samymi zdjęciami]}: podpowiedź „połącz” w panelu.
+        """
+        pd["sameImage"], pd["localTwins"] = {}, {}
+        try:
+            import similarity
+
+            hashes = json.loads((self.root / "hashes.json").read_text())["fb"]
+        except (OSError, ValueError, KeyError):
+            return
+        cards = [g for sec in ("new", "maybe", "fresh") for g in pd.get(sec, [])]
+        local = [g for g in cards if g.get("localCard")]
+        others = [g for g in cards if not g.get("manualCard")]
+        for lg in local:
+            mine = [(f, hashes[f]) for f in lg["photos"] if f in hashes and similarity._ok(hashes[f])]
+            for og in others:
+                hit = False
+                for f in og["photos"]:
+                    h = hashes.get(f)
+                    if not h or not similarity._ok(h):
+                        continue
+                    best = min(((similarity.dist(h, mh)[0], mf) for mf, mh in mine), default=None)
+                    if best and best[0] <= similarity.SAME:
+                        pd["sameImage"][f] = best[1]
+                        hit = True
+                if hit:
+                    pd["localTwins"].setdefault(lg["key"], []).append(og["key"])
+
     def add_proposals(self, pd, card_keys):
         """Propozycje połączeń kart (ręczne, z weryfikacji modelem). Tylko podpowiedź: decyzję zapisuje Marcin przyciskiem."""
         pd["proposals"] = []
@@ -325,6 +357,7 @@ class Review:
         (self.root / "rings-proposal.json").write_text(json.dumps(prop, ensure_ascii=False, indent=1))
         pd = self.page_data(prop)
         self.add_similarity(pd)
+        self.add_local_twins(pd)
         card_keys = {g["key"] for sec in ("new", "maybe", "fresh") for g in pd.get(sec, [])}
         self.add_proposals(pd, card_keys)
         self.add_catalog(pd, card_keys)

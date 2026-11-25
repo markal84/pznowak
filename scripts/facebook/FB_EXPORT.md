@@ -222,7 +222,9 @@ podfolder = jeden pierścionek. `python3 scripts/facebook/dodaj_lokalne.py ~/Dow
 (JPG/JPEG/HEIC/PNG) do `data/facebook/manual/<data>_mac-<folder>/`, pisze `manual.json` z `"fresh": true`, przebudowuje
 tablicę i liczy podpowiedzi modelu. Karty stają w „Nowe od…” z plakietką „z Maca” i idą dalej jak post z FB. Zdjęcia do
 posta, który ma sam film (np. soliter z 19.11), łączysz przyciskiem „Ten sam co inny post”: eksport robi z nich jedną
-kartę (zdjęcia + film). `--na-sucho` pokazuje, co by zrobił; ponowne uruchomienie pomija pierścionki już dodane.
+kartę (zdjęcia + film). Gdy te same zdjęcia są już w poście z FB (np. pracownia wrzuciła je później), panel karty z Maca
+podpowiada ten post; po połączeniu zostają zdjęcia z Maca (oryginały, lepsza jakość), a duplikaty z FB eksport pomija
+(`sameImage` w review-data.json). `--na-sucho` pokazuje, co by zrobił; ponowne uruchomienie pomija pierścionki już dodane.
 
 **Treści AI**: Facebook oznacza je w interfejsie, ale `fb_export.js` nie zapisuje takiej etykiety (w zapisanych danych jej nie
 ma), więc znaczniki trzyma ręcznie `data/facebook/ai-flags.json`. Oznaczone pliki mają w przeglądzie czerwoną plakietkę „AI”, a

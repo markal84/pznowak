@@ -43,6 +43,17 @@ class ComputeTest(unittest.TestCase):
         self.assertEqual(oc["p1"], {"kind": "new", "photos": 2, "videos": 0, "name": ""})
         self.assertEqual(out["catalog"][0]["photos"], ["media/p1_b.jpg", "media/p1_a.jpg"])
 
+    def test_mac_photo_replaces_same_fb_photo_after_merge(self):
+        d = data([card("vid", [], ["v.mp4"]), card("fb", ["a.jpg", "b.jpg"]), card("manual-mac", ["x.jpg", "y.jpg", "z.jpg"])])
+        d["sameImage"] = {"fb_a.jpg": "manual-mac_x.jpg", "fb_b.jpg": "manual-mac_y.jpg"}
+        out, oc = run(d, {"vid": {"decision": "catalog", "newRing": True},
+                          "fb": {"sameAs": "vid"}, "manual-mac": {"sameAs": "vid"}})
+        self.assertEqual(oc["vid"], {"kind": "new", "photos": 3, "videos": 1, "name": ""})
+        self.assertEqual(out["catalog"][0]["photos"], ["media/manual-mac_x.jpg", "media/manual-mac_y.jpg", "media/manual-mac_z.jpg"])
+        # bez karty z Maca w grupie zdjęcia z FB zostają
+        out, oc = run(d, {"vid": {"decision": "catalog", "newRing": True}, "fb": {"sameAs": "vid"}})
+        self.assertEqual(oc["vid"]["photos"], 2)
+
     def test_legacy_catalog_with_targeted_hint_goes_to_existing(self):
         d = data([card("p1", ["a.jpg"])], hints={"p1": hint("dodatek")})
         out, oc = run(d, {"p1": {"decision": "catalog"}})
