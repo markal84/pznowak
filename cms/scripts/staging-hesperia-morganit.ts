@@ -72,7 +72,13 @@ try {
   const keyOf = (entry: MediaEntry) => assetOf(entry)?.legacySourceUrl ?? ''
 
   // 1) Alcyone: szkic z jasnymi zdjęciami (te same pliki w mediach, bez ponownego wgrywania).
-  const alcyone = all.docs.find((doc) => doc.slug === ALCYONE.slug)
+  // Kosz (trash) też trzyma slug: stara karta w koszu blokuje „alcyone”, wtedy nowa dostaje „alcyone-morganit”.
+  const withTrash = await payload.find({ collection: 'products', depth: 0, draft: true, limit: 1000, overrideAccess: true, pagination: false, trash: true })
+  const trashed = withTrash.docs.filter((doc) => doc.deletedAt)
+  const alcyone = all.docs.find((doc) => doc.slug === ALCYONE.slug || doc.slug === `${ALCYONE.slug}-morganit`)
+  const slugInTrash = trashed.find((doc) => doc.slug === ALCYONE.slug)
+  if (slugInTrash) console.log(`! slug „${ALCYONE.slug}” zajmuje karta w koszu (#${slugInTrash.id} ${slugInTrash.name}), nowa dostanie „${ALCYONE.slug}-morganit”`)
+  const alcyoneSlug = slugInTrash ? `${ALCYONE.slug}-morganit` : ALCYONE.slug
   if (alcyone) {
     console.log(`= Alcyone: karta już jest (#${alcyone.id}, ${alcyone._status}), nie ruszam`)
   } else {
@@ -89,6 +95,7 @@ try {
         collection: 'products',
         data: {
           ...ALCYONE,
+          slug: alcyoneSlug,
           generateSlug: false,
           price: null,
           media: ids.map((asset, index) => ({ asset, alt: `Pierścionek Alcyone z morganitem i diamentami, zdjęcie ${index + 1}`, isPrimary: index === 0 })),
