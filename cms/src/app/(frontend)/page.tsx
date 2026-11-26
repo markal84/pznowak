@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
 import { getGoogleReviews } from '@/lib/google-reviews-source'
 import { toCatalogRing } from '@/lib/catalog'
-import { HERO_VITRINE, heroRing as pickHero, pickHomeRings, shuffleVitrine } from '@/lib/home'
+import { HERO_VITRINE, heroRing as pickHero, pickHomeRings, shuffleVitrine, VITRINE_SIZE } from '@/lib/home'
 import { showPlaceholders } from '@/lib/placeholders'
 import { pageMetadata } from '@/lib/seo'
 import { getGuides, guidePath } from '@/lib/guides'
@@ -78,14 +78,27 @@ export default async function HomePage() {
   const count = products.length
   const hero = pickHero(products)
   const heroRing = hero ? toCatalogRing(hero) : null
-  // Witryna w hero: pierścionki z listy HERO_VITRINE, które są w katalogu; bez żadnego z nich – pierścionek z hero i jego zdjęcie.
-  // Kolejność losowana przy każdym wejściu, więc po odświeżeniu na start jest inny pierścionek.
-  const vitrine: VitrineSlide[] = shuffleVitrine(HERO_VITRINE).flatMap((v) => {
-    const p = products.find((x) => x.name === v.name)
-    if (!p) return []
-    const r = toCatalogRing(p)
-    return [{ slug: p.slug, name: p.name, sub: [v.stone ?? r.stone, r.metal.toLowerCase()].filter(Boolean).join(', '), alt: r.alt, src: v.src, pos: v.pos, posMobile: v.posMobile }]
-  })
+  // Witryna w hero: przy każdym wejściu VITRINE_SIZE losowych pierścionków z całego katalogu (ich główne, prawdziwe zdjęcie;
+  // wizualizacje wariantów tu nie trafiają). Pierścionki z HERO_VITRINE mają zdjęcie i kadr dobrane ręcznie.
+  const vitrine: VitrineSlide[] = shuffleVitrine(products)
+    .slice(0, VITRINE_SIZE)
+    .flatMap((p) => {
+      const curated = HERO_VITRINE.find((v) => v.name === p.name)
+      const src = curated?.src ?? p.images[0] ?? p.imagePath
+      if (!src) return []
+      const r = toCatalogRing(p)
+      return [
+        {
+          slug: p.slug,
+          name: p.name,
+          sub: [curated?.stone ?? r.stone, r.metal.toLowerCase()].filter(Boolean).join(', '),
+          alt: r.alt,
+          src,
+          pos: curated?.pos ?? '50% 50%',
+          posMobile: curated?.posMobile ?? '50% 50%',
+        },
+      ]
+    })
   if (vitrine.length === 0 && hero && heroRing) {
     vitrine.push({
       slug: hero.slug,
