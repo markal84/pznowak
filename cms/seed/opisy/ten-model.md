@@ -32,7 +32,7 @@ otworzyć, więc teksty ich nie opisują. Zrzut opisów kart użyty w teście: `
 
 Do sprawdzenia przez Marcina (teksty ich nie opisują). Leucothea, Amphitrite, Thalia i Rhodope poprawia
 `npm run staging:poprawki-kart` (scripts/staging-poprawki-kart.ts):
-- Hesperia, 2. zdjęcie (`od-kamili/IMG_0056.jpg`): kamień wygląda na dłuższy i brązowy, inny niż na pozostałych.
+- Hesperia: Kama potwierdziła 26.11, że to dwa pierścionki (andaluzyt i morganit). Rozdziela je `npm run staging:hesperia-morganit` (nowy szkic Alcyone).
 - Leucothea: wspólny opis mówi o dwunastu diamentach „wokół” kamienia, na zdjęciach diamenty są na szynie.
 - Amphitrite: pole „Kolor złota” = białe, na zdjęciach szyna jest żółta (wierzch biały).
 - Thalia: pole „Kamień” = szafir, wspólny opis = topaz London Blue.
