@@ -1,5 +1,6 @@
 /**
- * „Ten model” na staging: tekst tylko dla jednej karty z `seed/opisy/ten-model.json` (na początek 6 kart bliźniaczych).
+ * „Ten model” na staging: tekst tylko dla jednej karty z `seed/opisy/ten-model.json` (od 26.11.2026 wszystkie 50
+ * opublikowanych kart).
  *
  *   npm run staging:ten-model              sprawdzenie: zapora jakości + plan, nic nie zapisuje
  *   npm run staging:ten-model -- --apply   zapis; karta opublikowana zostaje opublikowana, szkic – szkicem
