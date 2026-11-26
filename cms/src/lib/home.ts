@@ -6,7 +6,7 @@ export const HOME_RINGS_LIMIT = 4
 
 /**
  * Witryna w hero strony głównej: pierścionki z katalogu (po nazwie) i ich najlepsze zdjęcia w pełnej rozdzielczości
- * (sesja z Facebooka, 1320 × 1980 px, w `public/zdjecia/hero/`). Kolejność miniatur jest losowana przy każdym wejściu (`shuffleVitrine`).
+ * (sesja z Facebooka, 1320 × 1980 px, w `public/zdjecia/hero/`). Pozostałe pierścionki katalogu też trafiają do losowania (`shuffleVitrine`), ze swoim głównym zdjęciem i kadrem 50% 50%.
  * `pos` to kadr na komputerze (wysoki panel), `posMobile` na telefonie (niski, szeroki kadr). Pierścionek, którego nie ma
  * w opublikowanym katalogu, jest pomijany, więc zmiana nazwy w panelu niczego nie psuje. `stone`: kamień ze zdjęcia, gdy to
  * wariant karty, a nie jej główny kamień (Harmonia z malinowym turmalinem, dawniej karta Eirene).
@@ -18,6 +18,9 @@ export const HERO_VITRINE: readonly { name: string; stone?: string; src: string;
   { name: 'Harmonia', stone: 'Turmalin malinowy i diamenty', src: '/zdjecia/hero/eirene.webp', pos: '50% 40%', posMobile: '50% 40%' },
   { name: 'Athena', src: '/zdjecia/hero/athena.webp', pos: '50% 34%', posMobile: '50% 32%' },
 ]
+
+/** Ile pierścionków (i miniatur) pokazuje witryna w hero; losowane z całego katalogu przy każdym wejściu. */
+export const VITRINE_SIZE = 5
 
 /**
  * Losowa kolejność witryny (Fisher–Yates, nowa tablica). Strona główna renderuje się przy każdym wejściu
