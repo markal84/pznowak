@@ -9,13 +9,14 @@ import { lintTenModel, loadTenModel, overlap, planTenModel, type OtherText } fro
 
 type Opis = { id: number; name: string; lead: string; description: string; carats?: string; stone?: string }
 const read = (file: string): Opis[] => JSON.parse(readFileSync(path.join(OPISY_DIR, file), 'utf8'))
-/** Opisy kart z repo: AC (opublikowane) i szkice (Xanthe, Aethra). */
-const cards = [...read('opisy-ac.json'), ...read('opisy-szkice.json')]
+/** Opisy wszystkich opublikowanych kart: zrzut z żywej bazy (26.11.2026, publiczne API pznowak.pl). */
+const cards = read('stan-2026-11-26.json')
 const specs = loadTenModel()
 
 describe('„Ten model” – teksty w seed/opisy/ten-model.json', () => {
-  it('na początek 6 kart bliźniaczych', () => {
-    expect(specs.map((s) => s.name).sort()).toEqual(['Aethra', 'Electra', 'Ianthe', 'Iole', 'Merope', 'Xanthe'])
+  it('tekst dla każdej opublikowanej karty, każda karta raz', () => {
+    expect(specs.map((s) => s.id).sort((a, b) => a - b)).toEqual(cards.map((c) => c.id).sort((a, b) => a - b))
+    for (const spec of specs) expect(cards.find((c) => c.id === spec.id)?.name).toBe(spec.name)
   })
 
   it('każdy tekst przechodzi zaporę (długość, liczby z karty, podobieństwo do opisów i innych tekstów)', () => {
