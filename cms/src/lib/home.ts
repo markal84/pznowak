@@ -6,7 +6,7 @@ export const HOME_RINGS_LIMIT = 4
 
 /**
  * Witryna w hero strony głównej: pierścionki z katalogu (po nazwie) i ich najlepsze zdjęcia w pełnej rozdzielczości
- * (sesja z Facebooka, 1320 × 1980 px, w `public/zdjecia/hero/`). Kolejność = kolejność miniatur; pierwszy pokazuje się od razu.
+ * (sesja z Facebooka, 1320 × 1980 px, w `public/zdjecia/hero/`). Kolejność miniatur jest losowana przy każdym wejściu (`shuffleVitrine`).
  * `pos` to kadr na komputerze (wysoki panel), `posMobile` na telefonie (niski, szeroki kadr). Pierścionek, którego nie ma
  * w opublikowanym katalogu, jest pomijany, więc zmiana nazwy w panelu niczego nie psuje. `stone`: kamień ze zdjęcia, gdy to
  * wariant karty, a nie jej główny kamień (Harmonia z malinowym turmalinem, dawniej karta Eirene).
@@ -18,6 +18,20 @@ export const HERO_VITRINE: readonly { name: string; stone?: string; src: string;
   { name: 'Harmonia', stone: 'Turmalin malinowy i diamenty', src: '/zdjecia/hero/eirene.webp', pos: '50% 40%', posMobile: '50% 40%' },
   { name: 'Athena', src: '/zdjecia/hero/athena.webp', pos: '50% 34%', posMobile: '50% 32%' },
 ]
+
+/**
+ * Losowa kolejność witryny (Fisher–Yates, nowa tablica). Strona główna renderuje się przy każdym wejściu
+ * (`force-dynamic`), więc po każdym odświeżeniu na start pokazuje się inny pierścionek (prośba Michała, 25.11.2026).
+ * Kolejność liczy serwer, więc przeglądarka dostaje gotowy HTML bez przeskoku po załadowaniu.
+ */
+export function shuffleVitrine<T>(items: readonly T[], random: () => number = Math.random): T[] {
+  const out = [...items]
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
+}
 
 /** Pierścionek z hero (po nazwie; bez niego pierwszy z katalogu). */
 export const HERO_RING_NAME = 'Phoebe'
