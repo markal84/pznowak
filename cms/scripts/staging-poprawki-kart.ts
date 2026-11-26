@@ -65,6 +65,14 @@ const FIXES: Fix[] = [
     to: 'okragly',
     why: 'na zdjęciach kamień jest okrągły',
   },
+  {
+    id: 64,
+    name: 'Calliope',
+    field: 'description',
+    from: 'po dwa na każdym ramieniu, zielony i różowy.',
+    to: 'po dwa na każdym ramieniu, szmaragd i rubin.',
+    why: 'Kama 26.11: po bokach są szmaragdy i rubiny',
+  },
 ]
 
 const applyChanges = process.argv.includes('--apply')
