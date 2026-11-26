@@ -2185,6 +2185,61 @@
         "chroma_min": 10
       },
       "uwaga_nowe": "Nowe karty (13.11): oryginał to niebiesko-zielony (turkusowy) kamień, kolory standardowe."
+    },
+    {
+      "slug": "calliope",
+      "name": "Calliope",
+      "zrodlo": [
+        "nowe-2026-11-26/calliope-tanzanit-5.jpg"
+      ],
+      "nazwa_wariantu": {
+        "domyslnie": "{nazwa}"
+      },
+      "alt": "Pierścionek Calliope {z} w owalnym szlifie, z listkami oraz szmaragdami i rubinami w szlifie markiza na ramionach, w żółtym złocie (wizualizacja)",
+      "kamienie": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "zdjecia": [
+        {
+          "zrodlo": [
+            "nowe-2026-11-26/calliope-tanzanit-6.jpg"
+          ],
+          "kamien_oryginalu": {
+            "obszar": [
+              0.44,
+              0.24,
+              0.63,
+              0.62
+            ],
+            "odcien": [
+              235,
+              340
+            ],
+            "chroma_min": 6
+          }
+        }
+      ],
+      "cala_galeria": [
+        "szafir-granatowy",
+        "szmaragd-stonowany",
+        "rubin"
+      ],
+      "kamien_oryginalu": {
+        "obszar": [
+          0.28,
+          0.3,
+          0.47,
+          0.7
+        ],
+        "odcien": [
+          235,
+          340
+        ],
+        "chroma_min": 6
+      },
+      "uwaga_nowe": "Kama 26.11: wizualizacje ze szmaragdem, szafirem i rubinem w centrum. Oryginał to tanzanit; boczne szmaragdy i rubiny (markiza) zostają. Zdjęcia z kamieniem na skale (5. i 6. z karty) – na czarnych zdjęciach jest odbicie kamienia, którego maska nie obejmuje. Druga seria: szerszy odcień [235,340] i chroma_min 6 – pierwsza maska pomijała jasny, lawendowy odblask na górze kamienia i lewą krawędź."
     }
   ]
 }
