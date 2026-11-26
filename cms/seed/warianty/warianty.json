@@ -1599,5 +1599,41 @@
         "isVisualization": true
       }
     ]
+  },
+  {
+    "slug": "calliope",
+    "name": "Calliope",
+    "variants": [
+      {
+        "stone": "Szafir granatowy",
+        "swatch": "granatowy",
+        "files": [
+          "calliope-szafir-granatowy.webp",
+          "calliope-szafir-granatowy-2.webp"
+        ],
+        "alt": "Pierścionek Calliope z granatowym szafirem w owalnym szlifie, z listkami oraz szmaragdami i rubinami w szlifie markiza na ramionach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Szmaragd",
+        "swatch": "zielony",
+        "files": [
+          "calliope-szmaragd-stonowany.webp",
+          "calliope-szmaragd-stonowany-2.webp"
+        ],
+        "alt": "Pierścionek Calliope ze szmaragdem w owalnym szlifie, z listkami oraz szmaragdami i rubinami w szlifie markiza na ramionach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      },
+      {
+        "stone": "Rubin",
+        "swatch": "czerwony",
+        "files": [
+          "calliope-rubin.webp",
+          "calliope-rubin-2.webp"
+        ],
+        "alt": "Pierścionek Calliope z rubinem w owalnym szlifie, z listkami oraz szmaragdami i rubinami w szlifie markiza na ramionach, w żółtym złocie (wizualizacja)",
+        "isVisualization": true
+      }
+    ]
   }
 ]
