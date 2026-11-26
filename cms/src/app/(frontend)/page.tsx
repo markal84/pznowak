@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getProducts } from '@/lib/collection'
 import { getGoogleReviews } from '@/lib/google-reviews-source'
 import { toCatalogRing } from '@/lib/catalog'
-import { HERO_VITRINE, heroRing as pickHero, pickHomeRings } from '@/lib/home'
+import { HERO_VITRINE, heroRing as pickHero, pickHomeRings, shuffleVitrine } from '@/lib/home'
 import { showPlaceholders } from '@/lib/placeholders'
 import { pageMetadata } from '@/lib/seo'
 import { getGuides, guidePath } from '@/lib/guides'
@@ -79,7 +79,8 @@ export default async function HomePage() {
   const hero = pickHero(products)
   const heroRing = hero ? toCatalogRing(hero) : null
   // Witryna w hero: pierścionki z listy HERO_VITRINE, które są w katalogu; bez żadnego z nich – pierścionek z hero i jego zdjęcie.
-  const vitrine: VitrineSlide[] = HERO_VITRINE.flatMap((v) => {
+  // Kolejność losowana przy każdym wejściu, więc po odświeżeniu na start jest inny pierścionek.
+  const vitrine: VitrineSlide[] = shuffleVitrine(HERO_VITRINE).flatMap((v) => {
     const p = products.find((x) => x.name === v.name)
     if (!p) return []
     const r = toCatalogRing(p)

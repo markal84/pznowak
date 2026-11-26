@@ -1,0 +1,8 @@
+{
+  "zrodlo": "Ceny od Kamili (iMessage 25.11.2026, 22:20): soliter 0,3 ct = 7199 zł (Sterope), tanzanit z rubinami i szmaragdami („ten roślinny”) = 4989 zł (Calliope).",
+  "ceny": [
+    { "name": "Sterope", "price": 7199 },
+    { "name": "Calliope", "price": 4989 }
+  ],
+  "bezKarty": []
+}
