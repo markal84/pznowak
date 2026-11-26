@@ -30,7 +30,8 @@ Teksty dopisane dla pozostałych 44 kart (razem 50). Przed pisaniem obejrzane ws
 (galeria i prawdziwe zdjęcia wariantów, bez wizualizacji), porównane z kartami bliźniaczymi. Filmów nie dało się
 otworzyć, więc teksty ich nie opisują. Zrzut opisów kart użyty w teście: `stan-2026-11-26.json`.
 
-Do sprawdzenia przez Marcina (teksty ich nie opisują):
+Do sprawdzenia przez Marcina (teksty ich nie opisują). Leucothea, Amphitrite, Thalia i Rhodope poprawia
+`npm run staging:poprawki-kart` (scripts/staging-poprawki-kart.ts):
 - Hesperia, 2. zdjęcie (`od-kamili/IMG_0056.jpg`): kamień wygląda na dłuższy i brązowy, inny niż na pozostałych.
 - Leucothea: wspólny opis mówi o dwunastu diamentach „wokół” kamienia, na zdjęciach diamenty są na szynie.
 - Amphitrite: pole „Kolor złota” = białe, na zdjęciach szyna jest żółta (wierzch biały).
