@@ -51,6 +51,7 @@ PAGE_ID = "518148711375873"  # Michał Nowak Pracownia Złotnicza (to konto rekl
 IG_ID = "17841423096858695"
 TZ = ZoneInfo("Europe/Warsaw")
 WEEKS = 8
+SITE_LIVE = dt.date(2026, 11, 15)  # start pznowak.pl: wcześniej brak linku do strony nie jest błędem
 
 MODEL, THINKING = "gemini-4-hydrogen", "medium"  # Gemini 4 Hydrogen, thinking level medium
 
@@ -204,6 +205,14 @@ def fzl(v):
 
 def fproc(v):
     return "–" if v is None else f"{v:.2f}".replace(".", ",") + "%"
+
+
+def trend_mark(now, before):
+    """Zielone przy wzroście o co najmniej 10%, czerwone przy spadku o co najmniej 30%."""
+    if not before:
+        return INFO
+    d = (now - before) / before * 100
+    return OK if d >= 10 else WARN if d <= -30 else INFO
 
 
 def zmiana(now, before):
@@ -497,8 +506,10 @@ def build(weeks, ads, active, fb, fb_posts, fb_missing, ig, ig_posts, followers,
         r.add(WARN, "nie udało się pobrać statystyk strony: " + errors.get("fb", "?"))
     else:
         w, p = fb[cur], fb[prev]
-        r.add(INFO, "wyświetlenia: " + fint(w["page_media_view"]) + zmiana(w["page_media_view"], p["page_media_view"]))
-        r.add(INFO, "zaangażowanie w posty (Meta wlicza też kliknięcia): " + fint(w["page_post_engagements"])
+        r.add(trend_mark(w["page_media_view"], p["page_media_view"]),
+              "wyświetlenia: " + fint(w["page_media_view"]) + zmiana(w["page_media_view"], p["page_media_view"]))
+        r.add(trend_mark(w["page_post_engagements"], p["page_post_engagements"]),
+              "zaangażowanie w posty (Meta wlicza też kliknięcia): " + fint(w["page_post_engagements"])
               + zmiana(w["page_post_engagements"], p["page_post_engagements"]))
         r.add(INFO, f"odwiedziny strony FB: {fint(w['page_views_total'])}; nowi obserwujący: {fint(w['page_daily_follows_unique'])}"
                     + (f" (razem {fint(w['page_follows'])})" if w["page_follows"] else ""))
@@ -524,7 +535,8 @@ def build(weeks, ads, active, fb, fb_posts, fb_missing, ig, ig_posts, followers,
         r.add(WARN, "nie udało się pobrać statystyk Instagrama: " + errors.get("ig", "?"))
     else:
         w, p = ig[cur], ig[prev]
-        r.add(INFO, "wyświetlenia: " + fint(w.get("views")) + zmiana(w.get("views", 0), p.get("views")))
+        r.add(trend_mark(w.get("views", 0), p.get("views")),
+              "wyświetlenia: " + fint(w.get("views")) + zmiana(w.get("views", 0), p.get("views")))
         r.add(INFO, f"konta w zasięgu: {fint(w.get('reach'))}; interakcje: {fint(w.get('total_interactions'))} "
                     f"(komentarze {fint(w.get('comments'))}, udostępnienia {fint(w.get('shares'))}, zapisania {fint(w.get('saves'))})")
         r.add(OK if w.get("website_clicks") else INFO,
@@ -655,6 +667,24 @@ def render_text(r: Report, weeks, trend, conclusion):
     return "\n".join(out).strip() + "\n"
 
 
+GOOD_BG, BAD_BG = "background:#e3f2e6;", "background:#fbe4e1;"
+
+
+def cell_bg(i, c, site_live=True):
+    """Tło komórki trendu: zielone, gdy jest to, o co chodzi (linki do strony, kliknięcia w bio, rozmowy),
+    czerwone, gdy były posty, a żaden nie linkował do pznowak.pl."""
+    col = TREND_COLS[i]
+    if col.startswith("Posty FB"):
+        m = re.match(r"(\d+) \((\d+)\)", c)
+        if m and int(m.group(1)):
+            return GOOD_BG if int(m.group(2)) else (BAD_BG if site_live else "")
+    elif col in ("IG klik w bio", "Rozmowy"):
+        n = re.sub(r"\D", "", c)
+        if n and int(n):
+            return GOOD_BG
+    return ""
+
+
 def render_html(r: Report, weeks, trend, conclusion):
     e = html.escape
     color = {OK: "#2f6b3f", WARN: "#a3352b", INFO: "#8a8780"}
@@ -662,14 +692,18 @@ def render_html(r: Report, weeks, trend, conclusion):
     for title, rows in r.sections:
         p.append(f'<h3 style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5f5c55;margin:22px 0 6px">{e(title)}</h3>')
         for mk, t in rows:
-            p.append(f'<div style="margin:2px 0"><span style="color:{color[mk]};font-weight:600;display:inline-block;width:1.3em">{mk}</span>{e(t)}</div>')
+            box = {OK: "background:#e3f2e6;border-left:4px solid #2f6b3f;", WARN: "background:#fbe4e1;border-left:4px solid #a3352b;",
+                   INFO: "border-left:4px solid transparent;"}[mk]
+            p.append(f'<div style="margin:3px 0;padding:5px 10px;border-radius:4px;{box}"><span style="color:{color[mk]};'
+                     f'font-weight:700;display:inline-block;width:1.4em">{mk}</span>{e(t)}</div>')
     p.append(f'<h3 style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5f5c55;margin:22px 0 6px">Trend {WEEKS} tygodni</h3>')
     p.append('<table style="border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums">')
     th = "padding:4px 8px;border-bottom:1px solid #d8d5cf;color:#5f5c55;font-weight:600;"
     p.append("<tr>" + "".join(f'<th style="{th}text-align:{"left" if i == 0 else "right"}">{e(c)}</th>' for i, c in enumerate(TREND_COLS)) + "</tr>")
     for j, row in enumerate(trend):
+        live = weeks[j][1] >= SITE_LIVE
         bold = "font-weight:600;" if j == len(trend) - 1 else ""
-        p.append("<tr>" + "".join(f'<td style="padding:4px 8px;border-bottom:1px solid #eeece8;{bold}text-align:{"left" if i == 0 else "right"};white-space:nowrap">{e(c)}</td>'
+        p.append("<tr>" + "".join(f'<td style="padding:4px 8px;border-bottom:1px solid #eeece8;{bold}{cell_bg(i, c, live)}text-align:{"left" if i == 0 else "right"};white-space:nowrap">{e(c)}</td>'
                                   for i, c in enumerate(row)) + "</tr>")
     p.append("</table>")
     p.append('<h3 style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5f5c55;margin:22px 0 6px">Wniosek</h3>')
