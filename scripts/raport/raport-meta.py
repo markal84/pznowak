@@ -3,7 +3,7 @@
 
 Liczby liczy ten skrypt (bez modelu), tylko z Graph API i tylko dla strony PZ Nowak
 (reklamy innych stron z tego samego konta reklamowego są pomijane). Na końcu WNIOSEK:
-3–5 zdań, które pisze Claude Sonnet 5.5 (effort high) wyłącznie z gotowych liczb.
+3–5 zdań, które pisze Gemini 4 Hydrogen (thinking medium) wyłącznie z gotowych liczb.
 Definicje (wynik reklamy, pusty wynik = 0, mapa akcji) są te same co w
 pznowak-marketing/analiza-meta/metryki.py, przepisane na czysty Python, bo na Hetznerze nie ma pandas.
 
@@ -25,12 +25,9 @@ import html
 import json
 import os
 import re
-import shutil
 import smtplib
 import ssl
-import subprocess
 import sys
-import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -45,7 +42,7 @@ SMTP_CONF = Path(os.environ.get("PZNOWAK_RAPORT_CONF", CONF_DIR / "smtp.env"))
 # token Meta: na Hetznerze w katalogu raportu, na Macu tam, gdzie trzyma go analiza-meta
 META_TOKEN_PATHS = [Path(p) for p in [os.environ.get("PZNOWAK_META_TOKEN", ""), CONF_DIR / "meta.token",
                                        HOME / ".config/pznowak/meta-analityka.token"] if str(p)]
-ANTHROPIC_KEY = Path(os.environ.get("PZNOWAK_ANTHROPIC_KEY", CONF_DIR / "anthropic.key"))
+GEMINI_KEY = Path(os.environ.get("PZNOWAK_GEMINI_KEY", CONF_DIR / "gemini.key"))
 DEFAULT_TO = "kontakt@pznowak.pl"
 
 API = "https://graph.facebook.com/v27.0/"
@@ -55,7 +52,7 @@ IG_ID = "17841423096858695"
 TZ = ZoneInfo("Europe/Warsaw")
 WEEKS = 8
 
-MODEL, EFFORT = "claude-sonnet-5-5", "high"
+MODEL, THINKING = "gemini-4-hydrogen", "medium"  # Gemini 4 Hydrogen, thinking level medium
 
 # --- definicje jak w analiza-meta/metryki.py ------------------------------------------------
 MSG = "actions:onsite_conversion.messaging_conversation_started_7d"
@@ -108,7 +105,8 @@ Dostajesz wyłącznie gotowe liczby policzone przez skrypt i krótki kontekst st
 tekstem: bez nagłówka, list, markdown i emoji. Podawaj tylko kilka najważniejszych liczb. Opieraj się tylko na podanych liczbach; nie wymyślaj danych, przyczyn ani liczb,
 których nie ma. Powiedz, co w tym tygodniu było najważniejsze (porównaj z poprzednim tygodniem i trendem 8 tygodni),
 co działa, a co nie, i zakończ jednym konkretnym krokiem na najbliższy tydzień. Gdy próba jest za mała, żeby wyciągać
-wnioski (np. kilka kliknięć), powiedz to wprost. Pisz rzeczowo i życzliwie, w drugiej osobie („Twoje posty…”)."""
+wnioski (np. kilka kliknięć), powiedz to wprost. Jeśli jakaś liczba wygląda podejrzanie (nagły skok, niespójność między sekcjami,
+zero tam, gdzie powinno coś być), zaznacz to krótko jako rzecz do sprawdzenia. Pisz rzeczowo i życzliwie, w drugiej osobie („Twoje posty…”)."""
 
 
 # --- pomocnicze ---------------------------------------------------------------------------------
@@ -608,41 +606,34 @@ def model_input(weeks, ads, active, fb, fb_posts, ig, ig_posts, followers):
 
 
 def wniosek(data):
-    """3–5 zdań od Claude Sonnet 5.5 (effort high). Klucz API z pliku; bez klucza `claude -p` (np. na Macu)."""
+    """3–5 zdań od Gemini 4 Hydrogen (thinking medium; domyślne jest high, więc ustawiamy jawnie). Klucz z pliku."""
+    if not GEMINI_KEY.is_file():
+        raise RuntimeError(f"brak klucza Gemini ({GEMINI_KEY})")
+    key = GEMINI_KEY.read_text().strip()
     prompt = (f"Kontekst strategii:\n{KONTEKST}\n\nLiczby (JSON, kwoty w zł, tydzień = poniedziałek..niedziela):\n"
               + json.dumps(data, ensure_ascii=False))
-    if ANTHROPIC_KEY.is_file():
-        body = {"model": MODEL, "max_tokens": 16000, "output_config": {"effort": EFFORT}, "fallbacks": "default",
-                "system": SYSTEM, "messages": [{"role": "user", "content": prompt}]}
-        req = urllib.request.Request("https://api.anthropic.com/v1/messages", data=json.dumps(body).encode(), headers={
-            "content-type": "application/json", "x-api-key": ANTHROPIC_KEY.read_text().strip(),
-            "anthropic-version": "2026-10-21", "anthropic-beta": "server-side-fallback-2026-07-01"})
+    body = {"systemInstruction": {"parts": [{"text": SYSTEM}]},
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {"maxOutputTokens": 16000, "thinkingConfig": {"thinkingLevel": THINKING}}}
+    req = urllib.request.Request(f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent",
+                                 data=json.dumps(body).encode(),
+                                 headers={"content-type": "application/json", "x-goog-api-key": key})
+    try:
+        with urllib.request.urlopen(req, timeout=600) as r:
+            msg = json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        err = e.read().decode(errors="replace")
         try:
-            with urllib.request.urlopen(req, timeout=600) as r:
-                msg = json.loads(r.read().decode())
-        except urllib.error.HTTPError as e:
-            err = e.read().decode(errors="replace")
-            try:
-                err = json.loads(err)["error"]["message"]
-            except Exception:  # noqa: BLE001
-                pass
-            raise RuntimeError(f"Claude API {e.code}: {str(err)[:200]}") from None
-        if msg.get("stop_reason") == "refusal":
-            raise RuntimeError("model odmówił odpowiedzi")
-        text = "\n".join(b.get("text", "") for b in msg.get("content", []) if b.get("type") == "text").strip()
-    elif shutil.which("claude"):
-        cmd = ["claude", "-p", "--model", MODEL, "--effort", EFFORT, "--output-format", "json", "--tools", "",
-               "--strict-mcp-config", "--no-session-persistence", "--system-prompt", SYSTEM]
-        with tempfile.TemporaryDirectory(prefix="raport-meta-") as empty:
-            r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=600, cwd=empty)
-        if r.returncode != 0:
-            raise RuntimeError(f"claude -p (kod {r.returncode}): {(r.stderr or r.stdout).strip()[-200:]}")
-        out = json.loads(r.stdout)
-        if out.get("is_error"):
-            raise RuntimeError(f"claude -p: {str(out.get('result'))[:200]}")
-        text = str(out.get("result") or "").strip()
-    else:
-        raise RuntimeError(f"brak klucza {ANTHROPIC_KEY} i brak polecenia claude")
+            err = json.loads(err)["error"]["message"]
+        except Exception:  # noqa: BLE001
+            pass
+        raise RuntimeError(f"Gemini API {e.code}: {str(err).replace(key, '***')[:200]}") from None
+    if (msg.get("promptFeedback") or {}).get("blockReason"):
+        raise RuntimeError(f"Gemini zablokował zapytanie ({msg['promptFeedback']['blockReason']})")
+    cand = (msg.get("candidates") or [{}])[0]
+    if cand.get("finishReason") not in (None, "STOP"):
+        raise RuntimeError(f"Gemini przerwał odpowiedź ({cand.get('finishReason')})")
+    text = "".join(p.get("text", "") for p in (cand.get("content") or {}).get("parts", []) if not p.get("thought")).strip()
     if not text:
         raise RuntimeError("model nie zwrócił tekstu")
     return re.sub(r"[*#`]", "", text)

@@ -52,8 +52,9 @@ Cron liczy czas serwera (zwykle UTC): `0 6` to 7:00 zimą i 8:00 latem w Polsce.
 - **Instagram:** wyświetlenia, zasięg, interakcje, kliknięcia w link w bio, posty z odesłaniem do strony. API pokazuje mniej
   wyświetleń niż Business Suite, bo nie dolicza reklam.
 - **Zapytania:** rozmowy z reklam i nowe rozmowy na Messengerze. Zeszytu zapytań i Umami raport nie czyta.
-- **Trend 8 tygodni** (tabela) i **WNIOSEK**: 3–5 zdań od Claude Sonnet 5.5 (effort high). Model dostaje tylko policzone liczby
-  i krótki kontekst strategii (`KONTEKST` w skrypcie: zmień go, gdy zmieni się plan).
+- **Trend 8 tygodni** (tabela) i **WNIOSEK**: 3–5 zdań od Gemini 4 Hydrogen (`gemini-4-hydrogen`, `thinkingLevel: medium`;
+  domyślne jest high, więc skrypt ustawia je jawnie). Model dostaje tylko policzone liczby i krótki kontekst strategii
+  (`KONTEKST` w skrypcie: zmień go, gdy zmieni się plan) i ma też zaznaczyć dane, które wyglądają podejrzanie.
 
 Definicje liczb są te same co w `pznowak-marketing/analiza-meta/metryki.py` (sprawdzone 28.11.2026 na tych samych wierszach API:
 wydatki, kliknięcia, rozmowy i wyniki zgodne co do grosza; wyświetlenia, odwiedziny i obserwujący FB zgodne z eksportem Business Suite).
@@ -69,8 +70,8 @@ Wymaga: `~/.config/pznowak-raport/smtp.env` z raportu dziennego (ta sama skrzynk
 scp scripts/raport/raport-meta.py hetzner-ts:pznowak-raport/
 # token Meta tylko do odczytu, bez wypisywania na ekran
 ssh hetzner-ts 'umask 077; cat > ~/.config/pznowak-raport/meta.token' < ~/.config/pznowak/meta-analityka.token
-# klucz API Anthropic do wniosku (skopiuj klucz do schowka, potem):
-pbpaste | ssh hetzner-ts 'umask 077; cat > ~/.config/pznowak-raport/anthropic.key'
+# klucz Gemini API do wniosku (skopiuj klucz do schowka, potem):
+pbpaste | ssh hetzner-ts 'umask 077; cat > ~/.config/pznowak-raport/gemini.key'
 ```
 
 Test bez wysyłki, potem z wysyłką, potem cron (poniedziałek 6:15 UTC, czyli 7:15 zimą i 8:15 latem w Polsce):
@@ -81,5 +82,4 @@ ssh hetzner-ts 'python3 ~/pznowak-raport/raport-meta.py'
 ssh hetzner-ts "( crontab -l 2>/dev/null | grep -v '# pznowak-raport-meta'; echo '15 6 * * 1 /usr/bin/python3 \$HOME/pznowak-raport/raport-meta.py >> \$HOME/pznowak-raport/raport-meta.log 2>&1 # pznowak-raport-meta' ) | crontab -"
 ```
 
-Bez pliku `anthropic.key` skrypt próbuje `claude -p` (działa na Macu), a gdy i tego nie ma, wysyła raport z dopiskiem,
-że wniosku zabrakło. Inny tydzień: `--tydzien 2026-11-16`; same liczby dla modelu: `--json`; bez modelu: `--bez-wniosku`.
+Bez pliku `gemini.key` (albo gdy Gemini nie odpowie) skrypt wysyła raport z dopiskiem, że wniosku zabrakło. Inny tydzień: `--tydzien 2026-11-16`; same liczby dla modelu: `--json`; bez modelu: `--bez-wniosku`.
