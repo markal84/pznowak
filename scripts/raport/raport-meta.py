@@ -101,13 +101,17 @@ Plan: nie wracać do celów „Aktywność” i „Rozpoznawalność”. Ewentua
 link z UTM na kartę modelu, 15 zł dziennie) tylko gdy działa strona /jak-kupic, zeszyt zapytań ze źródłem i linki z UTM.
 Instagram traktujemy jako witrynę (te same filmy co na Facebooku), a link w bio powinien prowadzić do karty modelu tygodnia."""
 
-SYSTEM = """Piszesz sekcję WNIOSEK cotygodniowego raportu Meta (Facebook i Instagram) dla właściciela pracowni złotniczej.
-Dostajesz wyłącznie gotowe liczby policzone przez skrypt i krótki kontekst strategii. Napisz po polsku od 3 do 5 krótkich zdań (razem najwyżej 90 słów) zwykłym
-tekstem: bez nagłówka, list, markdown i emoji. Podawaj tylko kilka najważniejszych liczb. Opieraj się tylko na podanych liczbach; nie wymyślaj danych, przyczyn ani liczb,
-których nie ma. Powiedz, co w tym tygodniu było najważniejsze (porównaj z poprzednim tygodniem i trendem 8 tygodni),
-co działa, a co nie, i zakończ jednym konkretnym krokiem na najbliższy tydzień. Gdy próba jest za mała, żeby wyciągać
-wnioski (np. kilka kliknięć), powiedz to wprost. Jeśli jakaś liczba wygląda podejrzanie (nagły skok, niespójność między sekcjami,
-zero tam, gdzie powinno coś być), zaznacz to krótko jako rzecz do sprawdzenia. Pisz rzeczowo i życzliwie, w drugiej osobie („Twoje posty…”)."""
+SYSTEM = """Piszesz krótkie podsumowanie tygodnia na Facebooku i Instagramie dla Michała i Kamili, właścicieli rodzinnej
+pracowni złotniczej. To złotnik i jego bliska współpracowniczka, nie marketingowcy: pisz prosto, ciepło i konkretnie,
+bez żargonu (żadnych słów typu CTR, UTM, CPC, konwersja, zasięg organiczny, algorytm, engagement, karta produktu).
+Zamiast tego mów np. „link do strony tego pierścionka na pznowak.pl”, „ile osób zobaczyło”, „ile osób napisało”.
+Zwracaj się do nich w drugiej osobie liczby mnogiej („Wasze posty”, „opublikujcie”).
+Dostajesz wyłącznie gotowe liczby policzone przez skrypt i krótki kontekst. Napisz po polsku od 3 do 5 krótkich zdań
+(razem najwyżej 80 słów) zwykłym tekstem: bez nagłówka, list, markdown i emoji. Podaj tylko 2–3 najważniejsze liczby,
+zaokrąglone tak, jak mówi się na co dzień. Opieraj się tylko na podanych liczbach; nie wymyślaj danych ani przyczyn.
+Powiedz, co w tym tygodniu poszło dobrze, co nie, i zakończ jednym konkretnym zadaniem na najbliższy tydzień, które
+Michał albo Kamila mogą zrobić sami. Gdy liczb jest za mało, żeby coś stwierdzić, powiedz to prosto. Jeśli jakaś liczba
+wygląda podejrzanie (nagły skok, niespójność, zero tam, gdzie powinno coś być), napisz jednym zdaniem, że Marcin ją sprawdzi."""
 
 
 # --- pomocnicze ---------------------------------------------------------------------------------
@@ -213,6 +217,13 @@ def trend_mark(now, before):
         return INFO
     d = (now - before) / before * 100
     return OK if d >= 10 else WARN if d <= -30 else INFO
+
+
+def pl(n, one, few, many):
+    """Liczba z odmienionym słowem: 1 komentarz, 2 komentarze, 5 komentarzy."""
+    k = round(n or 0)
+    word = one if k == 1 else few if k % 10 in (2, 3, 4) and k % 100 not in (12, 13, 14) else many
+    return f"{fint(k)} {word}"
 
 
 def zmiana(now, before):
@@ -556,6 +567,49 @@ def build(weeks, ads, active, fb, fb_posts, fb_missing, ig, ig_posts, followers,
     return r
 
 
+def build_simple(weeks, ads, active, fb, fb_posts, ig):
+    """Część dla Michała i Kamili: kilka linijek, zwykłe słowa, bez żargonu."""
+    rows, cur, prev, last = [], -1, -2, len(weeks) - 1
+    if fb:
+        w, p = fb[cur], fb[prev]
+        rows.append((trend_mark(w["page_media_view"], p["page_media_view"]),
+                     f"Facebook: Wasze posty wyświetlono {pl(w['page_media_view'], 'raz', 'razy', 'razy')} (tydzień wcześniej {fint(p['page_media_view'])})."))
+    if ig:
+        w, p = ig[cur], ig[prev]
+        rows.append((trend_mark(w.get("views", 0), p.get("views")),
+                     f"Instagram: {pl(w.get('views'), 'wyświetlenie', 'wyświetlenia', 'wyświetleń')} (tydzień wcześniej {fint(p.get('views'))})."))
+    wp = [x for x in fb_posts if week_of(dt.date.fromisoformat(x["day"]), weeks) == last]
+    if wp:
+        t = max(wp, key=lambda x: x["views"])
+        rows.append((INFO, f"Najlepszy post: {t['day'][8:10]}.{t['day'][5:7]} „{excerpt(t['text'], 60)}”, "
+                           f"{pl(t['views'], 'wyświetlenie', 'wyświetlenia', 'wyświetleń')}, {pl(t['shares'], 'udostępnienie', 'udostępnienia', 'udostępnień')}, "
+                           f"{pl(t['comments'], 'komentarz', 'komentarze', 'komentarzy')}."))
+    if fb:
+        w = fb[cur]
+        if w["posts"]:
+            n = w["posts_with_link"]
+            rows.append((OK if n else WARN, f"Posty z linkiem do pznowak.pl: {n} z {w['posts']}."
+                         + ("" if n else " Bez linku trudno z posta trafić na stronę z pierścionkiem.")))
+        else:
+            rows.append((WARN, "W tym tygodniu nie było postów na Facebooku."))
+    if ads or fb:
+        conv = (ads[cur]["conversations"] if ads else 0) + (fb[cur]["page_messages_new_conversations_unique"] if fb else 0)
+        rows.append((OK if conv else INFO, f"Wiadomości od klientów przez Messengera: {fint(conv)}. "
+                                           "Zapytania mailem i telefonem wpisujcie do zeszytu zapytań."))
+    if ads:
+        x = ads[cur]
+        if x["spend"]:
+            rows.append((WARN if not x["conversations"] else INFO,
+                         f"Płatne reklamy: wydane {fzl(x['spend'])}, {pl(x['link_clicks'], 'kliknięcie', 'kliknięcia', 'kliknięć')}, "
+                         f"{pl(x['conversations'], 'wiadomość', 'wiadomości', 'wiadomości')} od klientów."))
+        for c in active:
+            if c["weak_objective"]:
+                rows.append((WARN, f"Wciąż włączona jest płatna reklama „{excerpt(c['name'], 40)}”"
+                             + (f" (ok. {fzl(c['daily_budget_pln'])} dziennie)" if c["daily_budget_pln"] else "")
+                             + ". Zbiera polubienia, a nie zapytania, więc warto ją wyłączyć."))
+    return rows
+
+
 TREND_COLS = ["Tydzień", "FB wyśw.", "FB zaangaż.", "Posty FB (z linkiem)", "IG wyśw.", "IG klik w bio",
               "Reklamy", "Klik. z rekl.", "Rozmowy"]
 
@@ -651,8 +705,14 @@ def wniosek(data):
     return re.sub(r"[*#`]", "", text)
 
 
-def render_text(r: Report, weeks, trend, conclusion):
-    out = []
+FOOT = ("Dane: Graph API v27.0, tylko strona PZ Nowak i jej Instagram. Dni statystyk strony i Instagrama liczy Meta "
+        "(jak Business Suite), posty i reklamy według dnia publikacji/emisji. Wniosek: Gemini 4 Hydrogen z gotowych liczb.")
+
+
+def render_text(simple, r: Report, weeks, trend, conclusion):
+    out = ["DLA MICHAŁA I KAMILI"]
+    out += [f" {mk} {t}" for mk, t in simple]
+    out += ["", "CO DALEJ", conclusion, "", "", "=" * 40, "SZCZEGÓŁY (DLA MARCINA)"]
     for title, rows in r.sections:
         out += ["", title.upper()]
         out += [f" {mk} {t}" for mk, t in rows]
@@ -661,9 +721,7 @@ def render_text(r: Report, weeks, trend, conclusion):
     out.append("  ".join(c.ljust(widths[i]) if i == 0 else c.rjust(widths[i]) for i, c in enumerate(TREND_COLS)))
     for row in trend:
         out.append("  ".join(c.ljust(widths[i]) if i == 0 else c.rjust(widths[i]) for i, c in enumerate(row)))
-    out += ["", "WNIOSEK", conclusion]
-    out += ["", "Dane: Graph API v27.0, tylko strona PZ Nowak i jej Instagram. Dni statystyk strony i Instagrama liczy Meta "
-                "(jak Business Suite), posty i reklamy według dnia publikacji/emisji."]
+    out += ["", FOOT]
     return "\n".join(out).strip() + "\n"
 
 
@@ -685,18 +743,32 @@ def cell_bg(i, c, site_live=True):
     return ""
 
 
-def render_html(r: Report, weeks, trend, conclusion):
+def render_html(simple, r: Report, weeks, trend, conclusion):
     e = html.escape
     color = {OK: "#2f6b3f", WARN: "#a3352b", INFO: "#8a8780"}
+    box = {OK: "background:#e3f2e6;border-left:4px solid #2f6b3f;", WARN: "background:#fbe4e1;border-left:4px solid #a3352b;",
+           INFO: "border-left:4px solid transparent;"}
+    h3 = "font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5f5c55;margin:22px 0 6px"
+
+    def rows_html(rows, size="15px", pad="5px 10px"):
+        return [f'<div style="margin:4px 0;padding:{pad};border-radius:4px;font-size:{size};{box[mk]}"><span style="color:{color[mk]};'
+                f'font-weight:700;display:inline-block;width:1.4em">{mk}</span>{e(t)}</div>' for mk, t in rows]
+
+    wa, wb = weeks[-1]
     p = ['<div style="font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:15px;line-height:1.5;color:#1d1c1a;max-width:720px">']
+    # część dla Michała i Kamili
+    p.append(f'<h2 style="font-size:20px;margin:4px 0 2px">Dla Michała i Kamili</h2>'
+             f'<div style="color:#5f5c55;margin-bottom:10px">Facebook i Instagram, tydzień {wa:%d.%m}–{wb:%d.%m.%Y}</div>')
+    p += rows_html(simple, size="16px", pad="8px 12px")
+    p.append('<h3 style="font-size:16px;margin:18px 0 6px">Co dalej</h3>')
+    p.append(f'<div style="border-left:4px solid #8a6a1f;padding:10px 14px;background:#f7f4ec;font-size:16px;border-radius:4px">{e(conclusion)}</div>')
+    # część dla Marcina
+    p.append('<hr style="border:0;border-top:2px dashed #d8d5cf;margin:34px 0 8px">')
+    p.append('<h2 style="font-size:16px;margin:0;color:#5f5c55">Szczegóły (dla Marcina)</h2>')
     for title, rows in r.sections:
-        p.append(f'<h3 style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5f5c55;margin:22px 0 6px">{e(title)}</h3>')
-        for mk, t in rows:
-            box = {OK: "background:#e3f2e6;border-left:4px solid #2f6b3f;", WARN: "background:#fbe4e1;border-left:4px solid #a3352b;",
-                   INFO: "border-left:4px solid transparent;"}[mk]
-            p.append(f'<div style="margin:3px 0;padding:5px 10px;border-radius:4px;{box}"><span style="color:{color[mk]};'
-                     f'font-weight:700;display:inline-block;width:1.4em">{mk}</span>{e(t)}</div>')
-    p.append(f'<h3 style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5f5c55;margin:22px 0 6px">Trend {WEEKS} tygodni</h3>')
+        p.append(f'<h3 style="{h3}">{e(title)}</h3>')
+        p += rows_html(rows, size="14px")
+    p.append(f'<h3 style="{h3}">Trend {WEEKS} tygodni</h3>')
     p.append('<table style="border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums">')
     th = "padding:4px 8px;border-bottom:1px solid #d8d5cf;color:#5f5c55;font-weight:600;"
     p.append("<tr>" + "".join(f'<th style="{th}text-align:{"left" if i == 0 else "right"}">{e(c)}</th>' for i, c in enumerate(TREND_COLS)) + "</tr>")
@@ -706,10 +778,7 @@ def render_html(r: Report, weeks, trend, conclusion):
         p.append("<tr>" + "".join(f'<td style="padding:4px 8px;border-bottom:1px solid #eeece8;{bold}{cell_bg(i, c, live)}text-align:{"left" if i == 0 else "right"};white-space:nowrap">{e(c)}</td>'
                                   for i, c in enumerate(row)) + "</tr>")
     p.append("</table>")
-    p.append('<h3 style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5f5c55;margin:22px 0 6px">Wniosek</h3>')
-    p.append(f'<div style="border-left:3px solid #8a6a1f;padding:6px 12px;background:#f7f4ec">{e(conclusion)}</div>')
-    p.append('<p style="font-size:12px;color:#8a8780;margin-top:22px">Dane: Graph API v27.0, tylko strona PZ Nowak i jej Instagram. '
-             "Dni statystyk strony i Instagrama liczy Meta (jak Business Suite), posty i reklamy według dnia publikacji/emisji.</p></div>")
+    p.append(f'<p style="font-size:12px;color:#8a8780;margin-top:22px">{e(FOOT)}</p></div>')
     return "\n".join(p)
 
 
@@ -774,6 +843,7 @@ def main():
         print(json.dumps(m.scrub(data), ensure_ascii=False, indent=1, default=str))
         return
     r = build(weeks, ads, active, fb, fb_posts, fb_missing, ig, ig_posts, followers, errors)
+    simple = build_simple(weeks, ads, active, fb, fb_posts, ig)
     trend = trend_rows(weeks, ads, fb, ig)
     if a.bez_wniosku:
         conclusion = "(pominięty: uruchomienie z --bez-wniosku)"
@@ -783,17 +853,16 @@ def main():
         try:
             conclusion = wniosek(m.scrub(data))
         except Exception as e:  # noqa: BLE001
-            conclusion = f"(nie udało się napisać wniosku: {str(e)[:200]})"
+            conclusion = f"(wniosku w tym tygodniu brak: {str(e)[:200]})"
             r.sections[-1][1].append((WARN, "wniosek modelu niedostępny w tym tygodniu"))
 
     wa, wb = weeks[-1]
-    subject = (f"{'⚠️' if r.warnings else '📊'} PZ Nowak: Meta, tydzień {wa:%d.%m}–{wb:%d.%m.%Y}"
-               + (f" ({r.warnings} × uwaga)" if r.warnings else ""))
-    text = render_text(r, weeks, trend, conclusion)
+    subject = f"PZ Nowak: Facebook i Instagram, tydzień {wa:%d.%m}–{wb:%d.%m.%Y}"
+    text = render_text(simple, r, weeks, trend, conclusion)
     if a.na_sucho:
         print(subject + "\n\n" + text)
         return
-    to = send(subject, text, render_html(r, weeks, trend, conclusion))
+    to = send(subject, text, render_html(simple, r, weeks, trend, conclusion))
     print(f"{dt.datetime.now(dt.timezone.utc):%F %T} UTC: mail wysłany do {to}: {subject}")
 
 

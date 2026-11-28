@@ -45,6 +45,10 @@ Cron liczy czas serwera (zwykle UTC): `0 6` to 7:00 zimą i 8:00 latem w Polsce.
 `raport-meta.py` wysyła w poniedziałek rano jeden mail o poprzednim tygodniu (pn–nd), tylko dla strony PZ Nowak
 (id 518148711375873) i jej Instagrama. Konto reklamowe `act_129275718` prowadziło też inne strony; ich reklamy są pomijane.
 
+Mail ma dwie części. Na górze „Dla Michała i Kamili”: kilka linijek zwykłym językiem (zielone tło = dobrze,
+czerwone = do poprawy) i „Co dalej”, czyli jedyny wniosek modelu, pisany bez żargonu. Na dole „Szczegóły (dla Marcina)”:
+wszystkie liczby poniżej i tabela trendu.
+
 - **Reklamy:** wydatek, wynik i koszt wyniku według rodzaju (nie sumujemy różnych wyników), kliknięcia w link i ich koszt,
   rozmowy; ostrzeżenie przy aktywnej kampanii z celem „Aktywność” lub „Rozpoznawalność” i przy 0 rozmów z kampanii na rozmowy.
 - **Facebook:** wyświetlenia, odwiedziny i obserwujący (te same liczby co Business Suite), komentarze, udostępnienia i kliknięcia
@@ -52,7 +56,7 @@ Cron liczy czas serwera (zwykle UTC): `0 6` to 7:00 zimą i 8:00 latem w Polsce.
 - **Instagram:** wyświetlenia, zasięg, interakcje, kliknięcia w link w bio, posty z odesłaniem do strony. API pokazuje mniej
   wyświetleń niż Business Suite, bo nie dolicza reklam.
 - **Zapytania:** rozmowy z reklam i nowe rozmowy na Messengerze. Zeszytu zapytań i Umami raport nie czyta.
-- **Trend 8 tygodni** (tabela) i **WNIOSEK**: 3–5 zdań od Gemini 4 Hydrogen (`gemini-4-hydrogen`, `thinkingLevel: medium`;
+- **Trend 8 tygodni** (tabela) i **Co dalej** (u góry maila): 3–5 prostych zdań od Gemini 4 Hydrogen (`gemini-4-hydrogen`, `thinkingLevel: medium`;
   domyślne jest high, więc skrypt ustawia je jawnie). Model dostaje tylko policzone liczby i krótki kontekst strategii
   (`KONTEKST` w skrypcie: zmień go, gdy zmieni się plan) i ma też zaznaczyć dane, które wyglądają podejrzanie.
 
